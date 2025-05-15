@@ -14,6 +14,8 @@ import Search from "./pages/Search";
 import ProviderOnboarding from "./pages/ProviderOnboarding";
 import HowItWorks from "./pages/HowItWorks";
 import Categories from "./pages/Categories";
+import CategorySubcategories from "./pages/CategorySubcategories";
+import SubcategoryProviders from "./pages/SubcategoryProviders";
 import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
+          <Route path="/subcategories/:subcategoryId" element={<SubcategoryProviders />} />
           <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
