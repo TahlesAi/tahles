@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Music, Utensils, Camera, Map, Mic, Gift } from "lucide-react";
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,21 +15,34 @@ const Hero = () => {
     }
   };
   
+  const categories = [
+    { name: "מופעים", icon: <Music className="h-5 w-5" /> },
+    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" /> },
+    { name: "צילום", icon: <Camera className="h-5 w-5" /> },
+    { name: "לוקיישנים", icon: <Map className="h-5 w-5" /> },
+    { name: "הגברה", icon: <Mic className="h-5 w-5" /> },
+    { name: "מתנות", icon: <Gift className="h-5 w-5" /> }
+  ];
+  
   return (
     <section className="relative">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-purple-800"></div>
       <div className="relative container px-4 py-16 md:py-24 flex flex-col items-center">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-6">
-          מצאו שירותים מושלמים לאירוע שלכם
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3">
+          פתרונות הפקה במרחק לחיצה
         </h1>
+        <p className="text-xl md:text-2xl text-white/90 text-center mb-8">
+          ת'כל'ס - כל מה שצריך לאירוע מושלם במקום אחד
+        </p>
         
-        <form onSubmit={handleSearch} className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl">
+        <form onSubmit={handleSearch} className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">
           <input
             type="text"
             placeholder="חיפוש שירותים, מופעים או מקומות אירוח..."
             className="w-full px-6 py-4 text-base text-gray-700 focus:outline-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            dir="rtl"
           />
           <Button 
             type="submit" 
@@ -39,6 +52,20 @@ const Hero = () => {
             חיפוש
           </Button>
         </form>
+        
+        <div className="flex flex-wrap justify-center gap-3 md:gap-5">
+          {categories.map((category, index) => (
+            <Button 
+              key={index}
+              variant="outline" 
+              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+              onClick={() => navigate(`/categories/${index + 1}`)}
+            >
+              {category.icon}
+              <span className="mr-2">{category.name}</span>
+            </Button>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -10,25 +10,34 @@ import { ArrowRight } from "lucide-react";
 
 const features = [
   {
-    title: "מציאת ההתאמה המושלמת",
-    description: "חפשו וסננו דרך הרשת הנרחבת שלנו של נותני שירותים מאומתים למצוא בדיוק את מה שאתם צריכים.",
+    title: "פתרונות מקיפים",
+    description: "מגוון שירותים מקצה לקצה: לוקיישנים, הגברה, מופעים, קייטרינג, צילום ועוד.",
     icon: "🔍"
   },
   {
-    title: "תהליך הזמנה פשוט",
-    description: "מערכת הזמנות פשוטה ושקופה עם תשלומים מאובטחים והגנת הסכם לשני הצדדים.",
+    title: "הזמנה פשוטה ובטוחה",
+    description: "מערכת הזמנות אינטואיטיבית עם תשלומים מאובטחים והגנה לשני הצדדים.",
     icon: "📅"
   },
   {
-    title: "נותני שירות מאומתים",
-    description: "כל נותני השירות עוברים תהליך אימות המבטיח איכות ואמינות עבור האירוע שלכם.",
+    title: "ספקים מאומתים",
+    description: "כל ספקי השירות עוברים תהליך אימות המבטיח איכות ואמינות עבור האירוע שלכם.",
     icon: "✅"
   },
   {
-    title: "ניהול הכל במקום אחד",
-    description: "מתקשורת ועד תשלומים, נהלו את כל היבטי שירותי האירועים שלכם בפלטפורמה אחת.",
+    title: "הכל במקום אחד",
+    description: "מתקשורת ועד תשלומים, נהלו את כל היבטי האירוע שלכם בפלטפורמה אחת.",
     icon: "📱"
   }
+];
+
+const concepts = [
+  "בר/בת מצווה",
+  "ערבי גיבוש",
+  "מסיבות רווקים/ות",
+  "אירועי חברה",
+  "ימי הולדת",
+  "שעות מתוקות"
 ];
 
 const Index = () => {
@@ -38,16 +47,32 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         
+        {/* קונספטים */}
+        <section className="py-10 bg-white border-b">
+          <div className="container px-4">
+            <h2 className="text-2xl font-bold mb-6 text-center">קונספטים פופולריים</h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {concepts.map((concept, index) => (
+                <div 
+                  key={index} 
+                  className="bg-gray-100 rounded-lg p-3 flex items-center justify-center h-24 cursor-pointer hover:bg-gray-200 transition-colors text-center"
+                >
+                  <span className="font-medium">{concept}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        
         <ServiceCategories />
         
         <FeaturedProviders />
         
-        <AdditionalServices />
-        
         {/* מאפיינים */}
         <section className="py-16 bg-white">
           <div className="container px-4">
-            <h2 className="text-2xl font-semibold mb-8 text-center">למה לבחור ב-EventConnect</h2>
+            <h2 className="text-2xl font-bold mb-8 text-center">למה ת'כל'ס?</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
@@ -60,6 +85,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+        
+        <AdditionalServices />
         
         {/* CTA */}
         <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white">
