@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, Calendar, Tag, Users } from "lucide-react";
+import { Clock, Calendar, Tag, Users, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ServiceCardProps {
@@ -22,18 +22,21 @@ interface ServiceCardProps {
 
 const ServiceCard = ({ service, onBookService }: ServiceCardProps) => {
   return (
-    <Card className="overflow-hidden border-gray-200">
+    <Card className="overflow-hidden border-gray-200 relative">
       <CardContent className="p-0">
         <div className="grid grid-cols-1 md:grid-cols-4">
           {service.is_premium && (
-            <div className="absolute top-0 left-0 bg-amber-500 text-white text-xs px-2 py-1 rotate-[-45deg] translate-x-[-20px] translate-y-[10px]">
+            <div className="absolute top-0 left-0 bg-amber-500 text-white text-xs font-bold px-2 py-1 rotate-[-45deg] translate-x-[-20px] translate-y-[10px] z-10">
               פרימיום
             </div>
           )}
           
           <div className="md:col-span-3 p-6">
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold">{service.name}</h3>
+              <h3 className="text-lg font-semibold flex items-center">
+                {service.name}
+                {service.is_premium && <Star className="h-4 w-4 ml-1 text-amber-500" />}
+              </h3>
               <span className="text-xl font-bold text-primary">{service.price_range}</span>
             </div>
             
@@ -56,12 +59,21 @@ const ServiceCard = ({ service, onBookService }: ServiceCardProps) => {
             </div>
             
             <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="outline">מותאם אישית</Badge>
-              <Badge variant="outline">איכות גבוהה</Badge>
+              {service.is_custom && (
+                <Badge variant="outline" className="bg-blue-50">התאמה אישית</Badge>
+              )}
+              <Badge variant="outline" className={service.is_premium ? "bg-amber-50" : ""}>
+                {service.is_premium ? "איכות פרימיום" : "איכות גבוהה"}
+              </Badge>
               <Badge variant="outline">מקצועי</Badge>
             </div>
             
-            <Button onClick={() => onBookService(service)}>הזמן עכשיו</Button>
+            <Button 
+              onClick={() => onBookService(service)}
+              className={service.is_premium ? "bg-amber-500 hover:bg-amber-600" : ""}
+            >
+              הזמן עכשיו
+            </Button>
           </div>
           
           {service.image_url && (

@@ -2,7 +2,7 @@
 import React from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Tag, Clock, Info, CheckCircle } from "lucide-react";
+import { MessageSquare, Tag, Clock, Info, CheckCircle, Star } from "lucide-react";
 import ServiceCard from '../ServiceCard';
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -13,11 +13,10 @@ interface ServicesTabContentProps {
 }
 
 const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps) => {
-  const serviceCategories = {
-    "standard": services.filter(s => !s.is_premium && !s.is_custom),
-    "premium": services.filter(s => s.is_premium),
-    "custom": services.filter(s => s.is_custom)
-  };
+  // Categorize services
+  const standardServices = services.filter(s => !s.is_premium && !s.is_custom);
+  const premiumServices = services.filter(s => s.is_premium);
+  const customServices = services.filter(s => s.is_custom);
 
   return (
     <TabsContent value="services" className="p-6 text-right" dir="rtl">
@@ -29,19 +28,56 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
       <div className="space-y-8">
         {services.length > 0 ? (
           <>
-            {/* Standard Services */}
-            <div>
-              <h3 className="text-xl font-semibold mb-3">שירותים סטנדרטיים</h3>
-              <div className="space-y-4">
-                {services.map((service, index) => (
-                  <ServiceCard 
-                    key={index}
-                    service={service}
-                    onBookService={onBookService}
-                  />
-                ))}
+            {/* Premium Services */}
+            {premiumServices.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-3 flex items-center">
+                  <Star className="h-5 w-5 ml-2 text-amber-500" />
+                  שירותי פרימיום
+                </h3>
+                <div className="space-y-4">
+                  {premiumServices.map((service, index) => (
+                    <ServiceCard 
+                      key={`premium-${index}`}
+                      service={service}
+                      onBookService={onBookService}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Standard Services */}
+            {standardServices.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-3">שירותים סטנדרטיים</h3>
+                <div className="space-y-4">
+                  {standardServices.map((service, index) => (
+                    <ServiceCard 
+                      key={`standard-${index}`}
+                      service={service}
+                      onBookService={onBookService}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Services */}
+            {customServices.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-3">שירותים בהתאמה אישית</h3>
+                <div className="space-y-4">
+                  {customServices.map((service, index) => (
+                    <ServiceCard 
+                      key={`custom-${index}`}
+                      service={service}
+                      onBookService={onBookService}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Service Features */}
             <div className="bg-gray-50 p-4 rounded-lg border">
