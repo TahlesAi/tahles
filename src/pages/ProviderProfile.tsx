@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import { Calendar, Check, Clock, Globe, MapPin, MessageSquare, Phone, Star, Verified } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Link } from "react-router-dom";
 
 const ProviderProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -139,7 +140,9 @@ const ProviderProfile = () => {
             <p className="text-gray-600 mb-6">
               לא הצלחנו למצוא את הספק המבוקש. אנא בדוק את הקישור ונסה שנית.
             </p>
-            <Button as="a" href="/">חזרה לדף הבית</Button>
+            <Link to="/">
+              <Button>חזרה לדף הבית</Button>
+            </Link>
           </div>
         </main>
         <Footer />
