@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 
@@ -34,12 +35,31 @@ const AuthModal = ({
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
+
+  // אפס את השדות והשגיאות בעת פתיחת המודל
+  useEffect(() => {
+    if (isOpen) {
+      setEmail("");
+      setPassword("");
+      setName("");
+      setError(null);
+    }
+  }, [isOpen, mode]);
+
+  // סגור את המודל אם המשתמש התחבר
+  useEffect(() => {
+    if (user && isOpen) {
+      onClose();
+    }
+  }, [user, isOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
       if (mode === "signin") {
@@ -47,9 +67,19 @@ const AuthModal = ({
         const { error } = await signIn(email, password);
         
         if (error) {
+          // טיפול משופר בשגיאות התחברות
+          let errorMessage = "אירעה שגיאה בעת ההתחברות, אנא נסה שוב";
+          
+          if (error.message.includes("Invalid login credentials")) {
+            errorMessage = "פרטי התחברות שגויים, אנא בדוק שוב את האימייל והסיסמה";
+          } else if (error.message.includes("Email not confirmed")) {
+            errorMessage = "האימייל שלך לא אומת. אנא בדוק את תיבת הדואר שלך";
+          }
+          
+          setError(errorMessage);
           toast({
             title: "שגיאת התחברות",
-            description: error.message || "אירעה שגיאה בעת ההתחברות, אנא נסה שוב",
+            description: errorMessage,
             variant: "destructive",
           });
         } else {
@@ -62,9 +92,21 @@ const AuthModal = ({
       } else {
         // הרשמה
         if (!name.trim()) {
+          setError("נא להזין שם מלא");
           toast({
             title: "שגיאת הרשמה",
             description: "נא להזין שם מלא",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (password.length < 6) {
+          setError("הסיסמה חייבת להכיל לפחות 6 תווים");
+          toast({
+            title: "שגיאת הרשמה",
+            description: "הסיסמה חייבת להכיל לפחות 6 תווים",
             variant: "destructive",
           });
           setLoading(false);
@@ -79,9 +121,21 @@ const AuthModal = ({
         );
         
         if (error) {
+          // טיפול משופר בשגיאות הרשמה
+          let errorMessage = error.message || "אירעה שגיאה בעת ההרשמה, אנא נסה שוב";
+          
+          if (error.message.includes("User already registered")) {
+            errorMessage = "משתמש עם אימייל זה כבר קיים במערכת";
+          } else if (error.message.includes("Password should be at least")) {
+            errorMessage = "הסיסמה חייבת להיות באורך של לפחות 6 תווים";
+          } else if (error.message.includes("Email format")) {
+            errorMessage = "פורמט האימייל אינו תקין";
+          }
+          
+          setError(errorMessage);
           toast({
             title: "שגיאת הרשמה",
-            description: error.message || "אירעה שגיאה בעת ההרשמה, אנא נסה שוב",
+            description: errorMessage,
             variant: "destructive",
           });
         } else {
@@ -115,6 +169,13 @@ const AuthModal = ({
             <TabsTrigger value="signup">הרשמה</TabsTrigger>
           </TabsList>
           
+          {/* הודעת שגיאה כללית */}
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mt-4">
+              {error}
+            </div>
+          )}
+          
           <TabsContent value="signin" className="mt-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -147,7 +208,12 @@ const AuthModal = ({
               </div>
               
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "מתחבר..." : "התחברות"}
+                {loading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    מתחבר...
+                  </>
+                ) : "התחברות"}
               </Button>
             </form>
           </TabsContent>
@@ -207,14 +273,20 @@ const AuthModal = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
                 <p className="text-xs text-gray-500">
-                  הסיסמה חייבת להיות באורך של לפחות 8 תווים.
+                  הסיסמה חייבת להיות באורך של לפחות 6 תווים.
                 </p>
               </div>
               
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "יוצר חשבון..." : "יצירת חשבון"}
+                {loading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    יוצר חשבון...
+                  </>
+                ) : "יצירת חשבון"}
               </Button>
               
               <p className="text-xs text-center text-gray-500">

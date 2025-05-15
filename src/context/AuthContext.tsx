@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
   session: Session | null;
@@ -22,11 +23,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // קודם כל הגדר את מאזין השינויים למצב האותנטיקציה
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth event:", event);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -35,6 +38,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);
+          
+          // אם המשתמש התחבר בהצלחה, נעביר אותו לדף הבית או ללוח הבקרה
+          if (event === 'SIGNED_IN') {
+            navigate('/dashboard');
+          }
         } else {
           setProfile(null);
         }
@@ -43,6 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // בדוק אם יש כבר סשן קיים
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Session exists" : "No session");
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -55,10 +64,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -70,6 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      console.log("Profile data:", data);
       setProfile(data);
     } catch (error) {
       console.error('Error in fetchProfile:', error);
@@ -78,12 +89,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log("Signing in with:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) return { error };
+      if (error) {
+        console.error("Sign in error:", error);
+        return { error };
+      }
+      
+      console.log("Sign in successful:", data);
       return { error: null };
     } catch (error) {
       console.error('Error in signIn:', error);
@@ -93,6 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string, isProvider: boolean) => {
     try {
+      console.log("Signing up with:", email, "isProvider:", isProvider);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -104,8 +122,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      if (error) return { error };
+      if (error) {
+        console.error("Sign up error:", error);
+        return { error };
+      }
       
+      console.log("Sign up successful:", data);
       toast({
         title: "הרשמה בוצעה בהצלחה",
         description: "אנא בדוק את תיבת המייל שלך לאימות החשבון",
@@ -121,6 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      navigate('/');
       toast({
         title: "התנתקת מהמערכת בהצלחה",
       });

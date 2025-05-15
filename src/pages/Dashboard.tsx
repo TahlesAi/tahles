@@ -9,6 +9,8 @@ import TabContents from "@/components/dashboard/TabContents";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
+import { Navigate } from "react-router-dom";
 
 // Type for bookings from the database
 type BookingFromDB = {
@@ -39,8 +41,10 @@ type ProcessedBooking = {
 };
 
 // Function to fetch bookings from Supabase
-const fetchBookings = async () => {
-  const { data, error } = await supabase
+const fetchBookings = async (userId?: string) => {
+  console.log("Fetching bookings for user:", userId);
+  
+  let query = supabase
     .from('bookings')
     .select(`
       id, 
@@ -53,6 +57,21 @@ const fetchBookings = async () => {
     `)
     .order('event_date', { ascending: true })
     .limit(5);
+  
+  // אם יש משתמש מחובר, נסנן את ההזמנות לפי אימייל המשתמש
+  if (userId) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', userId)
+      .single();
+    
+    if (profile?.email) {
+      query = query.eq('customer_email', profile.email);
+    }
+  }
+  
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error fetching bookings:", error);
@@ -64,11 +83,13 @@ const fetchBookings = async () => {
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { user, isLoading: authLoading } = useAuth();
   
   // Fetch bookings using React Query
-  const { data: bookingsData, isLoading, error } = useQuery({
-    queryKey: ['bookings'],
-    queryFn: fetchBookings
+  const { data: bookingsData, isLoading: bookingsLoading, error } = useQuery({
+    queryKey: ['bookings', user?.id],
+    queryFn: () => fetchBookings(user?.id),
+    enabled: !!user // רק אם המשתמש מחובר
   });
 
   // Process bookings data for UI
@@ -92,20 +113,41 @@ const Dashboard = () => {
     }
   }, [error]);
   
-  // In a real implementation, we would fetch the user from auth context
-  const user = {
-    name: "ישראל ישראלי",
-    email: "israel@example.com",
-    userType: "client",
-    joinDate: "2025-05-01"
-  };
+  // אם המשתמש לא מחובר, הפנה ללוגין
+  if (!authLoading && !user) {
+    return <Navigate to="/" />;
+  }
+  
+  // אם בתהליך טעינה של מצב ההתחברות, הצג סקלטון
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow py-8">
+          <div className="container px-4">
+            <Skeleton className="h-12 w-40 mb-8" />
+            <Skeleton className="h-8 w-full mb-6" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-32" />
+                ))}
+              </div>
+              <Skeleton className="h-64" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow py-8">
         <div className="container px-4">
-          <DashboardHeader userName={user.name} />
+          <DashboardHeader userName={user?.user_metadata?.name || "משתמש"} />
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <TabsList dir="rtl" className="w-full flex justify-start overflow-x-auto">
@@ -117,7 +159,7 @@ const Dashboard = () => {
             </TabsList>
             
             <TabsContent value={activeTab}>
-              {isLoading ? (
+              {bookingsLoading ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
