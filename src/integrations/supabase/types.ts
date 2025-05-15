@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          additional_requests: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          event_date: string
+          id: string
+          notes: string | null
+          provider_id: string
+          service_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          additional_requests?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          event_date: string
+          id?: string
+          notes?: string | null
+          provider_id: string
+          service_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          additional_requests?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          event_date?: string
+          id?: string
+          notes?: string | null
+          provider_id?: string
+          service_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -38,6 +98,47 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      provider_availability: {
+        Row: {
+          available_date: string
+          created_at: string
+          end_time: string
+          id: string
+          is_available: boolean
+          provider_id: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          available_date: string
+          created_at?: string
+          end_time: string
+          id?: string
+          is_available?: boolean
+          provider_id: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          available_date?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          provider_id?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_subcategories: {
         Row: {
@@ -107,6 +208,57 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          customer_name: string
+          id: string
+          is_approved: boolean
+          provider_id: string
+          rating: number
+          service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          customer_name: string
+          id?: string
+          is_approved?: boolean
+          provider_id: string
+          rating: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          customer_name?: string
+          id?: string
+          is_approved?: boolean
+          provider_id?: string
+          rating?: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {

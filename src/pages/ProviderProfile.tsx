@@ -12,6 +12,17 @@ import ProfileTabs from "@/components/provider/ProfileTabs";
 import BookingDialog from "@/components/provider/BookingDialog";
 import LoadingState from "@/components/provider/LoadingState";
 import NotFoundState from "@/components/provider/NotFoundState";
+import { createBooking } from "@/lib/actions/booking";
+import { BookingFormValues } from "@/lib/validations/booking";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const ProviderProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +33,8 @@ const ProviderProfile = () => {
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   
   useEffect(() => {
     const fetchProviderData = async () => {
@@ -77,12 +90,38 @@ const ProviderProfile = () => {
     setIsBookingDialogOpen(true);
   };
   
-  const handleSubmitBooking = () => {
-    setIsBookingDialogOpen(false);
-    toast({
-      title: "הזמנה נשלחה בהצלחה!",
-      description: `הזמנתך ל-${selectedService.name} נשלחה בהצלחה. הספק ייצור איתך קשר בקרוב.`,
-    });
+  const handleSubmitBooking = async (formValues: BookingFormValues) => {
+    if (!id || !selectedService?.id) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      const bookingData = {
+        ...formValues,
+        providerId: id,
+        serviceId: selectedService.id,
+      };
+      
+      const result = await createBooking(bookingData);
+      
+      if (!result.success) {
+        throw new Error(result.error || "שגיאה בשליחת ההזמנה");
+      }
+      
+      // Close booking dialog and show success message
+      setIsBookingDialogOpen(false);
+      setIsSuccessDialogOpen(true);
+      
+    } catch (error: any) {
+      console.error("Error submitting booking:", error);
+      toast({
+        title: "שגיאה בשליחת ההזמנה",
+        description: error.message || "אירעה שגיאה בעת שליחת ההזמנה, אנא נסה שנית",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   // אם הנתונים עדיין בטעינה, הצג מחוון טעינה
@@ -162,13 +201,31 @@ const ProviderProfile = () => {
       {selectedService && (
         <BookingDialog 
           service={selectedService}
+          providerId={id || ""}
           onSubmitBooking={handleSubmitBooking}
           isOpen={isBookingDialogOpen}
           setIsOpen={setIsBookingDialogOpen}
+          isSubmitting={isSubmitting}
         >
           <div></div>
         </BookingDialog>
       )}
+
+      {/* דיאלוג אישור הזמנה */}
+      <AlertDialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>ההזמנה נשלחה בהצלחה!</AlertDialogTitle>
+            <AlertDialogDescription>
+              הזמנתך ל{selectedService?.name ? `-${selectedService.name}` : ""} נשלחה בהצלחה. נציג ייצור איתך קשר בקרוב לתיאום הפרטים הסופיים והתשלום.
+              <p className="mt-2">תודה על פנייתך!</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex justify-center">
+            <AlertDialogAction>אישור</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
