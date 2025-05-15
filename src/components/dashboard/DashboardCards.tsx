@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
 
 type StatsCardProps = {
   title: string;
@@ -35,32 +36,51 @@ type DashboardCardsProps = {
     time: string;
     status: string;
   }>;
+  unreadMessages?: number;
+  favoriteProviders?: number;
 };
 
-const DashboardCards = ({ upcomingBookings }: DashboardCardsProps) => {
+const DashboardCards = ({ 
+  upcomingBookings, 
+  unreadMessages = 2, 
+  favoriteProviders = 4 
+}: DashboardCardsProps) => {
+  // Format the next event date for display
+  let nextEventText = "N/A";
+  
+  if (upcomingBookings.length > 0) {
+    try {
+      const nextEvent = upcomingBookings[0];
+      const dateObj = new Date(nextEvent.date);
+      nextEventText = format(dateObj, "dd/MM/yyyy");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+    }
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <StatsCard
-        title="Upcoming Events"
+        title="אירועים הקרובים"
         count={upcomingBookings.length}
-        subtitle={`Next event on ${upcomingBookings[0]?.date || "N/A"}`}
-        linkText="View all bookings"
+        subtitle={`האירוע הבא: ${nextEventText}`}
+        linkText="צפייה בכל ההזמנות"
         linkUrl="/bookings"
       />
       
       <StatsCard
-        title="Recent Messages"
-        count={2}
-        subtitle="2 unread messages"
-        linkText="View all messages"
+        title="הודעות חדשות"
+        count={unreadMessages}
+        subtitle="2 הודעות שלא נקראו"
+        linkText="צפייה בכל ההודעות"
         linkUrl="/messages"
       />
       
       <StatsCard
-        title="Favorite Providers"
-        count={4}
-        subtitle="Saved for future reference"
-        linkText="View favorites"
+        title="ספקים מועדפים"
+        count={favoriteProviders}
+        subtitle="שמורים לשימוש עתידי"
+        linkText="צפייה במועדפים"
         linkUrl="/favorites"
       />
     </div>

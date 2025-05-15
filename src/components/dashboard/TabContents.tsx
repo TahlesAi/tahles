@@ -19,13 +19,13 @@ interface TabContentsProps {
 }
 
 const EmptyTabContent = ({ title }: { title: string }) => (
-  <Card>
+  <Card dir="rtl">
     <CardHeader>
       <CardTitle>{title}</CardTitle>
     </CardHeader>
     <CardContent>
       <p className="text-center text-gray-500 py-12">
-        {title} will be implemented in the next version.
+        {title} יהיה זמין בגרסה הבאה.
       </p>
     </CardContent>
   </Card>
@@ -43,13 +43,13 @@ const TabContents = ({ activeTab, upcomingBookings }: TabContentsProps) => {
   }
 
   const tabTitles: Record<string, string> = {
-    bookings: "Your Bookings",
-    messages: "Messages",
-    favorites: "Favorite Providers",
-    settings: "Account Settings"
+    bookings: "ההזמנות שלך",
+    messages: "הודעות",
+    favorites: "ספקים מועדפים",
+    settings: "הגדרות חשבון"
   };
 
-  return <EmptyTabContent title={tabTitles[activeTab] || "Content"} />;
+  return <EmptyTabContent title={tabTitles[activeTab] || "תוכן"} />;
 };
 
 export default TabContents;
