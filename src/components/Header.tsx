@@ -2,14 +2,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [userType, setUserType] = useState<"client" | "provider">("client");
+  const { user, profile, signOut } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,6 +32,20 @@ const Header = () => {
   const openSignUp = () => {
     setAuthMode("signup");
     setIsAuthModalOpen(true);
+  };
+
+  const handleSignOut = () => {
+    signOut();
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
   };
 
   return (
@@ -53,12 +76,41 @@ const Header = () => {
         
         {/* כפתורי התחברות לדסקטופ */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="outline" onClick={openSignIn}>
-            התחברות
-          </Button>
-          <Button onClick={openSignUp}>
-            הצטרפות
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover:bg-gray-100">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>{profile ? getInitials(profile.display_name) : "?"}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:block">
+                    {profile?.display_name || user.email}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <Link to="/dashboard">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <User className="ml-2 h-4 w-4" />
+                    אזור אישי
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
+                  <LogOut className="ml-2 h-4 w-4" />
+                  התנתקות
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="outline" onClick={openSignIn}>
+                התחברות
+              </Button>
+              <Button onClick={openSignUp}>
+                הצטרפות
+              </Button>
+            </>
+          )}
         </div>
         
         {/* כפתור תפריט למובייל */}
@@ -91,12 +143,29 @@ const Header = () => {
               צור קשר
             </Link>
             <div className="flex flex-col space-y-2 pt-4 border-t">
-              <Button variant="outline" onClick={openSignIn} className="w-full">
-                התחברות
-              </Button>
-              <Button onClick={openSignUp} className="w-full">
-                הצטרפות
-              </Button>
+              {user ? (
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="outline" className="w-full flex justify-start items-center">
+                      <User className="ml-2 h-4 w-4" />
+                      אזור אישי
+                    </Button>
+                  </Link>
+                  <Button variant="outline" className="w-full flex justify-start items-center" onClick={handleSignOut}>
+                    <LogOut className="ml-2 h-4 w-4" />
+                    התנתקות
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={openSignIn} className="w-full">
+                    התחברות
+                  </Button>
+                  <Button onClick={openSignUp} className="w-full">
+                    הצטרפות
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>
