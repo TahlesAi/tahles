@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServiceCategories from "@/components/ServiceCategories";
 import FeaturedProviders from "@/components/FeaturedProviders";
+import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -39,68 +40,18 @@ const Index = () => {
         
         <ServiceCategories />
         
-        {/* How it Works */}
-        <section className="py-16 bg-white">
-          <div className="container px-4">
-            <h2 className="section-title">How It Works</h2>
-            <p className="section-subtitle">
-              We make it simple to connect event organizers with exceptional service providers
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="flex flex-col items-center text-center p-6">
-                <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
-                  <span className="text-2xl text-brand-600 font-bold">1</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Search & Discover</h3>
-                <p className="text-gray-600">
-                  Browse through categories, search for specific services, or explore featured providers for your event needs.
-                </p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center p-6">
-                <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
-                  <span className="text-2xl text-brand-600 font-bold">2</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Connect & Discuss</h3>
-                <p className="text-gray-600">
-                  Communicate directly with providers to discuss your requirements, check availability, and finalize details.
-                </p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center p-6">
-                <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
-                  <span className="text-2xl text-brand-600 font-bold">3</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Book & Enjoy</h3>
-                <p className="text-gray-600">
-                  Secure your booking with our safe payment system, then sit back and enjoy a successful event!
-                </p>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <Button size="lg">
-                Learn More About The Process
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </section>
-        
         <FeaturedProviders />
         
+        <AdditionalServices />
+        
         {/* Features */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-white">
           <div className="container px-4">
-            <h2 className="section-title">Why Choose EventConnect</h2>
-            <p className="section-subtitle">
-              Discover the advantages of using our platform for all your event service needs
-            </p>
+            <h2 className="text-2xl font-semibold mb-8 text-center">Why Choose EventConnect</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
                   <span className="text-4xl mb-4 block">{feature.icon}</span>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
