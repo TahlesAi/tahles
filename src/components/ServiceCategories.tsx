@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Music, Camera, Utensils, MapPin, Mic, Monitor, 
-  Truck, PaintBucket, Gift, PartyPopper, Sparkles, MagicWand
+  Truck, PaintBucket, Gift, PartyPopper, Sparkles, Wand2
 } from "lucide-react";
 
 interface Category {
@@ -20,7 +20,7 @@ const categories: Category[] = [
   { id: "catering", name: "שירותי קייטרינג", icon: <Utensils className="text-white h-6 w-6" />, count: 132, imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop" },
   { id: "venues", name: "אולמות ומקומות אירוע", icon: <MapPin className="text-white h-6 w-6" />, count: 98, imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&auto=format&fit=crop" },
   { id: "performers", name: "מופעים", icon: <Mic className="text-white h-6 w-6" />, count: 186, imageUrl: "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=800&auto=format&fit=crop" },
-  { id: "magicians", name: "אמני חושים", icon: <MagicWand className="text-white h-6 w-6" />, count: 73, imageUrl: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?w=800&auto=format&fit=crop" },
+  { id: "magicians", name: "אמני חושים", icon: <Wand2 className="text-white h-6 w-6" />, count: 73, imageUrl: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?w=800&auto=format&fit=crop" },
   { id: "equipment", name: "ציוד אודיו-ויזואלי", icon: <Monitor className="text-white h-6 w-6" />, count: 74, imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&auto=format&fit=crop" },
   { id: "gifts", name: "מתנות ומזכרות", icon: <Gift className="text-white h-6 w-6" />, count: 45, imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop" },
   { id: "decor", name: "עיצוב ודקורציה", icon: <Sparkles className="text-white h-6 w-6" />, count: 112, imageUrl: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&auto=format&fit=crop" },
