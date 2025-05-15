@@ -28,8 +28,8 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-white border-b">
       <div className="container flex items-center justify-between py-4">
-        <Link to="/" className="text-2xl font-bold text-brand-600">
-          EventConnect
+        <Link to="/" className="flex items-center">
+          <img src="/lovable-uploads/d5db99a1-ea19-4ff4-ad4d-18ebfe0eaea3.png" alt="ת'כל'ס" className="h-12" />
         </Link>
         
         {/* תפריט ניווט לדסקטופ */}

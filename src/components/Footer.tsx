@@ -7,8 +7,8 @@ const Footer = () => {
       <div className="container px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <Link to="/" className="text-2xl font-bold mb-4 inline-block">
-              EventConnect
+            <Link to="/" className="flex items-center mb-4">
+              <img src="/lovable-uploads/d5db99a1-ea19-4ff4-ad4d-18ebfe0eaea3.png" alt="ת'כל'ס" className="h-10" />
             </Link>
             <p className="text-gray-300 mb-4">
               הפלטפורמה המובילה לחיבור בין מארגני אירועים לנותני שירותים מקצועיים.
@@ -112,7 +112,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} EventConnect. כל הזכויות שמורות.</p>
+          <p>&copy; {new Date().getFullYear()} ת'כל'ס. כל הזכויות שמורות.</p>
         </div>
       </div>
     </footer>
