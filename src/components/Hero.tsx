@@ -25,8 +25,25 @@ const Hero = () => {
   ];
   
   return (
-    <section className="relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-purple-800"></div>
+    <section className="relative overflow-hidden">
+      {/* סרטון רקע */}
+      <div className="absolute inset-0 w-full h-full">
+        <video 
+          className="w-full h-full object-cover"
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+        >
+          <source 
+            src="https://assets.mixkit.co/videos/preview/mixkit-event-with-many-people-dancing-4825-large.mp4" 
+            type="video/mp4" 
+          />
+        </video>
+        {/* שכבת כהות מעל הסרטון */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-800/80 to-purple-800/80"></div>
+      </div>
+      
       <div className="relative container px-4 py-16 md:py-24 flex flex-col items-center">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3">
           פתרונות הפקה במרחק לחיצה
