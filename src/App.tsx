@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 // Pages
 import Index from "./pages/Index";
@@ -21,13 +22,26 @@ import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
+// Create an AuthWrapper component to handle navigation after auth events
+const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const handleNavigation = (path: string) => navigate(path);
+  
+  return (
+    <AuthProvider>
+      {/* Here we could add code to handle navigation based on auth state if needed */}
+      {children}
+    </AuthProvider>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthWrapper>
+          <Toaster />
+          <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -42,8 +56,8 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthWrapper>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

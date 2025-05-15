@@ -3,14 +3,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   profile: any | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{error: any}>;
+  signIn: (email: string, password: string) => Promise<{error: any, redirectTo?: string}>;
   signUp: (email: string, password: string, name: string, isProvider: boolean) => Promise<{error: any}>;
   signOut: () => Promise<void>;
 };
@@ -23,7 +22,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // קודם כל הגדר את מאזין השינויים למצב האותנטיקציה
@@ -38,11 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);
-          
-          // אם המשתמש התחבר בהצלחה, נעביר אותו לדף הבית או ללוח הבקרה
-          if (event === 'SIGNED_IN') {
-            navigate('/dashboard');
-          }
         } else {
           setProfile(null);
         }
@@ -64,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -101,7 +94,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       console.log("Sign in successful:", data);
-      return { error: null };
+      // Return success and the redirect location instead of navigating
+      return { error: null, redirectTo: '/dashboard' };
     } catch (error) {
       console.error('Error in signIn:', error);
       return { error };
@@ -143,7 +137,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-      navigate('/');
+      // Return the promise without navigating directly
       toast({
         title: "התנתקת מהמערכת בהצלחה",
       });

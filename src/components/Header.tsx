@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
@@ -19,6 +18,7 @@ const Header = () => {
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [userType, setUserType] = useState<"client" | "provider">("client");
   const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -34,8 +34,9 @@ const Header = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   const getInitials = (name: string) => {
