@@ -16,15 +16,16 @@ type BookingFromDB = {
   customer_name: string;
   event_date: string;
   status: string;
-  service_id: string;
-  provider_id: string;
   additional_requests?: string;
-  service?: {
+  services: {
     name: string;
   };
-  provider?: {
+  providers: {
     name: string;
   };
+  // Not required anymore since we're using nested objects:
+  // service_id: string;
+  // provider_id: string;
 };
 
 // Processed booking type for UI
@@ -73,8 +74,8 @@ const Dashboard = () => {
   // Process bookings data for UI
   const processedBookings: ProcessedBooking[] = bookingsData?.map(booking => ({
     id: booking.id,
-    serviceName: booking.service?.name || "שירות לא ידוע",
-    providerName: booking.provider?.name || "ספק לא ידוע",
+    serviceName: booking.services?.name || "שירות לא ידוע",
+    providerName: booking.providers?.name || "ספק לא ידוע",
     date: booking.event_date,
     time: "19:00", // Default time since we don't store time in the DB
     status: booking.status as "confirmed" | "pending"
