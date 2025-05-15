@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,34 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for our platform
+				brand: {
+					50: '#f0f7ff',
+					100: '#e0eefe',
+					200: '#bae0fd',
+					300: '#81c7fb',
+					400: '#41a5f6',
+					500: '#1a85eb',
+					600: '#0b68d9',
+					700: '#0b53b0',
+					800: '#0e4691',
+					900: '#123d77',
+					950: '#0e2751',
+				},
+				accent1: {
+					50: '#f5f3ff',
+					100: '#ede8ff',
+					200: '#dcd6ff',
+					300: '#c3b5fe',
+					400: '#a38afc',
+					500: '#8559f9',
+					600: '#7337ef',
+					700: '#6424db',
+					800: '#541eb8',
+					900: '#461c94',
+					950: '#2c1065',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +112,20 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 3s ease-in-out infinite',
+			},
+			backgroundImage: {
+				'hero-pattern': 'linear-gradient(to right bottom, rgba(43, 108, 176, 0.9), rgba(107, 36, 219, 0.9))',
+				'category-gradient': 'linear-gradient(to right bottom, rgba(26, 133, 235, 0.9), rgba(115, 55, 239, 0.8))',
 			}
 		}
 	},
