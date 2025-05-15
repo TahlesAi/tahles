@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Headphones, User } from "lucide-react";
 import Header from "@/components/Header";
@@ -8,6 +8,8 @@ import OnboardingStep1 from "@/components/onboarding/OnboardingStep1";
 import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const ProviderOnboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -21,8 +23,63 @@ const ProviderOnboarding = () => {
     pricing: "",
     photos: []
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const isLoggedIn = !!data.session;
+        
+        setIsAuthenticated(isLoggedIn);
+        
+        if (!isLoggedIn) {
+          toast({
+            title: "התחברות נדרשת",
+            description: "עליך להתחבר או להירשם כדי להציע שירותים באתר",
+            variant: "destructive"
+          });
+          navigate("/"); // Redirect to home page or login page
+        }
+        
+        // If user is authenticated, check if they already have a provider profile
+        if (isLoggedIn) {
+          const { data: providerData } = await supabase
+            .from('providers')
+            .select('*')
+            .eq('id', data.session?.user.id)
+            .maybeSingle();
+            
+          if (providerData) {
+            // User already has a provider profile
+            toast({
+              title: "פרופיל ספק קיים",
+              description: "כבר יש לך פרופיל ספק במערכת, מעביר אותך ללוח הבקרה",
+            });
+            navigate("/dashboard");
+          }
+          
+          // Pre-fill email from user account
+          if (data.session?.user.email) {
+            setProviderData(prev => ({ 
+              ...prev, 
+              email: data.session?.user.email || "" 
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Authentication check error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
   
   const handleNextStep = () => {
     setCurrentStep(prev => prev + 1);
@@ -39,14 +96,32 @@ const ProviderOnboarding = () => {
   };
   
   const handleSubmit = () => {
-    // Here we would submit the data to the backend
-    console.log("Provider data submitted:", providerData);
+    // Form submission is now handled in OnboardingStep3
     setCurrentStep(4); // Move to success step
   };
   
   const handleFinish = () => {
     navigate("/dashboard");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-lg">טוען...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

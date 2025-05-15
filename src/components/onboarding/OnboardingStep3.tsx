@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Minus, Plus, Info } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OnboardingStep3Props {
   data: any;
@@ -25,6 +26,8 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,10 +65,85 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) {
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Check if user is authenticated
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast({
+          title: "שגיאת הרשאה",
+          description: "יש להתחבר למערכת לפני יצירת שירות חדש",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Create provider record
+      const { data: providerData, error: providerError } = await supabase
+        .from('providers')
+        .insert({
+          id: sessionData.session.user.id, // Use the auth user ID as the provider ID
+          name: data.name || "ספק חדש",
+          email: data.email,
+          phone: data.phone,
+          description: data.description
+        })
+        .select()
+        .single();
+      
+      if (providerError) {
+        console.error("Provider creation error:", providerError);
+        toast({
+          title: "שגיאה ביצירת ספק",
+          description: providerError.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Create service record
+      const { error: serviceError } = await supabase
+        .from('services')
+        .insert({
+          name: productData.title,
+          description: `מופע באורך ${productData.duration} דקות לקהל של עד ${productData.audience} אנשים בגילאי ${productData.ageRange}`,
+          price_range: `₪${productData.price} לכרטיס`,
+          duration: `${productData.duration} דקות`,
+          provider_id: sessionData.session.user.id
+        });
+      
+      if (serviceError) {
+        console.error("Service creation error:", serviceError);
+        toast({
+          title: "שגיאה ביצירת שירות",
+          description: serviceError.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
       onUpdate(productData);
+      toast({
+        title: "הפעולה הושלמה בהצלחה",
+        description: "השירות נוצר והוא מוכן לשימוש",
+      });
       onSubmit();
+      
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "שגיאה בשמירת הנתונים",
+        description: "אירעה שגיאה, אנא נסה שוב מאוחר יותר",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -273,11 +351,11 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
         </div>
         
         <div className="flex justify-between">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onBack} disabled={isSubmitting}>
             חזרה
           </Button>
-          <Button onClick={handleSubmit}>
-            פרסום ויצירת עמוד מוצר
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "מעבד..." : "פרסום ויצירת עמוד מוצר"}
           </Button>
         </div>
       </div>
