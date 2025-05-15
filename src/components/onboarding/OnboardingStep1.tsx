@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Calendar, 
   Mic2, 
-  Image as ImageIcon, 
+  ImageIcon, 
   Music2, 
   Utensils, 
   TentTree, 
@@ -32,7 +32,7 @@ const serviceCategories = [
   {
     id: "production",
     name: "שירותי הפקה",
-    icon: <Image className="h-8 w-8" />,
+    icon: <ImageIcon className="h-8 w-8" />,
     description: "ציוד, לוגיסטיקה וארגון אירועים"
   },
   {
