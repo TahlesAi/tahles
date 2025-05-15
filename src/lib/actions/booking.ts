@@ -6,19 +6,21 @@ export async function createBooking(bookingData: BookingData) {
   const { providerId, serviceId, customerName, customerPhone, customerEmail, eventDate, additionalRequests } = bookingData;
   
   try {
+    // Format the date as a string for Supabase
+    const formattedEventDate = eventDate instanceof Date ? 
+      eventDate.toISOString().split('T')[0] : eventDate;
+    
     const { data, error } = await supabase
       .from("bookings")
-      .insert([
-        {
-          provider_id: providerId,
-          service_id: serviceId,
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          customer_email: customerEmail,
-          event_date: eventDate,
-          additional_requests: additionalRequests || null,
-        },
-      ])
+      .insert({
+        provider_id: providerId,
+        service_id: serviceId,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail,
+        event_date: formattedEventDate,
+        additional_requests: additionalRequests || null,
+      })
       .select();
 
     if (error) {

@@ -15,6 +15,7 @@ interface ServiceCardProps {
     is_premium?: boolean;
     is_custom?: boolean;
     max_attendees?: number;
+    image_url?: string; // Added this property to the interface
   };
   onBookService: (service: any) => void;
 }
