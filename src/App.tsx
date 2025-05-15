@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import ProviderProfile from "./pages/ProviderProfile";
 import Search from "./pages/Search";
+import ProviderOnboarding from "./pages/ProviderOnboarding";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/providers/:id" element={<ProviderProfile />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

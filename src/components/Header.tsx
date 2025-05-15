@@ -40,6 +40,9 @@ const Header = () => {
           <Link to="/categories" className="text-gray-700 hover:text-brand-600 transition-colors">
             קטגוריות
           </Link>
+          <Link to="/provider-onboarding" className="text-gray-700 hover:text-brand-600 transition-colors">
+            הצטרפות כנותן שירות
+          </Link>
           <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors">
             איך זה עובד
           </Link>
@@ -74,6 +77,9 @@ const Header = () => {
             </Link>
             <Link to="/categories" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
               קטגוריות
+            </Link>
+            <Link to="/provider-onboarding" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
+              הצטרפות כנותן שירות
             </Link>
             <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
               איך זה עובד
