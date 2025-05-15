@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -45,7 +46,7 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
   const handleCheckboxChange = (checked: boolean) => {
     setProductData(prev => ({ ...prev, termsAccepted: checked }));
     if (!checked && errors.termsAccepted) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, termsAccepted: "" }));
     }
   };
   
