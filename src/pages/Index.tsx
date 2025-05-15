@@ -10,23 +10,23 @@ import { ArrowRight } from "lucide-react";
 
 const features = [
   {
-    title: "Find the Perfect Match",
-    description: "Search and filter through our extensive network of verified event service providers to find exactly what you need.",
+    title: "מציאת ההתאמה המושלמת",
+    description: "חפשו וסננו דרך הרשת הנרחבת שלנו של נותני שירותים מאומתים למצוא בדיוק את מה שאתם צריכים.",
     icon: "🔍"
   },
   {
-    title: "Easy Booking Process",
-    description: "Simple, transparent booking system with secure payments and agreement protection for both parties.",
+    title: "תהליך הזמנה פשוט",
+    description: "מערכת הזמנות פשוטה ושקופה עם תשלומים מאובטחים והגנת הסכם לשני הצדדים.",
     icon: "📅"
   },
   {
-    title: "Verified Providers",
-    description: "All service providers undergo a verification process ensuring quality and reliability for your event.",
+    title: "נותני שירות מאומתים",
+    description: "כל נותני השירות עוברים תהליך אימות המבטיח איכות ואמינות עבור האירוע שלכם.",
     icon: "✅"
   },
   {
-    title: "Manage Everything in One Place",
-    description: "From communication to payments, manage all aspects of your event services in a single platform.",
+    title: "ניהול הכל במקום אחד",
+    description: "מתקשורת ועד תשלומים, נהלו את כל היבטי שירותי האירועים שלכם בפלטפורמה אחת.",
     icon: "📱"
   }
 ];
@@ -44,10 +44,10 @@ const Index = () => {
         
         <AdditionalServices />
         
-        {/* Features */}
+        {/* מאפיינים */}
         <section className="py-16 bg-white">
           <div className="container px-4">
-            <h2 className="text-2xl font-semibold mb-8 text-center">Why Choose EventConnect</h2>
+            <h2 className="text-2xl font-semibold mb-8 text-center">למה לבחור ב-EventConnect</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
@@ -64,16 +64,16 @@ const Index = () => {
         {/* CTA */}
         <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white">
           <div className="container px-4 text-center">
-            <h2 className="text-3xl font-bold mb-6">Ready to Create an Amazing Event?</h2>
+            <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Join thousands of event organizers who have found the perfect service providers for their special occasions.
+              הצטרפו לאלפי מארגני אירועים שמצאו את נותני השירות המושלמים עבור האירועים המיוחדים שלהם.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">
-                Find Services
+                חיפוש שירותים
               </Button>
               <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
-                Become a Provider
+                הצטרפות כנותן שירות
               </Button>
             </div>
           </div>

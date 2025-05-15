@@ -35,113 +35,125 @@ interface Provider {
   verifiedBadge?: boolean;
 }
 
-// Mock data for providers
+// נתונים מדומים לנותני השירות
 const allProviders: Provider[] = [
   {
     id: "1",
-    name: "Melody Makers Band",
+    name: "להקת מלודי מייקרס",
     image: "https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Musicians",
+    category: "מוזיקאים",
     rating: 4.9,
     reviewCount: 87,
-    location: "New York, NY",
-    pricing: "$1,200+",
+    location: "תל אביב",
+    pricing: "₪1,200+",
     featured: true,
     verifiedBadge: true
   },
   {
     id: "2",
-    name: "Visual Memories Photography",
+    name: "צילומי זכרונות ויזואליים",
     image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Photographers",
+    category: "צלמים",
     rating: 4.8,
     reviewCount: 62,
-    location: "Los Angeles, CA",
-    pricing: "$800+",
+    location: "ירושלים",
+    pricing: "₪800+",
     featured: true
   },
   {
     id: "3",
-    name: "Elite Sound Systems",
+    name: "מערכות סאונד עילית",
     image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Audio Equipment",
+    category: "ציוד אודיו",
     rating: 4.7,
     reviewCount: 45,
-    location: "Chicago, IL",
-    pricing: "$500+",
+    location: "חיפה",
+    pricing: "₪500+",
     verifiedBadge: true
   },
   {
     id: "4",
-    name: "Gourmet Delights Catering",
+    name: "קייטרינג מעדני גורמה",
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Catering",
+    category: "קייטרינג",
     rating: 4.9,
     reviewCount: 73,
-    location: "Miami, FL",
-    pricing: "$1,500+",
+    location: "הרצליה",
+    pricing: "₪1,500+",
     featured: true
   },
   {
     id: "5",
-    name: "Elegant Event Spaces",
+    name: "אולמות אירועים אלגנטיים",
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Venues",
+    category: "אולמות",
     rating: 4.6,
     reviewCount: 39,
-    location: "Seattle, WA",
-    pricing: "$2,000+",
+    location: "רעננה",
+    pricing: "₪2,000+",
     verifiedBadge: true
   },
   {
     id: "6",
-    name: "Party Planners Pro",
+    name: "מתכנני אירועים מקצועיים",
     image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Event Planners",
+    category: "מתכנני אירועים",
     rating: 4.8,
     reviewCount: 56,
-    location: "Boston, MA",
-    pricing: "$1,200+",
+    location: "כפר סבא",
+    pricing: "₪1,200+",
     featured: true
   },
   {
     id: "7",
-    name: "Floral Fantasy Designs",
+    name: "עיצובי פרחים פנטזיה",
     image: "https://images.unsplash.com/photo-1551184451-76b762941ad6?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Decoration",
+    category: "עיצוב",
     rating: 4.7,
     reviewCount: 42,
-    location: "Portland, OR",
-    pricing: "$600+",
+    location: "רמת גן",
+    pricing: "₪600+",
     verifiedBadge: true
   },
   {
     id: "8",
-    name: "Classic Limo Services",
+    name: "שירותי לימוזינות קלאסיות",
     image: "https://images.unsplash.com/photo-1551836989-b4622a17a792?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
-    category: "Transportation",
+    category: "הסעות",
     rating: 4.5,
     reviewCount: 31,
-    location: "Dallas, TX",
-    pricing: "$350+",
+    location: "נתניה",
+    pricing: "₪350+",
+  },
+  {
+    id: "9",
+    name: "קליוסטרו - קסמים ואשליות",
+    image: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&h=300&q=80",
+    category: "אמני חושים",
+    rating: 4.9,
+    reviewCount: 65,
+    location: "תל אביב",
+    pricing: "₪1,800+",
+    featured: true,
+    verifiedBadge: true
   }
 ];
 
 const categories = [
-  "All Categories", "Musicians", "Photographers", "Audio Equipment", 
-  "Catering", "Venues", "Event Planners", "Decoration", "Transportation"
+  "כל הקטגוריות", "מוזיקאים", "צלמים", "ציוד אודיו", 
+  "קייטרינג", "אולמות", "מתכנני אירועים", "עיצוב", "הסעות", "אמני חושים"
 ];
 
 const locations = [
-  "All Locations", "New York, NY", "Los Angeles, CA", "Chicago, IL", 
-  "Miami, FL", "Seattle, WA", "Boston, MA", "Portland, OR", "Dallas, TX"
+  "כל המיקומים", "תל אביב", "ירושלים", "חיפה", 
+  "הרצליה", "רעננה", "כפר סבא", "רמת גן", "נתניה"
 ];
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
+  const [selectedCategory, setSelectedCategory] = useState("כל הקטגוריות");
+  const [selectedLocation, setSelectedLocation] = useState("כל המיקומים");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [minRating, setMinRating] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -150,8 +162,8 @@ const Search = () => {
   
   useEffect(() => {
     const query = searchParams.get("q") || "";
-    const category = selectedCategory === "All Categories" ? "" : selectedCategory;
-    const location = selectedLocation === "All Locations" ? "" : selectedLocation;
+    const category = selectedCategory === "כל הקטגוריות" ? "" : selectedCategory;
+    const location = selectedLocation === "כל המיקומים" ? "" : selectedLocation;
     
     let results = allProviders.filter(provider => {
       const matchesSearch = query 
@@ -180,7 +192,7 @@ const Search = () => {
         matchesPricing && matchesRating && matchesVerification;
     });
     
-    // Sort results
+    // מיון תוצאות
     if (sortOption === "rating-high") {
       results = results.sort((a, b) => b.rating - a.rating);
     } else if (sortOption === "rating-low") {
@@ -194,7 +206,7 @@ const Search = () => {
         parseInt(a.pricing.replace(/[^0-9]/g, "")) - parseInt(b.pricing.replace(/[^0-9]/g, ""))
       );
     } else {
-      // Sort by relevance - featured first, then by rating
+      // מיון לפי רלוונטיות - מומלצים ראשונים, ואז לפי דירוג
       results = results.sort((a, b) => {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
@@ -224,45 +236,45 @@ const Search = () => {
       <main className="flex-grow py-8">
         <div className="container px-4">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Search Results</h1>
+            <h1 className="text-3xl font-bold mb-2">תוצאות חיפוש</h1>
             <p className="text-gray-600">
-              Find the perfect service provider for your event
+              מצאו את נותן השירות המושלם לאירוע שלכם
             </p>
           </div>
           
-          {/* Search Bar */}
+          {/* שורת חיפוש */}
           <form onSubmit={handleSearch} className="mb-8">
             <div className="flex w-full max-w-4xl mx-auto">
               <Input
                 type="text"
-                placeholder="Search for services, providers, or specialties..."
+                placeholder="חפשו שירותים, נותני שירות או התמחויות..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="rounded-l-lg"
+                className="rounded-r-lg"
               />
-              <Button type="submit" className="rounded-l-none">
-                <SearchIcon className="h-4 w-4 mr-2" />
-                Search
+              <Button type="submit" className="rounded-r-none">
+                <SearchIcon className="h-4 w-4 ml-2" />
+                חיפוש
               </Button>
             </div>
           </form>
           
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
-            <div className="space-y-6">
+            {/* סרגל צד עם סינונים */}
+            <div className="space-y-6 order-last lg:order-first">
               <Card>
                 <CardContent className="p-6">
-                  <h2 className="text-lg font-semibold mb-4">Filters</h2>
+                  <h2 className="text-lg font-semibold mb-4">סינון</h2>
                   
-                  {/* Category Filter */}
+                  {/* סינון לפי קטגוריה */}
                   <div className="mb-6">
-                    <Label htmlFor="category" className="mb-2 block">Category</Label>
+                    <Label htmlFor="category" className="mb-2 block">קטגוריה</Label>
                     <Select 
                       value={selectedCategory} 
                       onValueChange={setSelectedCategory}
                     >
                       <SelectTrigger id="category">
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="בחרו קטגוריה" />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
@@ -274,15 +286,15 @@ const Search = () => {
                     </Select>
                   </div>
                   
-                  {/* Location Filter */}
+                  {/* סינון לפי מיקום */}
                   <div className="mb-6">
-                    <Label htmlFor="location" className="mb-2 block">Location</Label>
+                    <Label htmlFor="location" className="mb-2 block">מיקום</Label>
                     <Select 
                       value={selectedLocation} 
                       onValueChange={setSelectedLocation}
                     >
                       <SelectTrigger id="location">
-                        <SelectValue placeholder="Select a location" />
+                        <SelectValue placeholder="בחרו מיקום" />
                       </SelectTrigger>
                       <SelectContent>
                         {locations.map((location) => (
@@ -294,9 +306,9 @@ const Search = () => {
                     </Select>
                   </div>
                   
-                  {/* Price Range Filter */}
+                  {/* סינון לפי טווח מחירים */}
                   <div className="mb-6">
-                    <Label className="mb-2 block">Price Range</Label>
+                    <Label className="mb-2 block">טווח מחירים</Label>
                     <div className="mb-2">
                       <Slider
                         value={priceRange}
@@ -307,15 +319,15 @@ const Search = () => {
                         className="my-4"
                       />
                       <div className="flex justify-between text-sm">
-                        <span>${priceRange[0]}</span>
-                        <span>${priceRange[1]}+</span>
+                        <span>₪{priceRange[0]}</span>
+                        <span>₪{priceRange[1]}+</span>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Rating Filter */}
+                  {/* סינון לפי דירוג */}
                   <div className="mb-6">
-                    <Label className="mb-2 block">Minimum Rating</Label>
+                    <Label className="mb-2 block">דירוג מינימלי</Label>
                     <div className="flex items-center space-x-2">
                       {[0, 3, 3.5, 4, 4.5].map((rating) => (
                         <Button
@@ -325,21 +337,21 @@ const Search = () => {
                           onClick={() => setMinRating(rating)}
                           className={rating === 0 ? "px-3" : ""}
                         >
-                          {rating === 0 ? "Any" : rating+"+"}
+                          {rating === 0 ? "הכל" : rating+"+"}
                         </Button>
                       ))}
                     </div>
                   </div>
                   
-                  {/* Verified Filter */}
+                  {/* סינון לפי אימות */}
                   <div className="mb-6">
                     <div className="flex items-center space-x-2">
+                      <Label htmlFor="verified">נותני שירות מאומתים בלבד</Label>
                       <Checkbox 
                         id="verified" 
                         checked={verifiedOnly}
                         onCheckedChange={() => setVerifiedOnly(!verifiedOnly)}
                       />
-                      <Label htmlFor="verified">Verified Providers Only</Label>
                     </div>
                   </div>
                   
@@ -348,38 +360,38 @@ const Search = () => {
                     className="w-full"
                     onClick={() => {
                       setSearchParams({});
-                      setSelectedCategory("All Categories");
-                      setSelectedLocation("All Locations");
+                      setSelectedCategory("כל הקטגוריות");
+                      setSelectedLocation("כל המיקומים");
                       setPriceRange([0, 5000]);
                       setMinRating(0);
                       setVerifiedOnly(false);
                       setSortOption("relevance");
                     }}
                   >
-                    Reset Filters
+                    איפוס סינונים
                   </Button>
                 </CardContent>
               </Card>
             </div>
             
-            {/* Search Results */}
+            {/* תוצאות חיפוש */}
             <div className="lg:col-span-3">
               <div className="flex justify-between items-center mb-6">
                 <p className="text-gray-600">
-                  {filteredProviders.length} providers found
+                  נמצאו {filteredProviders.length} נותני שירות
                 </p>
                 <div className="flex items-center space-x-2">
-                  <Label htmlFor="sort" className="whitespace-nowrap">Sort by:</Label>
+                  <Label htmlFor="sort" className="whitespace-nowrap">מיון לפי:</Label>
                   <Select value={sortOption} onValueChange={setSortOption}>
                     <SelectTrigger id="sort" className="w-[180px]">
-                      <SelectValue placeholder="Sort by" />
+                      <SelectValue placeholder="מיון לפי" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="relevance">Relevance</SelectItem>
-                      <SelectItem value="rating-high">Highest Rated</SelectItem>
-                      <SelectItem value="rating-low">Lowest Rated</SelectItem>
-                      <SelectItem value="price-high">Price High to Low</SelectItem>
-                      <SelectItem value="price-low">Price Low to High</SelectItem>
+                      <SelectItem value="relevance">רלוונטיות</SelectItem>
+                      <SelectItem value="rating-high">דירוג - מהגבוה לנמוך</SelectItem>
+                      <SelectItem value="rating-low">דירוג - מהנמוך לגבוה</SelectItem>
+                      <SelectItem value="price-high">מחיר - מהגבוה לנמוך</SelectItem>
+                      <SelectItem value="price-low">מחיר - מהנמוך לגבוה</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -397,7 +409,7 @@ const Search = () => {
                             className="w-full h-full object-cover"
                           />
                           {provider.featured && (
-                            <Badge className="absolute top-2 right-2 bg-brand-500">Featured</Badge>
+                            <Badge className="absolute top-2 left-2 bg-brand-500">מומלץ</Badge>
                           )}
                         </div>
                         <CardContent className="p-4">
@@ -406,15 +418,15 @@ const Search = () => {
                               {provider.category}
                             </Badge>
                             <div className="flex items-center">
-                              <Star className="h-4 w-4 text-yellow-400 mr-1 fill-yellow-400" />
+                              <Star className="h-4 w-4 text-yellow-400 ml-1 fill-yellow-400" />
                               <span className="text-sm font-medium">{provider.rating}</span>
-                              <span className="text-xs text-gray-500 ml-1">({provider.reviewCount})</span>
+                              <span className="text-xs text-gray-500 mr-1">({provider.reviewCount})</span>
                             </div>
                           </div>
                           <h3 className="font-semibold text-lg mb-1 flex items-center">
                             {provider.name}
                             {provider.verifiedBadge && (
-                              <span className="ml-1 inline-flex items-center justify-center w-4 h-4 bg-brand-500 rounded-full">
+                              <span className="mr-1 inline-flex items-center justify-center w-4 h-4 bg-brand-500 rounded-full">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
@@ -422,12 +434,12 @@ const Search = () => {
                             )}
                           </h3>
                           <div className="flex items-center text-gray-500 text-sm mb-2">
-                            <MapPin className="h-3.5 w-3.5 mr-1" />
+                            <MapPin className="h-3.5 w-3.5 ml-1" />
                             {provider.location}
                           </div>
                           <div className="flex justify-between items-center mt-2">
                             <span className="font-medium">{provider.pricing}</span>
-                            <Button size="sm">View Profile</Button>
+                            <Button size="sm">צפייה בפרופיל</Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -436,22 +448,22 @@ const Search = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-2">No providers found</h3>
+                  <h3 className="text-xl font-semibold mb-2">לא נמצאו נותני שירות</h3>
                   <p className="text-gray-600 mb-6">
-                    Try adjusting your filters or search terms to find what you're looking for.
+                    נסו לשנות את הגדרות הסינון או מונחי החיפוש כדי למצוא את מה שאתם מחפשים.
                   </p>
                   <Button 
                     onClick={() => {
                       setSearchParams({});
-                      setSelectedCategory("All Categories");
-                      setSelectedLocation("All Locations");
+                      setSelectedCategory("כל הקטגוריות");
+                      setSelectedLocation("כל המיקומים");
                       setPriceRange([0, 5000]);
                       setMinRating(0);
                       setVerifiedOnly(false);
                       setSortOption("relevance");
                     }}
                   >
-                    Reset All Filters
+                    איפוס כל הסינונים
                   </Button>
                 </div>
               )}
@@ -459,7 +471,7 @@ const Search = () => {
               {filteredProviders.length > 0 && (
                 <div className="flex justify-center mt-8">
                   <Button variant="outline">
-                    Load More Results
+                    טען תוצאות נוספות
                   </Button>
                 </div>
               )}

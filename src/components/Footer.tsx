@@ -11,7 +11,7 @@ const Footer = () => {
               EventConnect
             </Link>
             <p className="text-gray-300 mb-4">
-              The premier platform connecting event organizers with service providers.
+              הפלטפורמה המובילה לחיבור בין מארגני אירועים לנותני שירותים מקצועיים.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
@@ -33,78 +33,78 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">For Providers</h3>
+            <h3 className="text-lg font-semibold mb-4">לנותני שירות</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/become-provider" className="text-gray-300 hover:text-white transition-colors">
-                  Join as Provider
+                  הצטרפות כנותן שירות
                 </Link>
               </li>
               <li>
                 <Link to="/provider-resources" className="text-gray-300 hover:text-white transition-colors">
-                  Resources
+                  משאבים
                 </Link>
               </li>
               <li>
                 <Link to="/success-stories" className="text-gray-300 hover:text-white transition-colors">
-                  Success Stories
+                  סיפורי הצלחה
                 </Link>
               </li>
               <li>
                 <Link to="/provider-faq" className="text-gray-300 hover:text-white transition-colors">
-                  Provider FAQ
+                  שאלות נפוצות לנותני שירות
                 </Link>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">For Clients</h3>
+            <h3 className="text-lg font-semibold mb-4">ללקוחות</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors">
-                  How It Works
+                  איך זה עובד
                 </Link>
               </li>
               <li>
                 <Link to="/browse-services" className="text-gray-300 hover:text-white transition-colors">
-                  Browse Services
+                  חיפוש שירותים
                 </Link>
               </li>
               <li>
                 <Link to="/client-faq" className="text-gray-300 hover:text-white transition-colors">
-                  Client FAQ
+                  שאלות נפוצות ללקוחות
                 </Link>
               </li>
               <li>
                 <Link to="/reviews" className="text-gray-300 hover:text-white transition-colors">
-                  Reviews
+                  המלצות
                 </Link>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4">החברה</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
-                  About Us
+                  אודות
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  Contact
+                  צור קשר
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
-                  Privacy Policy
+                  מדיניות פרטיות
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
-                  Terms of Service
+                  תנאי שימוש
                 </Link>
               </li>
             </ul>
@@ -112,7 +112,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} EventConnect. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} EventConnect. כל הזכויות שמורות.</p>
         </div>
       </div>
     </footer>

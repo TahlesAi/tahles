@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -93,7 +94,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Assistant', 'Inter', sans-serif;
   }
 }
 
@@ -115,5 +116,56 @@
   }
   .section-subtitle {
     @apply text-lg text-gray-600 text-center mb-16 max-w-2xl mx-auto;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  .rounded-r-lg {
+    @apply rounded-r-none rounded-l-lg;
+  }
+  
+  .rounded-l-lg {
+    @apply rounded-l-none rounded-r-lg;
+  }
+  
+  .mr-1, .mr-2, .mr-3, .mr-4, .mr-5, .mr-6, .mr-8 {
+    margin-right: 0;
+  }
+  
+  .ml-1, .ml-2, .ml-3, .ml-4, .ml-5, .ml-6, .ml-8 {
+    margin-left: 0;
+  }
+  
+  .mr-1 {
+    margin-left: 0.25rem;
+  }
+  
+  .mr-2 {
+    margin-left: 0.5rem;
+  }
+  
+  .mr-4 {
+    margin-left: 1rem;
+  }
+  
+  .mr-8 {
+    margin-left: 2rem;
+  }
+  
+  .ml-1 {
+    margin-right: 0.25rem;
+  }
+  
+  .ml-2 {
+    margin-right: 0.5rem;
+  }
+  
+  .ml-4 {
+    margin-right: 1rem;
+  }
+  
+  .ml-8 {
+    margin-right: 2rem;
   }
 }

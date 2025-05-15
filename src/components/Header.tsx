@@ -32,30 +32,30 @@ const Header = () => {
           EventConnect
         </Link>
         
-        {/* Desktop Navigation */}
+        {/* תפריט ניווט לדסקטופ */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/search" className="text-gray-700 hover:text-brand-600 transition-colors">
-            Find Services
+            חיפוש שירותים
           </Link>
           <Link to="/categories" className="text-gray-700 hover:text-brand-600 transition-colors">
-            Categories
+            קטגוריות
           </Link>
           <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors">
-            How It Works
+            איך זה עובד
           </Link>
         </nav>
         
-        {/* Desktop Auth Buttons */}
+        {/* כפתורי התחברות לדסקטופ */}
         <div className="hidden md:flex items-center space-x-4">
           <Button variant="outline" onClick={openSignIn}>
-            Sign In
+            התחברות
           </Button>
           <Button onClick={openSignUp}>
-            Join Now
+            הצטרפות
           </Button>
         </div>
         
-        {/* Mobile Menu Button */}
+        {/* כפתור תפריט למובייל */}
         <button className="md:hidden" onClick={toggleMenu}>
           {isMenuOpen ? (
             <X className="h-6 w-6 text-gray-700" />
@@ -65,25 +65,25 @@ const Header = () => {
         </button>
       </div>
       
-      {/* Mobile Menu */}
+      {/* תפריט מובייל */}
       {isMenuOpen && (
         <div className="md:hidden py-4 px-4 bg-white border-t">
           <nav className="flex flex-col space-y-4">
             <Link to="/search" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
-              Find Services
+              חיפוש שירותים
             </Link>
             <Link to="/categories" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
-              Categories
+              קטגוריות
             </Link>
             <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
-              How It Works
+              איך זה עובד
             </Link>
             <div className="flex flex-col space-y-2 pt-4 border-t">
               <Button variant="outline" onClick={openSignIn} className="w-full">
-                Sign In
+                התחברות
               </Button>
               <Button onClick={openSignUp} className="w-full">
-                Join Now
+                הצטרפות
               </Button>
             </div>
           </nav>
