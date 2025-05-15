@@ -12,6 +12,9 @@ import Dashboard from "./pages/Dashboard";
 import ProviderProfile from "./pages/ProviderProfile";
 import Search from "./pages/Search";
 import ProviderOnboarding from "./pages/ProviderOnboarding";
+import HowItWorks from "./pages/HowItWorks";
+import Categories from "./pages/Categories";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,9 @@ const App = () => (
           <Route path="/providers/:id" element={<ProviderProfile />} />
           <Route path="/search" element={<Search />} />
           <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

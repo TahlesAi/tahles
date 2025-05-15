@@ -46,6 +46,9 @@ const Header = () => {
           <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors">
             איך זה עובד
           </Link>
+          <Link to="/contact" className="text-gray-700 hover:text-brand-600 transition-colors">
+            צור קשר
+          </Link>
         </nav>
         
         {/* כפתורי התחברות לדסקטופ */}
@@ -83,6 +86,9 @@ const Header = () => {
             </Link>
             <Link to="/how-it-works" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
               איך זה עובד
+            </Link>
+            <Link to="/contact" className="text-gray-700 hover:text-brand-600 transition-colors py-2">
+              צור קשר
             </Link>
             <div className="flex flex-col space-y-2 pt-4 border-t">
               <Button variant="outline" onClick={openSignIn} className="w-full">
