@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
-  Mic, MapPin, Utensils, Speaker, Gift, Mic2, Plane
+  MapPin, Utensils, Camera, Mic, Gift, Plane
 } from "lucide-react";
 
 interface Category {
@@ -14,13 +14,12 @@ interface Category {
 }
 
 const categories: Category[] = [
-  { id: "performances", name: "מופעים", icon: <Mic className="text-white h-6 w-6" />, count: 186, imageUrl: "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=800&auto=format&fit=crop" },
-  { id: "venues", name: "לוקיישנים", icon: <MapPin className="text-white h-6 w-6" />, count: 98, imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&auto=format&fit=crop" },
-  { id: "food", name: "מזון ומשקאות", icon: <Utensils className="text-white h-6 w-6" />, count: 132, imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop" },
-  { id: "staging", name: "שרותי במה", icon: <Speaker className="text-white h-6 w-6" />, count: 74, imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&auto=format&fit=crop" },
+  { id: "venues", name: "לוקיישנים ומתחמי אירוח", icon: <MapPin className="text-white h-6 w-6" />, count: 98, imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&auto=format&fit=crop" },
+  { id: "food", name: "שירותי מזון ומשקאות", icon: <Utensils className="text-white h-6 w-6" />, count: 132, imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop" },
+  { id: "staging", name: "שירותי הפקה", icon: <Camera className="text-white h-6 w-6" />, count: 74, imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&auto=format&fit=crop" },
+  { id: "performances", name: "מופעים ואמנים", icon: <Mic className="text-white h-6 w-6" />, count: 186, imageUrl: "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=800&auto=format&fit=crop" },
   { id: "gifts", name: "מתנות", icon: <Gift className="text-white h-6 w-6" />, count: 45, imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop" },
-  { id: "lectures", name: "הרצאות", icon: <Mic2 className="text-white h-6 w-6" />, count: 73, imageUrl: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?w=800&auto=format&fit=crop" },
-  { id: "trips", name: "טיולים", icon: <Plane className="text-white h-6 w-6" />, count: 112, imageUrl: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&auto=format&fit=crop" },
+  { id: "trips", name: "ימי כיף וטיולים", icon: <Plane className="text-white h-6 w-6" />, count: 112, imageUrl: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&auto=format&fit=crop" },
 ];
 
 const ServiceCategories = () => {

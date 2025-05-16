@@ -16,12 +16,12 @@ const Hero = () => {
   };
   
   const categories = [
-    { name: "מופעים", icon: <Music className="h-5 w-5" /> },
-    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" /> },
-    { name: "צילום", icon: <Camera className="h-5 w-5" /> },
     { name: "לוקיישנים", icon: <Map className="h-5 w-5" /> },
-    { name: "הגברה", icon: <Mic className="h-5 w-5" /> },
-    { name: "מתנות", icon: <Gift className="h-5 w-5" /> }
+    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" /> },
+    { name: "הפקה", icon: <Camera className="h-5 w-5" /> },
+    { name: "מופעים", icon: <Music className="h-5 w-5" /> },
+    { name: "מתנות", icon: <Gift className="h-5 w-5" /> },
+    { name: "ימי כיף", icon: <Mic className="h-5 w-5" /> }
   ];
   
   // Define search suggestions based on common searches
@@ -60,10 +60,10 @@ const Hero = () => {
       
       <div className="relative container px-4 py-16 md:py-24 flex flex-col items-center">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3">
-          פתרונות הפקה במרחק לחיצה
+          פתרונות צרכנות משובחים בתכלס
         </h1>
         <p className="text-xl md:text-2xl text-white/90 text-center mb-8">
-          תכלס - כל מה שצריך לאירוע מושלם במקום אחד
+          כל מה שצריך לאירוע או מפגש חברתי מושלם, במקום 1
         </p>
         
         <div className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">
