@@ -54,8 +54,8 @@ const Hero = () => {
             type="video/mp4" 
           />
         </video>
-        {/* שכבת כהות מעל הסרטון */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-800/80 to-purple-800/80"></div>
+        {/* שכבת כהות מעל הסרטון - עודכנה לצבעי הלוגו */}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-500/80 to-accent1-500/80"></div>
       </div>
       
       <div className="relative container px-4 py-16 md:py-24 flex flex-col items-center">
@@ -63,7 +63,7 @@ const Hero = () => {
           פתרונות הפקה במרחק לחיצה
         </h1>
         <p className="text-xl md:text-2xl text-white/90 text-center mb-8">
-          ת'כל'ס - כל מה שצריך לאירוע מושלם במקום אחד
+          תכלס - כל מה שצריך לאירוע מושלם במקום אחד
         </p>
         
         <div className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">

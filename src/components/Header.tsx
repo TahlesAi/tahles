@@ -36,7 +36,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-brand-600">ת'כל'ס</span>
+            <span className="text-xl font-bold text-brand-600">תכלס</span>
           </Link>
           
           {/* Search Bar - only on desktop */}

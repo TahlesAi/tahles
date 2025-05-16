@@ -63,15 +63,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for our platform
+				// צבעי מותג מעודכנים לפי הלוגו
 				brand: {
-					50: '#f0f7ff',
-					100: '#e0eefe',
+					50: '#f0f8ff',
+					100: '#e0f0fe',
 					200: '#bae0fd',
 					300: '#81c7fb',
 					400: '#41a5f6',
-					500: '#1a85eb',
-					600: '#0b68d9',
+					500: '#1D70B7', // צבע כחול ראשי מהלוגו
+					600: '#0B5A9D',
 					700: '#0b53b0',
 					800: '#0e4691',
 					900: '#123d77',
@@ -83,7 +83,7 @@ export default {
 					200: '#dcd6ff',
 					300: '#c3b5fe',
 					400: '#a38afc',
-					500: '#8559f9',
+					500: '#934C98', // צבע סגול מהלוגו
 					600: '#7337ef',
 					700: '#6424db',
 					800: '#541eb8',
@@ -124,8 +124,8 @@ export default {
 				'float': 'float 3s ease-in-out infinite',
 			},
 			backgroundImage: {
-				'hero-pattern': 'linear-gradient(to right bottom, rgba(43, 108, 176, 0.9), rgba(107, 36, 219, 0.9))',
-				'category-gradient': 'linear-gradient(to right bottom, rgba(26, 133, 235, 0.9), rgba(115, 55, 239, 0.8))',
+				'hero-pattern': 'linear-gradient(to right bottom, rgba(29, 112, 183, 0.9), rgba(147, 76, 152, 0.9))', // עודכן לצבעי הלוגו
+				'category-gradient': 'linear-gradient(to right bottom, rgba(29, 112, 183, 0.9), rgba(147, 76, 152, 0.8))', // עודכן לצבעי הלוגו
 			}
 		}
 	},
