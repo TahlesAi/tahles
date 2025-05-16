@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -57,6 +57,7 @@ const AutocompleteSearch = ({
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const commandRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +68,7 @@ const AutocompleteSearch = ({
   useEffect(() => {
     if (value.trim() === "") {
       setFilteredSuggestions([]);
+      setActiveIndex(-1);
       return;
     }
     
@@ -75,6 +77,7 @@ const AutocompleteSearch = ({
     );
     
     setFilteredSuggestions(filtered);
+    setActiveIndex(-1);
   }, [value, suggestions]);
 
   // Handle input change
@@ -91,6 +94,45 @@ const AutocompleteSearch = ({
       setIsOpen(true);
     } else {
       setIsOpen(false);
+    }
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // No suggestions or dropdown not open, use default behavior
+    if (!isOpen || filteredSuggestions.length === 0) return;
+    
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setActiveIndex(prevIndex => 
+          prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : 0
+        );
+        break;
+        
+      case "ArrowUp":
+        e.preventDefault();
+        setActiveIndex(prevIndex => 
+          prevIndex > 0 ? prevIndex - 1 : filteredSuggestions.length - 1
+        );
+        break;
+        
+      case "Enter":
+        e.preventDefault();
+        if (activeIndex >= 0 && activeIndex < filteredSuggestions.length) {
+          handleSelectSuggestion(filteredSuggestions[activeIndex]);
+        } else {
+          handleSubmit(e);
+        }
+        break;
+        
+      case "Escape":
+        e.preventDefault();
+        setIsOpen(false);
+        break;
+        
+      default:
+        break;
     }
   };
 
@@ -150,6 +192,7 @@ const AutocompleteSearch = ({
             placeholder={placeholder}
             value={value}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             className={cn(
               "w-full",
               showButton ? "rounded-l-md rounded-r-none" : "rounded-md",
@@ -168,11 +211,15 @@ const AutocompleteSearch = ({
                 <CommandList>
                   <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
                   <CommandGroup>
-                    {filteredSuggestions.map((suggestion) => (
+                    {filteredSuggestions.map((suggestion, index) => (
                       <CommandItem
                         key={suggestion.id}
                         onSelect={() => handleSelectSuggestion(suggestion)}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer",
+                          activeIndex === index && "bg-accent text-accent-foreground"
+                        )}
+                        data-active={activeIndex === index}
                         dir={dir}
                       >
                         {suggestion.icon}

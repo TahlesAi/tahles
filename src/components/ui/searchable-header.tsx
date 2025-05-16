@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { cn } from "@/lib/utils";
