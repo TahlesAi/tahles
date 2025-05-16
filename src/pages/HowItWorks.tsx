@@ -54,7 +54,7 @@ const HowItWorks = () => {
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">1</div>
                 <h3 className="text-xl font-semibold mb-2">בחרו קטגוריה</h3>
-                <p className="text-gray-600">בחרו את סוג השירות שאתם מחפשים - אמנים, הופעות, שירותי הפקה ועוד</p>
+                <p className="text-gray-600">בחרו את סוג השירות שאתם מחפשים - לדוגמא: לוקיישנים, מופעים, הרצאות, שירותי הפקה, אבטחה ועוד...</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
