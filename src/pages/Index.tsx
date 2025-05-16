@@ -49,6 +49,24 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         
+        {/* CTA - הועבר לחלק העליון של הדף */}
+        <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white">
+          <div className="container px-4 text-center">
+            <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              הצטרפו לאלפי מארגני אירועים שמצאו את נותני השירות המושלמים עבור האירועים המיוחדים שלהם.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">
+                חיפוש שירותים
+              </Button>
+              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 hover:text-white">
+                הצטרפות כנותן שירות
+              </Button>
+            </div>
+          </div>
+        </section>
+        
         {/* קונספטים */}
         <section className="py-10 bg-white border-b">
           <div className="container px-4">
@@ -95,24 +113,6 @@ const Index = () => {
         </section>
         
         <AdditionalServices />
-        
-        {/* CTA */}
-        <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white">
-          <div className="container px-4 text-center">
-            <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              הצטרפו לאלפי מארגני אירועים שמצאו את נותני השירות המושלמים עבור האירועים המיוחדים שלהם.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">
-                חיפוש שירותים
-              </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
-                הצטרפות כנותן שירות
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>
