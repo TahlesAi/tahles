@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
   Wine,
   Beer,
   Tent,
-  Microphone,
+  Mic as MicIcon,  // Changed Microphone to Mic
   PartyPopper,
   Cake,
   Ticket,
@@ -143,7 +142,7 @@ const Hero = () => {
     { id: "cat-1", value: "לוקיישנים ומתחמי אירוח", type: "קטגוריה", icon: <Building className="h-4 w-4" /> },
     { id: "cat-2", value: "שירותי מזון ומשקאות", type: "קטגוריה", icon: <Utensils className="h-4 w-4" /> },
     { id: "cat-3", value: "שירותי הפקה", type: "קטגוריה", icon: <Camera className="h-4 w-4" /> },
-    { id: "cat-4", value: "מופעים ואמנים", type: "קטגוריה", icon: <Microphone className="h-4 w-4" /> },
+    { id: "cat-4", value: "מופעים ואמנים", type: "קטגוריה", icon: <MicIcon className="h-4 w-4" /> }, // Changed Microphone to MicIcon
     { id: "cat-5", value: "מתנות", type: "קטגוריה", icon: <Gift className="h-4 w-4" /> },
     { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: <Plane className="h-4 w-4" /> }
   ];
