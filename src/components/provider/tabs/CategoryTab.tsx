@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Tag, Plus, Save, X, Edit, ListPlus, Category } from "lucide-react";
+import { Tag, Plus, Save, X, Edit, ListPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -217,7 +217,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
       toast({
         title: "קטגוריות עודכנו בהצלחה",
         description: "קטגוריות השירות עודכנו ויופיעו בתוצאות החיפוש המתאימות",
-        variant: "success"
+        variant: "default" // תיקון מ-'success' ל-'default'
       });
       
     } catch (error) {
@@ -311,7 +311,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
                             onClick={() => toggleCategory(categoryId)}
                           >
                             <div className="flex items-center gap-2">
-                              <Category className="h-5 w-5 text-muted-foreground" />
+                              <Tag className="h-5 w-5 text-muted-foreground" />
                               <span className="font-medium">{categoryName}</span>
                               {selectedCount > 0 && (
                                 <Badge variant="secondary" className="mr-2">
@@ -380,7 +380,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
         <div>
           {categories.length === 0 ? (
             <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
-              <Category className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+              <Tag className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
               <p className="text-gray-500 mb-2">לא נמצאו קטגוריות לשירות זה.</p>
               {isOwner && (
                 <Button onClick={handleEditCategories} variant="outline" size="sm" className="mt-2">
@@ -395,7 +395,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
                   {categories.map((category) => (
                     <div key={category.id} className="mb-6">
                       <div className="flex items-center mb-3">
-                        <Category className="h-5 w-5 text-muted-foreground mr-2" />
+                        <Tag className="h-5 w-5 text-muted-foreground mr-2" />
                         <h3 className="font-medium text-lg">{category.name}</h3>
                       </div>
                       <div className="flex flex-wrap gap-2">

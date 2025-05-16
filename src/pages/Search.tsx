@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowDownUp, MapPin, Search as SearchIcon, Star } from "lucide-react";
+import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
 
 interface Provider {
   id: string;
@@ -159,6 +159,8 @@ const Search = () => {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [sortOption, setSortOption] = useState("relevance");
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   
   useEffect(() => {
     const query = searchParams.get("q") || "";
@@ -187,9 +189,15 @@ const Search = () => {
       const matchesVerification = verifiedOnly 
         ? provider.verifiedBadge === true 
         : true;
+
+      // בעתיד צריכה להיות כאן בדיקה אמיתית כאשר יהיה מיפוי של ספקים לקטגוריות וקטגוריות משנה במסד הנתונים
+      // כרגע משתמשים בבדיקה פשוטה על סמך שם הקטגוריה
+      const matchesAdvancedCategories = selectedCategories.length > 0 || selectedSubcategories.length > 0
+        ? selectedCategories.includes(provider.category) || selectedSubcategories.some(sub => provider.category.includes(sub))
+        : true;
         
       return matchesSearch && matchesCategory && matchesLocation && 
-        matchesPricing && matchesRating && matchesVerification;
+        matchesPricing && matchesRating && matchesVerification && matchesAdvancedCategories;
     });
     
     // מיון תוצאות
@@ -222,12 +230,22 @@ const Search = () => {
     priceRange,
     minRating,
     verifiedOnly,
-    sortOption
+    sortOption,
+    selectedCategories,
+    selectedSubcategories
   ]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchParams({ q: searchTerm });
+  };
+
+  const handleCategoriesChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
+  const handleSubcategoriesChange = (subcategories: string[]) => {
+    setSelectedSubcategories(subcategories);
   };
   
   return (
@@ -258,6 +276,16 @@ const Search = () => {
               </Button>
             </div>
           </form>
+
+          {/* פילטר קטגוריות מתקדם */}
+          <div className="w-full max-w-4xl mx-auto">
+            <AdvancedSearchFilters 
+              onCategoriesChange={handleCategoriesChange}
+              onSubcategoriesChange={handleSubcategoriesChange}
+              selectedCategories={selectedCategories}
+              selectedSubcategories={selectedSubcategories}
+            />
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* סרגל צד עם סינונים */}
@@ -366,6 +394,8 @@ const Search = () => {
                       setMinRating(0);
                       setVerifiedOnly(false);
                       setSortOption("relevance");
+                      setSelectedCategories([]);
+                      setSelectedSubcategories([]);
                     }}
                   >
                     איפוס סינונים
@@ -461,6 +491,8 @@ const Search = () => {
                       setMinRating(0);
                       setVerifiedOnly(false);
                       setSortOption("relevance");
+                      setSelectedCategories([]);
+                      setSelectedSubcategories([]);
                     }}
                   >
                     איפוס כל הסינונים
