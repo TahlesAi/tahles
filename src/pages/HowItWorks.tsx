@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ArrowLeft } from "lucide-react";
 
 const HowItWorks = () => {
   useEffect(() => {
@@ -24,9 +25,9 @@ const HowItWorks = () => {
               </p>
               <Link 
                 to="/search" 
-                className="inline-block bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                קדימה, סוגרים פינה
+                קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
               </Link>
             </div>
           </div>
@@ -38,9 +39,9 @@ const HowItWorks = () => {
             <h2 className="text-2xl font-semibold mb-5">יודעים מה מחפשים?</h2>
             <Link 
               to="/search" 
-              className="inline-block bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+              className="inline-flex items-center bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
             >
-              כנסו לחיפוש להזמנה מהירה
+              קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
             </Link>
           </div>
         </section>
@@ -222,9 +223,9 @@ const HowItWorks = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <Link 
                 to="/search" 
-                className="bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                קדימה, סוגרים פינה
+                קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
               </Link>
               <Link 
                 to="/provider-onboarding" 
