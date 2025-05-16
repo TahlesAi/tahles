@@ -9,7 +9,8 @@ import {
   Map, 
   Mic, 
   Gift, 
-  Building
+  Building,
+  Plane
 } from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
@@ -26,12 +27,12 @@ const Hero = () => {
   };
   
   const categories = [
-    { name: "לוקיישנים", icon: <Map className="h-5 w-5" /> },
+    { name: "לוקיישנים", icon: <Building className="h-5 w-5" /> },
     { name: "קייטרינג", icon: <Utensils className="h-5 w-5" /> },
     { name: "הפקה", icon: <Camera className="h-5 w-5" /> },
     { name: "מופעים", icon: <Music className="h-5 w-5" /> },
     { name: "מתנות", icon: <Gift className="h-5 w-5" /> },
-    { name: "ימי כיף", icon: <Mic className="h-5 w-5" /> }
+    { name: "ימי כיף", icon: <Plane className="h-5 w-5" /> }
   ];
   
   return (
@@ -62,7 +63,7 @@ const Hero = () => {
           כל מה שצריך לאירוע או מפגש חברתי מושלם, במקום 1
         </p>
         
-        <div className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">
+        <div className="w-full max-w-2xl relative z-10">
           <AutocompleteSearch
             suggestions={searchSuggestions}
             onSearch={handleSearch}
@@ -73,12 +74,13 @@ const Hero = () => {
             autoFocus={false}
             dir="rtl"
             className="w-full"
-            inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none"
-            buttonClassName="px-6"
+            inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
+            buttonClassName="px-6 rounded-r-full"
+            showCommandBar={true}
           />
         </div>
         
-        <div className="flex flex-wrap justify-center gap-3 md:gap-5">
+        <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-10">
           {categories.map((category, index) => (
             <Button 
               key={index}

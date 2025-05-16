@@ -259,7 +259,8 @@ const AutocompleteSearch = ({
             onKeyDown={handleKeyDown}
             className={cn(
               "w-full",
-              showButton ? "rounded-l-md rounded-r-none" : "rounded-md",
+              showButton ? "rounded-r-none" : "",
+              dir === "rtl" ? "rounded-r-full" : "rounded-l-full",
               inputClassName
             )}
             dir={dir}
@@ -277,15 +278,12 @@ const AutocompleteSearch = ({
                   ) : (
                     Object.entries(groups).map(([type, items]) => (
                       <CommandGroup key={type} heading={getGroupHeading(type)}>
-                        {items.map((suggestion, index) => (
+                        {items.map((suggestion) => (
                           <CommandItem
                             key={suggestion.id}
                             onSelect={() => handleSelectSuggestion(suggestion)}
-                            className={cn(
-                              "flex items-center gap-2 cursor-pointer",
-                              activeIndex === filteredSuggestions.indexOf(suggestion) && "bg-accent text-accent-foreground"
-                            )}
-                            data-active={activeIndex === filteredSuggestions.indexOf(suggestion)}
+                            className="flex items-center gap-2 cursor-pointer"
+                            value={suggestion.value}
                             dir={dir}
                           >
                             {suggestion.icon}
@@ -305,12 +303,13 @@ const AutocompleteSearch = ({
           <Button 
             type="submit" 
             className={cn(
-              "rounded-r-md rounded-l-none",
+              dir === "rtl" ? "rounded-l-full" : "rounded-r-full",
               buttonClassName
             )}
           >
-            <Search className="h-4 w-4 ml-2" />
+            {dir === "rtl" && <Search className="h-4 w-4 ml-2" />}
             {buttonText}
+            {dir !== "rtl" && <Search className="h-4 w-4 mr-2" />}
           </Button>
         )}
       </form>
