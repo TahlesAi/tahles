@@ -65,14 +65,14 @@ const HowItWorks = () => {
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">3</div>
-                <h3 className="text-xl font-semibold mb-2">שריינו יומנים</h3>
-                <p className="text-gray-600">בחרו את השירות המתאים והמערכת תשריין אותו ביומן של נותן השירות</p>
+                <h3 className="text-xl font-semibold mb-2">שריינו ביומנים</h3>
+                <p className="text-gray-600">בחרו את השירות המתאים ושריינו אותו עכשיו און ליין</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">4</div>
                 <h3 className="text-xl font-semibold mb-2">בצעו הזמנה</h3>
-                <p className="text-gray-600">השלימו את ההזמנה בקלות עם זכות ביטול בהתאם למדיניות</p>
+                <p className="text-gray-600">מקבלים אור ירוק מהמשפחה והחברים. עכשיו יכולים לחזור לרשימת המוזמנים.</p>
               </div>
             </div>
           </div>
