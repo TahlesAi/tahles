@@ -111,6 +111,28 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
         return;
       }
       
+      // Associate provider with selected subcategories
+      if (data.selectedSubcategories && data.selectedSubcategories.length > 0) {
+        const subcategoryMappings = data.selectedSubcategories.map((subcategoryId: string) => ({
+          provider_id: sessionData.session.user.id,
+          subcategory_id: subcategoryId
+        }));
+        
+        const { error: subcategoryError } = await supabase
+          .from('provider_subcategories')
+          .insert(subcategoryMappings);
+          
+        if (subcategoryError) {
+          console.error("Error associating provider with subcategories:", subcategoryError);
+          toast({
+            title: "שגיאה בשיוך קטגוריות",
+            description: "נוצר פרופיל ספק, אך אירעה שגיאה בשיוך לקטגוריות",
+            variant: "destructive"
+          });
+          // We continue despite this error since the provider was created
+        }
+      }
+      
       // Create service record
       const { error: serviceError } = await supabase
         .from('services')

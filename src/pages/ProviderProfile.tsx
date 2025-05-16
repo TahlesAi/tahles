@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -190,6 +189,7 @@ const ProviderProfile = () => {
                 providerDescription={provider.description}
                 services={services}
                 onBookService={handleBookService}
+                providerId={id || ""} // Pass the provider ID
               />
             </div>
           </div>

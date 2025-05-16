@@ -6,6 +6,8 @@ import AboutTabContent from './tabs/AboutTabContent';
 import ServicesTabContent from './tabs/ServicesTabContent';
 import ReviewsTabContent from './tabs/ReviewsTabContent';
 import BookingTabContent from './tabs/BookingTabContent';
+import CategoryTab from './tabs/CategoryTab';
+import { Tags } from 'lucide-react';
 
 interface ProfileTabsProps {
   activeTab: string;
@@ -14,6 +16,7 @@ interface ProfileTabsProps {
   providerDescription?: string;
   services: any[];
   onBookService: (service: any) => void;
+  providerId: string;
 }
 
 const ProfileTabs = ({ 
@@ -22,7 +25,8 @@ const ProfileTabs = ({
   providerName, 
   providerDescription = '', 
   services, 
-  onBookService 
+  onBookService,
+  providerId
 }: ProfileTabsProps) => {
   return (
     <Card>
@@ -40,6 +44,13 @@ const ProfileTabs = ({
               className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-brand-500 data-[state=active]:shadow-none py-3 px-6"
             >
               שירותים
+            </TabsTrigger>
+            <TabsTrigger 
+              value="categories" 
+              className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-brand-500 data-[state=active]:shadow-none py-3 px-6"
+            >
+              <Tags className="h-4 w-4 ml-1" />
+              קטגוריות
             </TabsTrigger>
             <TabsTrigger 
               value="reviews" 
@@ -64,6 +75,8 @@ const ProfileTabs = ({
             services={services}
             onBookService={onBookService}
           />
+          
+          <CategoryTab providerId={providerId} />
           
           <ReviewsTabContent />
           
