@@ -6,6 +6,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Tag, X, Plus, Filter, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Category {
   id: string;
@@ -19,24 +26,52 @@ interface Subcategory {
   category_id: string;
 }
 
+interface EventConcept {
+  id: string;
+  name: string;
+}
+
 interface AdvancedSearchFiltersProps {
   onCategoriesChange: (categories: string[]) => void;
   onSubcategoriesChange: (subcategories: string[]) => void;
   selectedCategories: string[];
   selectedSubcategories: string[];
+  onEventConceptChange?: (concept: string) => void;
+  selectedEventConcept?: string;
 }
 
 const AdvancedSearchFilters = ({
   onCategoriesChange,
   onSubcategoriesChange,
   selectedCategories,
-  selectedSubcategories
+  selectedSubcategories,
+  onEventConceptChange,
+  selectedEventConcept = ""
 }: AdvancedSearchFiltersProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
+
+  // קונספטי אירוע לדוגמה
+  const eventConcepts: EventConcept[] = [
+    { id: "1", name: "יום הולדת - ילדים (עד גיל 12)" },
+    { id: "2", name: "יום הולדת - נוער (13-18)" },
+    { id: "3", name: "יום הולדת - מבוגרים" },
+    { id: "4", name: "בר/בת מצווה" },
+    { id: "5", name: "אירוע חברה/עסקי" },
+    { id: "6", name: "ערב גיבוש" },
+    { id: "7", name: "כנס מקצועי" },
+    { id: "8", name: "מסיבת רווקים/ות" },
+    { id: "9", name: "אירוע משפחתי" },
+    { id: "10", name: "ארוע מקצועי/עסקי" },
+    { id: "11", name: "מפגש חברים" },
+    { id: "12", name: "קונספט ספורטיבי" },
+    { id: "13", name: "קונספט קלאסי" },
+    { id: "14", name: "קונספט שאנטי" },
+    { id: "15", name: "קונספט אלגנטי" },
+  ];
 
   // מוק קטגוריות במקרה שהחיבור ל-Supabase נכשל
   const mockCategories = [
@@ -190,6 +225,12 @@ const AdvancedSearchFilters = ({
     onSubcategoriesChange([]);
   };
 
+  const handleConceptChange = (concept: string) => {
+    if (onEventConceptChange) {
+      onEventConceptChange(concept);
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
@@ -206,7 +247,7 @@ const AdvancedSearchFilters = ({
           </Button>
         </div>
         
-        {(selectedCategories.length > 0 || selectedSubcategories.length > 0) && (
+        {(selectedCategories.length > 0 || selectedSubcategories.length > 0 || selectedEventConcept) && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
             נקה סינונים
           </Button>
@@ -219,6 +260,27 @@ const AdvancedSearchFilters = ({
             <Tag className="h-4 w-4 ml-2" />
             סינון לפי קטגוריות
           </h3>
+          
+          {/* בחירת קונספט האירוע */}
+          <div className="mb-4">
+            <h4 className="text-md font-medium mb-2">קונספט האירוע</h4>
+            <Select 
+              value={selectedEventConcept} 
+              onValueChange={handleConceptChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="בחרו קונספט" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">כל הקונספטים</SelectItem>
+                {eventConcepts.map((concept) => (
+                  <SelectItem key={concept.id} value={concept.id}>
+                    {concept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           
           {isLoading ? (
             <div className="flex justify-center py-4">
@@ -287,8 +349,19 @@ const AdvancedSearchFilters = ({
         </div>
       )}
       
-      {(selectedCategories.length > 0 || selectedSubcategories.length > 0) && (
+      {(selectedCategories.length > 0 || selectedSubcategories.length > 0 || selectedEventConcept) && (
         <div className="flex flex-wrap gap-2 mt-2">
+          {/* הצגת קונספט אירוע נבחר */}
+          {selectedEventConcept && (
+            <Badge className="py-1 px-2 bg-accent1-600">
+              {eventConcepts.find(c => c.id === selectedEventConcept)?.name || "קונספט נבחר"}
+              <X 
+                className="h-3 w-3 mr-1 cursor-pointer" 
+                onClick={() => handleConceptChange("")} 
+              />
+            </Badge>
+          )}
+          
           {categories
             .filter(cat => selectedCategories.includes(cat.id) || 
               cat.subcategories.some(sub => selectedSubcategories.includes(sub.id)))

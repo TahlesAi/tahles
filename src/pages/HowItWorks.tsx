@@ -14,7 +14,7 @@ const HowItWorks = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section - Updated header text with correct punctuation */}
+        {/* Hero Section */}
         <section className="bg-gradient-to-b from-brand-600 to-accent1-600 text-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
@@ -32,7 +32,7 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* Quick Search Section - Added new section */}
+        {/* Quick Search Section */}
         <section className="py-10 bg-brand-50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-2xl font-semibold mb-5">יודעים מה מחפשים?</h2>
@@ -45,7 +45,7 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* Steps Section - Updated with intermediate step */}
+        {/* Steps Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">איך מוצאים את השירות המושלם?</h2>
@@ -60,7 +60,7 @@ const HowItWorks = () => {
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">2</div>
                 <h3 className="text-xl font-semibold mb-2">התאימו לצרכים שלכם</h3>
-                <p className="text-gray-600">הגדירו את הדרישות הספציפיות, תאריך, סוג קהל, מספר משתתפים ותקציב</p>
+                <p className="text-gray-600">הגדירו את הדרישות הספציפיות: תאריך, סוג קהל, מספר משתתפים, תקציב וקונספט האירוע (יומולדת, אירוע חברה, מפגש משפחתי, ספורטיבי, קלאסי וכדומה)</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
@@ -163,7 +163,7 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* FAQ Section - Updated cancellation policy */}
+        {/* FAQ Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">שאלות נפוצות</h2>

@@ -33,6 +33,7 @@ interface Provider {
   pricing: string;
   featured?: boolean;
   verifiedBadge?: boolean;
+  eventConcepts?: string[];
 }
 
 // נתונים מדומים לנותני השירות
@@ -47,7 +48,8 @@ const allProviders: Provider[] = [
     location: "תל אביב",
     pricing: "₪1,200+",
     featured: true,
-    verifiedBadge: true
+    verifiedBadge: true,
+    eventConcepts: ["2", "3", "5", "6", "9"]
   },
   {
     id: "2",
@@ -58,7 +60,8 @@ const allProviders: Provider[] = [
     reviewCount: 62,
     location: "ירושלים",
     pricing: "₪800+",
-    featured: true
+    featured: true,
+    eventConcepts: ["1", "2", "3", "4", "5", "9", "15"]
   },
   {
     id: "3",
@@ -69,7 +72,8 @@ const allProviders: Provider[] = [
     reviewCount: 45,
     location: "חיפה",
     pricing: "₪500+",
-    verifiedBadge: true
+    verifiedBadge: true,
+    eventConcepts: ["3", "5", "7", "10"]
   },
   {
     id: "4",
@@ -80,7 +84,8 @@ const allProviders: Provider[] = [
     reviewCount: 73,
     location: "הרצליה",
     pricing: "₪1,500+",
-    featured: true
+    featured: true,
+    eventConcepts: ["3", "5", "9", "10", "13", "15"]
   },
   {
     id: "5",
@@ -91,7 +96,8 @@ const allProviders: Provider[] = [
     reviewCount: 39,
     location: "רעננה",
     pricing: "₪2,000+",
-    verifiedBadge: true
+    verifiedBadge: true,
+    eventConcepts: ["3", "4", "5", "9", "13", "15"]
   },
   {
     id: "6",
@@ -102,7 +108,8 @@ const allProviders: Provider[] = [
     reviewCount: 56,
     location: "כפר סבא",
     pricing: "₪1,200+",
-    featured: true
+    featured: true,
+    eventConcepts: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
   },
   {
     id: "7",
@@ -113,7 +120,8 @@ const allProviders: Provider[] = [
     reviewCount: 42,
     location: "רמת גן",
     pricing: "₪600+",
-    verifiedBadge: true
+    verifiedBadge: true,
+    eventConcepts: ["3", "4", "5", "9", "13", "15"]
   },
   {
     id: "8",
@@ -124,6 +132,7 @@ const allProviders: Provider[] = [
     reviewCount: 31,
     location: "נתניה",
     pricing: "₪350+",
+    eventConcepts: ["3", "4", "8", "13", "15"]
   },
   {
     id: "9",
@@ -135,7 +144,8 @@ const allProviders: Provider[] = [
     location: "תל אביב",
     pricing: "₪1,800+",
     featured: true,
-    verifiedBadge: true
+    verifiedBadge: true,
+    eventConcepts: ["1", "2", "3", "5", "6", "9", "10"]
   }
 ];
 
@@ -161,6 +171,7 @@ const Search = () => {
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [selectedEventConcept, setSelectedEventConcept] = useState("");
   
   // Generate search suggestions based on providers data
   const searchSuggestions = [
@@ -221,14 +232,19 @@ const Search = () => {
         ? provider.verifiedBadge === true 
         : true;
 
+      // בדיקת התאמה לקונספט אירוע
+      const matchesEventConcept = selectedEventConcept
+        ? provider.eventConcepts?.includes(selectedEventConcept)
+        : true;
+
       // בעתיד צריכה להיות כאן בדיקה אמיתית כאשר יהיה מיפוי של ספקים לקטגוריות וקטגוריות משנה במסד הנתונים
-      // כרגע משתמשים בבדיקה פשוטה על סמך שם הקטגוריה
       const matchesAdvancedCategories = selectedCategories.length > 0 || selectedSubcategories.length > 0
         ? selectedCategories.includes(provider.category) || selectedSubcategories.some(sub => provider.category.includes(sub))
         : true;
         
       return matchesSearch && matchesCategory && matchesLocation && 
-        matchesPricing && matchesRating && matchesVerification && matchesAdvancedCategories;
+        matchesPricing && matchesRating && matchesVerification && 
+        matchesAdvancedCategories && matchesEventConcept;
     });
     
     // מיון תוצאות
@@ -263,7 +279,8 @@ const Search = () => {
     verifiedOnly,
     sortOption,
     selectedCategories,
-    selectedSubcategories
+    selectedSubcategories,
+    selectedEventConcept
   ]);
   
   const handleSearch = (term: string) => {
@@ -277,6 +294,10 @@ const Search = () => {
 
   const handleSubcategoriesChange = (subcategories: string[]) => {
     setSelectedSubcategories(subcategories);
+  };
+
+  const handleEventConceptChange = (concept: string) => {
+    setSelectedEventConcept(concept);
   };
   
   return (
@@ -314,6 +335,8 @@ const Search = () => {
               onSubcategoriesChange={handleSubcategoriesChange}
               selectedCategories={selectedCategories}
               selectedSubcategories={selectedSubcategories}
+              onEventConceptChange={handleEventConceptChange}
+              selectedEventConcept={selectedEventConcept}
             />
           </div>
           
@@ -378,7 +401,7 @@ const Search = () => {
                       />
                       <div className="flex justify-between text-sm">
                         <span>₪{priceRange[0]}</span>
-                        <span>₪{priceRange[1]}+</span>
+                        <span>₪{priceRange[1]}</span>
                       </div>
                     </div>
                   </div>
@@ -426,6 +449,7 @@ const Search = () => {
                       setSortOption("relevance");
                       setSelectedCategories([]);
                       setSelectedSubcategories([]);
+                      setSelectedEventConcept("");
                     }}
                   >
                     איפוס סינונים
@@ -523,6 +547,7 @@ const Search = () => {
                       setSortOption("relevance");
                       setSelectedCategories([]);
                       setSelectedSubcategories([]);
+                      setSelectedEventConcept("");
                     }}
                   >
                     איפוס כל הסינונים
