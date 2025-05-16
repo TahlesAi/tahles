@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Tag, Plus, Save, X } from "lucide-react";
+import { Tag, Plus, Save, X, Edit, ListPlus, Category } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Category {
   id: string;
@@ -28,6 +30,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [allSubcategories, setAllSubcategories] = useState<Subcategory[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -107,13 +110,28 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
     fetchData();
   }, [providerId, toast]);
   
+  const toggleCategory = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+  
   const handleEditCategories = () => {
     setIsEditing(true);
+    // Auto-expand all categories when entering edit mode
+    setExpandedCategories(new Set(
+      Array.from(new Set(allSubcategories.map(sub => sub.category_id)))
+    ));
   };
   
   const handleCancelEdit = () => {
     setSelectedSubcategories(providerSubcategories);
     setIsEditing(false);
+    setExpandedCategories(new Set());
   };
   
   const toggleSubcategory = (subcategoryId: string) => {
@@ -122,6 +140,31 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
         ? prev.filter(id => id !== subcategoryId)
         : [...prev, subcategoryId]
     );
+  };
+  
+  const selectAllInCategory = (categoryId: string) => {
+    const categorySubcats = allSubcategories
+      .filter(sub => sub.category_id === categoryId)
+      .map(sub => sub.id);
+      
+    // Check if all subcategories in this category are already selected
+    const allSelected = categorySubcats.every(id => selectedSubcategories.includes(id));
+    
+    if (allSelected) {
+      // Deselect all in this category
+      setSelectedSubcategories(prev => 
+        prev.filter(id => !categorySubcats.includes(id))
+      );
+    } else {
+      // Select all in this category
+      const newSelected = [...selectedSubcategories];
+      categorySubcats.forEach(id => {
+        if (!newSelected.includes(id)) {
+          newSelected.push(id);
+        }
+      });
+      setSelectedSubcategories(newSelected);
+    }
   };
   
   const handleSaveCategories = async () => {
@@ -150,6 +193,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
       
       setProviderSubcategories(selectedSubcategories);
       setIsEditing(false);
+      setExpandedCategories(new Set());
       
       // Reload categories to reflect changes
       const filteredCategories = allSubcategories
@@ -172,7 +216,8 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
       
       toast({
         title: "קטגוריות עודכנו בהצלחה",
-        description: "הקטגוריות השירות עודכנו ויופיעו בתוצאות החיפוש המתאימות",
+        description: "קטגוריות השירות עודכנו ויופיעו בתוצאות החיפוש המתאימות",
+        variant: "success"
       });
       
     } catch (error) {
@@ -190,6 +235,25 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
   const getSubcategoriesByCategory = (categoryId: string) => {
     return allSubcategories.filter(sub => sub.category_id === categoryId);
   };
+  
+  const isCategoryFullySelected = (categoryId: string) => {
+    const categorySubcats = allSubcategories
+      .filter(sub => sub.category_id === categoryId)
+      .map(sub => sub.id);
+      
+    return categorySubcats.length > 0 && 
+      categorySubcats.every(id => selectedSubcategories.includes(id));
+  };
+  
+  const getCategorySelectedCount = (categoryId: string) => {
+    const categorySubcats = allSubcategories
+      .filter(sub => sub.category_id === categoryId)
+      .map(sub => sub.id);
+      
+    return categorySubcats.filter(id => 
+      selectedSubcategories.includes(id)
+    ).length;
+  };
 
   return (
     <TabsContent value="categories" className="p-6">
@@ -201,7 +265,7 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
         
         {isOwner && !isEditing && (
           <Button onClick={handleEditCategories} variant="outline" size="sm">
-            <Plus className="ml-1 h-4 w-4" /> הוסף/ערוך קטגוריות
+            <Edit className="ml-2 h-4 w-4" /> עריכת קטגוריות
           </Button>
         )}
         
@@ -222,64 +286,130 @@ const CategoryTab = ({ providerId }: { providerId: string }) => {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : isEditing ? (
-        <div className="space-y-6">
-          {allSubcategories.length === 0 ? (
-            <p className="text-gray-500">לא נמצאו קטגוריות זמינות.</p>
-          ) : (
-            <>
-              <p className="text-sm text-gray-500 mb-4">
-                בחר את הקטגוריות המתאימות לשירותים שאתה מציע:
-              </p>
-              
-              {/* Group subcategories by category for editing */}
-              {[...new Set(allSubcategories.map(sub => sub.category_id))].map(categoryId => {
-                const categoryName = allSubcategories.find(sub => sub.category_id === categoryId)?.category_name;
-                const subcategories = getSubcategoriesByCategory(categoryId);
-                
-                return (
-                  <div key={categoryId} className="mb-4">
-                    <h3 className="font-medium mb-2">{categoryName}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {subcategories.map(subcategory => (
-                        <Badge 
-                          key={subcategory.id}
-                          variant={selectedSubcategories.includes(subcategory.id) ? "default" : "outline"}
-                          className="cursor-pointer"
-                          onClick={() => toggleSubcategory(subcategory.id)}
-                        >
-                          {subcategory.name}
-                        </Badge>
-                      ))}
+        <Card className="shadow-sm">
+          <CardContent className="p-4">
+            <ScrollArea className="h-[450px] pr-4" type="always">
+              <div className="space-y-6 mt-2">
+                {allSubcategories.length === 0 ? (
+                  <p className="text-gray-500">לא נמצאו קטגוריות זמינות.</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-500 mb-4">
+                      בחר את הקטגוריות המתאימות לשירותים שאתה מציע:
+                    </p>
+                    
+                    {/* Group subcategories by category for editing */}
+                    {[...new Set(allSubcategories.map(sub => sub.category_id))].map(categoryId => {
+                      const categoryName = allSubcategories.find(sub => sub.category_id === categoryId)?.category_name;
+                      const subcategories = getSubcategoriesByCategory(categoryId);
+                      const selectedCount = getCategorySelectedCount(categoryId);
+                      
+                      return (
+                        <div key={categoryId} className="border rounded-lg overflow-hidden">
+                          <div 
+                            className="flex items-center justify-between p-3 bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                            onClick={() => toggleCategory(categoryId)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Category className="h-5 w-5 text-muted-foreground" />
+                              <span className="font-medium">{categoryName}</span>
+                              {selectedCount > 0 && (
+                                <Badge variant="secondary" className="mr-2">
+                                  {selectedCount} נבחרו
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  selectAllInCategory(categoryId);
+                                }}
+                              >
+                                <ListPlus className="h-3.5 w-3.5 ml-1" />
+                                {isCategoryFullySelected(categoryId) ? "נקה הכל" : "בחר הכל"}
+                              </Button>
+                              
+                              <div className="text-muted-foreground">
+                                {expandedCategories.has(categoryId) ? (
+                                  <X className="h-4 w-4" />
+                                ) : (
+                                  <Plus className="h-4 w-4" />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {expandedCategories.has(categoryId) && (
+                            <div className="p-3 pt-2 border-t bg-white">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2">
+                                {subcategories.map((subcategory) => (
+                                  <Badge
+                                    key={subcategory.id}
+                                    variant={selectedSubcategories.includes(subcategory.id) ? "default" : "outline"}
+                                    className="cursor-pointer py-1.5 px-3 justify-between hover:bg-primary-100 transition-all"
+                                    onClick={() => toggleSubcategory(subcategory.id)}
+                                  >
+                                    <span>{subcategory.name}</span>
+                                    {selectedSubcategories.includes(subcategory.id) && (
+                                      <X className="h-3 w-3 mr-1 hover:text-white/80" />
+                                    )}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    
+                    <div className="text-right text-sm text-gray-500 mt-6">
+                      סה"כ {selectedSubcategories.length} קטגוריות נבחרו
                     </div>
-                  </div>
-                );
-              })}
-              
-              <p className="mt-4 text-right text-sm text-gray-500">
-                {selectedSubcategories.length} קטגוריות נבחרו
-              </p>
-            </>
-          )}
-        </div>
+                  </>
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       ) : (
         <div>
           {categories.length === 0 ? (
-            <p className="text-gray-500">לא נמצאו קטגוריות לשירות זה.</p>
-          ) : (
-            <div className="space-y-4">
-              {categories.map((category) => (
-                <div key={category.id} className="mb-4">
-                  <h3 className="font-medium mb-2">{category.name}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {category.subcategories.map((subcategory) => (
-                      <Badge key={subcategory.id} variant="secondary">
-                        {subcategory.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
+              <Category className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+              <p className="text-gray-500 mb-2">לא נמצאו קטגוריות לשירות זה.</p>
+              {isOwner && (
+                <Button onClick={handleEditCategories} variant="outline" size="sm" className="mt-2">
+                  <Plus className="ml-1 h-4 w-4" /> הוסף קטגוריות
+                </Button>
+              )}
             </div>
+          ) : (
+            <Card className="shadow-sm">
+              <CardContent className="p-4">
+                <div className="space-y-6">
+                  {categories.map((category) => (
+                    <div key={category.id} className="mb-6">
+                      <div className="flex items-center mb-3">
+                        <Category className="h-5 w-5 text-muted-foreground mr-2" />
+                        <h3 className="font-medium text-lg">{category.name}</h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {category.subcategories.map((subcategory) => (
+                          <Badge key={subcategory.id} variant="secondary" className="py-1 px-3">
+                            {subcategory.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}

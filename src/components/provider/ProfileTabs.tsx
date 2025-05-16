@@ -7,7 +7,7 @@ import ServicesTabContent from './tabs/ServicesTabContent';
 import ReviewsTabContent from './tabs/ReviewsTabContent';
 import BookingTabContent from './tabs/BookingTabContent';
 import CategoryTab from './tabs/CategoryTab';
-import { Tags } from 'lucide-react';
+import { Tag } from 'lucide-react';
 
 interface ProfileTabsProps {
   activeTab: string;
@@ -47,9 +47,9 @@ const ProfileTabs = ({
             </TabsTrigger>
             <TabsTrigger 
               value="categories" 
-              className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-brand-500 data-[state=active]:shadow-none py-3 px-6"
+              className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-brand-500 data-[state=active]:shadow-none py-3 px-6 flex items-center"
             >
-              <Tags className="h-4 w-4 ml-1" />
+              <Tag className="h-4 w-4 ml-1.5" />
               קטגוריות
             </TabsTrigger>
             <TabsTrigger 
