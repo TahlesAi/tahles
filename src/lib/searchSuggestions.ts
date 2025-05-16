@@ -27,6 +27,11 @@ export interface SearchSuggestion {
   icon?: React.ReactNode;
 }
 
+// פונקציה ליצירת אייקונים - מונעת שימוש ב-JSX ישירות בקובץ .ts
+export const createIcon = (Icon: React.FC<React.SVGProps<SVGSVGElement>>) => {
+  return React.createElement(Icon, { className: "h-4 w-4" });
+};
+
 // תתי קטגוריות עבור לוקיישנים ומתחמי אירוח
 export const venueSubcategories: SearchSuggestion[] = [
   { id: "venue-1", value: "חדרי ישיבות", type: "תת-קטגוריה" },
@@ -125,22 +130,22 @@ export const tripsSubcategories: SearchSuggestion[] = [
 
 // קטגוריות ראשיות לחיפוש
 export const mainCategories: SearchSuggestion[] = [
-  { id: "cat-1", value: "לוקיישנים ומתחמי אירוח", type: "קטגוריה", icon: <Building className="h-4 w-4" /> },
-  { id: "cat-2", value: "שירותי מזון ומשקאות", type: "קטגוריה", icon: <Utensils className="h-4 w-4" /> },
-  { id: "cat-3", value: "שירותי הפקה", type: "קטגוריה", icon: <Camera className="h-4 w-4" /> },
-  { id: "cat-4", value: "מופעים ואמנים", type: "קטגוריה", icon: <Mic className="h-4 w-4" /> },
-  { id: "cat-5", value: "מתנות", type: "קטגוריה", icon: <Gift className="h-4 w-4" /> },
-  { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: <Plane className="h-4 w-4" /> }
+  { id: "cat-1", value: "לוקיישנים ומתחמי אירוח", type: "קטגוריה", icon: createIcon(Building) },
+  { id: "cat-2", value: "שירותי מזון ומשקאות", type: "קטגוריה", icon: createIcon(Utensils) },
+  { id: "cat-3", value: "שירותי הפקה", type: "קטגוריה", icon: createIcon(Camera) },
+  { id: "cat-4", value: "מופעים ואמנים", type: "קטגוריה", icon: createIcon(Mic) },
+  { id: "cat-5", value: "מתנות", type: "קטגוריה", icon: createIcon(Gift) },
+  { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: createIcon(Plane) }
 ];
 
 // קונספטים לחיפוש
 export const eventConcepts: SearchSuggestion[] = [
-  { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: <PartyPopper className="h-4 w-4" /> },
-  { id: "concept-2", value: "ערבי גיבוש", type: "קונספט", icon: <Cake className="h-4 w-4" /> },
-  { id: "concept-3", value: "מסיבות רווקים/ות", type: "קונספט", icon: <Wine className="h-4 w-4" /> },
-  { id: "concept-4", value: "אירועי חברה", type: "קונספט", icon: <Building className="h-4 w-4" /> },
-  { id: "concept-5", value: "ימי הולדת", type: "קונספט", icon: <Cake className="h-4 w-4" /> },
-  { id: "concept-6", value: "שעות מתוקות", type: "קונספט", icon: <Cake className="h-4 w-4" /> }
+  { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: createIcon(PartyPopper) },
+  { id: "concept-2", value: "ערבי גיבוש", type: "קונספט", icon: createIcon(Cake) },
+  { id: "concept-3", value: "מסיבות רווקים/ות", type: "קונספט", icon: createIcon(Wine) },
+  { id: "concept-4", value: "אירועי חברה", type: "קונספט", icon: createIcon(Building) },
+  { id: "concept-5", value: "ימי הולדת", type: "קונספט", icon: createIcon(Cake) },
+  { id: "concept-6", value: "שעות מתוקות", type: "קונספט", icon: createIcon(Cake) }
 ];
 
 // ספקים פופולריים
