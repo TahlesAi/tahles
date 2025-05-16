@@ -13,8 +13,9 @@ interface ServiceResultCardProps {
 
 const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
   // Check for media presence
-  const hasMedia = service.videoCount && service.videoCount > 0 || 
-                  service.imageCount && service.imageCount > 1;
+  const hasMedia = 
+    (service.videoCount !== undefined && service.videoCount > 0) || 
+    (service.imageCount !== undefined && service.imageCount > 1);
   
   return (
     <Link to={`/services/${service.id}`}>
@@ -35,8 +36,8 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           )}
           {hasMedia && (
             <div className="absolute bottom-2 left-2 bg-black/50 text-white p-1 rounded-md text-xs font-medium flex items-center">
-              {service.videoCount && service.videoCount > 0 && <Video className="w-3 h-3 ml-1" />}
-              {service.imageCount && service.imageCount > 1 && <Image className="w-3 h-3 ml-1" />}
+              {service.videoCount !== undefined && service.videoCount > 0 && <Video className="w-3 h-3 ml-1" />}
+              {service.imageCount !== undefined && service.imageCount > 1 && <Image className="w-3 h-3 ml-1" />}
               <span>מדיה נוספת</span>
             </div>
           )}
@@ -49,13 +50,15 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           <p className="text-gray-500 text-sm mb-1">{service.provider}</p>
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">{service.description}</p>
           
-          <div className="flex flex-wrap gap-2 mb-3">
-            {service.tags && service.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="bg-gray-50">
-                {tag}
-              </Badge>
-            ))}
-          </div>
+          {service.tags && service.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {service.tags.map((tag, index) => (
+                <Badge key={index} variant="outline" className="bg-gray-50">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center">

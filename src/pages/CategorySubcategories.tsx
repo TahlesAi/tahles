@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, AlertCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, AlertCircle, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 
 interface Subcategory {
@@ -23,6 +23,14 @@ interface Category {
   description: string;
   icon: string;
   image_url: string;
+}
+
+interface Provider {
+  id: string;
+  name: string;
+  description: string;
+  logo_url: string | null;
+  service_count: number;
 }
 
 // מיפוי אייקונים מלוסיד
@@ -57,6 +65,7 @@ const CategorySubcategories = () => {
   const navigate = useNavigate();
   const [category, setCategory] = useState<Category | null>(null);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,6 +131,45 @@ const CategorySubcategories = () => {
         }));
 
         setSubcategories(processedSubcategories);
+        
+        // אם אין תתי קטגוריות, שלוף את כל הספקים בקטגוריה זו באופן ישיר
+        if (processedSubcategories.length === 0) {
+          // שליפת ספקים בקטגוריה זו
+          const { data: providerSubcategories, error: providersError } = await supabase
+            .from("provider_subcategories")
+            .select(`
+              providers(
+                id,
+                name,
+                description,
+                logo_url,
+                services(id)
+              ),
+              subcategories(category_id)
+            `)
+            .eq("subcategories.category_id", categoryId);
+
+          if (providersError) {
+            console.error("Error fetching providers:", providersError);
+            throw new Error(providersError.message);
+          }
+
+          // עיבוד נתוני הספקים
+          const processedProviders = providerSubcategories
+            .filter(item => item.providers) // Filter out null providers
+            .map(item => {
+              const provider = item.providers;
+              return {
+                id: provider.id,
+                name: provider.name,
+                description: provider.description,
+                logo_url: provider.logo_url,
+                service_count: provider.services ? provider.services.length : 0
+              };
+            });
+
+          setProviders(processedProviders);
+        }
         
       } catch (err: any) {
         console.error("Error fetching data:", err);
@@ -242,12 +290,67 @@ const CategorySubcategories = () => {
               </div>
             </div>
           </section>
+        ) : providers.length > 0 ? (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <h2 className="text-2xl font-bold mb-8">נותני שירות ב{category.name}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {providers.map((provider) => (
+                  <Link 
+                    key={provider.id} 
+                    to={`/providers/${provider.id}`}
+                    className="block"
+                  >
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-0">
+                        <div className="flex flex-col md:flex-row h-full">
+                          <div className="md:w-1/3 h-48 md:h-auto bg-gray-100 relative">
+                            {provider.logo_url ? (
+                              <img 
+                                src={provider.logo_url} 
+                                alt={provider.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                <span className="text-gray-400 text-lg">אין תמונה</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="p-6 md:w-2/3 flex flex-col">
+                            <h3 className="text-xl font-semibold mb-2">{provider.name}</h3>
+                            <p className="text-gray-600 mb-4 line-clamp-2">{provider.description}</p>
+                            
+                            <div className="mt-auto flex justify-between items-center">
+                              <div className="flex items-center">
+                                <div className="flex items-center mr-2">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i}
+                                      className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-600">(12 ביקורות)</span>
+                              </div>
+                              <span className="text-sm text-gray-500">{provider.service_count} שירותים</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
         ) : (
           <section className="py-16">
             <div className="container mx-auto px-4 text-center">
               <div className="max-w-lg mx-auto bg-gray-50 p-8 rounded-lg border border-dashed">
-                <h3 className="text-xl font-semibold mb-4">אין תת-קטגוריות זמינות כרגע</h3>
-                <p className="mb-6">כרגע אין תת-קטגוריות זמינות עבור {category.name}. אנו עובדים על הוספת תוכן נוסף בקרוב!</p>
+                <h3 className="text-xl font-semibold mb-4">אין תוכן זמין כרגע</h3>
+                <p className="mb-6">כרגע אין תת-קטגוריות או נותני שירות זמינים עבור {category.name}. אנו עובדים על הוספת תוכן נוסף בקרוב!</p>
                 
                 <div className="flex justify-center mt-4">
                   <Link 

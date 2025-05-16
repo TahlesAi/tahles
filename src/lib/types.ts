@@ -33,6 +33,9 @@ export interface SearchResultService {
   location?: string;
   suitableFor: string[]; // concepts/event types
   featured?: boolean;
+  tags?: string[];
+  imageCount?: number;
+  videoCount?: number;
   availability?: {
     dates: string[];
     timeSlots?: {
@@ -99,6 +102,13 @@ export interface Service {
   suitableFor: string[];
   featured?: boolean;
   setupTime?: number;
+  audienceSize?: number;
+  audienceAges?: string[];
+  technicalRequirements?: string[];
+  eventTypes?: string[]; // רווקים, חתונות, מצטיינים, ימי זיכרון
+  isReceptionService?: boolean; // האם זה שירות של קבלת פנים
+  videos?: string[];
+  additionalImages?: string[];
   additionalOptions?: {
     id: string;
     name: string;

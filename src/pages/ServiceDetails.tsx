@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -90,14 +89,14 @@ const ServiceDetails = () => {
           gallery.push({ type: 'image', url: serviceData.image_url });
         }
         
-        // Add additional images
+        // Add additional images if they exist
         if (serviceData.additional_images && Array.isArray(serviceData.additional_images)) {
           serviceData.additional_images.forEach((img: string) => {
             gallery.push({ type: 'image', url: img });
           });
         }
         
-        // Add videos
+        // Add videos if they exist
         if (serviceData.videos && Array.isArray(serviceData.videos)) {
           serviceData.videos.forEach((video: string) => {
             gallery.push({ type: 'video', url: video });
