@@ -60,14 +60,14 @@ const HowItWorks = () => {
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">2</div>
-                <h3 className="text-xl font-semibold mb-2">התאימו לצרכים שלכם</h3>
-                <p className="text-gray-600">הגדירו את הדרישות הספציפיות: תאריך, סוג קהל, מספר משתתפים, תקציב וקונספט האירוע (יומולדת, אירוע חברה, מפגש משפחתי, ספורטיבי, קלאסי וכדומה)</p>
+                <h3 className="text-xl font-semibold mb-2">מתאימים צרכים אישיים</h3>
+                <p className="text-gray-600">מגדירים דרישות: מועד, קונספט, קהלים, משתתפים, תקציב</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">3</div>
                 <h3 className="text-xl font-semibold mb-2">שריינו ביומנים</h3>
-                <p className="text-gray-600">בחרו את השירות המתאים ושריינו אותו עכשיו און ליין</p>
+                <p className="text-gray-600">מקבלים רשימה מומלצת לפי הצרכים, בוחרים שירות ומשריינים אותו בלחיצת כפתור ליומן</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
