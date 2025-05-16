@@ -20,7 +20,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [activeAuthView, setActiveAuthView] = useState<"login" | "signup">("login");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [userType, setUserType] = useState<"client" | "provider">("client");
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -37,12 +38,12 @@ const Header = () => {
   }, []);
   
   const handleOpenLogin = () => {
-    setActiveAuthView("login");
+    setAuthMode("signin");
     setShowAuthModal(true);
   };
   
   const handleOpenSignup = () => {
-    setActiveAuthView("signup");
+    setAuthMode("signup");
     setShowAuthModal(true);
   };
 
@@ -199,7 +200,10 @@ const Header = () => {
       <AuthModal 
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        initialView={activeAuthView}
+        mode={authMode}
+        setMode={setAuthMode}
+        userType={userType}
+        setUserType={setUserType}
       />
     </header>
   );
