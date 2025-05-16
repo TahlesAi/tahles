@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { mockProviders, mockSearchResults, mockReviews } from "@/lib/mockData";
-import { Star, MapPin, Mail, Phone, Globe, Calendar, CheckCircle } from "lucide-react";
+import { Star, MapPin, Mail, Phone, Globe, Calendar, CheckCircle, User } from "lucide-react";
 import ProfileGallery from "@/components/provider/ProfileGallery";
 
 const ProviderProfile = () => {

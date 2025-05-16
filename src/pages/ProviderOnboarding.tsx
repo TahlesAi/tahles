@@ -73,6 +73,15 @@ const ProviderOnboarding = () => {
     coverImage: "",
     gallery: [] as string[],
     videos: [] as string[],
+
+    // Additional fields for step 3
+    category: "",
+    name: "",
+    title: "",
+    duration: 60,
+    audience: 350,
+    ageRange: "20-40",
+    price: 120,
   });
   
   const updateFormData = (stepData: Partial<typeof formData>) => {
@@ -155,34 +164,38 @@ const ProviderOnboarding = () => {
             {/* Step Content */}
             {currentStep === 1 && (
               <OnboardingStep1 
-                formData={formData}
-                updateFormData={updateFormData}
+                data={formData}
+                onUpdate={updateFormData}
+                onNext={handleNext}
               />
             )}
             
             {currentStep === 2 && (
               <OnboardingStep2 
-                formData={formData}
-                updateFormData={updateFormData}
+                data={formData}
+                onUpdate={updateFormData}
+                onNext={handleNext}
+                onBack={handleBack}
               />
             )}
             
             {currentStep === 3 && (
               <OnboardingStep3 
-                formData={formData}
-                updateFormData={updateFormData}
+                data={formData}
+                onUpdate={updateFormData}
+                onSubmit={handleSubmit}
+                onBack={handleBack}
               />
             )}
             
             {currentStep === 4 && (
               <OnboardingSuccess 
-                formData={formData}
-                onDone={() => navigate('/dashboard')}
+                onFinish={() => navigate('/dashboard')}
               />
             )}
             
             {/* Navigation Buttons */}
-            {currentStep < 4 && (
+            {currentStep < 4 && currentStep > 1 && (
               <div className="flex justify-between mt-8">
                 {currentStep > 1 ? (
                   <Button 
@@ -196,20 +209,6 @@ const ProviderOnboarding = () => {
                 ) : (
                   <div></div>
                 )}
-                
-                <Button 
-                  onClick={currentStep < 3 ? handleNext : handleSubmit}
-                  className="bg-brand-600 hover:bg-brand-700 flex items-center gap-1"
-                >
-                  {currentStep < 3 ? (
-                    <>
-                      המשך
-                      <ChevronLeft className="h-4 w-4" />
-                    </>
-                  ) : (
-                    "שליחה וסיום"
-                  )}
-                </Button>
               </div>
             )}
           </div>
