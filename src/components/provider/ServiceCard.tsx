@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, Info, Check } from "lucide-react";
+import { CalendarDays, Clock, Info, Check, Bookmark, BookmarkCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { addServiceToBasket } from './ServiceBasket';
 
@@ -12,8 +12,69 @@ interface ServiceCardProps {
   onBookService: (service: any) => void;
 }
 
+// Function to save service to local storage
+export const saveServiceForLater = (service: any) => {
+  const savedServices = localStorage.getItem("savedServices");
+  const currentSavedServices = savedServices ? JSON.parse(savedServices) : [];
+  
+  // Check if service is already saved
+  if (currentSavedServices.some((s: any) => s.id === service.id)) return false;
+  
+  const updatedSavedServices = [...currentSavedServices, service];
+  localStorage.setItem("savedServices", JSON.stringify(updatedSavedServices));
+  
+  // Dispatch event for components that need to know about this change
+  const event = new CustomEvent("savedServicesUpdated", { 
+    detail: updatedSavedServices 
+  });
+  window.dispatchEvent(event);
+  
+  return true;
+};
+
+// Function to check if a service is saved
+export const isServiceSaved = (serviceId: string): boolean => {
+  const savedServices = localStorage.getItem("savedServices");
+  const currentSavedServices = savedServices ? JSON.parse(savedServices) : [];
+  return currentSavedServices.some((s: any) => s.id === serviceId);
+};
+
+// Function to remove a saved service
+export const removeSavedService = (serviceId: string): boolean => {
+  const savedServices = localStorage.getItem("savedServices");
+  const currentSavedServices = savedServices ? JSON.parse(savedServices) : [];
+  
+  const updatedSavedServices = currentSavedServices.filter((s: any) => s.id !== serviceId);
+  localStorage.setItem("savedServices", JSON.stringify(updatedSavedServices));
+  
+  // Dispatch event for components that need to know about this change
+  const event = new CustomEvent("savedServicesUpdated", { 
+    detail: updatedSavedServices 
+  });
+  window.dispatchEvent(event);
+  
+  return true;
+};
+
 const ServiceCard = ({ service, onBookService }: ServiceCardProps) => {
   const { toast } = useToast();
+  const [isSaved, setIsSaved] = React.useState(false);
+  
+  // Check if service is saved on component mount
+  React.useEffect(() => {
+    setIsSaved(isServiceSaved(service.id));
+    
+    // Listen for changes to saved services
+    const handleSavedServicesUpdate = () => {
+      setIsSaved(isServiceSaved(service.id));
+    };
+    
+    window.addEventListener("savedServicesUpdated", handleSavedServicesUpdate);
+    
+    return () => {
+      window.removeEventListener("savedServicesUpdated", handleSavedServicesUpdate);
+    };
+  }, [service.id]);
   
   const handleAddToBasket = () => {
     // המרת שירות לפורמט המתאים לסל השירותים
@@ -38,6 +99,38 @@ const ServiceCard = ({ service, onBookService }: ServiceCardProps) => {
         title: "השירות כבר בסל",
         description: "שירות זה כבר קיים בסל השירותים שלך",
       });
+    }
+  };
+  
+  const handleSaveForLater = () => {
+    if (isSaved) {
+      const removed = removeSavedService(service.id);
+      if (removed) {
+        setIsSaved(false);
+        toast({
+          title: "השירות הוסר מהשמורים",
+          description: `${service.name} הוסר בהצלחה מהשירותים השמורים שלך`,
+        });
+      }
+    } else {
+      const saved = saveServiceForLater({
+        id: service.id,
+        name: service.name,
+        short_description: service.short_description,
+        price_range: service.price_range || service.price || "₪0",
+        provider_id: service.provider_id,
+        provider_name: service.provider_name || "ספק שירות",
+        image_url: service.image_url,
+        saved_at: new Date().toISOString()
+      });
+      
+      if (saved) {
+        setIsSaved(true);
+        toast({
+          title: "השירות נשמר",
+          description: `${service.name} נשמר בהצלחה, נזכיר לך עליו בכניסה הבאה`,
+        });
+      }
     }
   };
   
@@ -93,9 +186,24 @@ const ServiceCard = ({ service, onBookService }: ServiceCardProps) => {
       </CardContent>
       
       <CardFooter className="bg-gray-50 p-4 flex justify-between items-center">
-        <Button variant="outline" size="sm" onClick={handleAddToBasket}>
-          הוסף לסל
-        </Button>
+        <div className="space-x-2 rtl:space-x-reverse">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleSaveForLater}
+            className={isSaved ? "text-brand-600 border-brand-500" : ""}
+          >
+            {isSaved ? (
+              <BookmarkCheck className="h-4 w-4 ml-1" />
+            ) : (
+              <Bookmark className="h-4 w-4 ml-1" />
+            )}
+            {isSaved ? "שמור" : "שמור לאחר כך"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleAddToBasket}>
+            הוסף לסל
+          </Button>
+        </div>
         <Button onClick={() => onBookService(service)}>
           הזמן עכשיו
         </Button>

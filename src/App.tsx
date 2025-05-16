@@ -20,6 +20,9 @@ import CategorySubcategories from "./pages/CategorySubcategories";
 import SubcategoryProviders from "./pages/SubcategoryProviders";
 import Contact from "./pages/Contact";
 
+// Components
+import SavedServicesReminder from "./components/provider/SavedServicesReminder";
+
 const queryClient = new QueryClient();
 
 // Create an AuthWrapper component to handle navigation after auth events
@@ -31,6 +34,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
     <AuthProvider>
       {/* Here we could add code to handle navigation based on auth state if needed */}
       {children}
+      <SavedServicesReminder />
     </AuthProvider>
   );
 };
