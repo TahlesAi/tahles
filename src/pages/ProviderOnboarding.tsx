@@ -102,8 +102,8 @@ const ProviderOnboarding = () => {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Modified function to align with the expected type in OnboardingStep3 component
+  const handleSubmit = () => {
     // In a real app, submit the data to API
     console.log("Form Submission:", formData);
     // Go to success step
