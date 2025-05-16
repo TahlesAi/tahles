@@ -14,13 +14,13 @@ const HowItWorks = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section - Updated header text */}
+        {/* Hero Section - Updated header text with correct punctuation */}
         <section className="bg-gradient-to-b from-brand-600 to-accent1-600 text-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl font-bold mb-6">איך זה עובד?</h1>
               <p className="text-xl mb-8">
-                הפלטפורמה שעושה לכם סדר בהפקה הבאה שלכם
+                הפלטפורמה שעושה לכם סדר. להפקה הבאה שלכם
               </p>
               <Link 
                 to="/search" 
