@@ -57,17 +57,17 @@ const Hero = () => {
       
       <div className="relative container px-4 py-16 md:py-24 flex flex-col items-center">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3">
-          פתרונות צרכנות משובחים בתכלס
+          פתרונות הפקה מקצועיים בתכלס
         </h1>
         <p className="text-xl md:text-2xl text-white/90 text-center mb-8">
-          כל מה שצריך לאירוע או מפגש חברתי מושלם, במקום אחד
+          אמנים, הרצאות, ימי כיף וכל מה שצריך לאירוע מושלם, במקום אחד
         </p>
         
         <div className="w-full max-w-2xl relative z-10">
           <AutocompleteSearch
             suggestions={searchSuggestions}
             onSearch={handleSearch}
-            placeholder="חיפוש שירותים, מופעים או מקומות אירוח..."
+            placeholder="חיפוש אמנים, מרצים, מופעים או מקומות אירוח..."
             value={searchTerm}
             onChange={setSearchTerm}
             buttonText="חיפוש"

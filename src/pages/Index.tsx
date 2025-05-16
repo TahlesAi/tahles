@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServiceCategories from "@/components/ServiceCategories";
@@ -22,23 +21,23 @@ import { Link } from "react-router-dom";
 
 const features = [
   {
-    title: "פתרונות מקיפים",
-    description: "מגוון שירותים מקצה לקצה: לוקיישנים, הגברה, מופעים, קייטרינג, צילום ועוד.",
+    title: "פתרונות מפיקים מקיפים",
+    description: "מגוון שירותים לכל צורך: אמנים והרצאות מובילים, ימי כיף וגיבוש, לוקיישנים, הגברה ותאורה, צילום ועוד.",
     icon: "🔍"
   },
   {
-    title: "הזמנה פשוטה ובטוחה",
-    description: "מערכת הזמנות אינטואיטיבית עם תשלומים מאובטחים והגנה לשני הצדדים.",
+    title: "הזמנה מהירה, פשוטה ובטוחה",
+    description: "מערכת הזמנות אינטואיטיבית בזמן אמת עם תשלומים מאובטחים והגנה לשני הצדדים.",
     icon: "📅"
   },
   {
     title: "ספקים מאומתים",
-    description: "כל ספקי השירות עוברים תהליך אימות המבטיח איכות ואמינות עבור האירוע שלכם.",
+    description: "כל ספקי השירות עוברים תהליך אימות קפדני המבטיח איכות ואמינות עבור האירוע שלכם.",
     icon: "✅"
   },
   {
     title: "הכל במקום אחד",
-    description: "מתקשורת ועד תשלומים, נהלו את כל היבטי האירוע שלכם בפלטפורמה אחת.",
+    description: "מתקשורת ועד תשלומים, נהלו את כל היבטי האירוע שלכם בפלטפורמה אחת נוחה וידידותית.",
     icon: "📱"
   }
 ];
@@ -79,7 +78,7 @@ const Index = () => {
           <div className="container px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              הצטרפו לאלפי מארגני אירועים שמצאו את נותני השירות המושלמים עבור האירועים המיוחדים שלהם.
+              הצטרפו לאלפי מארגני אירועים שמצאו את האמנים, המרצים ונותני השירות המושלמים עבור האירועים המיוחדים שלהם.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">

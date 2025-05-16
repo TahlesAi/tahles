@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -21,13 +20,13 @@ const HowItWorks = () => {
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl font-bold mb-6">איך זה עובד?</h1>
               <p className="text-xl mb-8">
-                הפלטפורמה שעושה לכם סדר. להפקה הבאה שלכם
+                הפלטפורמה שעושה לכם סדר בהפקת האירועים
               </p>
               <Link 
                 to="/search" 
                 className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                בואו נטייל <ArrowLeft className="mr-4 rotate-[10deg]" size={18} />
+                בואו נתחיל <ArrowLeft className="mr-4 rotate-[10deg]" size={18} />
               </Link>
             </div>
           </div>
@@ -55,25 +54,25 @@ const HowItWorks = () => {
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">1</div>
                 <h3 className="text-xl font-semibold mb-2">בחרו קטגוריה</h3>
-                <p className="text-gray-600">בחרו את סוג השירות שאתם מחפשים - לדוגמא: לוקיישנים, מופעים, הרצאות, שירותי הפקה, אבטחה ועוד...</p>
+                <p className="text-gray-600">בחרו את סוג השירות שאתם מחפשים - לדוגמא: אמנים, מרצים, לוקיישנים, הפקה, אבטחה ועוד...</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">2</div>
-                <h3 className="text-xl font-semibold mb-2">מתאימים צרכים אישיים</h3>
-                <p className="text-gray-600">מגדירים דרישות: מועד, קונספט, קהלים, משתתפים, תקציב</p>
+                <h3 className="text-xl font-semibold mb-2">התאמה אישית לצרכים</h3>
+                <p className="text-gray-600">הגדירו את הדרישות המדויקות: מועד, קונספט, קהל היעד, מספר משתתפים ותקציב</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">3</div>
                 <h3 className="text-xl font-semibold mb-2">שריינו ביומנים</h3>
-                <p className="text-gray-600">מקבלים רשימה מומלצת לפי הצרכים, בוחרים שירות ומשריינים אותו בלחיצת כפתור ליומן</p>
+                <p className="text-gray-600">בחרו מתוך רשימת השירותים המותאמים לכם ושריינו בזמן אמת את התאריך המבוקש</p>
               </div>
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">4</div>
-                <h3 className="text-xl font-semibold mb-2">בצעו הזמנה</h3>
-                <p className="text-gray-600">מקבלים אור ירוק מהמשפחה והחברים. עכשיו יכולים לחזור לרשימת המוזמנים.</p>
+                <h3 className="text-xl font-semibold mb-2">בצעו הזמנה מאובטחת</h3>
+                <p className="text-gray-600">השלימו את ההזמנה במהירות ובקלות באמצעות מערכת התשלומים המאובטחת שלנו</p>
               </div>
             </div>
           </div>
@@ -94,7 +93,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>גישה למגוון רחב של אמנים, מפיקים ונותני שירות באירועים</span>
+                    <span>גישה למגוון רחב של אמנים, מרצים ונותני שירות מובילים</span>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
@@ -102,7 +101,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>השוואת מחירים ומפרטים בין נותני שירות שונים</span>
+                    <span>השוואת מחירים ומפרטים בקלות ובמהירות</span>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
@@ -110,7 +109,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>ביצוע הזמנה מאובטחת ונוחה באופן מקוון</span>
+                    <span>ביצוע הזמנה מהירה, פשוטה ומאובטחת בזמן אמת</span>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
@@ -118,7 +117,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>חיסכון בזמן ובכסף בתהליך חיפוש ומציאת שירותים לאירוע</span>
+                    <span>חיסכון בזמן ובכסף בתהליך חיפוש ומציאת השירותים המושלמים</span>
                   </li>
                 </ul>
               </div>
@@ -140,7 +139,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>ניהול נוח של ההזמנות ויומן האירועים</span>
+                    <span>ניהול נוח ומהיר של הזמנות ויומן האירועים</span>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
@@ -148,7 +147,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>קבלת תשלומים באופן מאובטח</span>
+                    <span>קבלת תשלומים באופן מאובטח ומהיר</span>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
@@ -156,7 +155,7 @@ const HowItWorks = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>בניית מוניטין באמצעות חוות דעת של לקוחות</span>
+                    <span>בניית מוניטין באמצעות חוות דעת של לקוחות מרוצים</span>
                   </li>
                 </ul>
               </div>
@@ -218,7 +217,7 @@ const HowItWorks = () => {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">מוכנים להתחיל?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              מצאו את נותני השירות המושלמים לאירוע הבא שלכם או הצטרפו כנותני שירות
+              מצאו את האמנים, המרצים ונותני השירות המושלמים לאירוע הבא שלכם או הצטרפו כנותני שירות
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link 
