@@ -3,17 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  Calendar, 
-  Mic2, 
-  ImageIcon, 
-  Music2, 
+  MapPin, 
+  Mic, 
   Utensils, 
-  TentTree, 
-  Users, 
-  Truck, 
-  Wand2, 
-  Ticket, 
-  Camera
+  Speaker, 
+  Gift, 
+  Microphone, 
+  Plane
 } from "lucide-react";
 
 interface OnboardingStep1Props {
@@ -24,58 +20,46 @@ interface OnboardingStep1Props {
 
 const serviceCategories = [
   {
-    id: "performers",
-    name: "אמנים",
-    icon: <Wand2 className="h-8 w-8" />,
-    description: "קוסמים, מנחים, אמני במה וכדומה"
-  },
-  {
-    id: "production",
-    name: "שירותי הפקה",
-    icon: <ImageIcon className="h-8 w-8" />,
-    description: "ציוד, לוגיסטיקה וארגון אירועים"
-  },
-  {
-    id: "music",
-    name: "מוזיון ומשקאות",
-    icon: <Music2 className="h-8 w-8" />,
-    description: "תקליטנים, להקות, ברים ניידים"
-  },
-  {
-    id: "sound",
-    name: "שירותי סאונד",
-    icon: <Mic2 className="h-8 w-8" />,
-    description: "הגברה, ציוד סאונד, פתרונות אקוסטיקה"
+    id: "performances",
+    name: "מופעים",
+    icon: <Mic className="h-8 w-8" />,
+    description: "מופעי במה, אמנים, קוסמים וכדומה"
   },
   {
     id: "venues",
-    name: "הזמנת מופעים",
-    icon: <Calendar className="h-8 w-8" />,
+    name: "לוקיישנים",
+    icon: <MapPin className="h-8 w-8" />,
     description: "אולמות, גנים, מרחבי אירוח"
+  },
+  {
+    id: "food",
+    name: "מזון ומשקאות",
+    icon: <Utensils className="h-8 w-8" />,
+    description: "קייטרינג, ברים ניידים, שירותי מזון"
+  },
+  {
+    id: "staging",
+    name: "שרותי במה",
+    icon: <Speaker className="h-8 w-8" />,
+    description: "הגברה, תאורה, ציוד סאונד"
+  },
+  {
+    id: "gifts",
+    name: "מתנות",
+    icon: <Gift className="h-8 w-8" />,
+    description: "מזכרות, מתנות לאורחים"
   },
   {
     id: "lectures",
     name: "הרצאות",
-    icon: <Users className="h-8 w-8" />,
+    icon: <Microphone className="h-8 w-8" />,
     description: "מרצים, סדנאות, הדרכות"
   },
   {
-    id: "attractions",
-    name: "טיולים וימי גיבוש",
-    icon: <TentTree className="h-8 w-8" />,
-    description: "פעילויות אתגר, סיורים מאורגנים"
-  },
-  {
-    id: "tickets",
-    name: "כרטיסים לאטרקציות",
-    icon: <Ticket className="h-8 w-8" />,
-    description: "כרטיסים לאירועים ואטרקציות"
-  },
-  {
-    id: "studios",
-    name: "סדנאות",
-    icon: <Camera className="h-8 w-8" />,
-    description: "סדנאות יצירה, אמנות ובישול"
+    id: "trips",
+    name: "טיולים",
+    icon: <Plane className="h-8 w-8" />,
+    description: "פעילויות אתגר, ימי גיבוש, סיורים"
   }
 ];
 
