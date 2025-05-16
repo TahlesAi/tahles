@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Music, 
@@ -17,7 +18,13 @@ import {
   CarFront,
   Plane,
   Award,
-  GraduationCap
+  GraduationCap,
+  Baby,
+  Users,
+  Star,
+  Champagne,
+  Trophy,
+  Wedding
 } from "lucide-react";
 
 // הממשק עבור הצעת חיפוש
@@ -139,28 +146,21 @@ export const mainCategories: SearchSuggestion[] = [
   { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: createIcon(Plane) }
 ];
 
-// קונספטים לחיפוש - מורחב
+// קונספטים לחיפוש - מעודכן לפי בקשת המשתמש
 export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-2", value: "ערבי גיבוש", type: "קונספט", icon: createIcon(Building) },
-  { id: "concept-3", value: "מסיבות רווקים/ות", type: "קונספט", icon: createIcon(Wine) },
-  { id: "concept-4", value: "אירועי חברה", type: "קונספט", icon: createIcon(Building) },
-  { id: "concept-5", value: "ימי הולדת", type: "קונספט", icon: createIcon(Cake) },
-  { id: "concept-6", value: "שעות מתוקות", type: "קונספט", icon: createIcon(Cake) },
-  { id: "concept-7", value: "מסיבות פרישה", type: "קונספט", icon: createIcon(Award) },
-  { id: "concept-8", value: "עובד מצטיין", type: "קונספט", icon: createIcon(Award) },
-  { id: "concept-9", value: "מסיבת גיוס", type: "קונספט", icon: createIcon(GraduationCap) },
-  { id: "concept-10", value: "מסיבת שחרור", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-11", value: "HAPPY HOUR", type: "קונספט", icon: createIcon(Wine) },
-  { id: "concept-12", value: "חנוכת בית", type: "קונספט", icon: createIcon(Building) },
-  { id: "concept-13", value: "כנסים מקצועיים", type: "קונספט", icon: createIcon(Building) },
-  { id: "concept-14", value: "השקות מוצרים", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-15", value: "חתונות", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-16", value: "אירוסין", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-17", value: "סוף שנה", type: "קונספט", icon: createIcon(Cake) },
-  { id: "concept-18", value: "מסיבות נושא", type: "קונספט", icon: createIcon(Ticket) },
-  { id: "concept-19", value: "הרמות כוסית", type: "קונספט", icon: createIcon(Wine) },
-  { id: "concept-20", value: "מפגשי בוגרים", type: "קונספט", icon: createIcon(GraduationCap) }
+  { id: "concept-2", value: "חתונה", type: "קונספט", icon: createIcon(Wedding) },
+  { id: "concept-3", value: "ברית/ה", type: "קונספט", icon: createIcon(Baby) },
+  { id: "concept-4", value: "גיבוש צוות", type: "קונספט", icon: createIcon(Users) },
+  { id: "concept-5", value: "מסיבת עובדים", type: "קונספט", icon: createIcon(PartyPopper) },
+  { id: "concept-6", value: "אירוע פרישה", type: "קונספט", icon: createIcon(Award) },
+  { id: "concept-7", value: "העשרה", type: "קונספט", icon: createIcon(GraduationCap) },
+  { id: "concept-8", value: "יום הולדת", type: "קונספט", icon: createIcon(Cake) },
+  { id: "concept-9", value: "סעודה", type: "קונספט", icon: createIcon(Utensils) },
+  { id: "concept-10", value: "אירוע השקה", type: "קונספט", icon: createIcon(Champagne) },
+  { id: "concept-11", value: "עובדים מצטיינים", type: "קונספט", icon: createIcon(Trophy) },
+  { id: "concept-12", value: "חתונת זהב", type: "קונספט", icon: createIcon(Star) },
+  { id: "concept-13", value: "מסיבת רווקות/ים", type: "קונספט", icon: createIcon(Wine) }
 ];
 
 // ספקים פופולריים
