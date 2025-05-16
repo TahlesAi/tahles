@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface Subcategory {
   id: string;
@@ -24,12 +25,36 @@ interface Category {
   image_url: string;
 }
 
+// מיפוי אייקונים מלוסיד
+import {
+  Music, Camera, Utensils, MapPin, Mic2, Monitor, 
+  Gift, Sparkles, Calendar, Wand2, PartyPopper, 
+  TentTree, User, PlusCircle, Users, Headphones
+} from "lucide-react";
+
 const iconComponents: Record<string, React.ReactNode> = {
-  // ניתן להוסיף יותר אייקונים לפי הצורך
+  "Music": <Music className="h-8 w-8" />,
+  "Camera": <Camera className="h-8 w-8" />,
+  "Utensils": <Utensils className="h-8 w-8" />,
+  "MapPin": <MapPin className="h-8 w-8" />,
+  "Mic": <Mic2 className="h-8 w-8" />,
+  "Mic2": <Mic2 className="h-8 w-8" />,
+  "Monitor": <Monitor className="h-8 w-8" />,
+  "Gift": <Gift className="h-8 w-8" />,
+  "Sparkles": <Sparkles className="h-8 w-8" />,
+  "Calendar": <Calendar className="h-8 w-8" />,
+  "Wand2": <Wand2 className="h-8 w-8" />,
+  "PartyPopper": <PartyPopper className="h-8 w-8" />,
+  "TentTree": <TentTree className="h-8 w-8" />,
+  "User": <User className="h-8 w-8" />,
+  "PlusCircle": <PlusCircle className="h-8 w-8" />,
+  "Users": <Users className="h-8 w-8" />,
+  "Headphones": <Headphones className="h-8 w-8" />
 };
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams();
+  const navigate = useNavigate();
   const [category, setCategory] = useState<Category | null>(null);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +66,12 @@ const CategorySubcategories = () => {
     const fetchCategoryData = async () => {
       try {
         setLoading(true);
+        
+        // Validate if categoryId is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!categoryId || !uuidRegex.test(categoryId)) {
+          throw new Error("מזהה קטגוריה לא תקין");
+        }
         
         // שליפת נתוני הקטגוריה
         const { data: categoryData, error: categoryError } = await supabase
@@ -87,6 +118,9 @@ const CategorySubcategories = () => {
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setError(err.message);
+        toast.error("שגיאה בטעינת הנתונים", {
+          description: err.message
+        });
       } finally {
         setLoading(false);
       }
@@ -95,7 +129,7 @@ const CategorySubcategories = () => {
     if (categoryId) {
       fetchCategoryData();
     }
-  }, [categoryId]);
+  }, [categoryId, navigate]);
 
   // מצב של טעינה
   if (loading) {
@@ -134,11 +168,17 @@ const CategorySubcategories = () => {
         <Header />
         <main className="flex-grow py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">שגיאה בטעינת הנתונים</h1>
-            <p>{error || "הקטגוריה לא נמצאה"}</p>
-            <Link to="/categories" className="mt-4 inline-block text-brand-600 hover:underline">
-              חזרה לכל הקטגוריות
-            </Link>
+            <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-4">שגיאה בטעינת הנתונים</h1>
+              <p className="mb-6 text-gray-600">{error || "הקטגוריה לא נמצאה"}</p>
+              <Link 
+                to="/categories" 
+                className="bg-brand-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+              >
+                חזרה לכל הקטגוריות
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -154,7 +194,7 @@ const CategorySubcategories = () => {
         <section 
           className="bg-cover bg-center py-24 text-white relative"
           style={{ 
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${category.image_url})` 
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${category.image_url || '/placeholder.svg'})` 
           }}
         >
           <div className="container mx-auto px-4">
@@ -185,7 +225,6 @@ const CategorySubcategories = () => {
                       <CardContent className="p-6 flex flex-col items-center">
                         <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                           <div className="text-brand-600">
-                            {/* כאן יש להציג אייקון לפי השם */}
                             {iconComponents[subcategory.icon] || subcategory.icon}
                           </div>
                         </div>
@@ -202,7 +241,12 @@ const CategorySubcategories = () => {
         ) : (
           <section className="py-16">
             <div className="container mx-auto px-4 text-center">
-              <p>אין תת-קטגוריות זמינות כרגע.</p>
+              <div className="max-w-lg mx-auto bg-gray-50 p-8 rounded-lg border border-dashed">
+                <p className="mb-4">אין תת-קטגוריות זמינות כרגע עבור קטגוריה זו.</p>
+                {category.name === "אולמות ומקומות אירוע" && (
+                  <p className="text-brand-600">בקרוב! אנו עובדים על הוספת מקומות אירוע מומלצים.</p>
+                )}
+              </div>
             </div>
           </section>
         )}

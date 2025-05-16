@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Star } from "lucide-react";
+import { ChevronLeft, Star, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface Provider {
   id: string;
@@ -27,6 +28,7 @@ interface Subcategory {
 
 const SubcategoryProviders = () => {
   const { subcategoryId } = useParams();
+  const navigate = useNavigate();
   const [subcategory, setSubcategory] = useState<Subcategory | null>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +40,12 @@ const SubcategoryProviders = () => {
     const fetchSubcategoryData = async () => {
       try {
         setLoading(true);
+        
+        // Validate if subcategoryId is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!subcategoryId || !uuidRegex.test(subcategoryId)) {
+          throw new Error("מזהה תת-קטגוריה לא תקין");
+        }
         
         // שליפת נתוני תת-הקטגוריה
         const { data: subcategoryData, error: subcategoryError } = await supabase
@@ -81,22 +89,27 @@ const SubcategoryProviders = () => {
         }
 
         // עיבוד הנתונים
-        const processedProviders = providersData.map(item => {
-          const provider = item.providers;
-          return {
-            id: provider.id,
-            name: provider.name,
-            description: provider.description,
-            logo_url: provider.logo_url,
-            service_count: provider.services ? provider.services.length : 0
-          };
-        });
+        const processedProviders = providersData
+          .filter(item => item.providers) // Filter out null providers
+          .map(item => {
+            const provider = item.providers;
+            return {
+              id: provider.id,
+              name: provider.name,
+              description: provider.description,
+              logo_url: provider.logo_url,
+              service_count: provider.services ? provider.services.length : 0
+            };
+          });
 
         setProviders(processedProviders);
         
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setError(err.message);
+        toast.error("שגיאה בטעינת הנתונים", {
+          description: err.message
+        });
       } finally {
         setLoading(false);
       }
@@ -105,7 +118,7 @@ const SubcategoryProviders = () => {
     if (subcategoryId) {
       fetchSubcategoryData();
     }
-  }, [subcategoryId]);
+  }, [subcategoryId, navigate]);
 
   // מצב של טעינה
   if (loading) {
@@ -144,11 +157,17 @@ const SubcategoryProviders = () => {
         <Header />
         <main className="flex-grow py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">שגיאה בטעינת הנתונים</h1>
-            <p>{error || "תת-הקטגוריה לא נמצאה"}</p>
-            <Link to="/categories" className="mt-4 inline-block text-brand-600 hover:underline">
-              חזרה לכל הקטגוריות
-            </Link>
+            <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-4">שגיאה בטעינת הנתונים</h1>
+              <p className="mb-6 text-gray-600">{error || "תת-הקטגוריה לא נמצאה"}</p>
+              <Link 
+                to="/categories" 
+                className="bg-brand-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+              >
+                חזרה לכל הקטגוריות
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -235,7 +254,8 @@ const SubcategoryProviders = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">אין ספקי שירות זמינים כרגע בתת-קטגוריה זו.</p>
+                <p className="text-gray-500 mb-4">אין ספקי שירות זמינים כרגע בתת-קטגוריה זו.</p>
+                <p className="text-brand-600 mb-6">אנחנו עובדים על הוספת ספקים נוספים בקרוב!</p>
                 <Link to="/categories" className="text-brand-600 hover:underline mt-4 inline-block">
                   חזרה לכל הקטגוריות
                 </Link>

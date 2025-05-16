@@ -1,79 +1,136 @@
 
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { 
-  MapPin, Utensils, Camera, Mic, Gift, Plane
+  Music, Camera, Utensils, MapPin, Mic2, Monitor, 
+  Gift, Sparkles, Calendar, Wand2, PartyPopper, 
+  TentTree, User, PlusCircle, Users, Headphones
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+const iconMap: Record<string, React.ReactNode> = {
+  "Music": <Music className="h-8 w-8" />,
+  "Camera": <Camera className="h-8 w-8" />,
+  "Utensils": <Utensils className="h-8 w-8" />,
+  "MapPin": <MapPin className="h-8 w-8" />,
+  "Mic": <Mic2 className="h-8 w-8" />,
+  "Mic2": <Mic2 className="h-8 w-8" />,
+  "Monitor": <Monitor className="h-8 w-8" />,
+  "Gift": <Gift className="h-8 w-8" />,
+  "Sparkles": <Sparkles className="h-8 w-8" />,
+  "Calendar": <Calendar className="h-8 w-8" />,
+  "Wand2": <Wand2 className="h-8 w-8" />,
+  "PartyPopper": <PartyPopper className="h-8 w-8" />,
+  "TentTree": <TentTree className="h-8 w-8" />,
+  "User": <User className="h-8 w-8" />,
+  "PlusCircle": <PlusCircle className="h-8 w-8" />,
+  "Users": <Users className="h-8 w-8" />,
+  "Headphones": <Headphones className="h-8 w-8" />
+};
 
 interface Category {
   id: string;
-  name: string;
-  icon: React.ReactNode;
-  count: number;
-  imageUrl?: string;
+  name: string; 
+  description: string;
+  icon: string;
+  subcategories_count?: number;
 }
 
-const categories: Category[] = [
-  { id: "venues", name: "לוקיישנים ומתחמי אירוח", icon: <MapPin className="text-white h-6 w-6" />, count: 98, imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&auto=format&fit=crop" },
-  { id: "food", name: "שירותי מזון ומשקאות", icon: <Utensils className="text-white h-6 w-6" />, count: 132, imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop" },
-  { id: "staging", name: "שירותי הפקה", icon: <Camera className="text-white h-6 w-6" />, count: 74, imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&auto=format&fit=crop" },
-  { id: "performances", name: "מופעים ואמנים", icon: <Mic className="text-white h-6 w-6" />, count: 186, imageUrl: "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=800&auto=format&fit=crop" },
-  { id: "gifts", name: "מתנות", icon: <Gift className="text-white h-6 w-6" />, count: 45, imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop" },
-  { id: "trips", name: "ימי כיף וטיולים", icon: <Plane className="text-white h-6 w-6" />, count: 112, imageUrl: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&auto=format&fit=crop" },
-];
+export default function ServiceCategories() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('categories')
+          .select(`
+            id, 
+            name, 
+            description, 
+            icon,
+            subcategories(count)
+          `)
+          .order('name');
+          
+        if (error) throw error;
+        
+        const processedCategories = data.map(category => ({
+          id: category.id,
+          name: category.name,
+          description: category.description,
+          icon: category.icon,
+          subcategories_count: category.subcategories?.length || 0
+        }));
+        
+        setCategories(processedCategories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
 
-const ServiceCategories = () => {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  if (loading) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container px-4 mx-auto">
+          <div className="max-w-xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
+            <p className="text-gray-600">מגוון השירותים שלנו להפקת אירועים מושלמים</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-36 bg-gray-100 rounded-lg animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="py-12 bg-white">
-      <div className="container px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold">קטגוריות מובילות</h2>
-          <Link to="/categories" className="text-brand-600 hover:underline flex items-center">
-            צפייה בכל הקטגוריות
-          </Link>
+    <section className="py-16 bg-gray-50">
+      <div className="container px-4 mx-auto">
+        <div className="max-w-xl mx-auto text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
+          <p className="text-gray-600">מגוון השירותים שלנו להפקת אירועים מושלמים, הרצאות, ימי כיף ואמנים מובילים</p>
         </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
-            <Link 
-              key={category.id} 
-              to={`/categories/${category.id}`}
-              className="relative overflow-hidden rounded-lg aspect-[4/3] group"
-              onMouseEnter={() => setHoveredCategory(category.id)}
-              onMouseLeave={() => setHoveredCategory(null)}
-            >
-              {/* Background Image */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" 
-                style={{ backgroundImage: `url(${category.imageUrl})` }}
-              />
-              
-              {/* Dark Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
-              
-              {/* Content */}
-              <div className="absolute bottom-0 right-0 p-4 w-full">
-                <div className="mb-2 bg-brand-600/70 p-2 inline-block rounded-full">
-                  {category.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-white">{category.name}</h3>
-                <p className="text-sm text-gray-300">{category.count} נותני שירות</p>
-              </div>
-              
-              {/* Bottom border on hover */}
-              <div 
-                className={`absolute bottom-0 right-0 h-1 bg-gradient-to-r from-brand-500 to-accent1-500 w-full transform transition-transform duration-300 ${
-                  hoveredCategory === category.id ? 'scale-x-100' : 'scale-x-0'
-                }`}
-              />
+            <Link key={category.id} to={`/categories/${category.id}`}>
+              <Card className="h-full hover:shadow-md transition-all">
+                <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+                  <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
+                    <div className="text-brand-600">
+                      {iconMap[category.icon] || category.icon}
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2">{category.description}</p>
+                </CardContent>
+              </Card>
             </Link>
           ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link 
+            to="/categories" 
+            className="inline-flex items-center text-brand-600 font-medium hover:text-brand-700"
+          >
+            צפייה בכל הקטגוריות
+            <svg className="w-5 h-5 mr-1 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
   );
-};
-
-export default ServiceCategories;
+}
