@@ -7,14 +7,7 @@ import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { 
-  ArrowRight, 
-  PartyPopper, 
-  Cake, 
-  Wine, 
-  Building, 
-  GraduationCap, 
-  Ticket, 
-  Award
+  ArrowRight
 } from "lucide-react";
 import { 
   Carousel,
@@ -66,7 +59,7 @@ const Index = () => {
             
             <Carousel
               opts={{
-                align: "start",
+                align: "center",
                 loop: true,
                 dragFree: true,
               }}
@@ -74,7 +67,7 @@ const Index = () => {
             >
               <CarouselContent className="-ml-2 md:-ml-4">
                 {eventConcepts.map((concept, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 sm:basis-1/3 md:basis-1/5 lg:basis-1/6">
+                  <CarouselItem key={index} className="pl-2 md:pl-4 sm:basis-1/3 md:basis-1/4 lg:basis-1/6">
                     <div 
                       className="bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 cursor-pointer hover:bg-gray-200 transition-colors gap-2"
                     >

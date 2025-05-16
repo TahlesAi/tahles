@@ -89,10 +89,10 @@ const Carousel = React.forwardRef<
       (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "ArrowLeft") {
           event.preventDefault()
-          scrollPrev()
+          scrollNext() // Changed for RTL layout
         } else if (event.key === "ArrowRight") {
           event.preventDefault()
-          scrollNext()
+          scrollPrev() // Changed for RTL layout
         }
       },
       [scrollPrev, scrollNext]
@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         "h-8 w-8 rounded-full",
         orientation === "horizontal"
-          ? "-translate-y-1/2"
+          ? ""
           : "-translate-x-1/2 rotate-90",
         className
       )}
@@ -237,7 +237,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         "h-8 w-8 rounded-full",
         orientation === "horizontal"
-          ? "-translate-y-1/2"
+          ? "" 
           : "-translate-x-1/2 rotate-90",
         className
       )}
