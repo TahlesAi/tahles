@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { Menu, User, LogOut } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import AuthModal from "./AuthModal";
 import ServiceBasket from "./provider/ServiceBasket";
 
@@ -21,7 +22,7 @@ const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeAuthView, setActiveAuthView] = useState<"login" | "signup">("login");
   const { user, signOut } = useAuth();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,23 +103,25 @@ const Header = () => {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56" dir="rtl">
-                <DropdownMenuLabel>החשבון שלי</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  לוח בקרה
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                  הצטרפות כספק
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={signOut}
-                  className="text-red-600 focus:text-red-600"
-                >
-                  <LogOut className="ml-2 h-4 w-4" />
-                  התנתקות
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-56">
+                <div dir="rtl">
+                  <DropdownMenuLabel>החשבון שלי</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    לוח בקרה
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
+                    הצטרפות כספק
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={signOut}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="ml-2 h-4 w-4" />
+                    התנתקות
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -141,50 +144,52 @@ const Header = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" dir="rtl">
-                <DropdownMenuItem onClick={() => navigate("/categories")}>
-                  קטגוריות
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/search")}>
-                  חיפוש ספקים
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/how-it-works")}>
-                  איך זה עובד
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/contact")}>
-                  יצירת קשר
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {user ? (
-                  <>
-                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                      לוח בקרה
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                      הצטרפות כספק
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={signOut}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <LogOut className="ml-2 h-4 w-4" />
-                      התנתקות
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem onClick={handleOpenLogin}>
-                      כניסה
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleOpenSignup}>
-                      הרשמה
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                      הצטרפות כספק
-                    </DropdownMenuItem>
-                  </>
-                )}
+              <DropdownMenuContent align="end">
+                <div dir="rtl">
+                  <DropdownMenuItem onClick={() => navigate("/categories")}>
+                    קטגוריות
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/search")}>
+                    חיפוש ספקים
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/how-it-works")}>
+                    איך זה עובד
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/contact")}>
+                    יצירת קשר
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {user ? (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                        לוח בקרה
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
+                        הצטרפות כספק
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={signOut}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <LogOut className="ml-2 h-4 w-4" />
+                        התנתקות
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onClick={handleOpenLogin}>
+                        כניסה
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleOpenSignup}>
+                        הרשמה
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
+                        הצטרפות כספק
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -194,7 +199,7 @@ const Header = () => {
       <AuthModal 
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        defaultView={activeAuthView}
+        initialView={activeAuthView}
       />
     </header>
   );
