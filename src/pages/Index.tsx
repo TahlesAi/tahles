@@ -57,31 +57,19 @@ const Index = () => {
               <Badge variant="outline" className="cursor-pointer">ראה הכל</Badge>
             </div>
             
-            <Carousel
-              opts={{
-                align: "center",
-                loop: true,
-                dragFree: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
+            <div className="overflow-x-auto pb-6">
+              <div className="flex gap-4 min-w-max">
                 {eventConcepts.map((concept, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 sm:basis-1/3 md:basis-1/4 lg:basis-1/6">
-                    <div 
-                      className="bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 cursor-pointer hover:bg-gray-200 transition-colors gap-2"
-                    >
-                      {concept.icon}
-                      <span className="font-medium text-center text-sm">{concept.value}</span>
-                    </div>
-                  </CarouselItem>
+                  <div
+                    key={index}
+                    className="bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2"
+                  >
+                    {concept.icon}
+                    <span className="font-medium text-center text-sm">{concept.value}</span>
+                  </div>
                 ))}
-              </CarouselContent>
-              <div className="flex justify-center gap-2 mt-6">
-                <CarouselPrevious className="relative static translate-y-0" />
-                <CarouselNext className="relative static translate-y-0" />
               </div>
-            </Carousel>
+            </div>
           </div>
         </section>
         

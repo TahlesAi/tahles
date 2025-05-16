@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Music, 
@@ -22,9 +21,8 @@ import {
   Baby,
   Users,
   Star,
-  Champagne,
-  Trophy,
-  Wedding
+  Heart,
+  Trophy
 } from "lucide-react";
 
 // הממשק עבור הצעת חיפוש
@@ -149,7 +147,7 @@ export const mainCategories: SearchSuggestion[] = [
 // קונספטים לחיפוש - מעודכן לפי בקשת המשתמש
 export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: createIcon(PartyPopper) },
-  { id: "concept-2", value: "חתונה", type: "קונספט", icon: createIcon(Wedding) },
+  { id: "concept-2", value: "חתונה", type: "קונספט", icon: createIcon(Heart) },
   { id: "concept-3", value: "ברית/ה", type: "קונספט", icon: createIcon(Baby) },
   { id: "concept-4", value: "גיבוש צוות", type: "קונספט", icon: createIcon(Users) },
   { id: "concept-5", value: "מסיבת עובדים", type: "קונספט", icon: createIcon(PartyPopper) },
@@ -157,7 +155,7 @@ export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-7", value: "העשרה", type: "קונספט", icon: createIcon(GraduationCap) },
   { id: "concept-8", value: "יום הולדת", type: "קונספט", icon: createIcon(Cake) },
   { id: "concept-9", value: "סעודה", type: "קונספט", icon: createIcon(Utensils) },
-  { id: "concept-10", value: "אירוע השקה", type: "קונספט", icon: createIcon(Champagne) },
+  { id: "concept-10", value: "אירוע השקה", type: "קונספט", icon: createIcon(Award) },
   { id: "concept-11", value: "עובדים מצטיינים", type: "קונספט", icon: createIcon(Trophy) },
   { id: "concept-12", value: "חתונת זהב", type: "קונספט", icon: createIcon(Star) },
   { id: "concept-13", value: "מסיבת רווקות/ים", type: "קונספט", icon: createIcon(Wine) }
