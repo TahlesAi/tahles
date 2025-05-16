@@ -74,6 +74,7 @@ const ProfileTabs = ({
           <ServicesTabContent 
             services={services}
             onBookService={onBookService}
+            providerId={providerId}
           />
           
           <CategoryTab providerId={providerId} />

@@ -2,17 +2,20 @@
 import React from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Tag, Clock, Info, CheckCircle, Star } from "lucide-react";
+import { MessageSquare, Tag, Clock, Info, CheckCircle, Star, PlusCircle, Award, Monitor } from "lucide-react";
 import ServiceCard from '../ServiceCard';
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Link } from "react-router-dom";
+import { Card } from '@/components/ui/card';
 
 interface ServicesTabContentProps {
   services: any[];
   onBookService: (service: any) => void;
+  providerId: string;
 }
 
-const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps) => {
+const ServicesTabContent = ({ services, onBookService, providerId }: ServicesTabContentProps) => {
   // Categorize services
   const standardServices = services.filter(s => !s.is_premium && !s.is_custom);
   const premiumServices = services.filter(s => s.is_premium);
@@ -20,7 +23,16 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
 
   return (
     <TabsContent value="services" className="p-6 text-right" dir="rtl">
-      <h2 className="text-2xl font-bold mb-4">שירותים וחבילות</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">שירותים וחבילות</h2>
+        <Link to={`/provider/${providerId}/services/add`}>
+          <Button variant="outline" size="sm">
+            <PlusCircle className="ml-2 h-4 w-4" />
+            הוספת שירות חדש
+          </Button>
+        </Link>
+      </div>
+      
       <p className="mb-6">
         אנו מציעים מגוון שירותים המותאמים לצרכים הספציפיים של האירוע שלך.
       </p>
@@ -32,7 +44,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
             {premiumServices.length > 0 && (
               <div>
                 <h3 className="text-xl font-semibold mb-3 flex items-center">
-                  <Star className="h-5 w-5 ml-2 text-amber-500" />
+                  <Award className="h-5 w-5 ml-2 text-amber-500" />
                   שירותי פרימיום
                 </h3>
                 <div className="space-y-4">
@@ -66,7 +78,10 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
             {/* Custom Services */}
             {customServices.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold mb-3">שירותים בהתאמה אישית</h3>
+                <h3 className="text-xl font-semibold mb-3 flex items-center">
+                  <Monitor className="h-5 w-5 ml-2 text-brand-600" />
+                  שירותים בהתאמה אישית
+                </h3>
                 <div className="space-y-4">
                   {customServices.map((service, index) => (
                     <ServiceCard 
@@ -86,7 +101,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                 <AccordionItem value="item-1">
                   <AccordionTrigger>
                     <div className="flex items-center">
-                      <Info className="mr-2 h-4 w-4" />
+                      <Info className="ml-2 h-4 w-4" />
                       מה כלול בשירות?
                     </div>
                   </AccordionTrigger>
@@ -96,6 +111,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                       <li>התאמת השירות לדרישות הספציפיות שלך</li>
                       <li>כל הציוד הנדרש</li>
                       <li>תמיכה טכנית בזמן האירוע</li>
+                      <li>אחריות מלאה על השירות</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -103,7 +119,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                 <AccordionItem value="item-2">
                   <AccordionTrigger>
                     <div className="flex items-center">
-                      <CheckCircle className="mr-2 h-4 w-4" />
+                      <CheckCircle className="ml-2 h-4 w-4" />
                       ערך מוסף
                     </div>
                   </AccordionTrigger>
@@ -115,6 +131,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                         <Badge variant="outline" className="bg-gray-100">אמינות</Badge>
                         <Badge variant="outline" className="bg-gray-100">גמישות</Badge>
                         <Badge variant="outline" className="bg-gray-100">יחס אישי</Badge>
+                        <Badge variant="outline" className="bg-gray-100">מחירים הוגנים</Badge>
                       </div>
                     </div>
                   </AccordionContent>
@@ -123,7 +140,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                 <AccordionItem value="item-3">
                   <AccordionTrigger>
                     <div className="flex items-center">
-                      <Tag className="mr-2 h-4 w-4" />
+                      <Tag className="ml-2 h-4 w-4" />
                       תוספות אפשריות
                     </div>
                   </AccordionTrigger>
@@ -133,6 +150,7 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
                       <li>שירותי הגברה מתקדמים</li>
                       <li>אפקטים מיוחדים</li>
                       <li>צילום מקצועי של האירוע</li>
+                      <li>תוספות מזון ומשקאות</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -140,20 +158,36 @@ const ServicesTabContent = ({ services, onBookService }: ServicesTabContentProps
             </div>
           </>
         ) : (
-          <p className="text-gray-500">לא נמצאו שירותים זמינים כרגע.</p>
+          <div className="bg-gray-50 p-8 rounded-lg border border-dashed text-center">
+            <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-xl font-medium mb-2">אין שירותים זמינים</h3>
+            <p className="text-gray-500 mb-4">
+              עדיין לא הוספת שירותים. הוסף את השירותים הראשונים שלך כדי להתחיל למכור.
+            </p>
+            <Link to={`/provider/${providerId}/services/add`}>
+              <Button>
+                <PlusCircle className="ml-2 h-4 w-4" />
+                הוסף שירות ראשון
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
       
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">חבילות מותאמות אישית</h3>
-        <p className="mb-4">
-          צריך משהו ספציפי לאירוע שלך? צור איתנו קשר כדי ליצור חבילה מותאמת אישית לדרישות המדויקות שלך.
-        </p>
-        <Button variant="outline">
-          <MessageSquare className="h-4 w-4 ml-2" />
-          בקש הצעת מחיר מותאמת אישית
-        </Button>
-      </div>
+      {services.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-2">חבילות מותאמות אישית</h3>
+          <Card className="p-4 bg-gradient-to-r from-brand-50 to-accent1-50 border-accent1-100">
+            <p className="mb-4">
+              צריך משהו ספציפי לאירוע שלך? צור איתנו קשר כדי ליצור חבילה מותאמת אישית לדרישות המדויקות שלך.
+            </p>
+            <Button variant="outline" className="bg-white">
+              <MessageSquare className="h-4 w-4 ml-2" />
+              בקש הצעת מחיר מותאמת אישית
+            </Button>
+          </Card>
+        </div>
+      )}
     </TabsContent>
   );
 };

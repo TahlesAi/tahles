@@ -6,10 +6,11 @@ import {
   Music, Camera, Utensils, MapPin, Mic2, Monitor, 
   Gift, Sparkles, Calendar, Wand2, PartyPopper, 
   TentTree, User, PlusCircle, Users, Headphones,
-  Loader2
+  Loader2, Lightbulb, AlignRight, Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 const iconMap: Record<string, React.ReactNode> = {
   "Music": <Music className="h-8 w-8" />,
@@ -46,6 +47,7 @@ interface Subcategory {
   description: string;
   icon: string;
   providers_count?: number;
+  image_url?: string;
 }
 
 export default function ServiceCategories() {
@@ -53,6 +55,7 @@ export default function ServiceCategories() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [featuredSubcategories, setFeaturedSubcategories] = useState<Subcategory[]>([]);
+  const [popularServices, setPopularServices] = useState<any[]>([]);
   
   useEffect(() => {
     const fetchCategories = async () => {
@@ -60,6 +63,7 @@ export default function ServiceCategories() {
         setLoading(true);
         setError(null);
         
+        // Fetch categories with subcategory counts
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select(`
@@ -87,7 +91,7 @@ export default function ServiceCategories() {
         
         setCategories(processedCategories);
         
-        // Get some featured subcategories from across different categories
+        // Get popular subcategories across different categories
         const { data: subcategoriesData, error: subcategoriesError } = await supabase
           .from('subcategories')
           .select(`
@@ -95,8 +99,10 @@ export default function ServiceCategories() {
             name,
             description,
             icon,
+            image_url,
             provider_subcategories(count)
           `)
+          .order('created_at', { ascending: false })
           .limit(6);
           
         if (subcategoriesError) {
@@ -108,10 +114,33 @@ export default function ServiceCategories() {
           name: subcategory.name,
           description: subcategory.description,
           icon: subcategory.icon,
+          image_url: subcategory.image_url,
           providers_count: subcategory.provider_subcategories?.length || 0
         }));
         
         setFeaturedSubcategories(processedSubcategories);
+        
+        // Fetch some popular services
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('services')
+          .select(`
+            id, 
+            name, 
+            description, 
+            price_range,
+            image_url,
+            provider_id,
+            providers(name)
+          `)
+          .limit(4);
+          
+        if (servicesError) {
+          throw servicesError;
+        }
+        
+        if (servicesData) {
+          setPopularServices(servicesData);
+        }
         
       } catch (error: any) {
         console.error("Error fetching categories:", error);
@@ -225,14 +254,51 @@ export default function ServiceCategories() {
                       </div>
                       <h3 className="font-semibold text-lg mb-1">{subcategory.name}</h3>
                       <p className="text-sm text-gray-500 line-clamp-2">{subcategory.description}</p>
-                      {subcategory.providers_count > 0 && (
+                      {subcategory.providers_count > 0 ? (
                         <span className="mt-3 text-xs px-2 py-1 bg-accent1-50 text-accent1-700 rounded-full">
                           {subcategory.providers_count} נותני שירות
+                        </span>
+                      ) : (
+                        <span className="mt-3 text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded-full">
+                          אין ספקים עדיין
                         </span>
                       )}
                     </CardContent>
                   </Card>
                 </Link>
+              ))}
+            </div>
+          </>
+        )}
+        
+        {/* Popular Services */}
+        {popularServices.length > 0 && (
+          <>
+            <h3 className="text-2xl font-bold mb-6 mt-12 text-right">שירותים מובילים</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {popularServices.map((service) => (
+                <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                  <Link to={`/services/${service.id}`}>
+                    <div className="aspect-[5/3] w-full overflow-hidden relative">
+                      <img 
+                        src={service.image_url || "/placeholder.svg"} 
+                        alt={service.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {service.price_range && (
+                        <Badge className="absolute bottom-2 left-2 bg-brand-600">
+                          {service.price_range}
+                        </Badge>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h4 className="font-medium line-clamp-1">{service.name}</h4>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {service.providers?.name || "ספק שירות"}
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
               ))}
             </div>
           </>
