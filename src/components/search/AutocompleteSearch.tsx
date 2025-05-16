@@ -66,8 +66,11 @@ const AutocompleteSearch = ({
   
   // Filter suggestions based on input value
   useEffect(() => {
+    // מציג הצעות אפילו אם השדה ריק
     if (value.trim() === "") {
-      setFilteredSuggestions([]);
+      // מציג את הקטגוריות הראשיות כשהשדה ריק
+      const categories = suggestions.filter(s => s.type === "קטגוריה").slice(0, 8);
+      setFilteredSuggestions(categories);
       setActiveIndex(-1);
       return;
     }
@@ -90,11 +93,13 @@ const AutocompleteSearch = ({
       setInternalValue(newValue);
     }
     
-    if (newValue.length > 0) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
+    // תמיד פותח את תיבת ההצעות, גם אם הקלט ריק
+    setIsOpen(true);
+  };
+
+  // Handle input focus - מציג את תיבת ההצעות גם בעת קבלת פוקוס
+  const handleFocus = () => {
+    setIsOpen(true);
   };
 
   // Handle keyboard navigation
@@ -182,6 +187,22 @@ const AutocompleteSearch = ({
     }
   }, [autoFocus]);
 
+  // קבוצות של סוגי הצעות
+  const groupedSuggestions = () => {
+    if (filteredSuggestions.length === 0) return {};
+    
+    return filteredSuggestions.reduce<Record<string, Suggestion[]>>((groups, item) => {
+      const type = item.type || "אחר";
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+      groups[type].push(item);
+      return groups;
+    }, {});
+  };
+
+  const groups = groupedSuggestions();
+
   return (
     <div className={cn("relative w-full", className)}>
       <form onSubmit={handleSubmit} className="flex w-full">
@@ -192,44 +213,46 @@ const AutocompleteSearch = ({
             placeholder={placeholder}
             value={value}
             onChange={handleChange}
+            onFocus={handleFocus}
             onKeyDown={handleKeyDown}
             className={cn(
               "w-full",
               showButton ? "rounded-l-md rounded-r-none" : "rounded-md",
               inputClassName
             )}
-            onFocus={() => value !== "" && setIsOpen(true)}
             dir={dir}
           />
           
-          {isOpen && filteredSuggestions.length > 0 && showCommandBar && (
+          {isOpen && showCommandBar && (
             <div 
               ref={commandRef}
               className="absolute top-full left-0 right-0 mt-1 z-50"
             >
               <Command className="border rounded-md shadow-md bg-white">
                 <CommandList>
-                  <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
-                  <CommandGroup>
-                    {filteredSuggestions.map((suggestion, index) => (
-                      <CommandItem
-                        key={suggestion.id}
-                        onSelect={() => handleSelectSuggestion(suggestion)}
-                        className={cn(
-                          "flex items-center gap-2 cursor-pointer",
-                          activeIndex === index && "bg-accent text-accent-foreground"
-                        )}
-                        data-active={activeIndex === index}
-                        dir={dir}
-                      >
-                        {suggestion.icon}
-                        <span>{suggestion.value}</span>
-                        {suggestion.type && (
-                          <span className="text-xs text-gray-500 mr-auto">{suggestion.type}</span>
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                  {Object.keys(groups).length === 0 ? (
+                    <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
+                  ) : (
+                    Object.entries(groups).map(([type, items]) => (
+                      <CommandGroup key={type} heading={type}>
+                        {items.map((suggestion, index) => (
+                          <CommandItem
+                            key={suggestion.id}
+                            onSelect={() => handleSelectSuggestion(suggestion)}
+                            className={cn(
+                              "flex items-center gap-2 cursor-pointer",
+                              activeIndex === filteredSuggestions.indexOf(suggestion) && "bg-accent text-accent-foreground"
+                            )}
+                            data-active={activeIndex === filteredSuggestions.indexOf(suggestion)}
+                            dir={dir}
+                          >
+                            {suggestion.icon}
+                            <span>{suggestion.value}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    ))
+                  )}
                 </CommandList>
               </Command>
             </div>
