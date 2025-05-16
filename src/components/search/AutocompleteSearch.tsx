@@ -75,11 +75,39 @@ const AutocompleteSearch = ({
       return;
     }
     
+    // שיפור הפילטור כדי לאפשר חיפוש חלקי בעברית
+    const searchTerm = value.toLowerCase();
     const filtered = suggestions.filter(suggestion => 
-      suggestion.value.toLowerCase().includes(value.toLowerCase())
+      suggestion.value.toLowerCase().includes(searchTerm)
     );
     
-    setFilteredSuggestions(filtered);
+    // מיון התוצאות - קודם קטגוריות ראשיות, אח"כ תת קטגוריות, אח"כ ספקים
+    const sortedResults = [...filtered].sort((a, b) => {
+      // נותן עדיפות לתוצאות שמתחילות עם מונח החיפוש
+      const aStartsWith = a.value.toLowerCase().startsWith(searchTerm);
+      const bStartsWith = b.value.toLowerCase().startsWith(searchTerm);
+      
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      
+      // מיון לפי סוג
+      if (a.type !== b.type) {
+        // סדר העדיפויות: קטגוריה, תת-קטגוריה, קונספט, ספק
+        const typeOrder: Record<string, number> = {
+          "קטגוריה": 0,
+          "תת-קטגוריה": 1,
+          "קונספט": 2,
+          "ספק": 3
+        };
+        
+        return (typeOrder[a.type || ""] || 9) - (typeOrder[b.type || ""] || 9);
+      }
+      
+      // אם הסוג זהה, מיון לפי אלף-בית
+      return a.value.localeCompare(b.value, "he");
+    });
+    
+    setFilteredSuggestions(sortedResults);
     setActiveIndex(-1);
   }, [value, suggestions]);
 
@@ -203,6 +231,20 @@ const AutocompleteSearch = ({
 
   const groups = groupedSuggestions();
 
+  // מגדיר שמות מותאמים לקבוצות בעברית
+  const getGroupHeading = (type: string): string => {
+    const headings: Record<string, string> = {
+      "קטגוריה": "קטגוריות ראשיות",
+      "תת-קטגוריה": "תתי קטגוריות",
+      "קונספט": "סוגי אירועים",
+      "ספק": "ספקים פופולריים",
+      "מיקום": "מיקומים",
+      "שירות": "שירותים"
+    };
+    
+    return headings[type] || type;
+  };
+
   return (
     <div className={cn("relative w-full", className)}>
       <form onSubmit={handleSubmit} className="flex w-full">
@@ -223,7 +265,7 @@ const AutocompleteSearch = ({
             dir={dir}
           />
           
-          {isOpen && showCommandBar && (
+          {isOpen && showCommandBar && filteredSuggestions.length > 0 && (
             <div 
               ref={commandRef}
               className="absolute top-full left-0 right-0 mt-1 z-50"
@@ -234,7 +276,7 @@ const AutocompleteSearch = ({
                     <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
                   ) : (
                     Object.entries(groups).map(([type, items]) => (
-                      <CommandGroup key={type} heading={type}>
+                      <CommandGroup key={type} heading={getGroupHeading(type)}>
                         {items.map((suggestion, index) => (
                           <CommandItem
                             key={suggestion.id}
