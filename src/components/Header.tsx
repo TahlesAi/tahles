@@ -1,7 +1,8 @@
-
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,201 +11,114 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/context/AuthContext";
-import { Menu, User, LogOut } from "lucide-react";
-import useIsMobile from "@/hooks/use-mobile";
-import AuthModal from "./AuthModal";
-import ServiceBasket from "./provider/ServiceBasket";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import AuthModal from "@/components/AuthModal";
+import SearchableHeader from "@/components/ui/searchable-header";
 
 const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  const [userType, setUserType] = useState<"client" | "provider">("client");
   const { user, signOut } = useAuth();
-  const isMobile = useIsMobile();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-  
-  const handleOpenLogin = () => {
-    setAuthMode("signin");
-    setShowAuthModal(true);
-  };
-  
-  const handleOpenSignup = () => {
-    setAuthMode("signup");
-    setShowAuthModal(true);
-  };
+  const [openAuthModal, setOpenAuthModal] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
-    <header
-      className={`sticky top-0 z-30 w-full transition-colors duration-300 ${
-        isScrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
-      }`}
-    >
-      <div className="container flex h-16 items-center justify-between px-4">
-        {/* לוגו */}
-        <div className="flex items-center space-x-4">
+    <header className="bg-white border-b sticky top-0 z-40">
+      <div className="container px-4 mx-auto">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="font-bold text-xl text-brand-500">ת'כל'ס</span>
+            <span className="text-xl font-bold text-brand-600">ת'כל'ס</span>
           </Link>
-        </div>
-
-        {/* תפריט ראשי - מוצג רק בדסקטופ */}
-        {!isMobile && (
-          <nav className="hidden md:flex items-center space-x-6" dir="rtl">
-            <Link 
-              to="/categories" 
-              className="text-base font-medium hover:text-brand-500 transition-colors"
-            >
-              קטגוריות
-            </Link>
-            <Link 
-              to="/search" 
-              className="text-base font-medium hover:text-brand-500 transition-colors"
-            >
-              חיפוש ספקים
-            </Link>
-            <Link 
-              to="/how-it-works" 
-              className="text-base font-medium hover:text-brand-500 transition-colors"
-            >
-              איך זה עובד
-            </Link>
-            <Link 
-              to="/contact" 
-              className="text-base font-medium hover:text-brand-500 transition-colors"
-            >
-              יצירת קשר
-            </Link>
-          </nav>
-        )}
-
-        {/* כפתורי פעולה */}
-        <div className="flex items-center gap-2">
-          {/* סל שירותים */}
-          <ServiceBasket />
           
-          {user ? (
-            // משתמש מחובר
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div dir="rtl">
-                  <DropdownMenuLabel>החשבון שלי</DropdownMenuLabel>
+          {/* Search Bar - only on desktop */}
+          <div className="hidden md:block flex-1 mx-8 max-w-md">
+            <SearchableHeader 
+              placeholder="חיפוש שירותים, נותני שירות..." 
+              dir="rtl"
+              inputClassName="rounded-full h-9"
+            />
+          </div>
+          
+          {/* Navigation Menu */}
+          <nav className="hidden md:flex items-center space-x-4">
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
+            <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
+            <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.image} alt={user?.name || "User Avatar"} />
+                      <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                    לוח בקרה
+                  <DropdownMenuItem onClick={() => window.location.href = '/dashboard'}>
+                    לוח ניהול
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                    הצטרפות כספק
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={signOut}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <LogOut className="ml-2 h-4 w-4" />
+                  <DropdownMenuItem onClick={() => signOut()}>
                     התנתקות
                   </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            // משתמש לא מחובר
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={handleOpenLogin}>
-                כניסה
-              </Button>
-              <Button variant="default" onClick={() => navigate("/provider-onboarding")}>
-                הצטרפות כספק
-              </Button>
-            </div>
-          )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
+            )}
+          </nav>
           
-          {/* תפריט המבורגר למובייל */}
+          {/* Mobile Menu */}
           {isMobile && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <div dir="rtl">
-                  <DropdownMenuItem onClick={() => navigate("/categories")}>
-                    קטגוריות
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/search")}>
-                    חיפוש ספקים
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/how-it-works")}>
-                    איך זה עובד
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/contact")}>
-                    יצירת קשר
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:w-1/2 bg-white">
+                <SheetHeader>
+                  <SheetTitle>תפריט</SheetTitle>
+                  <SheetDescription>
+                    גלו את כל האפשרויות שלנו.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="flex flex-col space-y-4 mt-4">
+                  <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
+                  <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
+                  <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
                   {user ? (
                     <>
-                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                        לוח בקרה
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                        הצטרפות כספק
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={signOut}
-                        className="text-red-600 focus:text-red-600"
-                      >
-                        <LogOut className="ml-2 h-4 w-4" />
-                        התנתקות
-                      </DropdownMenuItem>
+                      <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">לוח ניהול</Link>
+                      <Button variant="ghost" className="justify-start" onClick={() => signOut()}>התנתקות</Button>
                     </>
                   ) : (
-                    <>
-                      <DropdownMenuItem onClick={handleOpenLogin}>
-                        כניסה
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleOpenSignup}>
-                        הרשמה
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/provider-onboarding")}>
-                        הצטרפות כספק
-                      </DropdownMenuItem>
-                    </>
+                    <Button variant="ghost" className="justify-start" onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
                   )}
                 </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SheetContent>
+            </Sheet>
           )}
         </div>
       </div>
       
-      <AuthModal 
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-        setMode={setAuthMode}
-        userType={userType}
-        setUserType={setUserType}
-      />
+      {/* Mobile Search - only visible on mobile */}
+      {isMobile && (
+        <div className="border-t p-2">
+          <SearchableHeader 
+            placeholder="חיפוש שירותים, נותני שירות..." 
+            dir="rtl"
+            inputClassName="rounded-full h-9"
+          />
+        </div>
+      )}
+      
+      {/* Authentication Modals */}
+      <AuthModal open={openAuthModal} setOpen={setOpenAuthModal} />
     </header>
   );
 };

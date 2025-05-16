@@ -2,16 +2,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Music, Utensils, Camera, Map, Mic, Gift } from "lucide-react";
+import { Music, Utensils, Camera, Map, Mic, Gift } from "lucide-react";
+import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+  const handleSearch = (term: string) => {
+    if (term.trim()) {
+      navigate(`/search?q=${encodeURIComponent(term)}`);
     }
   };
   
@@ -22,6 +22,20 @@ const Hero = () => {
     { name: "לוקיישנים", icon: <Map className="h-5 w-5" /> },
     { name: "הגברה", icon: <Mic className="h-5 w-5" /> },
     { name: "מתנות", icon: <Gift className="h-5 w-5" /> }
+  ];
+  
+  // Define search suggestions based on common searches
+  const searchSuggestions = [
+    { id: "1", value: "מופעי מוזיקה", type: "קטגוריה" },
+    { id: "2", value: "להקות חתונה", type: "שירות" },
+    { id: "3", value: "צלם אירועים", type: "שירות" },
+    { id: "4", value: "קייטרינג כשר", type: "שירות" },
+    { id: "5", value: "אולמות אירועים בתל אביב", type: "מיקום" },
+    { id: "6", value: "אמן חושים", type: "שירות" },
+    { id: "7", value: "נטע ברסלר", type: "ספק" },
+    { id: "8", value: "דיג'יי למסיבת רווקים", type: "שירות" },
+    { id: "9", value: "שירותי הגברה", type: "קטגוריה" },
+    { id: "10", value: "קוסם לבר מצווה", type: "שירות" }
   ];
   
   return (
@@ -52,23 +66,21 @@ const Hero = () => {
           ת'כל'ס - כל מה שצריך לאירוע מושלם במקום אחד
         </p>
         
-        <form onSubmit={handleSearch} className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">
-          <input
-            type="text"
+        <div className="w-full max-w-2xl relative bg-white rounded-full overflow-hidden shadow-xl mb-10">
+          <AutocompleteSearch
+            suggestions={searchSuggestions}
+            onSearch={handleSearch}
             placeholder="חיפוש שירותים, מופעים או מקומות אירוח..."
-            className="w-full px-6 py-4 text-base text-gray-700 focus:outline-none"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={setSearchTerm}
+            buttonText="חיפוש"
+            autoFocus={false}
             dir="rtl"
+            className="w-full"
+            inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none"
+            buttonClassName="px-6"
           />
-          <Button 
-            type="submit" 
-            className="absolute left-0 top-0 h-full rounded-r-none rounded-l-full px-6"
-          >
-            <Search className="h-5 w-5 ml-2" />
-            חיפוש
-          </Button>
-        </form>
+        </div>
         
         <div className="flex flex-wrap justify-center gap-3 md:gap-5">
           {categories.map((category, index) => (

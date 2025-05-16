@@ -15,12 +15,12 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowDownUp, MapPin, Search as SearchIcon, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
+import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 
 interface Provider {
   id: string;
@@ -162,6 +162,37 @@ const Search = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   
+  // Generate search suggestions based on providers data
+  const searchSuggestions = [
+    // Categories
+    ...categories.map((category, index) => ({
+      id: `cat-${index}`,
+      value: category,
+      type: "קטגוריה"
+    })),
+    
+    // Locations
+    ...locations.map((location, index) => ({
+      id: `loc-${index}`,
+      value: location,
+      type: "מיקום"
+    })),
+    
+    // Providers
+    ...allProviders.map(provider => ({
+      id: `prov-${provider.id}`,
+      value: provider.name,
+      type: "ספק"
+    })),
+    
+    // Services (some generated examples)
+    { id: "srv-1", value: "צילום אירועים", type: "שירות" },
+    { id: "srv-2", value: "הגברה לחתונה", type: "שירות" },
+    { id: "srv-3", value: "קייטרינג כשר", type: "שירות" },
+    { id: "srv-4", value: "מוזיקה אלקטרונית", type: "שירות" },
+    { id: "srv-5", value: "אולם אירועים עד 300 איש", type: "שירות" }
+  ];
+  
   useEffect(() => {
     const query = searchParams.get("q") || "";
     const category = selectedCategory === "כל הקטגוריות" ? "" : selectedCategory;
@@ -235,9 +266,9 @@ const Search = () => {
     selectedSubcategories
   ]);
   
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearchParams({ q: searchTerm });
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setSearchParams({ q: term });
   };
 
   const handleCategoriesChange = (categories: string[]) => {
@@ -261,21 +292,20 @@ const Search = () => {
           </div>
           
           {/* שורת חיפוש */}
-          <form onSubmit={handleSearch} className="mb-8">
+          <div className="mb-8">
             <div className="flex w-full max-w-4xl mx-auto">
-              <Input
-                type="text"
+              <AutocompleteSearch
+                suggestions={searchSuggestions}
+                onSearch={handleSearch}
                 placeholder="חפשו שירותים, נותני שירות או התמחויות..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="rounded-r-lg"
+                onChange={setSearchTerm}
+                buttonText="חיפוש"
+                dir="rtl"
+                className="w-full"
               />
-              <Button type="submit" className="rounded-r-none">
-                <SearchIcon className="h-4 w-4 ml-2" />
-                חיפוש
-              </Button>
             </div>
-          </form>
+          </div>
 
           {/* פילטר קטגוריות מתקדם */}
           <div className="w-full max-w-4xl mx-auto">
