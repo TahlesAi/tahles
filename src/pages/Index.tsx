@@ -6,7 +6,24 @@ import FeaturedProviders from "@/components/FeaturedProviders";
 import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { 
+  ArrowRight, 
+  PartyPopper, 
+  Cake, 
+  Wine, 
+  Building, 
+  GraduationCap, 
+  Ticket, 
+  Award
+} from "lucide-react";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
 
 const features = [
   {
@@ -32,12 +49,26 @@ const features = [
 ];
 
 const concepts = [
-  "בר/בת מצווה",
-  "ערבי גיבוש",
-  "מסיבות רווקים/ות",
-  "אירועי חברה",
-  "ימי הולדת",
-  "שעות מתוקות"
+  { name: "בר/בת מצווה", icon: <PartyPopper className="h-5 w-5" /> },
+  { name: "ערבי גיבוש", icon: <Building className="h-5 w-5" /> },
+  { name: "מסיבות רווקים/ות", icon: <Wine className="h-5 w-5" /> },
+  { name: "אירועי חברה", icon: <Building className="h-5 w-5" /> },
+  { name: "ימי הולדת", icon: <Cake className="h-5 w-5" /> },
+  { name: "שעות מתוקות", icon: <Cake className="h-5 w-5" /> },
+  { name: "מסיבות פרישה", icon: <Award className="h-5 w-5" /> },
+  { name: "עובד מצטיין", icon: <Award className="h-5 w-5" /> },
+  { name: "מסיבת גיוס", icon: <GraduationCap className="h-5 w-5" /> },
+  { name: "מסיבת שחרור", icon: <PartyPopper className="h-5 w-5" /> },
+  { name: "HAPPY HOUR", icon: <Wine className="h-5 w-5" /> },
+  { name: "חנוכת בית", icon: <Building className="h-5 w-5" /> },
+  { name: "כנסים מקצועיים", icon: <Building className="h-5 w-5" /> },
+  { name: "השקות מוצרים", icon: <PartyPopper className="h-5 w-5" /> },
+  { name: "חתונות", icon: <PartyPopper className="h-5 w-5" /> },
+  { name: "אירוסין", icon: <PartyPopper className="h-5 w-5" /> },
+  { name: "סוף שנה", icon: <Cake className="h-5 w-5" /> },
+  { name: "מסיבות נושא", icon: <Ticket className="h-5 w-5" /> },
+  { name: "הרמות כוסית", icon: <Wine className="h-5 w-5" /> },
+  { name: "מפגשי בוגרים", icon: <GraduationCap className="h-5 w-5" /> }
 ];
 
 const Index = () => {
@@ -50,18 +81,35 @@ const Index = () => {
         {/* קונספטים */}
         <section className="py-10 bg-white border-b">
           <div className="container px-4">
-            <h2 className="text-2xl font-bold mb-6 text-center">קונספטים פופולריים</h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-              {concepts.map((concept, index) => (
-                <div 
-                  key={index} 
-                  className="bg-gray-100 rounded-lg p-3 flex items-center justify-center h-24 cursor-pointer hover:bg-gray-200 transition-colors text-center"
-                >
-                  <span className="font-medium">{concept}</span>
-                </div>
-              ))}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">קונספטים פופולריים</h2>
+              <Badge variant="outline" className="cursor-pointer">ראה הכל</Badge>
             </div>
+            
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {concepts.map((concept, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6">
+                    <div 
+                      className="bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 cursor-pointer hover:bg-gray-200 transition-colors gap-2"
+                    >
+                      {concept.icon}
+                      <span className="font-medium text-center">{concept.name}</span>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-end gap-2 mt-4">
+                <CarouselPrevious className="static translate-y-0 ml-auto" />
+                <CarouselNext className="static translate-y-0" />
+              </div>
+            </Carousel>
           </div>
         </section>
         
