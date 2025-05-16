@@ -66,7 +66,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
     onClose();
   };
 
-  // Update the handleLogin function to use the redirectTo path
   const handleLogin = async () => {
     setLoading(true);
     const { error, redirectTo } = await signIn(email, password);

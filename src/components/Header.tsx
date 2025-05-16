@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -20,7 +21,14 @@ import SearchableHeader from "@/components/ui/searchable-header";
 const Header = () => {
   const { user, signOut } = useAuth();
   const [openAuthModal, setOpenAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [userType, setUserType] = useState<"client" | "provider">("client");
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // Extract user metadata safely
+  const userMeta = user?.user_metadata || {};
+  const userName = userMeta.name || user?.email?.split('@')[0] || 'User';
+  const userAvatar = userMeta.avatar_url || '';
 
   return (
     <header className="bg-white border-b sticky top-0 z-40">
@@ -51,13 +59,13 @@ const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.image} alt={user?.name || "User Avatar"} />
-                      <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                      <AvatarImage src={userAvatar} alt={userName} />
+                      <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{userName}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => window.location.href = '/dashboard'}>
                     לוח ניהול
@@ -117,8 +125,15 @@ const Header = () => {
         </div>
       )}
       
-      {/* Authentication Modals */}
-      <AuthModal open={openAuthModal} setOpen={setOpenAuthModal} />
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={openAuthModal} 
+        onClose={() => setOpenAuthModal(false)} 
+        mode={authMode}
+        setMode={setAuthMode}
+        userType={userType}
+        setUserType={setUserType}
+      />
     </header>
   );
 };
