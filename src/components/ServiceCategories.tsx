@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 import { 
   Music, Camera, Utensils, MapPin, Mic2, Monitor, 
   Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones
+  TentTree, User, PlusCircle, Users, Headphones,
+  Loader2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const iconMap: Record<string, React.ReactNode> = {
   "Music": <Music className="h-8 w-8" />,
@@ -35,40 +37,88 @@ interface Category {
   description: string;
   icon: string;
   subcategories_count?: number;
+  image_url?: string;
+}
+
+interface Subcategory {
+  id: string;
+  name: string; 
+  description: string;
+  icon: string;
+  providers_count?: number;
 }
 
 export default function ServiceCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [featuredSubcategories, setFeaturedSubcategories] = useState<Subcategory[]>([]);
   
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        setError(null);
+        
+        const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select(`
             id, 
             name, 
             description, 
             icon,
+            image_url,
             subcategories(count)
           `)
           .order('name');
           
-        if (error) throw error;
+        if (categoriesError) {
+          throw categoriesError;
+        }
         
-        const processedCategories = data.map(category => ({
+        const processedCategories = categoriesData.map(category => ({
           id: category.id,
           name: category.name,
           description: category.description,
           icon: category.icon,
+          image_url: category.image_url,
           subcategories_count: category.subcategories?.length || 0
         }));
         
         setCategories(processedCategories);
-      } catch (error) {
+        
+        // Get some featured subcategories from across different categories
+        const { data: subcategoriesData, error: subcategoriesError } = await supabase
+          .from('subcategories')
+          .select(`
+            id,
+            name,
+            description,
+            icon,
+            provider_subcategories(count)
+          `)
+          .limit(6);
+          
+        if (subcategoriesError) {
+          throw subcategoriesError;
+        }
+        
+        const processedSubcategories = subcategoriesData.map(subcategory => ({
+          id: subcategory.id,
+          name: subcategory.name,
+          description: subcategory.description,
+          icon: subcategory.icon,
+          providers_count: subcategory.provider_subcategories?.length || 0
+        }));
+        
+        setFeaturedSubcategories(processedSubcategories);
+        
+      } catch (error: any) {
         console.error("Error fetching categories:", error);
+        setError(error.message || 'שגיאה בטעינת הנתונים');
+        toast.error("שגיאה בטעינת הנתונים", {
+          description: error.message
+        });
       } finally {
         setLoading(false);
       }
@@ -85,10 +135,41 @@ export default function ServiceCategories() {
             <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
             <p className="text-gray-600">מגוון השירותים שלנו להפקת אירועים מושלמים</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-36 bg-gray-100 rounded-lg animate-pulse"></div>
-            ))}
+          <div className="flex justify-center items-center my-12">
+            <Loader2 className="h-12 w-12 text-brand-600 animate-spin" />
+            <span className="mr-3 text-lg text-gray-600">טוען קטגוריות...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  if (error) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container px-4 mx-auto">
+          <div className="max-w-xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 transition-colors"
+            >
+              נסה שנית
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container px-4 mx-auto">
+          <div className="max-w-xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
+            <p className="text-gray-600 mb-4">לא נמצאו קטגוריות שירותים במערכת</p>
           </div>
         </div>
       </section>
@@ -102,23 +183,61 @@ export default function ServiceCategories() {
           <h2 className="text-3xl font-bold mb-4">קטגוריות שירותים</h2>
           <p className="text-gray-600">מגוון השירותים שלנו להפקת אירועים מושלמים, הרצאות, ימי כיף ואמנים מובילים</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        
+        {/* Main Categories */}
+        <h3 className="text-2xl font-bold mb-6 text-right">קטגוריות ראשיות</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
           {categories.map((category) => (
             <Link key={category.id} to={`/categories/${category.id}`}>
-              <Card className="h-full hover:shadow-md transition-all">
+              <Card className="h-full hover:shadow-md transition-all transform hover:-translate-y-1 duration-300">
                 <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
                   <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
                     <div className="text-brand-600">
-                      {iconMap[category.icon] || category.icon}
+                      {iconMap[category.icon] || <span>{category.icon}</span>}
                     </div>
                   </div>
                   <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
                   <p className="text-sm text-gray-500 line-clamp-2">{category.description}</p>
+                  {category.subcategories_count > 0 && (
+                    <span className="mt-3 text-xs px-2 py-1 bg-brand-50 text-brand-700 rounded-full">
+                      {category.subcategories_count} תתי-קטגוריות
+                    </span>
+                  )}
                 </CardContent>
               </Card>
             </Link>
           ))}
         </div>
+
+        {/* Featured Subcategories */}
+        {featuredSubcategories.length > 0 && (
+          <>
+            <h3 className="text-2xl font-bold mb-6 text-right">קטגוריות פופולריות</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {featuredSubcategories.map((subcategory) => (
+                <Link key={subcategory.id} to={`/subcategories/${subcategory.id}`}>
+                  <Card className="h-full hover:shadow-md transition-all transform hover:-translate-y-1 duration-300 border-accent1-100">
+                    <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+                      <div className="w-14 h-14 rounded-full bg-accent1-50 flex items-center justify-center mb-4">
+                        <div className="text-accent1-600">
+                          {iconMap[subcategory.icon] || <span>{subcategory.icon}</span>}
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1">{subcategory.name}</h3>
+                      <p className="text-sm text-gray-500 line-clamp-2">{subcategory.description}</p>
+                      {subcategory.providers_count > 0 && (
+                        <span className="mt-3 text-xs px-2 py-1 bg-accent1-50 text-accent1-700 rounded-full">
+                          {subcategory.providers_count} נותני שירות
+                        </span>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+        
         <div className="text-center mt-12">
           <Link 
             to="/categories" 

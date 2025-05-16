@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, AlertCircle } from "lucide-react";
+import { ChevronLeft, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Subcategory {
@@ -66,6 +66,7 @@ const CategorySubcategories = () => {
     const fetchCategoryData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
         // Validate if categoryId is a valid UUID
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -81,7 +82,12 @@ const CategorySubcategories = () => {
           .single();
 
         if (categoryError) {
+          console.error("Error fetching category:", categoryError);
           throw new Error(categoryError.message);
+        }
+
+        if (!categoryData) {
+          throw new Error("הקטגוריה לא נמצאה");
         }
 
         setCategory(categoryData);
@@ -98,9 +104,11 @@ const CategorySubcategories = () => {
               provider_id
             )
           `)
-          .eq("category_id", categoryId);
+          .eq("category_id", categoryId)
+          .order('name');
 
         if (subcategoriesError) {
+          console.error("Error fetching subcategories:", subcategoriesError);
           throw new Error(subcategoriesError.message);
         }
 
@@ -139,19 +147,11 @@ const CategorySubcategories = () => {
         <main className="flex-grow">
           <section className="bg-gray-100 py-16">
             <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto">
-                <Skeleton className="h-10 w-3/4 mb-4" />
-                <Skeleton className="h-6 w-full mb-8" />
-              </div>
-            </div>
-          </section>
-          
-          <section className="py-16">
-            <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-48" />
-                ))}
+              <div className="max-w-3xl mx-auto text-center">
+                <div className="flex justify-center items-center">
+                  <Loader2 className="h-10 w-10 text-brand-600 animate-spin" />
+                  <span className="mr-3 text-lg text-gray-600">טוען נתונים...</span>
+                </div>
               </div>
             </div>
           </section>
@@ -221,16 +221,20 @@ const CategorySubcategories = () => {
                     to={`/subcategories/${subcategory.id}`}
                     className="block"
                   >
-                    <Card className="h-full hover:shadow-lg transition-shadow">
+                    <Card className="h-full hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300">
                       <CardContent className="p-6 flex flex-col items-center">
                         <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                           <div className="text-brand-600">
-                            {iconComponents[subcategory.icon] || subcategory.icon}
+                            {iconComponents[subcategory.icon] || <span>{subcategory.icon}</span>}
                           </div>
                         </div>
                         <h3 className="text-xl font-semibold mb-2 text-center">{subcategory.name}</h3>
                         <p className="text-gray-500 text-center mb-4">{subcategory.description}</p>
-                        <div className="mt-auto text-sm text-gray-400">{subcategory.count} נותני שירות</div>
+                        <div className="mt-auto">
+                          <span className="text-sm px-2 py-1 bg-brand-50 text-brand-700 rounded-full">
+                            {subcategory.count} נותני שירות
+                          </span>
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>
@@ -242,10 +246,17 @@ const CategorySubcategories = () => {
           <section className="py-16">
             <div className="container mx-auto px-4 text-center">
               <div className="max-w-lg mx-auto bg-gray-50 p-8 rounded-lg border border-dashed">
-                <p className="mb-4">אין תת-קטגוריות זמינות כרגע עבור קטגוריה זו.</p>
-                {category.name === "אולמות ומקומות אירוע" && (
-                  <p className="text-brand-600">בקרוב! אנו עובדים על הוספת מקומות אירוע מומלצים.</p>
-                )}
+                <h3 className="text-xl font-semibold mb-4">אין תת-קטגוריות זמינות כרגע</h3>
+                <p className="mb-6">כרגע אין תת-קטגוריות זמינות עבור {category.name}. אנו עובדים על הוספת תוכן נוסף בקרוב!</p>
+                
+                <div className="flex justify-center mt-4">
+                  <Link 
+                    to="/categories" 
+                    className="bg-brand-100 text-brand-700 px-4 py-2 rounded-lg font-medium hover:bg-brand-200 transition-colors"
+                  >
+                    חזרה לכל הקטגוריות
+                  </Link>
+                </div>
               </div>
             </div>
           </section>
