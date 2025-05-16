@@ -27,7 +27,7 @@ const HowItWorks = () => {
                 to="/search" 
                 className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
+                קדימה <ArrowLeft className="mr-6 rotate-[10deg]" size={18} />
               </Link>
             </div>
           </div>
@@ -41,7 +41,7 @@ const HowItWorks = () => {
               to="/search" 
               className="inline-flex items-center bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
             >
-              קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
+              קדימה <ArrowLeft className="mr-6 rotate-[10deg]" size={18} />
             </Link>
           </div>
         </section>
@@ -225,7 +225,7 @@ const HowItWorks = () => {
                 to="/search" 
                 className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                קדימה <ArrowLeft className="mr-2 rotate-[10deg]" size={18} />
+                קדימה <ArrowLeft className="mr-6 rotate-[10deg]" size={18} />
               </Link>
               <Link 
                 to="/provider-onboarding" 
