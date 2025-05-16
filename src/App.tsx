@@ -19,6 +19,8 @@ import Categories from "./pages/Categories";
 import CategorySubcategories from "./pages/CategorySubcategories";
 import SubcategoryProviders from "./pages/SubcategoryProviders";
 import Contact from "./pages/Contact";
+import ServiceDetails from "./pages/ServiceDetails";
+import BookingPage from "./pages/BookingPage";
 
 // Components
 import SavedServicesReminder from "./components/provider/SavedServicesReminder";
@@ -57,6 +59,8 @@ const App = () => (
             <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
             <Route path="/subcategories/:subcategoryId" element={<SubcategoryProviders />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/services/:id" element={<ServiceDetails />} />
+            <Route path="/booking/:id" element={<BookingPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
