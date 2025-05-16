@@ -12,6 +12,7 @@ interface SearchableHeaderProps {
   inputClassName?: string;
   placeholder?: string;
   dir?: "rtl" | "ltr";
+  maxWidth?: string;
 }
 
 const SearchableHeader: React.FC<SearchableHeaderProps> = ({
@@ -19,7 +20,8 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   buttonClassName,
   inputClassName,
   placeholder = "חיפוש...",
-  dir = "rtl"
+  dir = "rtl",
+  maxWidth = "75%"  // Added a maxWidth prop with default of 75%
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   ];
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className)} style={{ maxWidth }}>
       <AutocompleteSearch
         suggestions={searchSuggestions}
         onSearch={handleSearch}

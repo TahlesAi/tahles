@@ -45,14 +45,15 @@ const Header = () => {
               placeholder="חיפוש שירותים, נותני שירות..." 
               dir="rtl"
               inputClassName="rounded-full h-9"
+              maxWidth="75%" // Reduced width
             />
           </div>
           
           {/* Navigation Menu */}
-          <nav className="hidden md:flex items-center space-x-4">
-            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
-            <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
-            <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">איך זה עובד</Link>
+            <Link to="/categories" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">קטגוריות</Link>
+            <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">צור קשר</Link>
             
             {user ? (
               <DropdownMenu>
@@ -76,7 +77,12 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
+              <Button 
+                onClick={() => setOpenAuthModal(true)}
+                className="bg-brand-600 hover:bg-brand-700 text-white"
+              >
+                התחברות | הרשמה
+              </Button>
             )}
           </nav>
           
