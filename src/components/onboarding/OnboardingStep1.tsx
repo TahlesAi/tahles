@@ -8,7 +8,7 @@ import {
   Utensils, 
   Speaker, 
   Gift, 
-  Microphone, 
+  Mic2, 
   Plane
 } from "lucide-react";
 
@@ -52,7 +52,7 @@ const serviceCategories = [
   {
     id: "lectures",
     name: "הרצאות",
-    icon: <Microphone className="h-8 w-8" />,
+    icon: <Mic2 className="h-8 w-8" />,
     description: "מרצים, סדנאות, הדרכות"
   },
   {

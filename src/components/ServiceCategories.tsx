@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
-  Mic, MapPin, Utensils, Speaker, Gift, Microphone, Plane
+  Mic, MapPin, Utensils, Speaker, Gift, Mic2, Plane
 } from "lucide-react";
 
 interface Category {
@@ -19,7 +19,7 @@ const categories: Category[] = [
   { id: "food", name: "מזון ומשקאות", icon: <Utensils className="text-white h-6 w-6" />, count: 132, imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop" },
   { id: "staging", name: "שרותי במה", icon: <Speaker className="text-white h-6 w-6" />, count: 74, imageUrl: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&auto=format&fit=crop" },
   { id: "gifts", name: "מתנות", icon: <Gift className="text-white h-6 w-6" />, count: 45, imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop" },
-  { id: "lectures", name: "הרצאות", icon: <Microphone className="text-white h-6 w-6" />, count: 73, imageUrl: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?w=800&auto=format&fit=crop" },
+  { id: "lectures", name: "הרצאות", icon: <Mic2 className="text-white h-6 w-6" />, count: 73, imageUrl: "https://images.unsplash.com/photo-1543157144-f7c0a15c140c?w=800&auto=format&fit=crop" },
   { id: "trips", name: "טיולים", icon: <Plane className="text-white h-6 w-6" />, count: 112, imageUrl: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&auto=format&fit=crop" },
 ];
 
