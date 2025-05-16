@@ -1,343 +1,41 @@
+
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
-import ProfileSidebar from "@/components/provider/ProfileSidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { mockProviders, mockSearchResults, mockReviews } from "@/lib/mockData";
+import { Star, MapPin, Mail, Phone, Globe, Calendar, CheckCircle } from "lucide-react";
 import ProfileGallery from "@/components/provider/ProfileGallery";
-import ProfileTabs from "@/components/provider/ProfileTabs";
-import BookingDialog from "@/components/provider/BookingDialog";
-import LoadingState from "@/components/provider/LoadingState";
-import NotFoundState from "@/components/provider/NotFoundState";
-import { createBooking } from "@/lib/actions/booking";
-import { BookingFormValues } from "@/lib/validations/booking";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import Chatbot from "@/components/chat/Chatbot";
-
-// Sample providers for demo purposes
-const demoProviders = {
-  "1": {
-    id: "1",
-    name: "נטע ברסלר",
-    description: "אמן מחשבות וקריאת מחשבות מהמובילים בישראל. עם ניסיון של יותר מ-15 שנה, נטע מציע מופעים אינטראקטיביים שמשאירים את הקהל פעור פה.",
-    value_proposition: "חוויה בלתי נשכחת שתשאיר את האורחים שלכם בהלם",
-    logo_url: "https://images.unsplash.com/photo-1492288991661-058aa541ff43?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
-    email: "neta@mentalmagic.co.il",
-    phone: "050-1234567",
-    website: "www.netabresler.co.il",
-    address: "תל אביב, ישראל",
-    show_location: true,
-    travel_time: "עד 60 דקות"
-  },
-  "2": {
-    id: "2",
-    name: "להקת מלודי מייקרס",
-    description: "להקה מקצועית המתמחה במגוון סגנונות מוזיקליים. מאז 2010, אנחנו מנגנים באירועים פרטיים, חתונות ואירועי חברה.",
-    value_proposition: "מוזיקה חיה שתרים את האירוע שלכם לרמה אחרת",
-    logo_url: "https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
-    email: "info@melodymakers.co.il",
-    phone: "052-9876543",
-    website: "www.melodymakers.co.il",
-    address: "חיפה, ישראל",
-    show_location: false,
-    travel_time: "עד 120 דקות"
-  },
-  "3": {
-    id: "3",
-    name: "סטודיו צילום זכרונות חיים",
-    description: "סטודיו צילום מקצועי המתמחה בצילום אירועים, חתונות ומשפחות. הצלמים שלנו מצלמים רגעים מיוחדים בגישה טבעית ואותנטית.",
-    value_proposition: "הפקת תמונות איכותיות שישארו איתכם לנצח",
-    logo_url: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
-    email: "studio@zichronot.co.il",
-    phone: "053-7654321",
-    website: "www.livingmemories.co.il",
-    address: "ירושלים, ישראל",
-    show_location: true,
-    travel_time: "עד 90 דקות"
-  }
-};
-
-// Sample services for demo providers
-const demoServices = {
-  "1": [
-    {
-      id: "1-1",
-      name: "מופע קריאת מחשבות - חבילה בסיסית",
-      short_description: "מופע קריאת מחשבות מרהיב לאירועים קטנים עד 50 איש",
-      description: "מופע קריאת מחשבות אינטראקטיבי באורך של כ-30 דקות, מתאים לאירועים קטנים או לחלק מאירוע גדול יותר.",
-      price_range: "₪3,000 - ₪4,000",
-      duration: "30 דקות",
-      provider_id: "1",
-      provider_name: "נטע ברסלר",
-      image_url: "https://images.unsplash.com/photo-1492288991661-058aa541ff43?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "ימי חול בערב",
-      is_premium: false,
-      is_custom: false,
-      includes: ["מופע אינטראקטיבי", "שילוב של עד 10 משתתפים", "אפקטים מנטליים", "הפתעות מותאמות אישית"]
-    },
-    {
-      id: "1-2",
-      name: "מופע קריאת מחשבות - חבילת פרימיום",
-      short_description: "מופע קריאת מחשבות משולב בקטעי הומור לאירועים גדולים",
-      description: "מופע קריאת מחשבות מורחב באורך של כ-60 דקות, הכולל קטעי הומור ואלמנטים אינטראקטיביים רבים עם הקהל.",
-      price_range: "₪5,000 - ₪7,000",
-      duration: "60 דקות",
-      provider_id: "1",
-      provider_name: "נטע ברסלר",
-      image_url: "https://images.unsplash.com/photo-1503095396549-807759245b35?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "כל ימות השבוע",
-      is_premium: true,
-      is_custom: false,
-      includes: ["מופע אינטראקטיבי", "שילוב של עד 20 משתתפים", "אפקטים מנטליים", "קטעי הומור", "הקלטת וידאו של האירוע", "משימה מותאמת אישית לאירוע"]
-    },
-    {
-      id: "1-3",
-      name: "קריאת מחשבות אישית בין שולחנות",
-      short_description: "קריאת מחשבות אינטימית בין אורחי האירוע",
-      description: "מתאים לקבלת פנים או במהלך האירוע, נטע יעבור בין השולחנות ויבצע קסמים אישיים וקריאת מחשבות.",
-      price_range: "₪2,500 - ₪3,500",
-      duration: "עד שעתיים",
-      provider_id: "1",
-      provider_name: "נטע ברסלר",
-      image_url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "כל ימות השבוע",
-      is_premium: false,
-      is_custom: true,
-      includes: ["קסמים אישיים", "אינטראקציה עם האורחים", "ניתן להתאים לכל סוג אירוע"]
-    }
-  ],
-  "2": [
-    {
-      id: "2-1",
-      name: "מופע מוזיקלי - הרכב בסיסי",
-      short_description: "הרכב מוזיקלי של 3 נגנים לאירועים קטנים",
-      description: "הרכב מוזיקלי הכולל זמר/ת, גיטריסט וקלידן, מתאים לאירועים קטנים עד 100 איש.",
-      price_range: "₪4,000 - ₪5,500",
-      duration: "3 שעות",
-      provider_id: "2",
-      provider_name: "להקת מלודי מייקרס",
-      image_url: "https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "ימי חול וסופי שבוע",
-      is_premium: false,
-      is_custom: false,
-      includes: ["הגברה בסיסית", "תאורה בסיסית", "רפרטואר מגוון", "התאמה אישית של 5 שירים"]
-    },
-    {
-      id: "2-2",
-      name: "מופע מוזיקלי - הרכב מלא",
-      short_description: "הרכב מוזיקלי מלא של 6 נגנים לאירועים גדולים",
-      description: "הרכב מוזיקלי מלא הכולל שני זמרים, גיטריסט, בסיסט, קלידן ומתופף. מתאים לאירועים גדולים ואולמות.",
-      price_range: "₪8,000 - ₪12,000",
-      duration: "4 שעות",
-      provider_id: "2",
-      provider_name: "להקת מלודי מייקרס",
-      image_url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "סופי שבוע",
-      is_premium: true,
-      is_custom: false,
-      includes: ["מערכת הגברה מקצועית", "תאורה מקצועית", "רפרטואר רחב", "התאמה אישית של 10 שירים", "הקלטת סאונד מלאה", "מנהל במה"]
-    }
-  ],
-  "3": [
-    {
-      id: "3-1",
-      name: "צילום אירוע - חבילה בסיסית",
-      short_description: "צילום אירוע בסיסי עם צלם אחד",
-      description: "צילום סטילס מקצועי לאירוע באורך של עד 4 שעות עם צלם אחד.",
-      price_range: "₪1,800 - ₪2,500",
-      duration: "4 שעות",
-      provider_id: "3",
-      provider_name: "סטודיו צילום זכרונות חיים",
-      image_url: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "כל ימות השבוע",
-      is_premium: false,
-      is_custom: false,
-      includes: ["צילום סטילס", "עד 300 תמונות ערוכות", "אלבום דיגיטלי", "זמן עריכה: עד שבועיים"]
-    },
-    {
-      id: "3-2",
-      name: "צילום אירוע - חבילת פרימיום",
-      short_description: "צילום אירוע מלא עם צלם סטילס וצלם וידאו",
-      description: "צילום מקצועי לאירוע הכולל צילום סטילס וצילום וידאו באורך של עד 6 שעות.",
-      price_range: "₪5,000 - ₪7,000",
-      duration: "6 שעות",
-      provider_id: "3",
-      provider_name: "סטודיו צילום זכרונות חיים",
-      image_url: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=450&q=80",
-      availability: "כל ימות השבוע",
-      is_premium: true,
-      is_custom: false,
-      includes: ["צילום סטילס מקצועי", "צילום וידאו 4K", "עד 500 תמונות ערוכות", "סרטון מסכם עד 5 דקות", "אלבום דיגיטלי מפואר", "אלבום מודפס יוקרתי", "זמן עריכה: עד חודש"]
-    }
-  ]
-};
 
 const ProviderProfile = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState("about");
-  const [provider, setProvider] = useState<any>(null);
-  const [services, setServices] = useState<any[]>([]);
-  const [activeImage, setActiveImage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-  const [usingDemoData, setUsingDemoData] = useState(false);
+  const navigate = useNavigate();
+  const [provider, setProvider] = useState(mockProviders.find(p => p.id === id));
+  const [services, setServices] = useState(mockSearchResults.filter(s => s.providerId === id));
+  const [reviews, setReviews] = useState(mockReviews.filter(r => r.providerId === id));
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    const fetchProviderData = async () => {
-      try {
-        if (!id) return;
-        
-        setLoading(true);
-        
-        // Try to fetch provider from database
-        const { data: providerData, error: providerError } = await supabase
-          .from('providers')
-          .select('*')
-          .eq('id', id)
-          .single();
-        
-        if (providerError || !providerData) {
-          // If database fetch fails, check if we have demo data for this ID
-          if (demoProviders[id as keyof typeof demoProviders]) {
-            setProvider(demoProviders[id as keyof typeof demoProviders]);
-            setServices(demoServices[id as keyof typeof demoServices] || []);
-            setUsingDemoData(true);
-            
-            // Set active image from demo provider
-            const demoProvider = demoProviders[id as keyof typeof demoProviders];
-            if (demoProvider?.logo_url) {
-              setActiveImage(demoProvider.logo_url);
-            } else if (demoServices[id as keyof typeof demoServices]?.length > 0) {
-              setActiveImage(demoServices[id as keyof typeof demoServices][0].image_url);
-            }
-          } else {
-            console.error("Provider not found in database or demo data");
-            // Don't set provider - will show not found state
-          }
-        } else {
-          // Provider found in database, now get services
-          setProvider(providerData);
-          
-          const { data: servicesData, error: servicesError } = await supabase
-            .from('services')
-            .select('*')
-            .eq('provider_id', id);
-          
-          if (servicesError) {
-            console.error("Error fetching services:", servicesError);
-          } else {
-            setServices(servicesData || []);
-          }
-          
-          // Set active image
-          if (providerData?.logo_url) {
-            setActiveImage(providerData.logo_url);
-          } else if (servicesData?.length > 0 && servicesData[0].image_url) {
-            setActiveImage(servicesData[0].image_url);
-          }
-        }
-        
-      } catch (error) {
-        console.error("Error fetching provider data:", error);
-        toast({
-          title: "שגיאה בטעינת הנתונים",
-          description: "לא ניתן לטעון את פרטי הספק, אנא נסה שנית מאוחר יותר",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Simulate loading provider data
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
     
-    fetchProviderData();
-  }, [id]);
+    return () => clearTimeout(timer);
+  }, []);
   
-  const handleBookService = (service: any) => {
-    setSelectedService(service);
-    setIsBookingDialogOpen(true);
-  };
-  
-  const handleSubmitBooking = async (formValues: BookingFormValues) => {
-    if (!id || !selectedService?.id) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      // If using demo data, just simulate a successful booking
-      if (usingDemoData) {
-        // Simulate server delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Close booking dialog and show success message
-        setIsBookingDialogOpen(false);
-        setIsSuccessDialogOpen(true);
-        
-        return;
-      }
-      
-      const bookingData = {
-        ...formValues,
-        providerId: id,
-        serviceId: selectedService.id,
-      };
-      
-      const result = await createBooking(bookingData);
-      
-      if (!result.success) {
-        throw new Error(result.error || "שגיאה בשליחת ההזמנה");
-      }
-      
-      // Close booking dialog and show success message
-      setIsBookingDialogOpen(false);
-      setIsSuccessDialogOpen(true);
-      
-    } catch (error: any) {
-      console.error("Error submitting booking:", error);
-      toast({
-        title: "שגיאה בשליחת ההזמנה",
-        description: error.message || "אירעה שגיאה בעת שליחת ההזמנה, אנא נסה שנית",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  // אם הנתונים עדיין בטעינה, הצג מחוון טעינה
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow py-8">
-          <div className="container px-4">
-            <LoadingState />
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-  
-  // אם הספק לא נמצא, הצג הודעת שגיאה
   if (!provider) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow py-8">
-          <div className="container px-4 text-center">
-            <NotFoundState />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center p-8">
+            <h2 className="text-2xl font-bold mb-4">הספק לא נמצא</h2>
+            <p className="mb-6">לא הצלחנו למצוא את הספק המבוקש.</p>
+            <Button onClick={() => navigate(-1)}>חזרה</Button>
           </div>
         </main>
         <Footer />
@@ -345,84 +43,384 @@ const ProviderProfile = () => {
     );
   }
   
-  // חילוץ תמונות מהשירותים לגלריה
-  const serviceImages = services
-    .map(service => service.image_url)
-    .filter(url => url && url !== activeImage);
-  
-  const allImages = [provider.logo_url, ...serviceImages]
-    .filter(Boolean)
-    .filter((url, index, self) => self.indexOf(url) === index); // הסר כפילויות
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow py-8">
-        <div className="container px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* פרופיל סיידבר */}
-            <ProfileSidebar provider={provider} />
-            
-            {/* תוכן ראשי */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* גלריית תמונות */}
-              <ProfileGallery
-                activeImage={activeImage}
-                images={allImages}
-                onImageSelect={setActiveImage}
-                providerName={provider.name}
-              />
-              
-              {/* טאבים */}
-              <ProfileTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                providerName={provider.name}
-                providerDescription={provider.description}
-                services={services}
-                onBookService={handleBookService}
-                providerId={id || ""} // Pass the provider ID
-              />
+      <main className="flex-grow">
+        {isLoading ? (
+          <div className="container px-4 py-8">
+            <div className="animate-pulse">
+              <div className="h-48 bg-gray-200 rounded-lg mb-8"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+              <div className="h-32 bg-gray-200 rounded mb-4"></div>
             </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Hero Banner */}
+            <div className="relative h-48 md:h-64 overflow-hidden">
+              <img 
+                src={provider.coverImage} 
+                alt={provider.businessName}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            </div>
+            
+            <div className="container px-4 relative">
+              {/* Provider Logo */}
+              <div className="absolute -top-16 right-8 h-32 w-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
+                <img 
+                  src={provider.logo} 
+                  alt={provider.businessName}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Provider Header */}
+              <div className="pt-20 pb-6 md:pb-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="flex items-center">
+                      <h1 className="text-2xl md:text-3xl font-bold">{provider.businessName}</h1>
+                      {provider.verified && (
+                        <Badge 
+                          variant="secondary" 
+                          className="mr-2 bg-brand-100 text-brand-800 border-brand-200"
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          מאומת
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 ml-1" />
+                        <span>{provider.rating}</span>
+                        <span className="text-gray-500 mr-1">({provider.reviewCount} ביקורות)</span>
+                      </div>
+                      
+                      {provider.city && (
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 ml-1" />
+                          <span>{provider.city}</span>
+                        </div>
+                      )}
+                      
+                      {provider.categories?.map((category, idx) => (
+                        <Badge key={idx} variant="outline">
+                          {category}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 md:mt-0">
+                    <Button 
+                      className="bg-brand-600 hover:bg-brand-700"
+                      onClick={() => {
+                        // In a real app, this would check if the user has already booked
+                        // For now, let's go to the first service offered by this provider
+                        if (services.length > 0) {
+                          navigate(`/booking/${services[0].id}`);
+                        }
+                      }}
+                    >
+                      הזמן שירות
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Provider Tabs */}
+              <Tabs defaultValue="about" className="mb-12">
+                <TabsList className="w-full">
+                  <TabsTrigger value="about">אודות</TabsTrigger>
+                  <TabsTrigger value="services">שירותים</TabsTrigger>
+                  <TabsTrigger value="gallery">גלריה</TabsTrigger>
+                  <TabsTrigger value="reviews">ביקורות</TabsTrigger>
+                  <TabsTrigger value="contact">צור קשר</TabsTrigger>
+                </TabsList>
+                
+                {/* About Tab */}
+                <TabsContent value="about" className="py-6">
+                  <div className="max-w-3xl">
+                    <h2 className="text-xl font-semibold mb-4">אודות {provider.businessName}</h2>
+                    <div className="prose max-w-none">
+                      <p>{provider.description}</p>
+                    </div>
+                    
+                    <div className="mt-10">
+                      <h3 className="text-lg font-semibold mb-3">פרטים נוספים</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-2 rounded-full">
+                            <Star className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div className="mr-3">
+                            <div className="text-sm text-gray-500">דירוג</div>
+                            <div className="flex items-center">
+                              {provider.rating}
+                              <span className="text-sm text-gray-500 mr-1">({provider.reviewCount} ביקורות)</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-2 rounded-full">
+                            <MapPin className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div className="mr-3">
+                            <div className="text-sm text-gray-500">מיקום</div>
+                            <div>{provider.city ? `${provider.address}, ${provider.city}` : "לא צוין"}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-2 rounded-full">
+                            <Phone className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div className="mr-3">
+                            <div className="text-sm text-gray-500">טלפון</div>
+                            <div>{provider.phone}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-2 rounded-full">
+                            <Mail className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div className="mr-3">
+                            <div className="text-sm text-gray-500">אימייל</div>
+                            <div>{provider.email}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                {/* Services Tab */}
+                <TabsContent value="services" className="py-6">
+                  <h2 className="text-xl font-semibold mb-6">השירותים שלנו</h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {services.map((service) => (
+                      <Link 
+                        key={service.id} 
+                        to={`/services/${service.id}`}
+                        className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                      >
+                        <div className="h-40 overflow-hidden">
+                          <img 
+                            src={service.imageUrl} 
+                            alt={service.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold mb-1">{service.name}</h3>
+                          <p className="text-sm text-gray-500 line-clamp-2 mb-2">{service.description}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-brand-600 font-medium">₪{service.price}</span>
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                              <span className="text-sm ml-1">{service.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                {/* Gallery Tab */}
+                <TabsContent value="gallery" className="py-6">
+                  <h2 className="text-xl font-semibold mb-6">גלריה</h2>
+                  <ProfileGallery images={[provider.coverImage, ...provider.gallery]} />
+                </TabsContent>
+                
+                {/* Reviews Tab */}
+                <TabsContent value="reviews" className="py-6">
+                  <div className="flex flex-col md:flex-row gap-12">
+                    <div className="md:w-1/3 lg:w-1/4">
+                      <div className="bg-gray-50 rounded-lg p-6 text-center">
+                        <div className="text-4xl font-bold text-brand-600 mb-2">
+                          {provider.rating}
+                        </div>
+                        <div className="flex justify-center mb-2">
+                          {Array(5).fill(0).map((_, idx) => (
+                            <Star 
+                              key={idx} 
+                              className={`h-5 w-5 ${
+                                idx < Math.floor(provider.rating) 
+                                  ? "text-yellow-400 fill-yellow-400" 
+                                  : "text-gray-300"
+                              }`} 
+                            />
+                          ))}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          מבוסס על {provider.reviewCount} ביקורות
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="md:w-2/3 lg:w-3/4">
+                      <h2 className="text-xl font-semibold mb-6">ביקורות</h2>
+                      
+                      {reviews.length > 0 ? (
+                        <div className="space-y-6">
+                          {reviews.map(review => (
+                            <div key={review.id} className="border-b pb-6">
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="flex items-center">
+                                  <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                    {review.userAvatar ? (
+                                      <img 
+                                        src={review.userAvatar} 
+                                        alt={review.userName}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-brand-100 text-brand-600 font-bold">
+                                        {review.userName.charAt(0)}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="mr-3">
+                                    <div className="font-medium">{review.userName}</div>
+                                    <div className="text-sm text-gray-500">
+                                      {new Date(review.date).toLocaleDateString('he-IL')}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex">
+                                  {Array(5).fill(0).map((_, idx) => (
+                                    <Star 
+                                      key={idx} 
+                                      className={`h-4 w-4 ${
+                                        idx < review.rating 
+                                          ? "text-yellow-400 fill-yellow-400" 
+                                          : "text-gray-300"
+                                      }`} 
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              {review.comment && (
+                                <p className="text-gray-700">{review.comment}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">אין ביקורות עדיין</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                {/* Contact Tab */}
+                <TabsContent value="contact" className="py-6">
+                  <div className="flex flex-col md:flex-row gap-8">
+                    <div className="md:w-1/2">
+                      <h2 className="text-xl font-semibold mb-6">צור קשר</h2>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-3 rounded-full">
+                            <User className="h-6 w-6 text-gray-600" />
+                          </div>
+                          <div className="mr-4">
+                            <div className="text-sm text-gray-500">איש קשר</div>
+                            <div>{provider.contactPerson}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-3 rounded-full">
+                            <Phone className="h-6 w-6 text-gray-600" />
+                          </div>
+                          <div className="mr-4">
+                            <div className="text-sm text-gray-500">טלפון</div>
+                            <a href={`tel:${provider.phone}`} className="text-brand-600">
+                              {provider.phone}
+                            </a>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 p-3 rounded-full">
+                            <Mail className="h-6 w-6 text-gray-600" />
+                          </div>
+                          <div className="mr-4">
+                            <div className="text-sm text-gray-500">אימייל</div>
+                            <a href={`mailto:${provider.email}`} className="text-brand-600">
+                              {provider.email}
+                            </a>
+                          </div>
+                        </div>
+                        
+                        {provider.city && (
+                          <div className="flex items-center">
+                            <div className="bg-gray-100 p-3 rounded-full">
+                              <MapPin className="h-6 w-6 text-gray-600" />
+                            </div>
+                            <div className="mr-4">
+                              <div className="text-sm text-gray-500">כתובת</div>
+                              <div>{provider.address}, {provider.city}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="mt-8">
+                        <Button 
+                          className="bg-brand-600 hover:bg-brand-700"
+                          onClick={() => {
+                            if (services.length > 0) {
+                              navigate(`/booking/${services[0].id}`);
+                            }
+                          }}
+                        >
+                          הזמן שירות
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="md:w-1/2">
+                      <div className="bg-gray-100 rounded-lg h-full min-h-[300px] flex items-center justify-center">
+                        <div className="text-center p-8">
+                          {provider.city ? (
+                            <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                          ) : (
+                            <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                          )}
+                          {provider.city ? (
+                            <p className="text-gray-600">מפה תוצג כאן</p>
+                          ) : (
+                            <p className="text-gray-600">לוח זמינות יוצג כאן</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </>
+        )}
       </main>
       <Footer />
-      
-      {/* Chatbot Component */}
-      <Chatbot />
-      
-      {/* דיאלוגים */}
-      {selectedService && (
-        <BookingDialog 
-          service={selectedService}
-          providerId={id || ""}
-          onSubmitBooking={handleSubmitBooking}
-          isOpen={isBookingDialogOpen}
-          setIsOpen={setIsBookingDialogOpen}
-          isSubmitting={isSubmitting}
-        >
-          <div></div>
-        </BookingDialog>
-      )}
-
-      {/* דיאלוג אישור הזמנה */}
-      <AlertDialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <AlertDialogContent dir="rtl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>ההזמנה נשלחה בהצלחה!</AlertDialogTitle>
-            <AlertDialogDescription>
-              הזמנתך ל{selectedService?.name ? `-${selectedService.name}` : ""} נשלחה בהצלחה. נציג ייצור איתך קשר בקרוב לתיאום הפרטים הסופיים והתשלום.
-              <p className="mt-2">תודה על פנייתך!</p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex justify-center">
-            <AlertDialogAction>אישור</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
 
 export default ProviderProfile;
+

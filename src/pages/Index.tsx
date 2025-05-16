@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { eventConcepts } from "@/lib/searchSuggestions";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -82,10 +83,10 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">
-                חיפוש שירותים
+                <Link to="/search">חיפוש שירותים</Link>
               </Button>
               <Button size="lg" variant="secondary" className="bg-accent1-500 text-white hover:bg-accent1-600 border-2 border-white">
-                הצטרפות כנותן שירות
+                <Link to="/provider-onboarding">הצטרפות כנותן שירות</Link>
               </Button>
             </div>
           </div>

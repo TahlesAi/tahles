@@ -1,43 +1,96 @@
 
-import React from 'react';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ProfileGalleryProps {
-  activeImage: string;
   images: string[];
-  onImageSelect: (image: string) => void;
-  providerName: string;
 }
 
-const ProfileGallery = ({ activeImage, images, onImageSelect, providerName }: ProfileGalleryProps) => {
+const ProfileGallery = ({ images }: ProfileGalleryProps) => {
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const openLightbox = (index: number) => {
+    setCurrentImageIndex(index);
+    setShowLightbox(true);
+  };
+
+  const closeLightbox = () => {
+    setShowLightbox(false);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="aspect-video rounded-lg overflow-hidden">
-        <img 
-          src={activeImage || "/placeholder.svg"} 
-          alt={providerName} 
-          className="w-full h-full object-cover"
-        />
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className="aspect-square overflow-hidden rounded-lg cursor-pointer"
+            onClick={() => openLightbox(index)}
+          >
+            <img
+              src={image}
+              alt={`תמונה ${index + 1}`}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+        ))}
       </div>
-      {images.length > 1 && (
-        <div className="flex space-x-2 overflow-x-auto pb-2" dir="rtl">
-          {images.map((image, index) => (
-            <div 
-              key={index}
-              className={`h-20 w-32 rounded-md overflow-hidden cursor-pointer border-2 ${
-                activeImage === image ? "border-brand-500" : "border-transparent"
-              }`}
-              onClick={() => onImageSelect(image)}
+
+      {/* Lightbox */}
+      <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
+        <DialogContent className="max-w-5xl p-0 bg-black/95">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-2 rounded-full bg-black/20 text-white z-10"
+            onClick={closeLightbox}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
+          <div className="relative h-[80vh] flex items-center justify-center">
+            <img
+              src={images[currentImageIndex]}
+              alt={`תמונה ${currentImageIndex + 1}`}
+              className="max-h-full max-w-full object-contain"
+            />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/20 text-white"
+              onClick={nextImage}
             >
-              <img 
-                src={image} 
-                alt={`${providerName} ${index + 1}`} 
-                className="w-full h-full object-cover"
-              />
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/20 text-white"
+              onClick={prevImage}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/20 px-3 py-1 rounded-full text-sm">
+              {currentImageIndex + 1} / {images.length}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

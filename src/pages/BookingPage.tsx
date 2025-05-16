@@ -1,430 +1,432 @@
 
-import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Clock, MapPin, Calendar, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { CalendarIcon, Clock, MapPin, CheckCircle2, X } from "lucide-react";
 import { format } from "date-fns";
+import { he } from "date-fns/locale";
+import { mockSearchResults } from "@/lib/mockData";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
-interface BookingFormData {
-  fullName: string;
-  email: string;
-  phone: string;
-  comments: string;
-  paymentMethod: string;
-}
+const timeSlots = [
+  "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", 
+  "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
+];
 
 const BookingPage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
+  const [service, setService] = useState(mockSearchResults.find(s => s.id === id));
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Form state
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [time, setTime] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [numGuests, setNumGuests] = useState(1);
+  const [location, setLocation] = useState("");
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
+  
+  // Validation state
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<any>(null);
-  const [formData, setFormData] = useState<BookingFormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    comments: "",
-    paymentMethod: "creditCard"
-  });
-
-  // בדיקה האם יש נתונים בלוקיישן או בלוקאל סטורג'
+  
   useEffect(() => {
-    let details = location.state;
+    // Simulate loading service data
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
     
-    if (!details) {
-      // נסיון לקבל מידע מלוקאל סטורג'
-      const storedData = localStorage.getItem('currentBooking');
-      if (storedData) {
-        try {
-          details = JSON.parse(storedData);
-        } catch (e) {
-          console.error("Failed to parse stored booking data", e);
-        }
-      }
-    }
-
-    if (!details || !details.serviceId) {
-      toast({
-        title: "שגיאה",
-        description: "לא נמצאו פרטי הזמנה. אנא נסה שוב.",
-        variant: "destructive"
-      });
-      navigate(`/services/${id || 'demo'}`);
-      return;
-    }
-
-    setBookingDetails(details);
-  }, [id, location.state, navigate, toast]);
-
-  // טיפול בשינוי שדות הטופס
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // טיפול בשינוי אמצעי תשלום
-  const handlePaymentMethodChange = (method: string) => {
-    setFormData(prev => ({ ...prev, paymentMethod: method }));
-  };
-
-  // טיפול בשליחת הטופס
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // בדיקת תקינות בסיסית
-    if (!formData.fullName || !formData.email || !formData.phone) {
-      toast({
-        title: "שגיאה",
-        description: "יש למלא את כל השדות הנדרשים",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      // כאן תהיה קריאת API לביצוע ההזמנה
-      // עבור המוקאפ נדמה תהליך של שליחת הזמנה
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // ניקוי הנתונים מהלוקאל סטורג'
-      localStorage.removeItem('currentBooking');
-      
-      // הקפצת הודעת הצלחה
-      toast({
-        title: "ההזמנה בוצעה בהצלחה!",
-        description: "פרטי ההזמנה נשלחו לדוא\"ל שלך",
-      });
-      
-      setBookingComplete(true);
-      
-    } catch (error) {
-      console.error("Error submitting booking:", error);
-      toast({
-        title: "שגיאה בביצוע ההזמנה",
-        description: "אירעה שגיאה בעת ביצוע ההזמנה. אנא נסה שוב מאוחר יותר.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!bookingDetails) {
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!service) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow flex items-center justify-center p-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  // תצוגת סיום הזמנה
-  if (bookingComplete) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow p-4" dir="rtl">
-          <div className="max-w-2xl mx-auto">
-            <Card className="border-green-200 shadow-lg">
-              <CardHeader className="text-center pb-2 bg-green-50">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-2" />
-                <CardTitle className="text-2xl">ההזמנה הושלמה בהצלחה!</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <p className="text-center text-lg mb-6">תודה על הזמנתך! פרטי ההזמנה נשלחו לדוא"ל שלך.</p>
-                  
-                  <div className="border-t border-b py-4">
-                    <h3 className="font-semibold mb-3">פרטי ההזמנה:</h3>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">שירות:</span>
-                        <span className="font-medium">{bookingDetails.serviceName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">ספק:</span>
-                        <span>{bookingDetails.providerName}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">תאריך:</span>
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 ml-1" />
-                          <span>{format(new Date(bookingDetails.date), 'dd/MM/yyyy')}</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">שעה:</span>
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 ml-1" />
-                          <span>{bookingDetails.time}</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">מספר משתתפים:</span>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 ml-1" />
-                          <span>{bookingDetails.audience}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <p className="text-center text-sm text-gray-600 mt-6">
-                    מספר הזמנה: {Math.floor(Math.random() * 100000)}
-                  </p>
-                </div>
-              </CardContent>
-              <CardFooter className="flex-col space-y-2">
-                <Button className="w-full" onClick={() => navigate('/')}>
-                  חזרה לדף הבית
-                </Button>
-                <Button variant="outline" onClick={() => navigate('/dashboard')}>
-                  לרשימת ההזמנות שלי
-                </Button>
-              </CardFooter>
-            </Card>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center p-8">
+            <h2 className="text-2xl font-bold mb-4">השירות לא נמצא</h2>
+            <p className="mb-6">לא הצלחנו למצוא את השירות המבוקש.</p>
+            <Button onClick={() => navigate("/")}>חזרה לעמוד הראשי</Button>
           </div>
         </main>
         <Footer />
       </div>
     );
   }
-
-  // תצוגת טופס הזמנה
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    
+    // Validate form
+    const bookingSchema = z.object({
+      date: z.date({
+        required_error: "יש לבחור תאריך",
+      }),
+      time: z.string({
+        required_error: "יש לבחור שעה",
+      }),
+      name: z.string().min(2, "יש להזין שם מלא"),
+      phone: z.string().min(9, "יש להזין מספר טלפון תקין"),
+      email: z.string().email("יש להזין כתובת אימייל תקינה"),
+      location: service.location ? z.string().optional() : z.string().min(2, "יש להזין מיקום"),
+      isAgreedToTerms: z.literal(true, {
+        invalid_type_error: "יש לאשר את תנאי השימוש",
+      }),
+    });
+    
+    try {
+      bookingSchema.parse({
+        date,
+        time,
+        name,
+        phone,
+        email,
+        location: service.location || location,
+        isAgreedToTerms,
+      });
+      
+      // Submit form
+      setIsSubmitting(true);
+      
+      // Simulate API call
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setBookingComplete(true);
+        window.scrollTo(0, 0);
+        
+        toast({
+          title: "ההזמנה בוצעה בהצלחה",
+          description: "תודה על הזמנתך! פרטים נשלחו לכתובת המייל שלך.",
+        });
+      }, 1500);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path) {
+            newErrors[err.path[0]] = err.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+    }
+  };
+  
+  if (bookingComplete) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow container px-4 py-12">
+          <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
+              <CheckCircle2 className="h-8 w-8 text-green-600" />
+            </div>
+            
+            <h1 className="text-2xl font-bold mb-4">ההזמנה בוצעה בהצלחה!</h1>
+            <p className="text-gray-600 mb-8">
+              תודה על הזמנתך את {service.name}.<br />
+              פרטי ההזמנה נשלחו לכתובת המייל {email}.
+            </p>
+            
+            <div className="bg-gray-50 rounded-lg p-4 mb-8 text-right">
+              <h3 className="font-semibold mb-2">פרטי ההזמנה:</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>שירות:</div>
+                <div className="font-medium">{service.name}</div>
+                
+                <div>תאריך:</div>
+                <div className="font-medium">{date && format(date, 'dd/MM/yyyy', { locale: he })}</div>
+                
+                <div>שעה:</div>
+                <div className="font-medium">{time}</div>
+                
+                <div>מיקום:</div>
+                <div className="font-medium">{service.location || location}</div>
+                
+                <div>מחיר:</div>
+                <div className="font-medium">₪{service.price} {service.priceUnit}</div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button onClick={() => navigate("/")}>חזרה לעמוד הראשי</Button>
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+                לדף האישי שלי
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow p-4" dir="rtl">
-        <div className="container mx-auto max-w-6xl">
-          <h1 className="text-3xl font-bold mb-8 text-center">השלמת ההזמנה</h1>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* טופס הזמנה */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>פרטי המזמין</CardTitle>
-                </CardHeader>
-                <CardContent>
+      <main className="flex-grow bg-gray-50">
+        <div className="container px-4 py-8">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-2xl font-bold mb-1">הזמנת שירות</h1>
+            <p className="text-gray-600 mb-8">מלא את הפרטים הבאים להזמנת {service.name}</p>
+            
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Booking Form */}
+              <div className="lg:w-2/3">
+                <div className="bg-white rounded-lg shadow-sm p-6">
                   <form onSubmit={handleSubmit}>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <Label htmlFor="fullName">שם מלא</Label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="phone">טלפון</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
-                      </div>
+                    {/* Date and Time */}
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold mb-4">בחירת תאריך ושעה</h2>
                       
-                      <div>
-                        <Label htmlFor="email">דוא"ל</Label>
-                        <Input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="comments">הערות נוספות</Label>
-                        <Input
-                          id="comments"
-                          name="comments"
-                          value={formData.comments}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-medium mb-3">בחירת אמצעי תשלום</h3>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div
-                            className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                              formData.paymentMethod === 'creditCard'
-                                ? 'bg-brand-50 border-brand-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                            onClick={() => handlePaymentMethodChange('creditCard')}
-                          >
-                            <div className="text-center">
-                              <div className="mb-2">💳</div>
-                              <span className="text-sm">כרטיס אשראי</span>
-                            </div>
-                          </div>
-                          
-                          <div
-                            className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                              formData.paymentMethod === 'paypal'
-                                ? 'bg-brand-50 border-brand-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                            onClick={() => handlePaymentMethodChange('paypal')}
-                          >
-                            <div className="text-center">
-                              <div className="mb-2">🅿️</div>
-                              <span className="text-sm">PayPal</span>
-                            </div>
-                          </div>
-                          
-                          <div
-                            className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                              formData.paymentMethod === 'bit'
-                                ? 'bg-brand-50 border-brand-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                            onClick={() => handlePaymentMethodChange('bit')}
-                          >
-                            <div className="text-center">
-                              <div className="mb-2">📱</div>
-                              <span className="text-sm">Bit</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {formData.paymentMethod === 'creditCard' && (
-                        <div className="space-y-4 border p-4 rounded-lg">
-                          <p className="text-sm text-gray-500">פרטי אשראי לדוגמה בלבד</p>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="cardNumber">מספר כרטיס</Label>
-                              <Input
-                                id="cardNumber"
-                                placeholder="1234 5678 9012 3456"
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Date Picker */}
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium mb-1">תאריך</label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={`w-full justify-start text-right font-normal ${errors.date ? 'border-red-500' : ''}`}
+                              >
+                                <CalendarIcon className="ml-2 h-4 w-4" />
+                                {date ? (
+                                  format(date, 'PPP', { locale: he })
+                                ) : (
+                                  <span>בחר תאריך</span>
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={setDate}
+                                initialFocus
+                                disabled={(date) => 
+                                  date < new Date(new Date().setHours(0, 0, 0, 0))
+                                }
                               />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="expiry">תוקף</Label>
-                                <Input
-                                  id="expiry"
-                                  placeholder="MM/YY"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="cvv">CVV</Label>
-                                <Input
-                                  id="cvv"
-                                  placeholder="123"
-                                />
-                              </div>
-                            </div>
-                          </div>
+                            </PopoverContent>
+                          </Popover>
+                          {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
                         </div>
-                      )}
+                        
+                        {/* Time Selector */}
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium mb-1">שעה</label>
+                          <div className="flex flex-wrap gap-2">
+                            {timeSlots.map((slot) => (
+                              <Button
+                                key={slot}
+                                type="button"
+                                variant={time === slot ? "default" : "outline"}
+                                className={`py-1 px-3 h-auto ${time === slot ? 'bg-brand-600' : ''}`}
+                                onClick={() => setTime(slot)}
+                              >
+                                {slot}
+                              </Button>
+                            ))}
+                          </div>
+                          {errors.time && <p className="mt-1 text-sm text-red-500">{errors.time}</p>}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Contact Information */}
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold mb-4">פרטי איש קשר</h2>
                       
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">שם מלא</label>
+                          <Input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className={errors.name ? 'border-red-500' : ''}
+                          />
+                          {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium mb-1">טלפון</label>
+                          <Input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className={errors.phone ? 'border-red-500' : ''}
+                          />
+                          {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium mb-1">אימייל</label>
+                          <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={errors.email ? 'border-red-500' : ''}
+                          />
+                          {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Event Details */}
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold mb-4">פרטי האירוע</h2>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">מספר משתתפים</label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={numGuests}
+                            onChange={(e) => setNumGuests(Number(e.target.value))}
+                          />
+                        </div>
+                        
+                        {!service.location && (
+                          <div>
+                            <label className="block text-sm font-medium mb-1">מיקום האירוע</label>
+                            <Input
+                              value={location}
+                              onChange={(e) => setLocation(e.target.value)}
+                              className={errors.location ? 'border-red-500' : ''}
+                              placeholder="כתובת מדויקת"
+                            />
+                            {errors.location && <p className="mt-1 text-sm text-red-500">{errors.location}</p>}
+                          </div>
+                        )}
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium mb-1">בקשות מיוחדות</label>
+                          <Textarea
+                            value={specialRequests}
+                            onChange={(e) => setSpecialRequests(e.target.value)}
+                            placeholder="הוסף בקשות או הערות מיוחדות..."
+                            rows={4}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Terms Agreement */}
+                    <div className="mb-6">
+                      <div className="flex items-start">
+                        <input
+                          type="checkbox"
+                          id="terms"
+                          checked={isAgreedToTerms}
+                          onChange={(e) => setIsAgreedToTerms(e.target.checked)}
+                          className={`mt-1 h-4 w-4 ${errors.isAgreedToTerms ? 'border-red-500' : ''}`}
+                        />
+                        <label htmlFor="terms" className="mr-2 text-sm">
+                          אני מסכים/ה ל<a href="#" className="text-brand-600 underline">תנאי השימוש</a> ו<a href="#" className="text-brand-600 underline">מדיניות הפרטיות</a>
+                        </label>
+                      </div>
+                      {errors.isAgreedToTerms && <p className="mt-1 text-sm text-red-500">{errors.isAgreedToTerms}</p>}
+                    </div>
+                    
+                    {/* Submit Button */}
+                    <div className="flex justify-end">
+                      <Button 
+                        type="submit" 
+                        className="bg-brand-600 hover:bg-brand-700 px-8"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "מבצע הזמנה..." : "סיום הזמנה"}
+                      </Button>
                     </div>
                   </form>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate(`/services/${id || 'demo'}`)}
-                  >
-                    חזרה
-                  </Button>
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "מעבד..." : "השלם הזמנה"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-            
-            {/* סיכום הזמנה */}
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle>סיכום הזמנה</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">{bookingDetails.serviceName}</h3>
-                      <p className="text-gray-600">{bookingDetails.providerName}</p>
+                </div>
+              </div>
+              
+              {/* Booking Summary */}
+              <div className="lg:w-1/3">
+                <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20">
+                  <h2 className="text-lg font-semibold border-b pb-3 mb-4">סיכום הזמנה</h2>
+                  
+                  <div className="flex items-start mb-4">
+                    <div className="h-16 w-16 rounded overflow-hidden flex-shrink-0">
+                      <img 
+                        src={service.imageUrl} 
+                        alt={service.name}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
-                    
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 ml-2" />
-                      <span>{format(new Date(bookingDetails.date), 'dd/MM/yyyy')}</span>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 ml-2" />
-                      <span>{bookingDetails.time}</span>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 ml-2" />
-                      <span>{bookingDetails.audience} משתתפים</span>
-                    </div>
-                    
-                    <Separator className="my-4" />
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>מחיר בסיסי</span>
-                        <span>₪2,000</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>הגברה (עד 100 איש)</span>
-                        <span>₪300</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>הנחת הזמנה מוקדמת</span>
-                        <span className="text-green-600">-₪200</span>
-                      </div>
-                    </div>
-                    
-                    <Separator className="my-4" />
-                    
-                    <div className="flex justify-between text-lg font-semibold">
-                      <span>סה"כ לתשלום</span>
-                      <span>₪2,100</span>
-                    </div>
-                    
-                    <div className="text-xs text-gray-500 mt-2">
-                      * המחירים כוללים מע"מ
+                    <div className="mr-3">
+                      <h3 className="font-medium">{service.name}</h3>
+                      <p className="text-sm text-gray-600">{service.provider}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="space-y-3 text-sm border-b pb-4 mb-4">
+                    {date && (
+                      <div className="flex">
+                        <CalendarIcon className="h-4 w-4 ml-2 text-gray-500" />
+                        <div>{format(date, 'PPP', { locale: he })}</div>
+                      </div>
+                    )}
+                    
+                    {time && (
+                      <div className="flex">
+                        <Clock className="h-4 w-4 ml-2 text-gray-500" />
+                        <div>{time}</div>
+                      </div>
+                    )}
+                    
+                    {(service.location || location) && (
+                      <div className="flex">
+                        <MapPin className="h-4 w-4 ml-2 text-gray-500" />
+                        <div>{service.location || location}</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2 border-b pb-4 mb-4">
+                    <div className="flex justify-between">
+                      <span>מחיר בסיס:</span>
+                      <span>₪{service.price}</span>
+                    </div>
+                    {numGuests > 1 && service.priceUnit?.includes('למשתתף') && (
+                      <div className="flex justify-between">
+                        <span>{numGuests} משתתפים:</span>
+                        <span>₪{service.price * numGuests}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>סה"כ:</span>
+                    <span>
+                      ₪{service.priceUnit?.includes('למשתתף') 
+                          ? service.price * numGuests 
+                          : service.price}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-4 text-xs text-gray-500">
+                    * המחירים אינם כוללים מע"מ
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

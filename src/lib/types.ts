@@ -1,0 +1,122 @@
+
+// General Types
+export interface SearchSuggestion {
+  id: string;
+  value: string;
+  type?: string;
+  icon?: React.ReactNode;
+}
+
+// User related types
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: 'client' | 'provider' | 'admin';
+}
+
+// Search related types
+export interface SearchResultService {
+  id: string;
+  name: string;
+  provider: string;
+  providerId?: string;
+  description: string;
+  price: number;
+  priceUnit?: string; // e.g. "per hour", "per event"
+  rating: number;
+  reviewCount: number;
+  imageUrl: string;
+  category: string;
+  subcategory?: string;
+  location?: string;
+  suitableFor: string[]; // concepts/event types
+  featured?: boolean;
+  availability?: {
+    dates: string[];
+    timeSlots?: {
+      start: string;
+      end: string;
+    }[];
+  };
+}
+
+// Booking related types
+export interface BookingRequest {
+  serviceId: string;
+  userId: string;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
+  specialRequests?: string;
+  attendees?: number;
+  totalPrice: number;
+}
+
+export interface Booking extends BookingRequest {
+  id: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  createdAt: string;
+  updatedAt?: string;
+}
+
+// Provider related types
+export interface ProviderProfile {
+  id: string;
+  userId: string;
+  businessName: string;
+  description: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address?: string;
+  city?: string;
+  categories: string[];
+  logo?: string;
+  coverImage?: string;
+  gallery: string[];
+  rating?: number;
+  reviewCount?: number;
+  featured?: boolean;
+  verified?: boolean;
+  services?: Service[];
+}
+
+export interface Service {
+  id: string;
+  providerId: string;
+  name: string;
+  description: string;
+  price: number;
+  priceUnit?: string;
+  duration?: number;
+  maxAttendees?: number;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  suitableFor: string[];
+  featured?: boolean;
+  setupTime?: number;
+  additionalOptions?: {
+    id: string;
+    name: string;
+    price: number;
+    description?: string;
+  }[];
+}
+
+// Review related types
+export interface Review {
+  id: string;
+  serviceId: string;
+  providerId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment?: string;
+  date: string;
+  verified?: boolean;
+}

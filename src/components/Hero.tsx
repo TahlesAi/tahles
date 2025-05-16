@@ -27,12 +27,12 @@ const Hero = () => {
   };
   
   const categories = [
-    { name: "לוקיישנים", icon: <Building className="h-5 w-5" /> },
-    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" /> },
-    { name: "הפקה", icon: <Camera className="h-5 w-5" /> },
-    { name: "מופעים", icon: <Music className="h-5 w-5" /> },
-    { name: "מתנות", icon: <Gift className="h-5 w-5" /> },
-    { name: "ימי כיף", icon: <Plane className="h-5 w-5" /> }
+    { name: "לוקיישנים", icon: <Building className="h-5 w-5" />, id: "venues" },
+    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" />, id: "food" },
+    { name: "הפקה", icon: <Camera className="h-5 w-5" />, id: "staging" },
+    { name: "מופעים", icon: <Music className="h-5 w-5" />, id: "performances" },
+    { name: "מתנות", icon: <Gift className="h-5 w-5" />, id: "gifts" },
+    { name: "ימי כיף", icon: <Plane className="h-5 w-5" />, id: "trips" }
   ];
   
   return (
@@ -60,7 +60,7 @@ const Hero = () => {
           פתרונות צרכנות משובחים בתכלס
         </h1>
         <p className="text-xl md:text-2xl text-white/90 text-center mb-8">
-          כל מה שצריך לאירוע או מפגש חברתי מושלם, במקום 1
+          כל מה שצריך לאירוע או מפגש חברתי מושלם, במקום אחד
         </p>
         
         <div className="w-full max-w-2xl relative z-10">
@@ -86,7 +86,7 @@ const Hero = () => {
               key={index}
               variant="outline" 
               className="bg-white/20 text-white border-white/30 hover:bg-white/30"
-              onClick={() => navigate(`/categories/${index + 1}`)}
+              onClick={() => navigate(`/categories/${category.id}`)}
             >
               {category.icon}
               <span className="mr-2">{category.name}</span>

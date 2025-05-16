@@ -1,202 +1,218 @@
 
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, Headphones, User } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OnboardingStep1 from "@/components/onboarding/OnboardingStep1";
 import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { 
+  CheckCircle, 
+  ClipboardList, 
+  ImagePlus, 
+  User, 
+  ChevronRight, 
+  ChevronLeft 
+} from "lucide-react";
+
+const steps = [
+  {
+    id: 1,
+    title: "פרטי ספק",
+    description: "מידע בסיסי על העסק שלך",
+    icon: <User className="h-5 w-5" />,
+  },
+  {
+    id: 2,
+    title: "שירותים",
+    description: "הוספת שירותים ומוצרים",
+    icon: <ClipboardList className="h-5 w-5" />,
+  },
+  {
+    id: 3,
+    title: "מדיה וגלריה",
+    description: "תמונות, סרטונים ומידע נוסף",
+    icon: <ImagePlus className="h-5 w-5" />,
+  },
+  {
+    id: 4,
+    title: "סיום",
+    description: "אישור ופרסום",
+    icon: <CheckCircle className="h-5 w-5" />,
+  },
+];
 
 const ProviderOnboarding = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [providerData, setProviderData] = useState({
-    name: "",
+  const [formData, setFormData] = useState({
+    // Step 1 - Provider Info
+    businessName: "",
+    contactPerson: "",
     email: "",
     phone: "",
-    category: "",
+    address: "",
+    city: "",
+    categories: [] as string[],
     description: "",
-    services: [],
-    pricing: "",
-    photos: []
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const isLoggedIn = !!data.session;
-        
-        setIsAuthenticated(isLoggedIn);
-        
-        if (!isLoggedIn) {
-          toast({
-            title: "התחברות נדרשת",
-            description: "עליך להתחבר או להירשם כדי להציע שירותים באתר",
-            variant: "destructive"
-          });
-          navigate("/"); // Redirect to home page or login page
-        }
-        
-        // If user is authenticated, check if they already have a provider profile
-        if (isLoggedIn) {
-          const { data: providerData } = await supabase
-            .from('providers')
-            .select('*')
-            .eq('id', data.session?.user.id)
-            .maybeSingle();
-            
-          if (providerData) {
-            // User already has a provider profile
-            toast({
-              title: "פרופיל ספק קיים",
-              description: "כבר יש לך פרופיל ספק במערכת, מעביר אותך ללוח הבקרה",
-            });
-            navigate("/dashboard");
-          }
-          
-          // Pre-fill email from user account
-          if (data.session?.user.email) {
-            setProviderData(prev => ({ 
-              ...prev, 
-              email: data.session?.user.email || "" 
-            }));
-          }
-        }
-      } catch (error) {
-        console.error("Authentication check error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     
-    checkAuth();
-  }, [navigate, toast]);
+    // Step 2 - Services
+    services: [] as Array<{
+      name: string;
+      description: string;
+      price: number;
+      priceUnit: string;
+      categories: string[];
+      suitableFor: string[];
+    }>,
+    
+    // Step 3 - Media
+    logo: "",
+    coverImage: "",
+    gallery: [] as string[],
+    videos: [] as string[],
+  });
   
-  const handleNextStep = () => {
-    setCurrentStep(prev => prev + 1);
-    window.scrollTo(0, 0);
+  const updateFormData = (stepData: Partial<typeof formData>) => {
+    setFormData(prev => ({ ...prev, ...stepData }));
   };
   
-  const handlePrevStep = () => {
-    setCurrentStep(prev => prev - 1);
-    window.scrollTo(0, 0);
+  const handleNext = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
+    }
   };
   
-  const updateProviderData = (data: Partial<typeof providerData>) => {
-    setProviderData(prev => ({ ...prev, ...data }));
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo(0, 0);
+    }
   };
   
-  const handleSubmit = () => {
-    // Form submission is now handled in OnboardingStep3
-    setCurrentStep(4); // Move to success step
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, submit the data to API
+    console.log("Form Submission:", formData);
+    // Go to success step
+    setCurrentStep(4);
   };
   
-  const handleFinish = () => {
-    navigate("/dashboard");
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-lg">טוען...</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-  
-  if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow py-8">
-        <div className="container px-4">
-          {/* Progress Header */}
-          {currentStep < 4 && (
-            <div className="mb-10">
-              <h1 className="text-3xl font-bold mb-6 text-center">להציע שירותי קונספט והפקות בקלות עם ת'כל'ס</h1>
-              
-              <div className="flex justify-center items-center mb-10">
-                <div className="flex items-center max-w-3xl w-full">
-                  {/* Step 1 */}
-                  <div className="flex-1 flex flex-col items-center">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-2 ${currentStep >= 1 ? 'bg-primary text-white' : 'bg-gray-100'}`}>
-                      <Headphones className={`h-6 w-6 ${currentStep >= 1 ? 'text-white' : 'text-gray-400'}`} />
+      <main className="flex-grow bg-gray-50">
+        <div className="container px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold mb-2">
+                הצטרפות לת׳כל׳ס כספק שירות
+              </h1>
+              <p className="text-gray-600">
+                מלא את הפרטים הבאים כדי להצטרף כספק שירות ולהתחיל למכור באתר שלנו
+              </p>
+            </div>
+            
+            {/* Progress Steps */}
+            <div className="flex mb-10 overflow-x-auto">
+              {steps.map((step) => (
+                <div 
+                  key={step.id}
+                  className="flex-1 min-w-max"
+                >
+                  <div className="relative flex items-center">
+                    <div 
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                        currentStep >= step.id 
+                          ? "bg-brand-600 text-white" 
+                          : "bg-gray-200 text-gray-500"
+                      }`}
+                    >
+                      {step.id < 4 ? step.id : <CheckCircle className="h-4 w-4" />}
                     </div>
-                    <span className={`text-sm ${currentStep >= 1 ? 'text-primary font-medium' : 'text-gray-500'}`}>מספרים לנו על השירות שיש לכם להציע</span>
+                    <div className={`h-1 flex-1 ${
+                      currentStep > step.id ? "bg-brand-600" : "bg-gray-200"
+                    }`}>
+                      {step.id < steps.length && <div></div>}
+                    </div>
                   </div>
-                  
-                  <div className={`flex-grow h-1 mx-2 ${currentStep >= 2 ? 'bg-primary' : 'bg-gray-200'}`} />
-                  
-                  {/* Step 2 */}
-                  <div className="flex-1 flex flex-col items-center">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-2 ${currentStep >= 2 ? 'bg-primary text-white' : 'bg-gray-100'}`}>
-                      <User className={`h-6 w-6 ${currentStep >= 2 ? 'text-white' : 'text-gray-400'}`} />
+                  <div className="mt-2">
+                    <div className={`font-medium text-sm ${
+                      currentStep >= step.id ? "text-gray-900" : "text-gray-500"
+                    }`}>
+                      {step.title}
                     </div>
-                    <span className={`text-sm ${currentStep >= 2 ? 'text-primary font-medium' : 'text-gray-500'}`}>פרטים כלליים עליכם ועל השירות</span>
-                  </div>
-                  
-                  <div className={`flex-grow h-1 mx-2 ${currentStep >= 3 ? 'bg-primary' : 'bg-gray-200'}`} />
-                  
-                  {/* Step 3 */}
-                  <div className="flex-1 flex flex-col items-center">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-2 ${currentStep >= 3 ? 'bg-primary text-white' : 'bg-gray-100'}`}>
-                      <Check className={`h-6 w-6 ${currentStep >= 3 ? 'text-white' : 'text-gray-400'}`} />
-                    </div>
-                    <span className={`text-sm ${currentStep >= 3 ? 'text-primary font-medium' : 'text-gray-500'}`}>מסיימים ומפרסמים את השירות בת'כל'ס</span>
+                    <div className="text-xs text-gray-500">{step.description}</div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          )}
-          
-          {/* Steps Content */}
-          {currentStep === 1 && (
-            <OnboardingStep1 
-              data={providerData}
-              onUpdate={updateProviderData}
-              onNext={handleNextStep}
-            />
-          )}
-          
-          {currentStep === 2 && (
-            <OnboardingStep2 
-              data={providerData}
-              onUpdate={updateProviderData}
-              onNext={handleNextStep}
-              onBack={handlePrevStep}
-            />
-          )}
-          
-          {currentStep === 3 && (
-            <OnboardingStep3 
-              data={providerData}
-              onUpdate={updateProviderData}
-              onSubmit={handleSubmit}
-              onBack={handlePrevStep}
-            />
-          )}
-          
-          {currentStep === 4 && (
-            <OnboardingSuccess onFinish={handleFinish} />
-          )}
+            
+            {/* Step Content */}
+            {currentStep === 1 && (
+              <OnboardingStep1 
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            )}
+            
+            {currentStep === 2 && (
+              <OnboardingStep2 
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            )}
+            
+            {currentStep === 3 && (
+              <OnboardingStep3 
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            )}
+            
+            {currentStep === 4 && (
+              <OnboardingSuccess 
+                formData={formData}
+                onDone={() => navigate('/dashboard')}
+              />
+            )}
+            
+            {/* Navigation Buttons */}
+            {currentStep < 4 && (
+              <div className="flex justify-between mt-8">
+                {currentStep > 1 ? (
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBack}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    חזרה
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+                
+                <Button 
+                  onClick={currentStep < 3 ? handleNext : handleSubmit}
+                  className="bg-brand-600 hover:bg-brand-700 flex items-center gap-1"
+                >
+                  {currentStep < 3 ? (
+                    <>
+                      המשך
+                      <ChevronLeft className="h-4 w-4" />
+                    </>
+                  ) : (
+                    "שליחה וסיום"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </main>
       <Footer />
