@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -22,38 +21,48 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Chatbot from "@/components/chat/Chatbot";
 
 // Sample providers for demo purposes
 const demoProviders = {
   "1": {
     id: "1",
     name: "נטע ברסלר",
-    description: "אמן מחשבות וקריאת מחשבות מהמובילים בישראל. עם ניסיון של יותר מ-15 שנה, נטע מציע מופעים אינטראקטיביים שמשאירים את הקהל פעור פה. מופיע באירועים פרטיים, חתונות, אירועי חברה ועוד.",
+    description: "אמן מחשבות וקריאת מחשבות מהמובילים בישראל. עם ניסיון של יותר מ-15 שנה, נטע מציע מופעים אינטראקטיביים שמשאירים את הקהל פעור פה.",
+    value_proposition: "חוויה בלתי נשכחת שתשאיר את האורחים שלכם בהלם",
     logo_url: "https://images.unsplash.com/photo-1492288991661-058aa541ff43?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
     email: "neta@mentalmagic.co.il",
     phone: "050-1234567",
     website: "www.netabresler.co.il",
-    address: "תל אביב, ישראל"
+    address: "תל אביב, ישראל",
+    show_location: true,
+    travel_time: "עד 60 דקות"
   },
   "2": {
     id: "2",
     name: "להקת מלודי מייקרס",
-    description: "להקה מקצועית המתמחה במגוון סגנונות מוזיקליים. מאז 2010, אנחנו מנגנים באירועים פרטיים, חתונות ואירועי חברה. הלהקה כוללת נגנים וזמרים מוכשרים שיהפכו כל אירוע לבלתי נשכח.",
+    description: "להקה מקצועית המתמחה במגוון סגנונות מוזיקליים. מאז 2010, אנחנו מנגנים באירועים פרטיים, חתונות ואירועי חברה.",
+    value_proposition: "מוזיקה חיה שתרים את האירוע שלכם לרמה אחרת",
     logo_url: "https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
     email: "info@melodymakers.co.il",
     phone: "052-9876543",
     website: "www.melodymakers.co.il",
-    address: "חיפה, ישראל"
+    address: "חיפה, ישראל",
+    show_location: false,
+    travel_time: "עד 120 דקות"
   },
   "3": {
     id: "3",
     name: "סטודיו צילום זכרונות חיים",
-    description: "סטודיו צילום מקצועי המתמחה בצילום אירועים, חתונות ומשפחות. הצלמים שלנו מצלמים רגעים מיוחדים בגישה טבעית ואותנטית, יוצרים זכרונות חיים שנשארים לתמיד.",
+    description: "סטודיו צילום מקצועי המתמחה בצילום אירועים, חתונות ומשפחות. הצלמים שלנו מצלמים רגעים מיוחדים בגישה טבעית ואותנטית.",
+    value_proposition: "הפקת תמונות איכותיות שישארו איתכם לנצח",
     logo_url: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
     email: "studio@zichronot.co.il",
     phone: "053-7654321",
     website: "www.livingmemories.co.il",
-    address: "ירושלים, ישראל"
+    address: "ירושלים, ישראל",
+    show_location: true,
+    travel_time: "עד 90 דקות"
   }
 };
 
@@ -380,7 +389,10 @@ const ProviderProfile = () => {
       </main>
       <Footer />
       
-      {/* דיאלוג הזמנה */}
+      {/* Chatbot Component */}
+      <Chatbot />
+      
+      {/* דיאלוגים */}
       {selectedService && (
         <BookingDialog 
           service={selectedService}
