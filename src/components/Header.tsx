@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { Menu, User, LogOut } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import useIsMobile from "@/hooks/use-mobile";
 import AuthModal from "./AuthModal";
 import ServiceBasket from "./provider/ServiceBasket";
 

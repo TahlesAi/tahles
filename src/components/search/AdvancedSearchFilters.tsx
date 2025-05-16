@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tag, X, Plus, Filter, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Category {
   id: string;
@@ -36,44 +36,92 @@ const AdvancedSearchFilters = ({
   const [isLoading, setIsLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const { toast } = useToast();
+
+  // מוק קטגוריות במקרה שהחיבור ל-Supabase נכשל
+  const mockCategories = [
+    {
+      id: "1",
+      name: "אמנים ומופעים",
+      subcategories: [
+        { id: "101", name: "להקות", category_id: "1" },
+        { id: "102", name: "זמרים", category_id: "1" },
+        { id: "103", name: "אמני חושים", category_id: "1" },
+        { id: "104", name: "סטנדאפיסטים", category_id: "1" },
+      ]
+    },
+    {
+      id: "2",
+      name: "שירותי הפקה",
+      subcategories: [
+        { id: "201", name: "הגברה ותאורה", category_id: "2" },
+        { id: "202", name: "צילום", category_id: "2" },
+        { id: "203", name: "עיצוב", category_id: "2" },
+      ]
+    },
+    {
+      id: "3",
+      name: "לוקיישנים",
+      subcategories: [
+        { id: "301", name: "אולמות", category_id: "3" },
+        { id: "302", name: "גני אירועים", category_id: "3" },
+        { id: "303", name: "מתחמי כנסים", category_id: "3" },
+      ]
+    },
+  ];
 
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoading(true);
       try {
-        // Fetch all categories
+        // ניסיון לקבל קטגוריות מ-Supabase
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select('*')
           .order('name');
           
-        if (categoriesError) throw categoriesError;
+        if (categoriesError) {
+          throw categoriesError;
+        }
         
-        // Fetch all subcategories
+        // ניסיון לקבל קטגוריות משנה מ-Supabase
         const { data: subcategoriesData, error: subcategoriesError } = await supabase
           .from('subcategories')
           .select('id, name, category_id')
           .order('name');
           
-        if (subcategoriesError) throw subcategoriesError;
+        if (subcategoriesError) {
+          throw subcategoriesError;
+        }
         
-        // Organize into categories with subcategories
-        const categoriesWithSubs = categoriesData.map((cat: any) => ({
-          id: cat.id,
-          name: cat.name,
-          subcategories: subcategoriesData.filter((sub: any) => sub.category_id === cat.id)
-        }));
-        
-        setCategories(categoriesWithSubs);
+        // אירגון לפי קטגוריות עם תת-קטגוריות
+        if (categoriesData && categoriesData.length > 0 && subcategoriesData && subcategoriesData.length > 0) {
+          const categoriesWithSubs = categoriesData.map((cat: any) => ({
+            id: cat.id,
+            name: cat.name,
+            subcategories: subcategoriesData.filter((sub: any) => sub.category_id === cat.id)
+          }));
+          setCategories(categoriesWithSubs);
+        } else {
+          // שימוש בנתונים מקומיים אם אין נתונים מ-Supabase
+          setCategories(mockCategories);
+          console.log("Using mock categories data");
+        }
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories(mockCategories);
+        toast({
+          variant: "default",
+          title: "שגיאה בטעינת קטגוריות",
+          description: "משתמש בנתוני דוגמה במקום",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchCategories();
-  }, []);
+  }, [toast]);
 
   const toggleCategory = (categoryId: string) => {
     const newExpanded = new Set(expandedCategories);
@@ -92,14 +140,14 @@ const AdvancedSearchFilters = ({
       ?.subcategories.map(sub => sub.id) || [];
     
     if (isCategorySelected) {
-      // Remove category
+      // הסרת קטגוריה
       onCategoriesChange(selectedCategories.filter(id => id !== categoryId));
-      // Remove all subcategories of this category
+      // הסרת כל תת-הקטגוריות של קטגוריה זו
       onSubcategoriesChange(selectedSubcategories.filter(id => !categorySubcategoryIds.includes(id)));
     } else {
-      // Add category
+      // הוספת קטגוריה
       onCategoriesChange([...selectedCategories, categoryId]);
-      // Add all subcategories of this category
+      // הוספת כל תת-הקטגוריות של קטגוריה זו
       onSubcategoriesChange([...selectedSubcategories, ...categorySubcategoryIds]);
     }
   };
@@ -111,26 +159,26 @@ const AdvancedSearchFilters = ({
       ?.subcategories.map(sub => sub.id) || [];
     
     if (isSubcategorySelected) {
-      // Remove subcategory
+      // הסרת תת-קטגוריה
       onSubcategoriesChange(selectedSubcategories.filter(id => id !== subcategoryId));
       
-      // Check if category is still fully selected
+      // בדיקה אם הקטגוריה עדיין מסומנת במלואה
       const remainingSelectedSubcategories = selectedSubcategories.filter(id => id !== subcategoryId);
       const isAnyCategorySubcategorySelected = categorySubcategoryIds.some(id => remainingSelectedSubcategories.includes(id));
       
-      // Remove category selection if no subcategories are selected
+      // הסרת בחירת הקטגוריה אם אין תת-קטגוריות נבחרות
       if (!isAnyCategorySubcategorySelected) {
         onCategoriesChange(selectedCategories.filter(id => id !== categoryId));
       }
     } else {
-      // Add subcategory
+      // הוספת תת-קטגוריה
       onSubcategoriesChange([...selectedSubcategories, subcategoryId]);
       
-      // Check if all category subcategories are selected now
+      // בדיקה אם כל תת-הקטגוריות של הקטגוריה נבחרות כעת
       const newSelectedSubcategories = [...selectedSubcategories, subcategoryId];
       const areAllCategorySubcategoriesSelected = categorySubcategoryIds.every(id => newSelectedSubcategories.includes(id));
       
-      // Add category selection if all subcategories are selected
+      // הוספת בחירת הקטגוריה אם כל תת-הקטגוריות נבחרו
       if (areAllCategorySubcategoriesSelected && !selectedCategories.includes(categoryId)) {
         onCategoriesChange([...selectedCategories, categoryId]);
       }
