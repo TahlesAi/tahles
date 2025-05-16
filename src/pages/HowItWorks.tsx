@@ -14,30 +14,43 @@ const HowItWorks = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section */}
+        {/* Hero Section - Updated header text */}
         <section className="bg-gradient-to-b from-brand-600 to-accent1-600 text-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl font-bold mb-6">איך זה עובד?</h1>
               <p className="text-xl mb-8">
-                הפלטפורמה המובילה למציאת שירותי בידור והפקה לאירועים בישראל
+                הפלטפורמה שעושה לכם סדר בהפקה הבאה שלכם
               </p>
               <Link 
                 to="/search" 
                 className="inline-block bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                חפש מופע עכשיו
+                קדימה, סוגרים פינה
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Steps Section */}
+        {/* Quick Search Section - Added new section */}
+        <section className="py-10 bg-brand-50">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-2xl font-semibold mb-5">יודעים מה מחפשים?</h2>
+            <Link 
+              to="/search" 
+              className="inline-block bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+            >
+              כנסו לחיפוש להזמנה מהירה
+            </Link>
+          </div>
+        </section>
+
+        {/* Steps Section - Updated with intermediate step */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">איך מוצאים את השירות המושלם?</h2>
             
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">1</div>
                 <h3 className="text-xl font-semibold mb-2">בחרו קטגוריה</h3>
@@ -52,8 +65,14 @@ const HowItWorks = () => {
               
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">3</div>
+                <h3 className="text-xl font-semibold mb-2">שריינו יומנים</h3>
+                <p className="text-gray-600">בחרו את השירות המתאים והמערכת תשריין אותו ביומן של נותן השירות</p>
+              </div>
+              
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-2xl font-bold">4</div>
                 <h3 className="text-xl font-semibold mb-2">בצעו הזמנה</h3>
-                <p className="text-gray-600">בחרו את השירות המתאים לכם ביותר והשלימו את ההזמנה בקלות</p>
+                <p className="text-gray-600">השלימו את ההזמנה בקלות עם זכות ביטול בהתאם למדיניות</p>
               </div>
             </div>
           </div>
@@ -62,7 +81,7 @@ const HowItWorks = () => {
         {/* For customers */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-12 text-center">למה להשתמש בת'כלס?</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center">למה להשתמש בתכלס?</h2>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
               <div className="bg-white p-8 rounded-lg shadow-md">
@@ -144,7 +163,7 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* FAQ Section */}
+        {/* FAQ Section - Updated cancellation policy */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">שאלות נפוצות</h2>
@@ -158,9 +177,16 @@ const HowItWorks = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
-                  <AccordionTrigger className="text-right">האם ניתן לבטל הזמנה?</AccordionTrigger>
+                  <AccordionTrigger className="text-right">מה מדיניות הביטולים?</AccordionTrigger>
                   <AccordionContent>
-                    כן, ניתן לבטל הזמנה בהתאם למדיניות הביטולים של כל ספק. בדרך כלל, ביטולים עד 14 יום לפני האירוע כרוכים בדמי ביטול של 5-10%. לאחר מכן, דמי הביטול עשויים לעלות.
+                    <ul className="list-disc pr-5 space-y-1">
+                      <li>ביטול עד 48 שעות לאחר ביצוע ההזמנה: ללא דמי ביטול</li>
+                      <li>ביטול 14+ יום לפני האירוע: 50 ₪ דמי ביטול</li>
+                      <li>ביטול 7-14 יום לפני האירוע: 100 ₪ או 5% מסכום ההזמנה (הגבוה מביניהם)</li>
+                      <li>ביטול 3-6 ימים לפני האירוע: 50% מסכום ההזמנה</li>
+                      <li>ביטול 24-48 שעות לפני האירוע: 80% מסכום ההזמנה</li>
+                      <li>ביטול פחות מ-24 שעות לפני האירוע: 100% מסכום ההזמנה</li>
+                    </ul>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
@@ -198,7 +224,7 @@ const HowItWorks = () => {
                 to="/search" 
                 className="bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
-                חפש שירותים
+                קדימה, סוגרים פינה
               </Link>
               <Link 
                 to="/provider-onboarding" 
