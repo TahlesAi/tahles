@@ -10,7 +10,8 @@ import {
   Mic, 
   Gift, 
   Building,
-  Plane
+  Plane,
+  Wand2
 } from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
@@ -33,7 +34,7 @@ const Hero = () => {
     { name: "צילום", icon: <Camera className="h-5 w-5" />, id: "580015a2-9e2c-4dc1-8ff2-cea0b228f9cc" },
     { name: "מופעים", icon: <Music className="h-5 w-5" />, id: "efcdf47a-07a1-4dfc-818d-bbc5620e204f" },
     { name: "מתנות", icon: <Gift className="h-5 w-5" />, id: "7d597aa0-fbba-4ca2-bfb1-edad14c27f2b" },
-    { name: "אמני חושים", icon: <Mic className="h-5 w-5" />, id: "90b93241-7405-4c6b-8d16-267ed79d80a5" }
+    { name: "אמני חושים", icon: <Wand2 className="h-5 w-5" />, id: "90b93241-7405-4c6b-8d16-267ed79d80a5" }
   ];
   
   return (

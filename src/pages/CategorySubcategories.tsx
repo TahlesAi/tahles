@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, AlertCircle, Loader2, Star } from "lucide-react";
+import { ChevronLeft, AlertCircle, Loader2, Star, Building, Warehouse, Briefcase, Home, Users, Landmark, PartyPopper, Utensils, DoorClosed, Music, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 interface Subcategory {
@@ -37,7 +37,8 @@ interface Provider {
 import {
   Music, Camera, Utensils, MapPin, Mic2, Monitor, 
   Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones
+  TentTree, User, PlusCircle, Users, Headphones,
+  Building, Warehouse, Briefcase, Home, Hotel, School
 } from "lucide-react";
 
 const iconComponents: Record<string, React.ReactNode> = {
@@ -57,8 +58,73 @@ const iconComponents: Record<string, React.ReactNode> = {
   "User": <User className="h-8 w-8" />,
   "PlusCircle": <PlusCircle className="h-8 w-8" />,
   "Users": <Users className="h-8 w-8" />,
-  "Headphones": <Headphones className="h-8 w-8" />
+  "Headphones": <Headphones className="h-8 w-8" />,
+  "Building": <Building className="h-8 w-8" />,
+  "Warehouse": <Warehouse className="h-8 w-8" />,
+  "Briefcase": <Briefcase className="h-8 w-8" />,
+  "Home": <Home className="h-8 w-8" />,
+  "Hotel": <Hotel className="h-8 w-8" />,
+  "School": <School className="h-8 w-8" />
 };
+
+// רשימת תת-קטגוריות ברירת מחדל ללוקיישנים
+const defaultLocationSubcategories = [
+  { 
+    name: "וילות אירוח", 
+    description: "וילות פרטיות לאירועים ואירוח", 
+    icon: "Home" 
+  },
+  { 
+    name: "חללי ספורט", 
+    description: "מתקני ואולמות ספורט להשכרה", 
+    icon: "Users" 
+  },
+  { 
+    name: "חללי עבודה", 
+    description: "מרחבי עבודה משותפים וחדרי ישיבות", 
+    icon: "Briefcase" 
+  },
+  { 
+    name: "לופטים", 
+    description: "חללים מעוצבים רב-שימושיים", 
+    icon: "Warehouse" 
+  },
+  { 
+    name: "אולמות הרצאות ומופעים", 
+    description: "אודיטוריומים ואולמות להרצאות", 
+    icon: "School" 
+  },
+  { 
+    name: "חללים ציבוריים", 
+    description: "מרחבים ציבוריים להשכרה", 
+    icon: "Landmark" 
+  },
+  { 
+    name: "אולמות אירועים", 
+    description: "אולמות לארועים גדולים ומשפחתיים", 
+    icon: "Building" 
+  },
+  { 
+    name: "מסעדות", 
+    description: "מסעדות וחללי הסעדה להשכרה", 
+    icon: "Utensils" 
+  },
+  { 
+    name: "חדרים פרטיים", 
+    description: "חדרים להשכרה לאירועים קטנים", 
+    icon: "DoorClosed" 
+  },
+  { 
+    name: "מועדונים וחללי אירוח", 
+    description: "מועדוני לילה וחללי אירוח", 
+    icon: "Music" 
+  },
+  { 
+    name: "הפקות קונספט בהתאמה אישית", 
+    description: "הפקות ייחודיות במיקום לפי דרישה", 
+    icon: "Lightbulb" 
+  }
+];
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams();
@@ -68,6 +134,7 @@ const CategorySubcategories = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLocationCategory, setIsLocationCategory] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -100,6 +167,10 @@ const CategorySubcategories = () => {
         }
 
         setCategory(categoryData);
+        
+        // בדיקה האם זו קטגוריית לוקיישנים
+        const isLocations = categoryData.name === "אולמות ומקומות אירוע" || categoryId === "d0251580-5005-4bd8-ae4d-ddd1084f1c99";
+        setIsLocationCategory(isLocations);
 
         // שליפת תת-הקטגוריות
         const { data: subcategoriesData, error: subcategoriesError } = await supabase
@@ -122,18 +193,30 @@ const CategorySubcategories = () => {
         }
 
         // עיבוד הנתונים והוספת ספירת הספקים
-        const processedSubcategories = subcategoriesData.map(subcategory => ({
+        let processedSubcategories = subcategoriesData.map(subcategory => ({
           id: subcategory.id,
           name: subcategory.name,
           description: subcategory.description,
           icon: subcategory.icon,
           count: subcategory.provider_subcategories?.length || 0
         }));
+        
+        // אם זו קטגוריית לוקיישנים ואין תת קטגוריות, השתמש בקבוצת הדגמה
+        if (isLocations && processedSubcategories.length === 0) {
+          processedSubcategories = defaultLocationSubcategories.map((subcategory, index) => ({
+            id: `demo-location-${index}`,
+            name: subcategory.name,
+            description: subcategory.description,
+            icon: subcategory.icon,
+            count: 0,
+            isDemoData: true
+          }));
+        }
 
         setSubcategories(processedSubcategories);
         
-        // אם אין תתי קטגוריות, שלוף את כל הספקים בקטגוריה זו באופן ישיר
-        if (processedSubcategories.length === 0) {
+        // אם אין תתי קטגוריות ולא מדובר בקטגוריית לוקיישנים, שלוף את כל הספקים בקטגוריה זו באופן ישיר
+        if (processedSubcategories.length === 0 && !isLocations) {
           // שליפת ספקים בקטגוריה זו
           const { data: providerSubcategories, error: providersError } = await supabase
             .from("provider_subcategories")
@@ -234,6 +317,18 @@ const CategorySubcategories = () => {
     );
   }
 
+  const handleSubcategoryClick = (subcategory: Subcategory) => {
+    if (subcategory.isDemoData) {
+      // אם זה נתוני דמו, הצג Toast עם הודעה
+      toast.info(`${subcategory.name} בפיתוח`, {
+        description: "קטגוריה זו עדיין בפיתוח ותהיה זמינה בקרוב"
+      });
+    } else {
+      // אחרת, נווט לדף תת-הקטגוריה
+      navigate(`/subcategories/${subcategory.id}`);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -264,10 +359,10 @@ const CategorySubcategories = () => {
               <h2 className="text-2xl font-bold mb-8">תת קטגוריות ב{category.name}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                 {subcategories.map((subcategory) => (
-                  <Link 
+                  <div
                     key={subcategory.id} 
-                    to={`/subcategories/${subcategory.id}`}
-                    className="block"
+                    onClick={() => handleSubcategoryClick(subcategory)}
+                    className="cursor-pointer"
                   >
                     <Card className="h-full hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300">
                       <CardContent className="p-6 flex flex-col items-center">
@@ -279,13 +374,19 @@ const CategorySubcategories = () => {
                         <h3 className="text-xl font-semibold mb-2 text-center">{subcategory.name}</h3>
                         <p className="text-gray-500 text-center mb-4">{subcategory.description}</p>
                         <div className="mt-auto">
-                          <span className="text-sm px-2 py-1 bg-brand-50 text-brand-700 rounded-full">
-                            {subcategory.count} נותני שירות
-                          </span>
+                          {subcategory.isDemoData ? (
+                            <span className="text-sm px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                              בקרוב
+                            </span>
+                          ) : (
+                            <span className="text-sm px-2 py-1 bg-brand-50 text-brand-700 rounded-full">
+                              {subcategory.count} נותני שירות
+                            </span>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </div>
