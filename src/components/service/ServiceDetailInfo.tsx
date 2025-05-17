@@ -1,188 +1,92 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Clock, 
-  Users, 
-  Calendar,
-  Lightbulb,
-  Star,
-  CheckCircle,
-  Tag,
-  User,
-  Video,
-  Image
-} from 'lucide-react';
+import React from "react";
+import { Check } from "lucide-react";
 
 interface ServiceDetailInfoProps {
   service: any;
   showMedia?: boolean;
 }
 
-const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProps) => {
-  // Check if specific metadata exists
-  const hasAudienceInfo = service.audience_size || (service.audience_ages?.length > 0);
-  const hasTechnicalRequirements = service.technical_requirements?.length > 0;
-  const hasEventTypes = service.event_types?.length > 0;
-  
+const ServiceDetailInfo = ({ service, showMedia = true }: ServiceDetailInfoProps) => {
+  // לוודא שהשדות קיימים לפני שימוש בהם
+  const features = service.features || [];
+  const eventTypes = service.eventTypes || service.event_types || [];
+  const technicalRequirements = service.technicalRequirements || service.technical_requirements || [];
+  const audienceAges = service.audienceAges || service.audience_ages || [];
+
   return (
-    <div className="space-y-6">
-      {/* Basic Information */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-xl font-semibold mb-3">מידע כללי</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="mb-8">
+      {/* מידע טכני */}
+      {(service.duration || service.audienceSize || audienceAges.length > 0) && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">מידע טכני</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {service.duration && (
-              <div className="flex items-center">
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <Clock className="h-5 w-5 text-gray-600" />
-                </div>
-                <div className="mr-3">
-                  <div className="text-sm text-gray-500">משך זמן</div>
-                  <div>{service.duration}</div>
-                </div>
+              <div className="flex flex-col bg-gray-50 p-3 rounded-md">
+                <span className="text-sm text-gray-600">משך זמן</span>
+                <span className="font-medium">{service.duration}</span>
               </div>
             )}
             
-            {service.price_range && (
-              <div className="flex items-center">
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <Tag className="h-5 w-5 text-gray-600" />
-                </div>
-                <div className="mr-3">
-                  <div className="text-sm text-gray-500">מחיר</div>
-                  <div>{service.price_range} {service.price_unit || 'לאירוע'}</div>
-                </div>
+            {service.audienceSize && (
+              <div className="flex flex-col bg-gray-50 p-3 rounded-md">
+                <span className="text-sm text-gray-600">גודל קהל מקסימלי</span>
+                <span className="font-medium">{service.audienceSize}</span>
               </div>
             )}
             
-            {service.availability && (
-              <div className="flex items-center">
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <Calendar className="h-5 w-5 text-gray-600" />
-                </div>
-                <div className="mr-3">
-                  <div className="text-sm text-gray-500">זמינות</div>
-                  <div>{service.availability}</div>
-                </div>
-              </div>
-            )}
-            
-            {service.is_reception_service !== undefined && (
-              <div className="flex items-center">
-                <div className={`p-2 rounded-full ${service.is_reception_service ? 'bg-green-100' : 'bg-gray-100'}`}>
-                  <User className={`h-5 w-5 ${service.is_reception_service ? 'text-green-600' : 'text-gray-600'}`} />
-                </div>
-                <div className="mr-3">
-                  <div className="text-sm text-gray-500">סוג שירות</div>
-                  <div>{service.is_reception_service ? 'מתאים לקבלת פנים' : 'שירות מרכזי'}</div>
-                </div>
+            {audienceAges.length > 0 && (
+              <div className="flex flex-col bg-gray-50 p-3 rounded-md">
+                <span className="text-sm text-gray-600">מתאים לגילאים</span>
+                <span className="font-medium">{audienceAges.join(", ")}</span>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
-      
-      {/* Audience Information */}
-      {hasAudienceInfo && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-3">מותאם לקהל</h3>
-            <div className="space-y-4">
-              {service.audience_size && (
-                <div className="flex items-center">
-                  <div className="bg-brand-50 p-2 rounded-full">
-                    <Users className="h-5 w-5 text-brand-600" />
-                  </div>
-                  <div className="mr-3">
-                    <div className="text-sm text-gray-500">גודל קהל</div>
-                    <div>עד {service.audience_size} אנשים</div>
-                  </div>
-                </div>
-              )}
-              
-              {service.audience_ages && service.audience_ages.length > 0 && (
-                <div>
-                  <div className="text-sm text-gray-500 mb-2">קבוצות גיל</div>
-                  <div className="flex flex-wrap gap-2">
-                    {service.audience_ages.map((age: string, index: number) => (
-                      <Badge key={index} variant="outline" className="bg-brand-50 border-brand-200">
-                        {age}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        </div>
       )}
       
-      {/* Event Types */}
-      {hasEventTypes && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-3">מתאים לאירועים</h3>
-            <div className="flex flex-wrap gap-2">
-              {service.event_types.map((eventType: string, index: number) => (
-                <Badge key={index} variant="outline" className="bg-accent1-50 border-accent1-200">
-                  {eventType}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* סוגי אירועים */}
+      {eventTypes.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">מתאים לאירועים</h2>
+          <div className="flex flex-wrap gap-2">
+            {eventTypes.map((type: string, idx: number) => (
+              <span 
+                key={idx}
+                className="px-3 py-1 bg-brand-100 text-brand-800 rounded-full text-sm"
+              >
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
       
-      {/* Technical Requirements */}
-      {hasTechnicalRequirements && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-3">דרישות טכניות</h3>
-            <ul className="space-y-2">
-              {service.technical_requirements.map((req: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5 ml-2" />
-                  <span>{req}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+      {/* דרישות טכניות */}
+      {technicalRequirements.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">דרישות טכניות</h2>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            {technicalRequirements.map((req: string, idx: number) => (
+              <li key={idx}>{req}</li>
+            ))}
+          </ul>
+        </div>
       )}
       
-      {/* Media information */}
-      {showMedia && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-3">מדיה זמינה</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center">
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <Image className="h-5 w-5 text-gray-600" />
-                </div>
-                <div className="mr-3">
-                  <div className="text-sm text-gray-500">תמונות</div>
-                  <div>{(service.additional_images && Array.isArray(service.additional_images)) ? service.additional_images.length + 1 : 1}</div>
-                </div>
+      {/* מאפיינים/יתרונות */}
+      {features.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">מאפיינים נוספים</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {features.map((feature: string, idx: number) => (
+              <div key={idx} className="flex items-center">
+                <Check className="h-5 w-5 text-green-500 mr-2" />
+                <span>{feature}</span>
               </div>
-              
-              {service.videos && Array.isArray(service.videos) && service.videos.length > 0 && (
-                <div className="flex items-center">
-                  <div className="bg-gray-100 p-2 rounded-full">
-                    <Video className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="mr-3">
-                    <div className="text-sm text-gray-500">סרטונים</div>
-                    <div>{service.videos.length}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

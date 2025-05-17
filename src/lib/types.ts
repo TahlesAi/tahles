@@ -43,6 +43,12 @@ export interface SearchResultService {
       end: string;
     }[];
   };
+  // הוספת שדות נוספים שנמצאים בשימוש
+  videos?: string[];
+  video_urls?: string[];
+  additionalImages?: string[];
+  additional_images?: string[];
+  features?: string[];
 }
 
 // Booking related types
@@ -109,6 +115,8 @@ export interface Service {
   isReceptionService?: boolean; // האם זה שירות של קבלת פנים
   videos?: string[];
   additionalImages?: string[];
+  additional_images?: string[];
+  video_urls?: string[];
   features?: string[];
   additionalOptions?: {
     id: string;
