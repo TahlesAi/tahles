@@ -89,14 +89,14 @@ const ServiceDetails = () => {
           gallery.push({ type: 'image', url: serviceData.image_url });
         }
         
-        // Add additional images if they exist
+        // Add additional images if they exist - check if the property exists first
         if (serviceData.additional_images && Array.isArray(serviceData.additional_images)) {
           serviceData.additional_images.forEach((img: string) => {
             gallery.push({ type: 'image', url: img });
           });
         }
         
-        // Add videos if they exist
+        // Add videos if they exist - check if the property exists first
         if (serviceData.videos && Array.isArray(serviceData.videos)) {
           serviceData.videos.forEach((video: string) => {
             gallery.push({ type: 'video', url: video });
@@ -613,7 +613,30 @@ const ServiceDetails = () => {
                   <Button 
                     variant="outline" 
                     className="w-full" 
-                    onClick={toggleSave}
+                    onClick={() => {
+                      if (!service) return;
+                      
+                      if (isSaved) {
+                        removeSavedService(service.id);
+                        setIsSaved(false);
+                        toast.success("השירות הוסר מהשמורים");
+                      } else {
+                        const serviceToSave = {
+                          id: service.id,
+                          name: service.name,
+                          short_description: service.description,
+                          price_range: service.price_range,
+                          provider_id: service.provider_id,
+                          provider_name: provider?.name || "ספק שירות",
+                          image_url: service.image_url,
+                          saved_at: new Date().toISOString()
+                        };
+                        
+                        saveServiceForLater(serviceToSave);
+                        setIsSaved(true);
+                        toast.success("השירות נשמר בהצלחה");
+                      }
+                    }}
                   >
                     {isSaved ? (
                       <>
