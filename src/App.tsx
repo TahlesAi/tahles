@@ -5,7 +5,6 @@ import Categories from './pages/Categories';
 import CategorySubcategories from './pages/CategorySubcategories';
 import ServiceDetails from './pages/ServiceDetails';
 import NotFound from './pages/NotFound';
-import SubcategoryServices from './pages/SubcategoryServices';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +20,6 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
-          <Route path="/subcategories/:subcategoryId" element={<SubcategoryServices />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
           <Route path="/catering-search" element={<CateringSearch />} />
           <Route path="*" element={<NotFound />} />
