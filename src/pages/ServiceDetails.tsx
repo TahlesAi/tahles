@@ -96,6 +96,15 @@ const ServiceDetails = () => {
                 gallery.push({ type: 'image', url: img });
               }
             });
+          } else {
+            // אם אין שדה additionalImages, נבדוק אם יש שדה מקביל במבנה אחר
+            if (mockService.additional_images && Array.isArray(mockService.additional_images)) {
+              mockService.additional_images.forEach((img: string) => {
+                if (img) {
+                  gallery.push({ type: 'image', url: img });
+                }
+              });
+            }
           }
           
           // הוסף סרטונים אם יש כאלו
@@ -105,6 +114,15 @@ const ServiceDetails = () => {
                 gallery.push({ type: 'video', url: video });
               }
             });
+          } else {
+            // אם אין שדה videos, נבדוק אם יש שדה מקביל במבנה אחר
+            if (mockService.video_urls && Array.isArray(mockService.video_urls)) {
+              mockService.video_urls.forEach((video: string) => {
+                if (video) {
+                  gallery.push({ type: 'video', url: video });
+                }
+              });
+            }
           }
           
           setMediaGallery(gallery);

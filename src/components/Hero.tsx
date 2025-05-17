@@ -6,7 +6,7 @@ import {
   Music, 
   Utensils, 
   Camera, 
-  Map, 
+  MapPin, 
   Mic, 
   Gift, 
   Building,
@@ -26,13 +26,14 @@ const Hero = () => {
     }
   };
   
+  // עדכון הקטגוריות עם מזהים תקינים מבסיס הנתונים
   const categories = [
-    { name: "לוקיישנים", icon: <Building className="h-5 w-5" />, id: "venues" },
-    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" />, id: "food" },
-    { name: "הפקה", icon: <Camera className="h-5 w-5" />, id: "staging" },
-    { name: "מופעים", icon: <Music className="h-5 w-5" />, id: "performances" },
-    { name: "מתנות", icon: <Gift className="h-5 w-5" />, id: "gifts" },
-    { name: "ימי כיף", icon: <Plane className="h-5 w-5" />, id: "trips" }
+    { name: "לוקיישנים", icon: <MapPin className="h-5 w-5" />, id: "d0251580-5005-4bd8-ae4d-ddd1084f1c99" },
+    { name: "קייטרינג", icon: <Utensils className="h-5 w-5" />, id: "cb6c8965-2dfc-442b-824d-528ab2ab5648" },
+    { name: "צילום", icon: <Camera className="h-5 w-5" />, id: "580015a2-9e2c-4dc1-8ff2-cea0b228f9cc" },
+    { name: "מופעים", icon: <Music className="h-5 w-5" />, id: "efcdf47a-07a1-4dfc-818d-bbc5620e204f" },
+    { name: "מתנות", icon: <Gift className="h-5 w-5" />, id: "7d597aa0-fbba-4ca2-bfb1-edad14c27f2b" },
+    { name: "אמני חושים", icon: <Mic className="h-5 w-5" />, id: "90b93241-7405-4c6b-8d16-267ed79d80a5" }
   ];
   
   return (
