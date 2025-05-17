@@ -1,73 +1,61 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import Search from './pages/Search';
+import CategorySubcategories from './pages/CategorySubcategories';
+import ServiceDetails from './pages/ServiceDetails';
+import ProviderDetails from './pages/ProviderDetails';
+import Categories from './pages/Categories';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
+import Booking from './pages/Booking';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import FAQ from './pages/FAQ';
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
+import SubcategoryServices from './pages/SubcategoryServices';
+import { AuthProvider } from './context/AuthContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ScrollToTop from './components/ScrollToTop';
+import { SiteMeta } from './components/SiteMeta';
+import CateringSearch from "./pages/CateringSearch";
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { AuthProvider } from "@/context/AuthContext";
-import { useEffect } from "react";
-
-// Pages
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Dashboard from "./pages/Dashboard";
-import ProviderProfile from "./pages/ProviderProfile";
-import Search from "./pages/Search";
-import ProviderOnboarding from "./pages/ProviderOnboarding";
-import HowItWorks from "./pages/HowItWorks";
-import Categories from "./pages/Categories";
-import CategorySubcategories from "./pages/CategorySubcategories";
-import SubcategoryProviders from "./pages/SubcategoryProviders";
-import Contact from "./pages/Contact";
-import ServiceDetails from "./pages/ServiceDetails";
-import BookingPage from "./pages/BookingPage";
-
-// Components
-import SavedServicesReminder from "./components/provider/SavedServicesReminder";
-
-const queryClient = new QueryClient();
-
-// Create an AuthWrapper component to handle navigation after auth events
-const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const handleNavigation = (path: string) => navigate(path);
-  
+function App() {
   return (
     <AuthProvider>
-      {/* Here we could add code to handle navigation based on auth state if needed */}
-      {children}
-      <SavedServicesReminder />
+      <Router>
+        <ScrollToTop />
+        <SiteMeta />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
+          <Route path="/subcategories/:subcategoryId" element={<SubcategoryServices />} />
+          <Route path="/services/:serviceId" element={<ServiceDetails />} />
+          <Route path="/providers/:providerId" element={<ProviderDetails />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/catering-search" element={<CateringSearch />} />
+        </Routes>
+        <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />
+      </Router>
     </AuthProvider>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <AuthWrapper>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/providers/:id" element={<ProviderProfile />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
-            <Route path="/subcategories/:subcategoryId" element={<SubcategoryProviders />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/services/:id" element={<ServiceDetails />} />
-            <Route path="/booking/:id" element={<BookingPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthWrapper>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;

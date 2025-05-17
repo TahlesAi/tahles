@@ -1,4 +1,3 @@
-
 // General Types
 export interface SearchSuggestion {
   id: string;
@@ -138,4 +137,20 @@ export interface Review {
   comment?: string;
   date: string;
   verified?: boolean;
+}
+
+// Add the catering lead type
+export interface CateringLead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  kosher?: string;
+  menu_type?: string;
+  regions?: string[];
+  guest_count?: number;
+  event_date?: Date;
+  budget_range?: number[];
+  allow_marketing: boolean;
+  created_at: string;
 }
