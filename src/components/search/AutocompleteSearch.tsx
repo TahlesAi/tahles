@@ -60,6 +60,8 @@ const AutocompleteSearch = ({
   const [activeIndex, setActiveIndex] = useState(-1);
   const commandRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const itemsRefs = useRef<Record<string, HTMLElement>>({});
 
   // Control the value based on external or internal state
   const value = externalValue !== undefined ? externalValue : internalValue;
@@ -150,6 +152,18 @@ const AutocompleteSearch = ({
     setActiveIndex(-1);
   }, [value, suggestions]);
 
+  // Scroll to active item when using keyboard navigation
+  useEffect(() => {
+    if (activeIndex >= 0 && activeIndex < filteredSuggestions.length && listRef.current) {
+      const activeItemId = filteredSuggestions[activeIndex].id;
+      const activeElement = itemsRefs.current[activeItemId];
+      
+      if (activeElement) {
+        activeElement.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [activeIndex, filteredSuggestions]);
+
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -177,16 +191,18 @@ const AutocompleteSearch = ({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setActiveIndex(prevIndex => 
-          prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : 0
-        );
+        setActiveIndex(prevIndex => {
+          const newIndex = prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : 0;
+          return newIndex;
+        });
         break;
         
       case "ArrowUp":
         e.preventDefault();
-        setActiveIndex(prevIndex => 
-          prevIndex > 0 ? prevIndex - 1 : filteredSuggestions.length - 1
-        );
+        setActiveIndex(prevIndex => {
+          const newIndex = prevIndex > 0 ? prevIndex - 1 : filteredSuggestions.length - 1;
+          return newIndex;
+        });
         break;
         
       case "Enter":
@@ -221,6 +237,13 @@ const AutocompleteSearch = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Store refs to suggestion items
+  const setItemRef = (id: string, element: HTMLElement | null) => {
+    if (element) {
+      itemsRefs.current[id] = element;
+    }
+  };
 
   // Handle suggestion selection
   const handleSelectSuggestion = (suggestion: Suggestion) => {
@@ -303,27 +326,40 @@ const AutocompleteSearch = ({
               inputClassName
             )}
             dir={dir}
+            role="combobox"
+            aria-expanded={isOpen}
+            aria-controls="search-suggestions"
+            aria-activedescendant={activeIndex >= 0 ? `suggestion-${filteredSuggestions[activeIndex].id}` : undefined}
           />
           
           {isOpen && showCommandBar && filteredSuggestions.length > 0 && (
             <div 
               ref={commandRef}
               className="absolute top-full left-0 right-0 mt-1 z-50"
+              id="search-suggestions"
+              role="listbox"
             >
               <Command className="border rounded-md shadow-md bg-white">
-                <CommandList>
+                <CommandList ref={listRef}>
                   {Object.keys(groups).length === 0 ? (
                     <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
                   ) : (
                     Object.entries(groups).map(([type, items]) => (
                       <CommandGroup key={type} heading={getGroupHeading(type)}>
-                        {items.map((suggestion) => (
+                        {items.map((suggestion, idx) => (
                           <CommandItem
                             key={suggestion.id}
+                            ref={(el) => setItemRef(suggestion.id, el)}
                             onSelect={() => handleSelectSuggestion(suggestion)}
-                            className="flex items-center gap-2 cursor-pointer"
+                            className={cn(
+                              "flex items-center gap-2 cursor-pointer",
+                              items.findIndex(item => item.id === suggestion.id) === activeIndex ? "bg-accent text-accent-foreground" : ""
+                            )}
                             value={suggestion.value}
                             dir={dir}
+                            id={`suggestion-${suggestion.id}`}
+                            role="option"
+                            aria-selected={items.findIndex(item => item.id === suggestion.id) === activeIndex}
                           >
                             {suggestion.icon}
                             <span>{suggestion.value}</span>

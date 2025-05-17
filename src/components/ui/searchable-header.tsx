@@ -68,6 +68,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
         inputClassName={inputClassName}
         buttonClassName={buttonClassName}
         showButton={false}
+        autoFocus={false}
       />
       <Button
         type="button"
@@ -75,6 +76,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
         size="icon"
         className="absolute left-1 top-1/2 transform -translate-y-1/2"
         onClick={() => handleSearch(searchTerm)}
+        aria-label="חיפוש"
       >
         <Search className="h-4 w-4" />
       </Button>
