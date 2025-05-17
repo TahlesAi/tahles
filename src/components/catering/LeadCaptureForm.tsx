@@ -25,7 +25,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "יש להזין שם מלא" }),
@@ -75,15 +74,18 @@ export default function LeadCaptureForm({ filterData, onSubmitSuccess }: LeadCap
         }
       };
       
-      // שמירת הליד בסופאבייס
-      const { error } = await supabase
-        .from("catering_leads")
-        .insert(leadData);
+      // במקום לשמור בסופאבייס, נשמור את הנתונים ב-localStorage לצורך הדגמה
+      const existingLeads = JSON.parse(localStorage.getItem('catering_leads') || '[]');
+      const newLead = {
+        ...leadData,
+        id: `lead-${Date.now()}`,
+        created_at: new Date().toISOString()
+      };
       
-      if (error) {
-        console.error("Error saving lead:", error);
-        throw new Error("שגיאה בשמירת הפרטים");
-      }
+      existingLeads.push(newLead);
+      localStorage.setItem('catering_leads', JSON.stringify(existingLeads));
+      
+      console.log('Saved lead:', newLead);
       
       // הצגת הודעת הצלחה
       toast.success("תודה! פרטיך נשמרו בהצלחה", {
