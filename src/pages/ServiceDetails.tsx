@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -31,6 +32,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { saveServiceForLater, isServiceSaved, removeSavedService } from "@/components/provider/ServiceCard";
+import ServiceDetailInfo from "@/components/service/ServiceDetailInfo";
 
 const ServiceDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,23 +91,23 @@ const ServiceDetails = () => {
           gallery.push({ type: 'image', url: serviceData.image_url });
         }
         
-        // Safely check for additional images
-        // We're checking if the property exists and is an array to avoid TypeScript errors
+        // Check for additional images - make sure it exists and is an array
         if (serviceData.additional_images && 
-            typeof serviceData.additional_images === 'object' && 
             Array.isArray(serviceData.additional_images)) {
           serviceData.additional_images.forEach((img: string) => {
-            gallery.push({ type: 'image', url: img });
+            if (img) { // Additional null check
+              gallery.push({ type: 'image', url: img });
+            }
           });
         }
         
-        // Safely check for videos
-        // We're checking if the property exists and is an array to avoid TypeScript errors
+        // Check for videos - make sure it exists and is an array
         if (serviceData.videos && 
-            typeof serviceData.videos === 'object' && 
             Array.isArray(serviceData.videos)) {
           serviceData.videos.forEach((video: string) => {
-            gallery.push({ type: 'video', url: video });
+            if (video) { // Additional null check
+              gallery.push({ type: 'video', url: video });
+            }
           });
         }
         
@@ -152,7 +154,6 @@ const ServiceDetails = () => {
     };
   }, [id]);
   
-  
   const handlePrevImage = () => {
     setSelectedImageIndex((prev) => (prev === 0 ? mediaGallery.length - 1 : prev - 1));
   };
@@ -161,7 +162,6 @@ const ServiceDetails = () => {
     setSelectedImageIndex((prev) => (prev === mediaGallery.length - 1 ? 0 : prev + 1));
   };
   
-  // We'll keep using this function directly in the onClick below, as it seems to have been a problem
   const toggleSave = () => {
     if (!service) return;
     
@@ -433,59 +433,8 @@ const ServiceDetails = () => {
                   </div>
                 )}
                 
-                {/* Details */}
-                <div className="mb-8">
-                  <h2 className="text-xl font-semibold mb-3">פרטים</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {service.audience_size && (
-                      <div className="flex items-center">
-                        <div className="bg-gray-100 p-2 rounded-full">
-                          <Users className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div className="mr-3">
-                          <div className="text-sm text-gray-500">מתאים לקהל של</div>
-                          <div>עד {service.audience_size} אנשים</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {service.price_unit && (
-                      <div className="flex items-center">
-                        <div className="bg-gray-100 p-2 rounded-full">
-                          <Info className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div className="mr-3">
-                          <div className="text-sm text-gray-500">יחידת מחיר</div>
-                          <div>{service.price_unit}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {service.duration && (
-                      <div className="flex items-center">
-                        <div className="bg-gray-100 p-2 rounded-full">
-                          <Clock className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div className="mr-3">
-                          <div className="text-sm text-gray-500">משך זמן</div>
-                          <div>{service.duration}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {service.availability && (
-                      <div className="flex items-center">
-                        <div className="bg-gray-100 p-2 rounded-full">
-                          <Calendar className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div className="mr-3">
-                          <div className="text-sm text-gray-500">זמינות</div>
-                          <div>{service.availability}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {/* Using the ServiceDetailInfo component for service details */}
+                <ServiceDetailInfo service={service} showMedia={false} />
               </div>
               
               {/* Tabs */}
@@ -607,7 +556,7 @@ const ServiceDetails = () => {
               <div className="border rounded-lg bg-white p-6 shadow-sm sticky top-20">
                 <div className="flex justify-between items-start mb-4">
                   <div className="text-2xl font-bold">{service.price_range}</div>
-                  <div className="text-gray-500">{service.price_unit}</div>
+                  <div className="text-gray-500">{service.price_unit || 'לאירוע'}</div>
                 </div>
                 
                 <div className="border-t border-b py-4 my-4">

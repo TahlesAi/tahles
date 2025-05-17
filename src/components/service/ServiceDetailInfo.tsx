@@ -23,9 +23,9 @@ interface ServiceDetailInfoProps {
 
 const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProps) => {
   // Check if specific metadata exists
-  const hasAudienceInfo = service.audience_size || service.audience_ages?.length > 0;
-  const hasTechnicalRequirements = service.technicalRequirements?.length > 0;
-  const hasEventTypes = service.eventTypes?.length > 0;
+  const hasAudienceInfo = service.audience_size || (service.audience_ages?.length > 0);
+  const hasTechnicalRequirements = service.technical_requirements?.length > 0;
+  const hasEventTypes = service.event_types?.length > 0;
   
   return (
     <div className="space-y-6">
@@ -53,7 +53,7 @@ const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProp
                 </div>
                 <div className="mr-3">
                   <div className="text-sm text-gray-500">מחיר</div>
-                  <div>{service.price_range} {service.price_unit}</div>
+                  <div>{service.price_range} {service.price_unit || 'לאירוע'}</div>
                 </div>
               </div>
             )}
@@ -70,14 +70,14 @@ const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProp
               </div>
             )}
             
-            {service.isReceptionService !== undefined && (
+            {service.is_reception_service !== undefined && (
               <div className="flex items-center">
-                <div className={`p-2 rounded-full ${service.isReceptionService ? 'bg-green-100' : 'bg-gray-100'}`}>
-                  <User className={`h-5 w-5 ${service.isReceptionService ? 'text-green-600' : 'text-gray-600'}`} />
+                <div className={`p-2 rounded-full ${service.is_reception_service ? 'bg-green-100' : 'bg-gray-100'}`}>
+                  <User className={`h-5 w-5 ${service.is_reception_service ? 'text-green-600' : 'text-gray-600'}`} />
                 </div>
                 <div className="mr-3">
                   <div className="text-sm text-gray-500">סוג שירות</div>
-                  <div>{service.isReceptionService ? 'מתאים לקבלת פנים' : 'שירות מרכזי'}</div>
+                  <div>{service.is_reception_service ? 'מתאים לקבלת פנים' : 'שירות מרכזי'}</div>
                 </div>
               </div>
             )}
@@ -126,7 +126,7 @@ const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProp
           <CardContent className="p-6">
             <h3 className="text-xl font-semibold mb-3">מתאים לאירועים</h3>
             <div className="flex flex-wrap gap-2">
-              {service.eventTypes.map((eventType: string, index: number) => (
+              {service.event_types.map((eventType: string, index: number) => (
                 <Badge key={index} variant="outline" className="bg-accent1-50 border-accent1-200">
                   {eventType}
                 </Badge>
@@ -142,7 +142,7 @@ const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProp
           <CardContent className="p-6">
             <h3 className="text-xl font-semibold mb-3">דרישות טכניות</h3>
             <ul className="space-y-2">
-              {service.technicalRequirements.map((req: string, index: number) => (
+              {service.technical_requirements.map((req: string, index: number) => (
                 <li key={index} className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5 ml-2" />
                   <span>{req}</span>
@@ -165,11 +165,11 @@ const ServiceDetailInfo = ({ service, showMedia = false }: ServiceDetailInfoProp
                 </div>
                 <div className="mr-3">
                   <div className="text-sm text-gray-500">תמונות</div>
-                  <div>{service.additional_images ? service.additional_images.length + 1 : 1}</div>
+                  <div>{(service.additional_images && Array.isArray(service.additional_images)) ? service.additional_images.length + 1 : 1}</div>
                 </div>
               </div>
               
-              {service.videos && service.videos.length > 0 && (
+              {service.videos && Array.isArray(service.videos) && service.videos.length > 0 && (
                 <div className="flex items-center">
                   <div className="bg-gray-100 p-2 rounded-full">
                     <Video className="h-5 w-5 text-gray-600" />

@@ -295,37 +295,64 @@ export type Database = {
       }
       services: {
         Row: {
+          additional_images: string[] | null
+          audience_ages: string[] | null
+          audience_size: number | null
           created_at: string | null
           description: string | null
           duration: string | null
+          event_types: string[] | null
+          features: string[] | null
           id: string
           image_url: string | null
+          is_reception_service: boolean | null
           name: string
           price_range: string | null
+          price_unit: string | null
           provider_id: string
+          technical_requirements: string[] | null
           updated_at: string | null
+          videos: string[] | null
         }
         Insert: {
+          additional_images?: string[] | null
+          audience_ages?: string[] | null
+          audience_size?: number | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          event_types?: string[] | null
+          features?: string[] | null
           id?: string
           image_url?: string | null
+          is_reception_service?: boolean | null
           name: string
           price_range?: string | null
+          price_unit?: string | null
           provider_id: string
+          technical_requirements?: string[] | null
           updated_at?: string | null
+          videos?: string[] | null
         }
         Update: {
+          additional_images?: string[] | null
+          audience_ages?: string[] | null
+          audience_size?: number | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          event_types?: string[] | null
+          features?: string[] | null
           id?: string
           image_url?: string | null
+          is_reception_service?: boolean | null
           name?: string
           price_range?: string | null
+          price_unit?: string | null
           provider_id?: string
+          technical_requirements?: string[] | null
           updated_at?: string | null
+          videos?: string[] | null
         }
         Relationships: [
           {

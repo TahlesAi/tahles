@@ -109,6 +109,7 @@ export interface Service {
   isReceptionService?: boolean; // האם זה שירות של קבלת פנים
   videos?: string[];
   additionalImages?: string[];
+  features?: string[];
   additionalOptions?: {
     id: string;
     name: string;
