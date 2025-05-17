@@ -74,8 +74,8 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl">
+    <Dialog open={isOpen} onOpenChange={onClose} dir="rtl">
+      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl text-right">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             {currentStep === STEPS.RESULTS ? "הפתרונות המומלצים עבורך" : "מצא את הפתרון המושלם לאירוע שלך"}

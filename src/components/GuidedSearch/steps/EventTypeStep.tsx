@@ -37,7 +37,7 @@ const EventTypeStep = ({ selectedType, onSelect }: EventTypeStepProps) => {
   ];
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <h3 className="text-lg font-medium text-center">מהו סוג האירוע?</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

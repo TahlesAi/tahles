@@ -1,20 +1,19 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import GuidedSearchModal from "./GuidedSearchModal";
 
 interface GuidedSearchButtonProps {
   className?: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const GuidedSearchButton = ({ className }: GuidedSearchButtonProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
+const GuidedSearchButton = ({ className, isOpen, onOpenChange }: GuidedSearchButtonProps) => {
   return (
     <>
       <Button 
-        onClick={() => setIsModalOpen(true)} 
+        onClick={() => onOpenChange(true)} 
         size="lg" 
         className={className}
       >
@@ -23,8 +22,8 @@ const GuidedSearchButton = ({ className }: GuidedSearchButtonProps) => {
       </Button>
       
       <GuidedSearchModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isOpen} 
+        onClose={() => onOpenChange(false)} 
       />
     </>
   );

@@ -59,7 +59,7 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   const isFormValid = name && phone && email && agreeToTerms;
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <h4 className="font-medium mb-2">פרטי האירוע:</h4>
         <ul className="text-sm space-y-1">
@@ -117,7 +117,8 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
               id="name" 
               value={name} 
               onChange={(e) => setName(e.target.value)}
-              placeholder="הכנס את שמך" 
+              placeholder="הכנס את שמך"
+              className="text-right" 
             />
           </div>
           
@@ -127,7 +128,8 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
               id="phone" 
               value={phone} 
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="הכנס מספר טלפון" 
+              placeholder="הכנס מספר טלפון"
+              className="text-right" 
             />
           </div>
           
@@ -138,7 +140,8 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="הכנס כתובת דוא״ל" 
+              placeholder="הכנס כתובת דוא״ל"
+              className="text-right" 
             />
           </div>
           

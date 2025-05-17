@@ -80,7 +80,7 @@ const ConceptStep = ({ eventType, selectedConcept, onUpdate }: ConceptStepProps)
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <h3 className="text-lg font-medium text-center">מהו הקונספט של האירוע?</h3>
       
       <RadioGroup value={selectedOption} onValueChange={setSelectedOption} className="space-y-3">
@@ -102,6 +102,7 @@ const ConceptStep = ({ eventType, selectedConcept, onUpdate }: ConceptStepProps)
             value={otherConcept}
             onChange={(e) => setOtherConcept(e.target.value)}
             placeholder="הקלד את סוג האירוע"
+            className="text-right"
           />
         </div>
       )}
@@ -115,6 +116,7 @@ const ConceptStep = ({ eventType, selectedConcept, onUpdate }: ConceptStepProps)
             onChange={(e) => setAgeDetails(e.target.value)}
             placeholder="הזן את הגיל"
             type="number"
+            className="text-right"
           />
         </div>
       )}

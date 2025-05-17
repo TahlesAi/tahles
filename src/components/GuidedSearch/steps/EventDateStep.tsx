@@ -14,7 +14,7 @@ interface EventDateStepProps {
 
 const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <h3 className="text-lg font-medium text-center">מתי האירוע אמור להתקיים?</h3>
       
       <div className="flex flex-col items-center space-y-4">
@@ -40,7 +40,7 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
         </Popover>
       </div>
       
-      <div className="flex justify-center space-x-4 space-x-reverse">
+      <div className="flex justify-center">
         <Button onClick={onSkip} variant="ghost">
           דלג, עוד לא יודע
         </Button>

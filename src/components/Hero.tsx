@@ -15,16 +15,20 @@ import {
 } from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
-import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
+import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { searchSuggestions } = useSearchSuggestions();
   
   const handleSearch = (term: string) => {
     if (term.trim()) {
       navigate(`/search?q=${encodeURIComponent(term)}`);
+    } else {
+      // אם אין מונח חיפוש, פתח את החיפוש המונחה
+      setIsGuidedSearchOpen(true);
     }
   };
   
@@ -70,22 +74,18 @@ const Hero = () => {
           <AutocompleteSearch
             suggestions={searchSuggestions}
             onSearch={handleSearch}
-            placeholder="חיפוש אמנים, מרצים, מופעים או מקומות אירוח..."
+            placeholder="מצא לי פתרון תוכן לאירוע מושלם..."
             value={searchTerm}
             onChange={setSearchTerm}
-            buttonText="חיפוש"
+            buttonText="חיפוש מונחה"
             autoFocus={false}
             dir="rtl"
             className="w-full"
             inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
             buttonClassName="px-6 rounded-r-full"
             showCommandBar={true}
+            onButtonClick={() => setIsGuidedSearchOpen(true)}
           />
-        </div>
-        
-        {/* כפתור חיפוש מונחה */}
-        <div className="mt-6 w-full max-w-md">
-          <GuidedSearchButton className="w-full text-lg py-6" />
         </div>
         
         <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-10">
@@ -102,6 +102,12 @@ const Hero = () => {
           ))}
         </div>
       </div>
+      
+      {/* מודל החיפוש המונחה */}
+      <GuidedSearchModal 
+        isOpen={isGuidedSearchOpen} 
+        onClose={() => setIsGuidedSearchOpen(false)} 
+      />
     </section>
   );
 };

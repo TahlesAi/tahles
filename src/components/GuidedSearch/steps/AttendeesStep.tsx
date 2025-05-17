@@ -36,12 +36,12 @@ const AttendeesStep = ({ attendeesCount, onUpdate }: AttendeesStepProps) => {
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <h3 className="text-lg font-medium text-center">כמה משתתפים צפויים באירוע?</h3>
       
       <div className="flex flex-col items-center space-y-4">
-        <Select onValueChange={handleSelect}>
-          <SelectTrigger className="w-full max-w-xs">
+        <Select onValueChange={handleSelect} dir="rtl">
+          <SelectTrigger className="w-full max-w-xs text-right">
             <SelectValue placeholder="בחר טווח משתתפים" />
           </SelectTrigger>
           <SelectContent>
@@ -65,6 +65,7 @@ const AttendeesStep = ({ attendeesCount, onUpdate }: AttendeesStepProps) => {
               value={customCount}
               onChange={(e) => setCustomCount(e.target.value)}
               min={1}
+              className="text-right"
             />
             <Button onClick={handleCustomCount}>שמור</Button>
           </div>
