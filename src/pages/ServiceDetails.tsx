@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle } from "lucide-react";
 
 // Components
 import Header from "@/components/Header";
@@ -21,6 +20,8 @@ import ServiceLoadingState from "@/components/service/ServiceLoadingState";
 import ServiceErrorState from "@/components/service/ServiceErrorState";
 
 import { saveServiceForLater, isServiceSaved, removeSavedService } from "@/components/provider/ServiceCard";
+import { mockSearchResults, mockProviders, mockReviews } from "@/lib/mockData";
+import { expandedMockSearchResults, expandedMockProviders, expandedMockReviews } from "@/lib/mockDataExpanded";
 
 const ServiceDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +49,44 @@ const ServiceDetails = () => {
       try {
         setIsLoading(true);
         
-        // Fetch service data
+        // First try to fetch from expanded mock data (for development)
+        const mockService = [...expandedMockSearchResults, ...mockSearchResults].find(s => s.id === id);
+        const mockProvider = mockService ? 
+          [...expandedMockProviders, ...mockProviders].find(p => p.id === mockService.providerId) : 
+          null;
+        
+        const mockServiceReviews = [...expandedMockReviews, ...mockReviews].filter(r => r.serviceId === id);
+        
+        if (mockService && mockProvider) {
+          // Use mock data
+          console.log("Using mock data for service:", mockService.name);
+          setService(mockService);
+          setProvider(mockProvider);
+          setReviews(mockServiceReviews);
+          
+          // Create media gallery
+          const gallery = [];
+          
+          // Add main image first
+          if (mockService.imageUrl) {
+            gallery.push({ type: 'image', url: mockService.imageUrl });
+          }
+          
+          // Add provider gallery images
+          if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
+            mockProvider.gallery.forEach((img: string) => {
+              if (img) {
+                gallery.push({ type: 'image', url: img });
+              }
+            });
+          }
+          
+          setMediaGallery(gallery);
+          setIsLoading(false);
+          return;
+        }
+        
+        // If no mock data, try to fetch from Supabase
         const { data: serviceData, error: serviceError } = await supabase
           .from('services')
           .select(`
@@ -152,10 +190,10 @@ const ServiceDetails = () => {
         id: service.id,
         name: service.name,
         short_description: service.description,
-        price_range: service.price_range,
-        provider_id: service.provider_id,
-        provider_name: provider?.name || "ספק שירות",
-        image_url: service.image_url,
+        price_range: service.price_range || `${service.price} ${service.priceUnit || ''}`,
+        provider_id: service.provider_id || service.providerId,
+        provider_name: provider?.name || provider?.businessName || "ספק שירות",
+        image_url: service.image_url || service.imageUrl,
         saved_at: new Date().toISOString()
       };
       
@@ -168,7 +206,7 @@ const ServiceDetails = () => {
   // Calculate average rating
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-    : 0;
+    : (service?.rating || 0);
   
   if (isLoading) {
     return (
@@ -210,7 +248,7 @@ const ServiceDetails = () => {
                 service={service} 
                 provider={provider} 
                 averageRating={averageRating} 
-                reviewCount={reviews.length} 
+                reviewCount={reviews.length || service.reviewCount || 0} 
               />
               
               <ServiceDetailInfo service={service} showMedia={false} />
@@ -249,7 +287,7 @@ const ServiceDetails = () => {
                 service={service}
                 provider={provider}
                 averageRating={averageRating}
-                reviewCount={reviews.length}
+                reviewCount={reviews.length || service.reviewCount || 0}
                 isSaved={isSaved}
                 toggleSave={toggleSave}
               />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Music, 
@@ -187,7 +188,46 @@ export const getAllSearchSuggestions = (): SearchSuggestion[] => {
 
 // הוק לשיתוף הצעות החיפוש בין כל הקומפוננטים
 export const useSearchSuggestions = () => {
+  // הרחבת הצעות החיפוש עם ספקים פופולריים נוספים
   const searchSuggestions = getAllSearchSuggestions();
+  
+  // הוספת אמני חושים אם חסרים
+  const hasMentalists = searchSuggestions.some(
+    s => s.value.includes('אמני חושים') || 
+         s.value.includes('נטע ברסלר') || 
+         s.value.includes('קליספרו')
+  );
+  
+  if (!hasMentalists) {
+    searchSuggestions.push(
+      { id: 'mental-artists', value: 'אמני חושים', type: 'תת-קטגוריה' },
+      { id: 'netta-bressler', value: 'נטע ברסלר - קריאת מחשבות', type: 'ספק' },
+      { id: 'calispro', value: 'קליספרו - אמן חושים', type: 'ספק' },
+      { id: 'maya-magician', value: 'מאיה הקוסמת', type: 'ספק' },
+      { id: 'doron-mentalist', value: 'דורון רוזן - מנטליסט', type: 'ספק' }
+    );
+  }
+  
+  // הוספת ספקים פופולריים נוספים
+  const extraProviders = [
+    { id: 'provider-melody', value: 'להקת מלודי מייקרס', type: 'ספק' },
+    { id: 'provider-gourmet', value: 'קייטרינג מעדני גורמה', type: 'ספק' },
+    { id: 'provider-shir', value: 'שיר ישראלי - זמרת', type: 'ספק' },
+    { id: 'provider-allegro', value: 'רביעיית אלגרו', type: 'ספק' },
+    { id: 'provider-vegan', value: 'טבע המנה - קייטרינג טבעוני', type: 'ספק' },
+    { id: 'provider-loft', value: 'לופט TLV', type: 'ספק' },
+    { id: 'provider-garden', value: 'גני הטבע - גן אירועים', type: 'ספק' },
+    { id: 'provider-villa', value: 'וילות הים', type: 'ספק' },
+    { id: 'provider-magnets', value: 'מגנטיקס - צילומי מגנטים', type: 'ספק' },
+    { id: 'provider-gifts', value: 'ברנד גיפט - מתנות ממותגות', type: 'ספק' }
+  ];
+  
+  // הוסף את הספקים הנוספים אם אינם קיימים כבר
+  extraProviders.forEach(provider => {
+    if (!searchSuggestions.some(s => s.value === provider.value)) {
+      searchSuggestions.push(provider);
+    }
+  });
   
   return { 
     searchSuggestions,
