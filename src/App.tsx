@@ -10,13 +10,16 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Search from './pages/Search';
 import CateringSearch from "./pages/CateringSearch";
+import Index from './pages/Index';
+import HowItWorks from './pages/HowItWorks';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Categories />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:categoryId" element={<CategorySubcategories />} />

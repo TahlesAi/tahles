@@ -1,164 +1,127 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ChevronLeft, Phone, Calendar, Users } from "lucide-react";
-
-interface CateringService {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  kosher?: string;
-  menuType?: string;
-  rating: number;
-  imageUrl: string;
-}
+import { Star } from "lucide-react";
+import { mockCateringCompanies, getFilteredCateringCompanies } from "@/lib/mockCateringData";
 
 interface CateringResultsProps {
-  results: CateringService[];
-  filterData: any;
+  results?: any[];
+  filterData?: any;
   onBackToFilters: () => void;
 }
 
-export default function CateringResults({ 
-  results, 
-  filterData, 
-  onBackToFilters 
-}: CateringResultsProps) {
-  
-  const formatDate = (date: Date) => {
-    if (!date) return 'לא צוין תאריך';
-    return new Intl.DateTimeFormat('he-IL', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(new Date(date));
-  };
-  
-  // תרגום סוג התפריט
-  const getMenuTypeLabel = (type: string) => {
-    const menuTypeMap: Record<string, string> = {
-      'meat': 'בשרי',
-      'dairy': 'חלבי',
-      'fish': 'דגים',
-      'mixed': 'מעורב',
-      'vegan': 'טבעוני'
-    };
-    return menuTypeMap[type] || type;
-  };
+const CateringResults = ({ results, filterData, onBackToFilters }: CateringResultsProps) => {
+  // Use provided results or get filtered results from mock data
+  const displayResults = results?.length ? results : getFilteredCateringCompanies(filterData);
   
   return (
-    <div>
-      <div className="mb-8">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBackToFilters} 
-          className="flex items-center mb-4"
-        >
-          <ChevronLeft className="ml-1 h-4 w-4" />
-          חזרה לסינון
-        </Button>
-        
-        <h2 className="text-2xl font-bold mb-2">תוצאות חיפוש קייטרינג</h2>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {filterData.kosher && (
-            <Badge variant="outline">
-              {filterData.kosher === "yes" ? "כשר" : "ללא כשרות"}
-            </Badge>
-          )}
-          
-          {filterData.menuType && (
-            <Badge variant="outline">
-              {getMenuTypeLabel(filterData.menuType)}
-            </Badge>
-          )}
-          
-          {filterData.guestCount && (
-            <Badge variant="outline" className="flex items-center">
-              <Users className="h-3 w-3 ml-1" />
-              {filterData.guestCount} אורחים
-            </Badge>
-          )}
-          
-          {filterData.date && (
-            <Badge variant="outline" className="flex items-center">
-              <Calendar className="h-3 w-3 ml-1" />
-              {formatDate(filterData.date)}
-            </Badge>
-          )}
-          
-          {filterData.budgetPerGuest && (
-            <Badge variant="outline">
-              תקציב: ₪{filterData.budgetPerGuest[0]}-₪{filterData.budgetPerGuest[1]} לאורח
-            </Badge>
-          )}
+    <div className="max-w-5xl mx-auto">
+      {/* Header section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">תוצאות חיפוש קייטרינג</h2>
+          <p className="text-gray-600">
+            נמצאו {displayResults.length} שירותי קייטרינג העונים לדרישות שלך
+          </p>
         </div>
-        
-        <p className="text-gray-600">נמצאו {results.length} אפשרויות קייטרינג מתאימות</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onBackToFilters}
+          className="mt-3 md:mt-0"
+        >
+          ↩️ חזרה לסינון
+        </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {results.map(service => (
-          <Card key={service.id} className="overflow-hidden">
-            <div className="aspect-video relative overflow-hidden">
+      {/* Filter summary */}
+      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+        <div className="text-sm text-gray-600 mb-2">פילטרים פעילים:</div>
+        <div className="flex flex-wrap gap-2">
+          {filterData?.kosher !== undefined && (
+            <Badge variant="outline">{filterData.kosher ? 'כשר' : 'לא כשר'}</Badge>
+          )}
+          {filterData?.menuType && (
+            <Badge variant="outline">סגנון: {filterData.menuType}</Badge>
+          )}
+          {filterData?.regions?.length > 0 && (
+            <Badge variant="outline">אזורים: {filterData.regions.join(', ')}</Badge>
+          )}
+          {filterData?.guestCount && (
+            <Badge variant="outline">{filterData.guestCount} מוזמנים</Badge>
+          )}
+          {filterData?.budgetPerGuest && (
+            <Badge variant="outline">תקציב: {filterData.budgetPerGuest} ₪ למנה</Badge>
+          )}
+        </div>
+      </div>
+      
+      {/* Results grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {displayResults.map((catering) => (
+          <Card key={catering.id} className="overflow-hidden">
+            <div className="h-48 overflow-hidden">
               <img 
-                src={service.imageUrl}
-                alt={service.name}
+                src={catering.featuredImage} 
+                alt={catering.name} 
                 className="w-full h-full object-cover"
               />
-              {service.kosher && (
-                <div className="absolute top-2 right-2">
-                  <Badge className={service.kosher.includes("מהדרין") ? "bg-blue-600" : "bg-green-600"}>
-                    {service.kosher}
-                  </Badge>
-                </div>
-              )}
             </div>
-            
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold">{service.name}</h3>
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 ml-1" />
-                  <span>{service.rating}</span>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>{catering.name}</CardTitle>
+                  <CardDescription>{catering.city}</CardDescription>
+                </div>
+                <div className="flex items-center bg-brand-50 px-2 py-1 rounded">
+                  <Star className="h-4 w-4 text-yellow-500 mr-1" fill="currentColor" />
+                  <span className="font-medium">{catering.rating}</span>
+                  <span className="text-xs text-gray-500 mr-1">({catering.reviewCount})</span>
                 </div>
               </div>
-              
-              <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-3">
-                {service.menuType && (
-                  <Badge variant="outline">
-                    {getMenuTypeLabel(service.menuType)}
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 mb-3 line-clamp-2">{catering.description}</p>
+              <div className="flex flex-wrap gap-1 mb-2">
+                {catering.kosher && (
+                  <Badge variant="outline" className="bg-green-50">
+                    כשר {catering.kosherType}
                   </Badge>
                 )}
-                <Badge variant="secondary">{service.price}</Badge>
+                {catering.menuTypes.slice(0, 2).map((type: string) => (
+                  <Badge key={type} variant="outline">
+                    {type}
+                  </Badge>
+                ))}
+              </div>
+              <div className="text-sm text-gray-600">
+                <div>מחיר למנה: {catering.pricePerGuest.min}-{catering.pricePerGuest.max} ₪</div>
+                <div>מתאים ל: {catering.minGuests}-{catering.maxGuests} מוזמנים</div>
               </div>
             </CardContent>
-            
-            <CardFooter className="border-t px-4 py-3 flex justify-between">
-              <Button variant="outline" className="flex items-center">
-                <Phone className="h-4 w-4 ml-2" />
+            <CardFooter className="flex justify-between border-t pt-4">
+              <Button variant="outline" size="sm">
+                לפרטים נוספים
+              </Button>
+              <Button size="sm">
                 יצירת קשר
               </Button>
-              <Button>הזמנה</Button>
             </CardFooter>
           </Card>
         ))}
       </div>
       
-      {results.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-semibold mb-3">לא נמצאו תוצאות מתאימות</h3>
-          <p className="text-gray-600 mb-6">
-            לא מצאנו קייטרינג שתואם את כל הדרישות שלך. אנא נסו להרחיב את החיפוש או השאירו פרטים לסיוע אישי.
-          </p>
+      {displayResults.length === 0 && (
+        <div className="text-center py-8">
+          <h3 className="text-lg font-semibold mb-2">לא נמצאו תוצאות מתאימות</h3>
+          <p className="text-gray-600 mb-4">נסו להרחיב את החיפוש או לשנות את הפילטרים</p>
           <Button onClick={onBackToFilters}>חזרה לסינון</Button>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default CateringResults;

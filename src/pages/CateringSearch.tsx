@@ -7,6 +7,7 @@ import LeadCaptureForm from "@/components/catering/LeadCaptureForm";
 import CateringResults from "@/components/catering/CateringResults";
 import { Button } from "@/components/ui/button";
 import { Utensils } from "lucide-react";
+import { getFilteredCateringCompanies } from "@/lib/mockCateringData";
 
 // סוגי התצוגה
 type ViewState = 'filter' | 'results' | 'lead-capture' | 'success';
@@ -17,10 +18,13 @@ const CateringSearch = () => {
   const [filterData, setFilterData] = useState<any>(null);
   
   // כאשר נמצאות תוצאות מתאימות
-  const handleResultsFound = (foundResults: any[], formData: any) => {
+  const handleResultsFound = (formData: any) => {
+    // השתמש במידע המלא מהטופס לסנן את הנתונים
+    const foundResults = getFilteredCateringCompanies(formData);
+    
     setResults(foundResults);
     setFilterData(formData);
-    setViewState('results');
+    setViewState(foundResults.length > 0 ? 'results' : 'lead-capture');
   };
   
   // כאשר אין תוצאות מתאימות
