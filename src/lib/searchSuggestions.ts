@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Music, 
@@ -23,7 +22,12 @@ import {
   Users,
   Star,
   Heart,
-  Trophy
+  Trophy,
+  Puzzle,
+  Gamepad,
+  KeySquare,
+  Door,
+  Headphones
 } from "lucide-react";
 
 // הממשק עבור הצעת חיפוש
@@ -52,7 +56,9 @@ export const venueSubcategories: SearchSuggestion[] = [
   { id: "venue-9", value: "ספינות אירוח", type: "תת-קטגוריה" },
   { id: "venue-10", value: "אירוח בטבע", type: "תת-קטגוריה" },
   { id: "venue-11", value: "מסעדות לאירועים", type: "תת-קטגוריה" },
-  { id: "venue-12", value: "סדנאות מארחות", type: "תת-קטגוריה" }
+  { id: "venue-12", value: "סדנאות מארחות", type: "תת-קטגוריה" },
+  { id: "venue-13", value: "חדרי קריוקי", type: "תת-קטגוריה" },
+  { id: "venue-14", value: "חדרי בריחה", type: "תת-קטגוריה" }
 ];
 
 // תתי קטגוריות עבור שירותי מזון ומשקאות
@@ -193,7 +199,9 @@ export const popularProviders: SearchSuggestion[] = [
   { id: "provider-27", value: "טעם הכרם - קייטרינג בשרי", type: "ספק" },
   { id: "provider-28", value: "חלומות מתוקים - קינוחים", type: "ספק" },
   { id: "provider-29", value: "הפקות בקצב - להקת קאברים", type: "ספק" },
-  { id: "provider-30", value: "שמש הפקות - אוהלים לאירועים", type: "ספק" }
+  { id: "provider-30", value: "שמש הפקות - אוהלים לאירועים", type: "ספק" },
+  { id: "provider-31", value: "קריוקי זמן - חדרי קריוקי", type: "ספק" },
+  { id: "provider-32", value: "אסקייפ מאסטר - חדרי בריחה", type: "ספק" }
 ];
 
 // אמני חושים נוספים
@@ -252,7 +260,9 @@ export const useSearchSuggestions = () => {
     { id: 'provider-extra-17', value: 'יוגה צחוק - סדנאות גיבוש', type: 'ספק' },
     { id: 'provider-extra-18', value: 'מתנות וי איי פי - שי לאורחים', type: 'ספק' },
     { id: 'provider-extra-19', value: 'מופע אקרובטיקה - סרקס דה סוליי', type: 'ספק' },
-    { id: 'provider-extra-20', value: 'אמן הבלונים - עיצובים מבלונים', type: 'ספק' }
+    { id: 'provider-extra-20', value: 'אמן הבלונים - עיצובים מבלונים', type: 'ספק' },
+    { id: 'provider-extra-21', value: 'קריוקי לייב - חווית שירה', type: 'ספק' },
+    { id: 'provider-extra-22', value: 'חדר הבריחה המסתורי - חידות ומשחקים', type: 'ספק' }
   ];
   
   // הוסף את הספקים הנוספים

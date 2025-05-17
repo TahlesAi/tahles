@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -12,7 +13,8 @@ import {
   Landmark, PartyPopper, Utensils, DoorClosed, 
   Music, Lightbulb, Camera, MapPin, Mic2, Monitor,
   Gift, Sparkles, Calendar, Wand2, TentTree, 
-  User, PlusCircle, Headphones, Hotel, School
+  User, PlusCircle, Headphones, Hotel, School,
+  Puzzle, Gamepad, KeySquare, Door, Mic
 } from "lucide-react";
 
 interface Subcategory {
@@ -45,7 +47,7 @@ const iconComponents: Record<string, React.ReactNode> = {
   "Camera": <Camera className="h-8 w-8" />,
   "Utensils": <Utensils className="h-8 w-8" />,
   "MapPin": <MapPin className="h-8 w-8" />,
-  "Mic": <Mic2 className="h-8 w-8" />,
+  "Mic": <Mic className="h-8 w-8" />,
   "Mic2": <Mic2 className="h-8 w-8" />,
   "Monitor": <Monitor className="h-8 w-8" />,
   "Gift": <Gift className="h-8 w-8" />,
@@ -66,7 +68,11 @@ const iconComponents: Record<string, React.ReactNode> = {
   "School": <School className="h-8 w-8" />,
   "Landmark": <Landmark className="h-8 w-8" />,
   "DoorClosed": <DoorClosed className="h-8 w-8" />,
-  "Lightbulb": <Lightbulb className="h-8 w-8" />
+  "Lightbulb": <Lightbulb className="h-8 w-8" />,
+  "Puzzle": <Puzzle className="h-8 w-8" />,
+  "Gamepad": <Gamepad className="h-8 w-8" />,
+  "KeySquare": <KeySquare className="h-8 w-8" />,
+  "Door": <Door className="h-8 w-8" />
 };
 
 // רשימת תת-קטגוריות ברירת מחדל ללוקיישנים
@@ -120,6 +126,16 @@ const defaultLocationSubcategories = [
     name: "מועדונים וחללי אירוח", 
     description: "מועדוני לילה וחללי אירוח", 
     icon: "Music" 
+  },
+  { 
+    name: "חדרי קריוקי", 
+    description: "חדרים מאובזרים לאירועי שירה ומוסיקה", 
+    icon: "Mic" 
+  },
+  { 
+    name: "חדרי בריחה", 
+    description: "חדרי בריחה וחידות להפעלות קבוצתיות", 
+    icon: "Puzzle" 
   },
   { 
     name: "הפקות קונספט בהתאמה אישית", 

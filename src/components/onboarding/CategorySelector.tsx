@@ -72,6 +72,31 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
           )
         }));
         
+        // Check for location category and ensure we have karaoke and escape rooms
+        const locationCategory = categoriesWithSubcategories.find(
+          (cat: Category) => cat.name === "אולמות ומקומות אירוע" || cat.id === "d0251580-5005-4bd8-ae4d-ddd1084f1c99"
+        );
+
+        if (locationCategory) {
+          // Check if karaoke and escape room subcategories already exist
+          const hasKaraoke = locationCategory.subcategories?.some(
+            (subcat: Subcategory) => subcat.name === "חדרי קריוקי"
+          );
+          
+          const hasEscapeRoom = locationCategory.subcategories?.some(
+            (subcat: Subcategory) => subcat.name === "חדרי בריחה"
+          );
+          
+          // If they don't exist yet, add them (only for UI display purposes, as we don't modify the database here)
+          if (!hasKaraoke) {
+            console.log("Adding karaoke rooms to category selector display");
+          }
+          
+          if (!hasEscapeRoom) {
+            console.log("Adding escape rooms to category selector display");
+          }
+        }
+        
         setCategories(categoriesWithSubcategories);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -176,6 +201,28 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                           )}
                         </Badge>
                       ))}
+
+                      {/* Add special handling for location category */}
+                      {category.name === "אולמות ומקומות אירוע" && category.subcategories.every(
+                        (subcat: Subcategory) => subcat.name !== "חדרי קריוקי" && subcat.name !== "חדרי בריחה"
+                      ) && (
+                        <>
+                          <Badge
+                            variant="outline"
+                            className="cursor-pointer py-1 px-2 justify-between"
+                          >
+                            <span>חדרי קריוקי</span>
+                            <span className="text-xs text-gray-400">(בקרוב)</span>
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="cursor-pointer py-1 px-2 justify-between"
+                          >
+                            <span>חדרי בריחה</span>
+                            <span className="text-xs text-gray-400">(בקרוב)</span>
+                          </Badge>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
