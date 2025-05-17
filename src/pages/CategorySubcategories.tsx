@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,8 +5,15 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, AlertCircle, Loader2, Star, Building, Warehouse, Briefcase, Home, Users, Landmark, PartyPopper, Utensils, DoorClosed, Music, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
+import {
+  ChevronLeft, AlertCircle, Loader2, Star,
+  Building, Warehouse, Briefcase, Home, Users, 
+  Landmark, PartyPopper, Utensils, DoorClosed, 
+  Music, Lightbulb, Camera, MapPin, Mic2, Monitor,
+  Gift, Sparkles, Calendar, Wand2, TentTree, 
+  User, PlusCircle, Headphones, Hotel, School
+} from "lucide-react";
 
 interface Subcategory {
   id: string;
@@ -15,6 +21,7 @@ interface Subcategory {
   description: string;
   icon: string;
   count?: number;
+  isDemoData?: boolean;
 }
 
 interface Category {
@@ -32,14 +39,6 @@ interface Provider {
   logo_url: string | null;
   service_count: number;
 }
-
-// מיפוי אייקונים מלוסיד
-import {
-  Music, Camera, Utensils, MapPin, Mic2, Monitor, 
-  Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones,
-  Building, Warehouse, Briefcase, Home, Hotel, School
-} from "lucide-react";
 
 const iconComponents: Record<string, React.ReactNode> = {
   "Music": <Music className="h-8 w-8" />,
@@ -64,7 +63,10 @@ const iconComponents: Record<string, React.ReactNode> = {
   "Briefcase": <Briefcase className="h-8 w-8" />,
   "Home": <Home className="h-8 w-8" />,
   "Hotel": <Hotel className="h-8 w-8" />,
-  "School": <School className="h-8 w-8" />
+  "School": <School className="h-8 w-8" />,
+  "Landmark": <Landmark className="h-8 w-8" />,
+  "DoorClosed": <DoorClosed className="h-8 w-8" />,
+  "Lightbulb": <Lightbulb className="h-8 w-8" />
 };
 
 // רשימת תת-קטגוריות ברירת מחדל ללוקיישנים
