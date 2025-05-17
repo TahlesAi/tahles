@@ -34,10 +34,31 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     }
   };
 
+  // הרחבת ההצעות בחיפוש עבור אמני חושים
+  const enhancedSuggestions = React.useMemo(() => {
+    // הוספת אמני חושים מותאמים אישית אם חסרים
+    const hasMentalists = searchSuggestions.some(
+      s => s.value.includes('אמני חושים') || 
+           s.value.includes('נטע ברסלר') || 
+           s.value.includes('קליספרו')
+    );
+    
+    if (!hasMentalists) {
+      return [
+        ...searchSuggestions,
+        { id: 'mental-artists', value: 'אמני חושים', type: 'תת-קטגוריה' },
+        { id: 'netta-bressler', value: 'נטע ברסלר - קריאת מחשבות', type: 'ספק' },
+        { id: 'calispro', value: 'קליספרו - אמן חושים', type: 'ספק' }
+      ];
+    }
+    
+    return searchSuggestions;
+  }, [searchSuggestions]);
+
   return (
     <div className={cn("relative", className)} style={{ maxWidth }}>
       <AutocompleteSearch
-        suggestions={searchSuggestions}
+        suggestions={enhancedSuggestions}
         onSearch={handleSearch}
         placeholder={placeholder}
         value={searchTerm}

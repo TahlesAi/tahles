@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { he } from 'date-fns/locale';
 import ServiceResultCard from "@/components/search/ServiceResultCard";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
+import { toast } from "sonner";
 
 // Mock search results data - will be replaced with actual API calls later
 import { mockSearchResults } from "@/lib/mockData";
@@ -48,14 +49,89 @@ const Search = () => {
   const performSearch = (query: string) => {
     setIsLoading(true);
     
+    // רשימת מילות מפתח לאמני חושים
+    const mentalismKeywords = [
+      'אמני חושים', 
+      'אמן חושים', 
+      'קריאת מחשבות', 
+      'קורא מחשבות',
+      'מנטליסט',
+      'מנטליזם',
+      'טלפתיה',
+      'נטע ברסלר',
+      'קליספרו'
+    ];
+    
+    // בודק אם החיפוש קשור לאמני חושים
+    const searchLower = query.toLowerCase().trim();
+    const isMentalismSearch = mentalismKeywords.some(keyword => 
+      keyword.includes(searchLower) || searchLower.includes(keyword)
+    );
+    
     // Simulate API call
     setTimeout(() => {
-      // In a real app, this would be an API call with all filters
-      const filtered = mockSearchResults.filter(item => 
+      // בסימולציה, הבא תוצאות רלוונטיות בהתאם לחיפוש
+      let filtered = mockSearchResults.filter(item => 
         item.name.toLowerCase().includes(query.toLowerCase()) ||
         item.description.toLowerCase().includes(query.toLowerCase()) ||
-        item.provider.toLowerCase().includes(query.toLowerCase())
+        item.provider.toLowerCase().includes(query.toLowerCase()) ||
+        item.category.toLowerCase().includes(query.toLowerCase()) ||
+        item.tags?.some(tag => tag.toLowerCase().includes(query.toLowerCase())) ||
+        (item.subcategory && item.subcategory.toLowerCase().includes(query.toLowerCase()))
       );
+      
+      // אם זה חיפוש של אמני חושים, וודא שאמני החושים מופיעים בתוצאות
+      if (isMentalismSearch) {
+        // חפש את אמני החושים הספציפיים שאנחנו יודעים עליהם
+        const specificMentalists = mockSearchResults.filter(item => 
+          item.provider.includes('נטע ברסלר') || 
+          item.provider.includes('קליספרו') ||
+          item.name.includes('קריאת מחשבות') ||
+          item.category.includes('אמני חושים') ||
+          (item.tags && item.tags.some(tag => tag.includes('אמני חושים')))
+        );
+        
+        // הוסף את אמני החושים לרשימה אם הם לא כבר שם
+        specificMentalists.forEach(mentalist => {
+          if (!filtered.some(item => item.id === mentalist.id)) {
+            filtered.push(mentalist);
+          }
+        });
+        
+        // מיון התוצאות כך שאמני החושים יופיעו ראשונים
+        filtered.sort((a, b) => {
+          const aIsMentalist = 
+            a.provider.includes('נטע ברסלר') || 
+            a.provider.includes('קליספרו') ||
+            a.category.includes('אמני חושים') || 
+            (a.tags && a.tags.some(tag => tag.includes('אמני חושים')));
+          
+          const bIsMentalist = 
+            b.provider.includes('נטע ברסלר') || 
+            b.provider.includes('קליספרו') ||
+            b.category.includes('אמני חושים') || 
+            (b.tags && b.tags.some(tag => tag.includes('אמני חושים')));
+          
+          if (aIsMentalist && !bIsMentalist) return -1;
+          if (!aIsMentalist && bIsMentalist) return 1;
+          return 0;
+        });
+      }
+      
+      // מציג הודעה אם לא נמצאו תוצאות אך החיפוש היה עבור אמני חושים
+      if (filtered.length === 0 && isMentalismSearch) {
+        toast.info("אנחנו עובדים על הוספת אמני חושים נוספים למערכת", {
+          description: "בינתיים, תוכל למצוא את נטע ברסלר וקליספרו"
+        });
+        
+        // הוסף תוצאות מוגדרות מראש לאמני חושים
+        filtered = mockSearchResults.filter(item => 
+          item.provider.includes('נטע ברסלר') || 
+          item.provider.includes('קליספרו') ||
+          item.category.includes('אמני חושים')
+        );
+      }
+      
       setResults(filtered);
       setFilteredResults(filtered);
       setIsLoading(false);
@@ -87,7 +163,7 @@ const Search = () => {
       
       if (location) {
         filtered = filtered.filter(item => 
-          item.location.toLowerCase().includes(location.toLowerCase())
+          item.location?.toLowerCase().includes(location.toLowerCase())
         );
       }
       

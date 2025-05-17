@@ -75,11 +75,41 @@ const AutocompleteSearch = ({
       return;
     }
     
-    // שיפור הפילטור כדי לאפשר חיפוש חלקי בעברית
-    const searchTerm = value.toLowerCase();
-    const filtered = suggestions.filter(suggestion => 
-      suggestion.value.toLowerCase().includes(searchTerm)
+    // שיפור הפילטור כדי לאפשר חיפוש חלקי וחיפוש משופר בעברית
+    const searchTerm = value.toLowerCase().trim();
+    
+    // רשימת מילות מפתח לאמני חושים להגדיל את הדיוק בחיפוש
+    const mentalismKeywords = [
+      'אמני חושים', 
+      'אמן חושים', 
+      'קריאת מחשבות', 
+      'קורא מחשבות',
+      'מנטליסט',
+      'מנטליזם',
+      'טלפתיה',
+      'נטע ברסלר',
+      'קליספרו'
+    ];
+    
+    // בודק אם החיפוש קשור לאמני חושים
+    const isMentalismSearch = mentalismKeywords.some(keyword => 
+      keyword.includes(searchTerm) || searchTerm.includes(keyword)
     );
+    
+    const filtered = suggestions.filter(suggestion => {
+      const suggestionValue = suggestion.value.toLowerCase();
+      
+      // תגבור תוצאות לאמני חושים אם החיפוש קשור לתחום זה
+      if (isMentalismSearch && (
+          suggestion.value.includes('אמני חושים') || 
+          suggestion.value.includes('נטע ברסלר') ||
+          suggestion.value.includes('קליספרו'))
+      ) {
+        return true;
+      }
+      
+      return suggestionValue.includes(searchTerm);
+    });
     
     // מיון התוצאות - קודם קטגוריות ראשיות, אח"כ תת קטגוריות, אח"כ ספקים
     const sortedResults = [...filtered].sort((a, b) => {
@@ -89,6 +119,15 @@ const AutocompleteSearch = ({
       
       if (aStartsWith && !bStartsWith) return -1;
       if (!aStartsWith && bStartsWith) return 1;
+      
+      // אם יש חיפוש של אמני חושים, הקפץ למעלה תוצאות רלוונטיות
+      if (isMentalismSearch) {
+        const aIsMentalism = a.value.includes('אמני חושים') || a.value.includes('נטע ברסלר') || a.value.includes('קליספרו');
+        const bIsMentalism = b.value.includes('אמני חושים') || b.value.includes('נטע ברסלר') || b.value.includes('קליספרו');
+        
+        if (aIsMentalism && !bIsMentalism) return -1;
+        if (!aIsMentalism && bIsMentalism) return 1;
+      }
       
       // מיון לפי סוג
       if (a.type !== b.type) {
