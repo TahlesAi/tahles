@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, BarChartBig } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import SearchableHeader from "@/components/ui/searchable-header";
 
@@ -37,6 +37,15 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-brand-600">תכלס</span>
+          </Link>
+          
+          {/* Button for Provider Onboarding - Added prominently next to logo */}
+          <Link 
+            to="/provider-onboarding" 
+            className="hidden md:flex mr-3 px-4 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
+          >
+            <BarChartBig className="h-4 w-4 ml-2" />
+            הצטרף כספק
           </Link>
           
           {/* Search Bar - only on desktop */}
@@ -94,7 +103,7 @@ const Header = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:w-1/2 bg-white">
+              <SheetContent side="right" className="w-full sm:w-1/2 bg-white" dir="rtl">
                 <SheetHeader>
                   <SheetTitle>תפריט</SheetTitle>
                   <SheetDescription>
@@ -102,6 +111,14 @@ const Header = () => {
                   </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col space-y-4 mt-4">
+                  {/* Provider Onboarding Button in Mobile Menu */}
+                  <Link 
+                    to="/provider-onboarding" 
+                    className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
+                  >
+                    <BarChartBig className="h-4 w-4 ml-2 inline-block" />
+                    הצטרף כספק
+                  </Link>
                   <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
                   <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
                   <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>

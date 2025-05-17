@@ -90,12 +90,13 @@ const Hero = () => {
           />
         </div>
         
-        <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-10">
+        {/* קטגוריות - שיפור תצוגה למובייל */}
+        <div className={`flex flex-wrap justify-center gap-3 md:gap-5 mt-10 ${isMobile ? 'overflow-x-auto pb-4 flex-nowrap justify-start w-full' : ''}`}>
           {categories.map((category, index) => (
             <Button 
               key={index}
               variant="outline" 
-              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+              className={`bg-white/20 text-white border-white/30 hover:bg-white/30 ${isMobile ? 'min-w-[120px] flex-shrink-0' : ''}`}
               onClick={() => navigate(`/categories/${category.id}`)}
             >
               {category.icon}

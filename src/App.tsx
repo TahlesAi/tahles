@@ -13,6 +13,7 @@ import CateringSearch from "./pages/CateringSearch";
 import Index from './pages/Index';
 import HowItWorks from './pages/HowItWorks';
 import HowItWorksAlternative from './pages/HowItWorksAlternative';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
           <Route path="/catering-search" element={<CateringSearch />} />
+          <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />

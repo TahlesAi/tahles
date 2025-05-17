@@ -16,6 +16,7 @@ const GuidedSearchButton = ({ className, isOpen, onOpenChange }: GuidedSearchBut
         onClick={() => onOpenChange(true)} 
         size="lg" 
         className={className}
+        dir="rtl"
       >
         <Search className="ml-2 h-4 w-4" />
         מצא לי פתרון תוכן לאירוע מושלם

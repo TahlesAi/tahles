@@ -78,7 +78,7 @@ const OnboardingStep1 = ({ data, onUpdate, onNext }: OnboardingStep1Props) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto" dir="rtl">
       <div className="mb-8 text-center">
         <h2 className="text-2xl font-bold mb-2">איזה מהתיאורים הבאים הכי מתאים לשירות שלכם?</h2>
         <p className="text-gray-600">בחרו את הקטגוריה הכי מתאימה לשירות שלכם</p>

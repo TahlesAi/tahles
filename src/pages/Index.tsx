@@ -7,7 +7,8 @@ import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { 
-  ArrowRight
+  ArrowRight, 
+  BarChartBig 
 } from "lucide-react";
 import { 
   Carousel,
@@ -19,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { eventConcepts } from "@/lib/searchSuggestions";
 import { Link } from "react-router-dom";
+import useIsMobile from "@/hooks/use-mobile";
 
 const features = [
   {
@@ -44,13 +46,15 @@ const features = [
 ];
 
 const Index = () => {
+  const isMobile = useIsMobile();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
         <Hero />
         
-        {/* קונספטים */}
+        {/* קונספטים - שיפור תצוגה במובייל */}
         <section className="py-10 bg-white border-b">
           <div className="container px-4">
             <div className="flex justify-between items-center mb-6">
@@ -58,7 +62,7 @@ const Index = () => {
               <Badge variant="outline" className="cursor-pointer">ראה הכל</Badge>
             </div>
             
-            <div className="overflow-x-auto pb-6">
+            <div className={`overflow-x-auto pb-6 ${isMobile ? '-mx-4 px-4' : ''}`}>
               <div className="flex gap-4 min-w-max">
                 {eventConcepts.map((concept, index) => (
                   <div
@@ -86,7 +90,10 @@ const Index = () => {
                 <Link to="/search">חיפוש שירותים</Link>
               </Button>
               <Button size="lg" variant="secondary" className="bg-accent1-500 text-white hover:bg-accent1-600 border-2 border-white">
-                <Link to="/provider-onboarding">הצטרפות כנותן שירות</Link>
+                <Link to="/provider-onboarding" className="flex items-center">
+                  <BarChartBig className="h-5 w-5 ml-2" />
+                  הצטרפות כנותן שירות
+                </Link>
               </Button>
             </div>
           </div>
