@@ -16,12 +16,14 @@ import {
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
 import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
+import useIsMobile from "@/hooks/use-mobile";
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { searchSuggestions } = useSearchSuggestions();
+  const isMobile = useIsMobile();
   
   const handleSearch = (term: string) => {
     if (term.trim()) {
@@ -84,7 +86,7 @@ const Hero = () => {
             inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
             buttonClassName="px-6 rounded-r-full"
             showCommandBar={true}
-            onButtonClick={() => setIsGuidedSearchOpen(true)}
+            onButtonClick={() => setIsGuidedSearchOpen(true)} 
           />
         </div>
         

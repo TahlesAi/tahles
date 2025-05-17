@@ -32,6 +32,7 @@ interface AutocompleteSearchProps {
   value?: string;
   onChange?: (value: string) => void;
   onSuggestionSelect?: (suggestion: Suggestion) => void;
+  onButtonClick?: () => void; // הוספת התכונה החסרה
   showButton?: boolean;
   showCommandBar?: boolean;
   autoFocus?: boolean;
@@ -49,6 +50,7 @@ const AutocompleteSearch = ({
   value: externalValue,
   onChange: externalOnChange,
   onSuggestionSelect,
+  onButtonClick,
   showButton = true,
   showCommandBar = true,
   autoFocus = false,
@@ -394,6 +396,12 @@ const AutocompleteSearch = ({
               dir === "rtl" ? "rounded-l-full" : "rounded-r-full",
               buttonClassName
             )}
+            onClick={(e) => {
+              if (onButtonClick) {
+                e.preventDefault();
+                onButtonClick();
+              }
+            }}
           >
             {dir === "rtl" && <Search className="h-4 w-4 ml-2" />}
             {buttonText}
