@@ -19,21 +19,34 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
   
   return (
     <Link to={`/services/${service.id}`}>
-      <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
+      <Card className="overflow-hidden border hover:border-brand-300 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
         <div className="relative aspect-video overflow-hidden">
           <img 
             src={service.imageUrl} 
             alt={service.name} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />
-          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full text-xs font-medium text-gray-700">
+          
+          {/* קטגוריה */}
+          <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-md text-xs font-medium text-gray-700">
             {service.category}
           </div>
+          
+          {/* דירוג - הבלטה טובה יותר */}
+          <div className="absolute bottom-2 right-2 bg-brand-600/90 text-white px-2 py-1 rounded-md flex items-center">
+            <Star className="h-3.5 w-3.5 mr-1 fill-yellow-400 text-yellow-400" />
+            <span className="font-bold">{service.rating}</span>
+            <span className="text-xs ml-1">({service.reviewCount})</span>
+          </div>
+          
+          {/* תג מקודם/מומלץ */}
           {service.featured && (
-            <div className="absolute top-2 left-2 bg-accent1-500 px-2 py-1 rounded-full text-xs font-medium text-white">
+            <div className="absolute top-2 left-2 bg-accent1-500 px-2 py-1 rounded-md text-xs font-medium text-white">
               מומלץ
             </div>
           )}
+          
+          {/* מדיה נוספת */}
           {hasMedia && (
             <div className="absolute bottom-2 left-2 bg-black/50 text-white p-1 rounded-md text-xs font-medium flex items-center">
               {service.videoCount !== undefined && service.videoCount > 0 && <Video className="w-3 h-3 ml-1" />}
@@ -42,42 +55,45 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
             </div>
           )}
         </div>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-lg mb-1 line-clamp-1">{service.name}</h3>
-            <div className="text-brand-600 font-semibold text-right">₪{service.price}</div>
-          </div>
-          <p className="text-gray-500 text-sm mb-1">{service.provider}</p>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{service.description}</p>
-          
-          {service.tags && service.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {service.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="bg-gray-50">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-          
-          <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center">
-              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium ml-1">{service.rating}</span>
-              <span className="text-xs text-gray-500 ml-1">({service.reviewCount})</span>
-            </div>
+        
+        <CardContent className="p-3 flex-grow flex flex-col">
+          <div>
+            {/* שם השירות */}
+            <h3 className="font-semibold text-base mb-0.5 line-clamp-1">{service.name}</h3>
             
-            <Button size="sm" variant="outline" className="text-xs">
-              פרטים נוספים
-            </Button>
+            {/* שם הספק */}
+            <p className="text-gray-500 text-xs mb-1">{service.provider}</p>
+            
+            {/* תיאור */}
+            <p className="text-gray-600 text-xs mb-2 line-clamp-2">{service.description}</p>
+            
+            {/* תגיות */}
+            {service.tags && service.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {service.tags.slice(0, 2).map((tag, index) => (
+                  <Badge key={index} variant="outline" className="text-[0.65rem] px-1 py-0 h-4">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
           
+          {/* מיקום */}
           {service.location && (
-            <div className="mt-2 text-xs text-gray-500 flex items-center">
+            <div className="text-[0.65rem] text-gray-500 flex items-center mt-1">
               <MapPin className="h-3 w-3 ml-1" />
               {service.location}
             </div>
           )}
+          
+          {/* מחיר וכפתור */}
+          <div className="mt-auto pt-2 flex items-center justify-between">
+            <div className="text-brand-600 font-bold">₪{service.price}</div>
+            <Button size="sm" variant="outline" className="text-xs h-7 px-2">
+              פרטים נוספים
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </Link>

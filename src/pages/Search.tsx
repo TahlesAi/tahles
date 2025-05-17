@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
@@ -64,11 +65,46 @@ const Search = () => {
       'מאיה הקוסמת'
     ];
     
+    // מילות מפתח לכרטיסי מתנה
+    const giftCardKeywords = [
+      'כרטיסי מתנה',
+      'כרטיס מתנה',
+      'שובר מתנה',
+      'שוברי מתנה',
+      'כרטיס שי',
+      'כרטיסי שי',
+      'מתנות',
+      'gift card',
+      'כרטיס מתנה דיגיטלי'
+    ];
+    
+    // מילות מפתח לכרטיסים למופעים
+    const eventTicketsKeywords = [
+      'כרטיסים',
+      'כרטיס',
+      'כרטיסים למופעים',
+      'כרטיס למופע',
+      'כרטיס להופעה',
+      'כרטיסים להופעות',
+      'tickets',
+      'כרטיס הופעה'
+    ];
+    
     // בודק אם החיפוש קשור לאמני חושים
     const searchLower = query.toLowerCase().trim();
     const isMentalismSearch = mentalismKeywords.some(keyword => 
       keyword.includes(searchLower) || searchLower.includes(keyword)
     );
+    
+    // בודק אם החיפוש קשור לכרטיסי מתנה
+    const isGiftCardSearch = giftCardKeywords.some(keyword => 
+      keyword.includes(searchLower) || searchLower.includes(keyword)
+    );
+    
+    // בודק אם החיפוש קשור לכרטיסים למופעים
+    const isEventTicketsSearch = eventTicketsKeywords.some(keyword => 
+      keyword.includes(searchLower) || searchLower.includes(keyword)
+    ) && !isGiftCardSearch; // מוודא שזה לא כרטיסי מתנה
     
     // Simulate API call
     setTimeout(() => {
@@ -82,9 +118,209 @@ const Search = () => {
         (item.tags && item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))) ||
         (item.subcategory && item.subcategory.toLowerCase().includes(query.toLowerCase()))
       );
+
+      // אם זה חיפוש כרטיסי מתנה
+      if (isGiftCardSearch) {
+        // יצירת תוצאות לכרטיסי מתנה
+        const giftCardResults = allResults.filter(item => 
+          (item.category && item.category.includes('מתנות')) ||
+          (item.tags && item.tags.some(tag => 
+            tag.includes('כרטיס מתנה') || tag.includes('שובר') || tag.includes('מתנה')
+          )) ||
+          (item.name && (item.name.includes('מתנה') || item.name.includes('שובר'))) ||
+          (item.description && item.description.includes('מתנה'))
+        );
+        
+        // אם אין תוצאות ספציפיות, ייצר כמה דוגמאות לכרטיסי מתנה
+        if (giftCardResults.length < 5) {
+          const dummyGiftCards = [
+            {
+              id: 'gift-card-1',
+              name: 'כרטיס מתנה דיגיטלי - חוויות אישיות',
+              description: 'כרטיס מתנה דיגיטלי לבחירה מתוך מגוון חוויות - ספא, מסעדות, אטרקציות ועוד',
+              provider: 'מתנאיי',
+              imageUrl: 'https://picsum.photos/id/188/400/300',
+              price: 200,
+              rating: 4.8,
+              reviewCount: 120,
+              featured: true,
+              category: 'מתנות',
+              subcategory: 'כרטיסי מתנה',
+              tags: ['כרטיס מתנה', 'חוויות', 'דיגיטלי'],
+              suitableFor: ['יום הולדת', 'חתונה', 'בר מצווה', 'גיבוש צוות']
+            },
+            {
+              id: 'gift-card-2',
+              name: 'כרטיס מתנה לחנויות ספרים',
+              description: 'שובר לרכישת ספרים ברשת חנויות הספרים המובילה בישראל',
+              provider: 'רשת הספרים',
+              imageUrl: 'https://picsum.photos/id/76/400/300',
+              price: 150,
+              rating: 4.6,
+              reviewCount: 85,
+              category: 'מתנות',
+              subcategory: 'כרטיסי מתנה',
+              tags: ['ספרים', 'כרטיס מתנה', 'תרבות'],
+              suitableFor: ['יום הולדת', 'חג', 'בר מצווה']
+            },
+            {
+              id: 'gift-card-3',
+              name: 'שובר חופשה זוגית',
+              description: 'שובר מפנק לחופשה זוגית במבחר בתי מלון ברחבי הארץ',
+              provider: 'נופש פרימיום',
+              imageUrl: 'https://picsum.photos/id/43/400/300',
+              price: 1200,
+              rating: 4.9,
+              reviewCount: 212,
+              category: 'מתנות',
+              subcategory: 'כרטיסי מתנה',
+              tags: ['שובר', 'חופשה', 'זוגי', 'נופש'],
+              suitableFor: ['יום נישואין', 'חתונה', 'יום הולדת']
+            },
+            {
+              id: 'gift-card-4',
+              name: 'כרטיס מתנה לסדנאות בישול',
+              description: 'כרטיס מתנה המעניק חווית בישול עם שפים מובילים',
+              provider: 'טעימות קולינריות',
+              imageUrl: 'https://picsum.photos/id/8/400/300',
+              price: 350,
+              rating: 4.7,
+              reviewCount: 68,
+              category: 'מתנות',
+              subcategory: 'כרטיסי מתנה',
+              tags: ['בישול', 'סדנא', 'שף', 'כרטיס מתנה'],
+              suitableFor: ['יום הולדת', 'גיבוש צוות', 'חג']
+            },
+            {
+              id: 'gift-card-5',
+              name: 'שובר לסיור טעימות יינות',
+              description: 'חוויה של סיור וטעימות ביקבים נבחרים בארץ',
+              provider: 'יינות ישראל',
+              imageUrl: 'https://picsum.photos/id/54/400/300',
+              price: 280,
+              rating: 4.5,
+              reviewCount: 95,
+              category: 'מתנות',
+              subcategory: 'כרטיסי מתנה',
+              tags: ['יין', 'סיור', 'טעימות', 'שובר מתנה'],
+              suitableFor: ['יום הולדת', 'יום נישואין', 'ארוע חברה']
+            }
+          ];
+          
+          // הוסף את כרטיסי המתנה הדמה לתוצאות
+          filtered = [...giftCardResults, ...dummyGiftCards];
+        } else {
+          filtered = giftCardResults;
+        }
+        
+        // הוספת הודעה למשתמש
+        toast.info("מציג תוצאות לכרטיסי מתנה", {
+          description: `נמצאו ${filtered.length} תוצאות מתאימות`
+        });
+      }
+      
+      // אם זה חיפוש כרטיסים למופעים
+      else if (isEventTicketsSearch) {
+        // יצירת תוצאות לכרטיסים למופעים
+        const ticketResults = allResults.filter(item => 
+          (item.category && item.category.includes('כרטיסים')) ||
+          (item.tags && item.tags.some(tag => 
+            tag.includes('כרטיס') || tag.includes('הופעה') || tag.includes('מופע')
+          )) ||
+          (item.name && (item.name.includes('כרטיס') || item.name.includes('הופעה'))) ||
+          (item.description && (item.description.includes('כרטיס') || item.description.includes('הופעה')))
+        );
+        
+        // אם אין תוצאות ספציפיות, ייצר כמה דוגמאות לכרטיסים למופעים
+        if (ticketResults.length < 5) {
+          const dummyTickets = [
+            {
+              id: 'ticket-1',
+              name: 'כרטיסים להופעת רוק',
+              description: 'כרטיסים להופעת רוק של הלהקה הלוהטת ביותר בישראל',
+              provider: 'כרטיסים לייב',
+              imageUrl: 'https://picsum.photos/id/96/400/300',
+              price: 180,
+              rating: 4.8,
+              reviewCount: 245,
+              featured: true,
+              category: 'כרטיסים',
+              subcategory: 'כרטיסים למופעים',
+              tags: ['כרטיס', 'הופעה', 'רוק', 'מוזיקה'],
+              suitableFor: ['בילוי זוגי', 'יום הולדת', 'בילוי עם חברים']
+            },
+            {
+              id: 'ticket-2',
+              name: 'כרטיסים להצגת תיאטרון',
+              description: 'כרטיסים להצגה החדשה והמדוברת בתיאטרון הלאומי',
+              provider: 'תיאטרון הבמה',
+              imageUrl: 'https://picsum.photos/id/42/400/300',
+              price: 130,
+              rating: 4.7,
+              reviewCount: 112,
+              category: 'כרטיסים',
+              subcategory: 'כרטיסים למופעים',
+              tags: ['כרטיס', 'תיאטרון', 'הצגה', 'תרבות'],
+              suitableFor: ['בילוי זוגי', 'תרבות', 'ערב משפחתי']
+            },
+            {
+              id: 'ticket-3',
+              name: 'כרטיסים למופע סטנדאפ',
+              description: 'כרטיסים למופע הסטנדאפ החדש של הקומיקאי המוביל',
+              provider: 'צחוק בפארק',
+              imageUrl: 'https://picsum.photos/id/64/400/300',
+              price: 120,
+              rating: 4.9,
+              reviewCount: 198,
+              category: 'כרטיסים',
+              subcategory: 'כרטיסים למופעים',
+              tags: ['כרטיס', 'סטנדאפ', 'קומדיה', 'הופעה'],
+              suitableFor: ['בילוי זוגי', 'יום הולדת', 'בילוי עם חברים']
+            },
+            {
+              id: 'ticket-4',
+              name: 'כרטיסים למופע מחול',
+              description: 'כרטיסים למופע המחול המרהיב של להקת המחול הישראלית',
+              provider: 'אומנויות הבמה',
+              imageUrl: 'https://picsum.photos/id/83/400/300',
+              price: 150,
+              rating: 4.6,
+              reviewCount: 87,
+              category: 'כרטיסים',
+              subcategory: 'כרטיסים למופעים',
+              tags: ['כרטיס', 'מחול', 'מופע', 'אמנות'],
+              suitableFor: ['תרבות', 'בילוי זוגי', 'ערב מיוחד']
+            },
+            {
+              id: 'ticket-5',
+              name: 'כרטיסים לפסטיבל מוזיקה',
+              description: 'כרטיסים לפסטיבל המוזיקה השנתי עם מיטב האמנים',
+              provider: 'פסטיבל צלילים',
+              imageUrl: 'https://picsum.photos/id/45/400/300',
+              price: 250,
+              rating: 4.8,
+              reviewCount: 321,
+              category: 'כרטיסים',
+              subcategory: 'כרטיסים למופעים',
+              tags: ['כרטיס', 'פסטיבל', 'מוזיקה', 'הופעה'],
+              suitableFor: ['בילוי עם חברים', 'יום הולדת', 'חוויה מוזיקלית']
+            }
+          ];
+          
+          // הוסף את הכרטיסים למופעים הדמה לתוצאות
+          filtered = [...ticketResults, ...dummyTickets];
+        } else {
+          filtered = ticketResults;
+        }
+        
+        // הוספת הודעה למשתמש
+        toast.info("מציג תוצאות לכרטיסים למופעים", {
+          description: `נמצאו ${filtered.length} תוצאות מתאימות`
+        });
+      }
       
       // אם זה חיפוש של אמני חושים, וודא שאמני החושים מופיעים בתוצאות
-      if (isMentalismSearch) {
+      else if (isMentalismSearch) {
         // חפש את אמני החושים הספציפיים שאנחנו יודעים עליהם
         const specificMentalists = allResults.filter(item => 
           (item.provider && item.provider.includes('נטע ברסלר')) || 
@@ -148,6 +384,9 @@ const Search = () => {
           (item.subcategory && item.subcategory.includes('אמני חושים'))
         );
       }
+      
+      // מיון לפי דירוג - התוצאות הגבוהות ביותר למעלה
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       
       setResults(filtered);
       setFilteredResults(filtered);
@@ -421,13 +660,13 @@ const Search = () => {
             {/* Results List */}
             <div className="lg:w-3/4">
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array(6).fill(null).map((_, i) => (
-                    <div key={i} className="h-80 rounded-lg bg-gray-200 animate-pulse"></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {Array(8).fill(null).map((_, i) => (
+                    <div key={i} className="h-64 rounded-lg bg-gray-200 animate-pulse"></div>
                   ))}
                 </div>
               ) : filteredResults.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredResults.map(result => (
                     <ServiceResultCard key={result.id} service={result} />
                   ))}

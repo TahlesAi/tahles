@@ -12,6 +12,7 @@ import Search from './pages/Search';
 import CateringSearch from "./pages/CateringSearch";
 import Index from './pages/Index';
 import HowItWorks from './pages/HowItWorks';
+import HowItWorksAlternative from './pages/HowItWorksAlternative';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/how-it-works-alt" element={<HowItWorksAlternative />} />
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
