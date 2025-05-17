@@ -26,7 +26,7 @@ import {
   Puzzle,
   Gamepad,
   KeySquare,
-  Door,
+  DoorClosed,
   Headphones
 } from "lucide-react";
 
