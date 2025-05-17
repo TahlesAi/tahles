@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
+import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,6 +81,11 @@ const Hero = () => {
             buttonClassName="px-6 rounded-r-full"
             showCommandBar={true}
           />
+        </div>
+        
+        {/* כפתור חיפוש מונחה */}
+        <div className="mt-6 w-full max-w-md">
+          <GuidedSearchButton className="w-full text-lg py-6" />
         </div>
         
         <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-10">
