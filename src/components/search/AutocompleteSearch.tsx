@@ -68,12 +68,11 @@ const AutocompleteSearch = ({
   
   // Filter suggestions based on input value
   useEffect(() => {
-    // מציג הצעות אפילו אם השדה ריק
     if (value.trim() === "") {
-      // מציג את הקטגוריות הראשיות כשהשדה ריק
+      // מציג קטגוריות ראשיות כשהשדה ריק, אבל לא יסמן אף אחת אוטומטית
       const categories = suggestions.filter(s => s.type === "קטגוריה").slice(0, 8);
       setFilteredSuggestions(categories);
-      setActiveIndex(-1);
+      setActiveIndex(-1); // לא לבחור שום דבר אוטומטית
       return;
     }
     
@@ -90,7 +89,9 @@ const AutocompleteSearch = ({
       'מנטליזם',
       'טלפתיה',
       'נטע ברסלר',
-      'קליספרו'
+      'קליספרו',
+      'דורון רוזן',
+      'מאיה הקוסמת'
     ];
     
     // בודק אם החיפוש קשור לאמני חושים
@@ -105,7 +106,9 @@ const AutocompleteSearch = ({
       if (isMentalismSearch && (
           suggestion.value.includes('אמני חושים') || 
           suggestion.value.includes('נטע ברסלר') ||
-          suggestion.value.includes('קליספרו'))
+          suggestion.value.includes('קליספרו') ||
+          suggestion.value.includes('דורון רוזן') ||
+          suggestion.value.includes('מאיה הקוסמת'))
       ) {
         return true;
       }
@@ -124,8 +127,17 @@ const AutocompleteSearch = ({
       
       // אם יש חיפוש של אמני חושים, הקפץ למעלה תוצאות רלוונטיות
       if (isMentalismSearch) {
-        const aIsMentalism = a.value.includes('אמני חושים') || a.value.includes('נטע ברסלר') || a.value.includes('קליספרו');
-        const bIsMentalism = b.value.includes('אמני חושים') || b.value.includes('נטע ברסלר') || b.value.includes('קליספרו');
+        const aIsMentalism = a.value.includes('אמני חושים') || 
+                            a.value.includes('נטע ברסלר') || 
+                            a.value.includes('קליספרו') || 
+                            a.value.includes('דורון רוזן') || 
+                            a.value.includes('מאיה הקוסמת');
+                            
+        const bIsMentalism = b.value.includes('אמני חושים') || 
+                            b.value.includes('נטע ברסלר') || 
+                            b.value.includes('קליספרו') || 
+                            b.value.includes('דורון רוזן') || 
+                            b.value.includes('מאיה הקוסמת');
         
         if (aIsMentalism && !bIsMentalism) return -1;
         if (!aIsMentalism && bIsMentalism) return 1;
@@ -149,7 +161,7 @@ const AutocompleteSearch = ({
     });
     
     setFilteredSuggestions(sortedResults);
-    setActiveIndex(-1);
+    setActiveIndex(-1); // חשוב: לא לבחור שום פריט באופן אוטומטי
   }, [value, suggestions]);
 
   // Scroll to active item when using keyboard navigation
@@ -174,12 +186,13 @@ const AutocompleteSearch = ({
       setInternalValue(newValue);
     }
     
-    // תמיד פותח את תיבת ההצעות, גם אם הקלט ריק
+    // פתיחת תיבת ההצעות רק אם יש תוכן בשדה החיפוש
     setIsOpen(true);
   };
 
-  // Handle input focus - מציג את תיבת ההצעות גם בעת קבלת פוקוס
+  // Handle input focus
   const handleFocus = () => {
+    // פתיחת תיבת ההצעות בעת קבלת פוקוס
     setIsOpen(true);
   };
 
@@ -346,20 +359,20 @@ const AutocompleteSearch = ({
                   ) : (
                     Object.entries(groups).map(([type, items]) => (
                       <CommandGroup key={type} heading={getGroupHeading(type)}>
-                        {items.map((suggestion, idx) => (
+                        {items.map((suggestion) => (
                           <CommandItem
                             key={suggestion.id}
                             ref={(el) => setItemRef(suggestion.id, el)}
                             onSelect={() => handleSelectSuggestion(suggestion)}
                             className={cn(
                               "flex items-center gap-2 cursor-pointer",
-                              items.findIndex(item => item.id === suggestion.id) === activeIndex ? "bg-accent text-accent-foreground" : ""
+                              activeIndex === items.findIndex(item => item.id === suggestion.id) ? "bg-accent text-accent-foreground" : ""
                             )}
                             value={suggestion.value}
                             dir={dir}
                             id={`suggestion-${suggestion.id}`}
                             role="option"
-                            aria-selected={items.findIndex(item => item.id === suggestion.id) === activeIndex}
+                            aria-selected={activeIndex === items.findIndex(item => item.id === suggestion.id)}
                           >
                             {suggestion.icon}
                             <span>{suggestion.value}</span>

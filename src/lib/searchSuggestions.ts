@@ -164,11 +164,50 @@ export const eventConcepts: SearchSuggestion[] = [
 
 // ספקים פופולריים
 export const popularProviders: SearchSuggestion[] = [
-  { id: "provider-1", value: "נטע ברסלר", type: "ספק" },
+  { id: "provider-1", value: "נטע ברסלר - קריאת מחשבות", type: "ספק" },
   { id: "provider-2", value: "להקת מלודי מייקרס", type: "ספק" },
   { id: "provider-3", value: "קייטרינג מעדני גורמה", type: "ספק" },
-  { id: "provider-4", value: "קליוסטרו - קסמים ואשליות", type: "ספק" },
-  { id: "provider-5", value: "עיצובי פרחים פנטזיה", type: "ספק" }
+  { id: "provider-4", value: "קליספרו - קסמים ואשליות", type: "ספק" },
+  { id: "provider-5", value: "עיצובי פרחים פנטזיה", type: "ספק" },
+  { id: "provider-6", value: "דורון רוזן - מנטליסט", type: "ספק" },
+  { id: "provider-7", value: "מאיה הקוסמת - מופע קסמים", type: "ספק" },
+  { id: "provider-8", value: "להקת ג'אז קלאסיקה", type: "ספק" },
+  { id: "provider-9", value: "הרכב אקפלה וואקל", type: "ספק" },
+  { id: "provider-10", value: "אלון הופר - סטנדאפיסט", type: "ספק" },
+  { id: "provider-11", value: "טוויסט - תקליטן אירועים", type: "ספק" },
+  { id: "provider-12", value: "גיל קופטש - מנחה אירועים", type: "ספק" },
+  { id: "provider-13", value: "מופע אש ולהטוטים", type: "ספק" },
+  { id: "provider-14", value: "מור אירוח - מופע שף", type: "ספק" },
+  { id: "provider-15", value: "יקב טוליפ - יינות לאירועים", type: "ספק" },
+  { id: "provider-16", value: "ארומה גורמה - דוכני קפה", type: "ספק" },
+  { id: "provider-17", value: "צלמי האיכות - צילום אירועים", type: "ספק" },
+  { id: "provider-18", value: "אקסטרים הפקות - פעילות ODT", type: "ספק" },
+  { id: "provider-19", value: "לירון סאונד - הגברה ותאורה", type: "ספק" },
+  { id: "provider-20", value: "ורד המדבר - חוויות מדבריות", type: "ספק" },
+  { id: "provider-21", value: "מגע קולינרי - סדנאות בישול", type: "ספק" },
+  { id: "provider-22", value: "מנהרת הזמן - חדרי בריחה", type: "ספק" },
+  { id: "provider-23", value: "מתנאי - מתנות ממותגות", type: "ספק" },
+  { id: "provider-24", value: "לופט TLV - מרחב אירועים", type: "ספק" },
+  { id: "provider-25", value: "מגנטיקס - צילומי מגנטים", type: "ספק" },
+  { id: "provider-26", value: "גני הטבע - אירועי חוץ", type: "ספק" },
+  { id: "provider-27", value: "טעם הכרם - קייטרינג בשרי", type: "ספק" },
+  { id: "provider-28", value: "חלומות מתוקים - קינוחים", type: "ספק" },
+  { id: "provider-29", value: "הפקות בקצב - להקת קאברים", type: "ספק" },
+  { id: "provider-30", value: "שמש הפקות - אוהלים לאירועים", type: "ספק" }
+];
+
+// אמני חושים נוספים
+export const mentalistProviders: SearchSuggestion[] = [
+  { id: "mentalist-1", value: "נטע ברסלר - קריאת מחשבות", type: "ספק" },
+  { id: "mentalist-2", value: "קליספרו - אמן חושים", type: "ספק" },
+  { id: "mentalist-3", value: "דורון רוזן - מנטליסט", type: "ספק" },
+  { id: "mentalist-4", value: "מאיה הקוסמת - מופע קסמים", type: "ספק" },
+  { id: "mentalist-5", value: "גיא בביוף - טלפתיה ומנטליזם", type: "ספק" },
+  { id: "mentalist-6", value: "אלון חן - קוסם ואמן חושים", type: "ספק" },
+  { id: "mentalist-7", value: "דני דניאלי - חידות ומחשבות", type: "ספק" },
+  { id: "mentalist-8", value: "שרון כהן - מופע מנטליזם", type: "ספק" },
+  { id: "mentalist-9", value: "לירן דגן - אשליות וטריקים", type: "ספק" },
+  { id: "mentalist-10", value: "ניב מילמן - קסמים וטלפתיה", type: "ספק" }
 ];
 
 // פונקציה להחזרת כל ההצעות לחיפוש
@@ -182,48 +221,42 @@ export const getAllSearchSuggestions = (): SearchSuggestion[] => {
     ...performanceSubcategories,
     ...giftsSubcategories,
     ...tripsSubcategories,
-    ...popularProviders
+    ...popularProviders,
+    ...mentalistProviders
   ];
 };
 
 // הוק לשיתוף הצעות החיפוש בין כל הקומפוננטים
 export const useSearchSuggestions = () => {
-  // הרחבת הצעות החיפוש עם ספקים פופולריים נוספים
+  // הרחבת הצעות החיפוש
   const searchSuggestions = getAllSearchSuggestions();
   
-  // הוספת אמני חושים אם חסרים
-  const hasMentalists = searchSuggestions.some(
-    s => s.value.includes('אמני חושים') || 
-         s.value.includes('נטע ברסלר') || 
-         s.value.includes('קליספרו')
-  );
-  
-  if (!hasMentalists) {
-    searchSuggestions.push(
-      { id: 'mental-artists', value: 'אמני חושים', type: 'תת-קטגוריה' },
-      { id: 'netta-bressler', value: 'נטע ברסלר - קריאת מחשבות', type: 'ספק' },
-      { id: 'calispro', value: 'קליספרו - אמן חושים', type: 'ספק' },
-      { id: 'maya-magician', value: 'מאיה הקוסמת', type: 'ספק' },
-      { id: 'doron-mentalist', value: 'דורון רוזן - מנטליסט', type: 'ספק' }
-    );
-  }
-  
-  // הוספת ספקים פופולריים נוספים
-  const extraProviders = [
-    { id: 'provider-melody', value: 'להקת מלודי מייקרס', type: 'ספק' },
-    { id: 'provider-gourmet', value: 'קייטרינג מעדני גורמה', type: 'ספק' },
-    { id: 'provider-shir', value: 'שיר ישראלי - זמרת', type: 'ספק' },
-    { id: 'provider-allegro', value: 'רביעיית אלגרו', type: 'ספק' },
-    { id: 'provider-vegan', value: 'טבע המנה - קייטרינג טבעוני', type: 'ספק' },
-    { id: 'provider-loft', value: 'לופט TLV', type: 'ספק' },
-    { id: 'provider-garden', value: 'גני הטבע - גן אירועים', type: 'ספק' },
-    { id: 'provider-villa', value: 'וילות הים', type: 'ספק' },
-    { id: 'provider-magnets', value: 'מגנטיקס - צילומי מגנטים', type: 'ספק' },
-    { id: 'provider-gifts', value: 'ברנד גיפט - מתנות ממותגות', type: 'ספק' }
+  // הוספת 20 ספקים נוספים מתחומים שונים
+  const additionalProviders = [
+    { id: 'provider-extra-1', value: 'ניצוצות - מופע אש', type: 'ספק' },
+    { id: 'provider-extra-2', value: 'משה כהן - זמר חתונות', type: 'ספק' },
+    { id: 'provider-extra-3', value: 'הבמה - תיאטרון סאטירה', type: 'ספק' },
+    { id: 'provider-extra-4', value: 'רקדני ברייק - ריקוד מודרני', type: 'ספק' },
+    { id: 'provider-extra-5', value: 'פאן דיג׳יי - תקליטן אירועים', type: 'ספק' },
+    { id: 'provider-extra-6', value: 'חלומות מתוקים - עוגות מעוצבות', type: 'ספק' },
+    { id: 'provider-extra-7', value: 'פרחי שושן - עיצוב פרחים', type: 'ספק' },
+    { id: 'provider-extra-8', value: 'במות והגברה - ציוד טכני', type: 'ספק' },
+    { id: 'provider-extra-9', value: 'אולם האחוזה - אירועים', type: 'ספק' },
+    { id: 'provider-extra-10', value: 'וילה ים - אירועי חוף', type: 'ספק' },
+    { id: 'provider-extra-11', value: 'מאיר שף - קייטרינג גורמה', type: 'ספק' },
+    { id: 'provider-extra-12', value: 'צלצולי פעמונים - הרכב קאמרי', type: 'ספק' },
+    { id: 'provider-extra-13', value: 'רביעיית לה סקאלה - מוזיקה קלאסית', type: 'ספק' },
+    { id: 'provider-extra-14', value: 'רוקדים בלבן - להקת ריקוד', type: 'ספק' },
+    { id: 'provider-extra-15', value: 'המדריך - סיורים אורבניים', type: 'ספק' },
+    { id: 'provider-extra-16', value: 'יקב בוטיק - טעימות יין', type: 'ספק' },
+    { id: 'provider-extra-17', value: 'יוגה צחוק - סדנאות גיבוש', type: 'ספק' },
+    { id: 'provider-extra-18', value: 'מתנות וי איי פי - שי לאורחים', type: 'ספק' },
+    { id: 'provider-extra-19', value: 'מופע אקרובטיקה - סרקס דה סוליי', type: 'ספק' },
+    { id: 'provider-extra-20', value: 'אמן הבלונים - עיצובים מבלונים', type: 'ספק' }
   ];
   
-  // הוסף את הספקים הנוספים אם אינם קיימים כבר
-  extraProviders.forEach(provider => {
+  // הוסף את הספקים הנוספים
+  additionalProviders.forEach(provider => {
     if (!searchSuggestions.some(s => s.value === provider.value)) {
       searchSuggestions.push(provider);
     }
@@ -239,6 +272,7 @@ export const useSearchSuggestions = () => {
     performanceSubcategories,
     giftsSubcategories,
     tripsSubcategories,
-    popularProviders
+    popularProviders,
+    mentalistProviders
   };
 };

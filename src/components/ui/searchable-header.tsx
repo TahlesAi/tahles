@@ -26,7 +26,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const { searchSuggestions } = useSearchSuggestions();
+  const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
     if (term.trim()) {
@@ -34,26 +34,26 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     }
   };
 
-  // הרחבת ההצעות בחיפוש עבור אמני חושים
+  // הרחבת ההצעות בחיפוש
   const enhancedSuggestions = React.useMemo(() => {
-    // הוספת אמני חושים מותאמים אישית אם חסרים
-    const hasMentalists = searchSuggestions.some(
-      s => s.value.includes('אמני חושים') || 
-           s.value.includes('נטע ברסלר') || 
-           s.value.includes('קליספרו')
+    // וידוא שיש אמני חושים בהצעות
+    const hasAllMentalists = mentalistProviders.every(mentalist => 
+      searchSuggestions.some(s => s.value === mentalist.value)
     );
     
-    if (!hasMentalists) {
+    // אם חסרים אמני חושים, הוסף אותם
+    if (!hasAllMentalists) {
       return [
         ...searchSuggestions,
-        { id: 'mental-artists', value: 'אמני חושים', type: 'תת-קטגוריה' },
-        { id: 'netta-bressler', value: 'נטע ברסלר - קריאת מחשבות', type: 'ספק' },
-        { id: 'calispro', value: 'קליספרו - אמן חושים', type: 'ספק' }
+        { id: 'mental-artists-category', value: 'אמני חושים', type: 'תת-קטגוריה' },
+        ...mentalistProviders.filter(mentalist => 
+          !searchSuggestions.some(s => s.value === mentalist.value)
+        )
       ];
     }
     
     return searchSuggestions;
-  }, [searchSuggestions]);
+  }, [searchSuggestions, mentalistProviders]);
 
   return (
     <div className={cn("relative", className)} style={{ maxWidth }}>

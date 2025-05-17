@@ -49,34 +49,60 @@ const ServiceDetails = () => {
       try {
         setIsLoading(true);
         
-        // First try to fetch from expanded mock data (for development)
-        const mockService = [...expandedMockSearchResults, ...mockSearchResults].find(s => s.id === id);
+        // ראשית, ננסה להביא מידע ממאגר הנתונים המוגדל
+        const combinedMockServices = [...expandedMockSearchResults, ...mockSearchResults];
+        const combinedMockProviders = [...expandedMockProviders, ...mockProviders];
+        const combinedMockReviews = [...expandedMockReviews, ...mockReviews];
+        
+        // חפש את השירות לפי המזהה שלו
+        const mockService = combinedMockServices.find(s => s.id === id);
+        
+        // אם נמצא שירות, מצא את הספק המתאים
         const mockProvider = mockService ? 
-          [...expandedMockProviders, ...mockProviders].find(p => p.id === mockService.providerId) : 
+          combinedMockProviders.find(p => p.id === mockService.providerId) : 
           null;
         
-        const mockServiceReviews = [...expandedMockReviews, ...mockReviews].filter(r => r.serviceId === id);
+        // מצא ביקורות רלוונטיות לשירות זה
+        const mockServiceReviews = combinedMockReviews.filter(r => r.serviceId === id);
         
         if (mockService && mockProvider) {
-          // Use mock data
+          // השתמש בנתונים המדומים
           console.log("Using mock data for service:", mockService.name);
           setService(mockService);
           setProvider(mockProvider);
           setReviews(mockServiceReviews);
           
-          // Create media gallery
+          // יצירת גלריית מדיה
           const gallery = [];
           
-          // Add main image first
+          // הוסף תמונה ראשית תחילה
           if (mockService.imageUrl) {
             gallery.push({ type: 'image', url: mockService.imageUrl });
           }
           
-          // Add provider gallery images
+          // הוסף תמונות מגלריית הספק
           if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
             mockProvider.gallery.forEach((img: string) => {
               if (img) {
                 gallery.push({ type: 'image', url: img });
+              }
+            });
+          }
+          
+          // הוסף תמונות נוספות מהשירות אם יש כאלו
+          if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
+            mockService.additionalImages.forEach((img: string) => {
+              if (img) {
+                gallery.push({ type: 'image', url: img });
+              }
+            });
+          }
+          
+          // הוסף סרטונים אם יש כאלו
+          if (mockService.videos && Array.isArray(mockService.videos)) {
+            mockService.videos.forEach((video: string) => {
+              if (video) {
+                gallery.push({ type: 'video', url: video });
               }
             });
           }
@@ -86,7 +112,7 @@ const ServiceDetails = () => {
           return;
         }
         
-        // If no mock data, try to fetch from Supabase
+        // אם לא נמצאו נתונים מדומים, ננסה להביא מ-Supabase
         const { data: serviceData, error: serviceError } = await supabase
           .from('services')
           .select(`
@@ -107,29 +133,29 @@ const ServiceDetails = () => {
         setService(serviceData);
         setProvider(serviceData.providers);
         
-        // Create media gallery
+        // יצירת גלריית מדיה
         const gallery = [];
         
-        // Add main image first
+        // הוסף תמונה ראשית תחילה
         if (serviceData.image_url) {
           gallery.push({ type: 'image', url: serviceData.image_url });
         }
         
-        // Check for additional images - make sure it exists and is an array
+        // וודא שיש תמונות נוספות וזה מערך
         if (serviceData.additional_images && 
             Array.isArray(serviceData.additional_images)) {
           serviceData.additional_images.forEach((img: string) => {
-            if (img) { // Additional null check
+            if (img) { // בדיקת null נוספת
               gallery.push({ type: 'image', url: img });
             }
           });
         }
         
-        // Check for videos - make sure it exists and is an array
+        // וודא שיש סרטונים וזה מערך
         if (serviceData.videos && 
             Array.isArray(serviceData.videos)) {
           serviceData.videos.forEach((video: string) => {
-            if (video) { // Additional null check
+            if (video) { // בדיקת null נוספת
               gallery.push({ type: 'video', url: video });
             }
           });
@@ -137,7 +163,7 @@ const ServiceDetails = () => {
         
         setMediaGallery(gallery);
         
-        // Fetch reviews
+        // הבא ביקורות
         const { data: reviewsData, error: reviewsError } = await supabase
           .from('reviews')
           .select('*')
@@ -164,7 +190,7 @@ const ServiceDetails = () => {
     
     fetchServiceDetails();
     
-    // Listen for saved services updates
+    // האזן לעדכונים בשירותים שמורים
     const handleSavedServicesUpdate = () => {
       if (id) {
         setIsSaved(isServiceSaved(id));
@@ -203,7 +229,7 @@ const ServiceDetails = () => {
     }
   };
   
-  // Calculate average rating
+  // חישוב דירוג ממוצע
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
     : (service?.rating || 0);

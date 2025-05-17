@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
@@ -19,6 +18,7 @@ import { toast } from "sonner";
 
 // Mock search results data - will be replaced with actual API calls later
 import { mockSearchResults } from "@/lib/mockData";
+import { expandedMockSearchResults } from "@/lib/mockDataExpanded";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,8 +28,8 @@ const Search = () => {
   // Search state
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [showFilters, setShowFilters] = useState(false);
-  const [results, setResults] = useState(mockSearchResults);
-  const [filteredResults, setFilteredResults] = useState(mockSearchResults);
+  const [results, setResults] = useState([...mockSearchResults, ...expandedMockSearchResults]);
+  const [filteredResults, setFilteredResults] = useState([...mockSearchResults, ...expandedMockSearchResults]);
   const [isLoading, setIsLoading] = useState(false);
   
   // Filters state
@@ -59,7 +59,9 @@ const Search = () => {
       'מנטליזם',
       'טלפתיה',
       'נטע ברסלר',
-      'קליספרו'
+      'קליספרו',
+      'דורון רוזן',
+      'מאיה הקוסמת'
     ];
     
     // בודק אם החיפוש קשור לאמני חושים
@@ -71,23 +73,27 @@ const Search = () => {
     // Simulate API call
     setTimeout(() => {
       // בסימולציה, הבא תוצאות רלוונטיות בהתאם לחיפוש
-      let filtered = mockSearchResults.filter(item => 
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase()) ||
-        item.provider.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase()) ||
-        item.tags?.some(tag => tag.toLowerCase().includes(query.toLowerCase())) ||
+      let allResults = [...mockSearchResults, ...expandedMockSearchResults];
+      let filtered = allResults.filter(item => 
+        (item.name && item.name.toLowerCase().includes(query.toLowerCase())) ||
+        (item.description && item.description.toLowerCase().includes(query.toLowerCase())) ||
+        (item.provider && item.provider.toLowerCase().includes(query.toLowerCase())) ||
+        (item.category && item.category.toLowerCase().includes(query.toLowerCase())) ||
+        (item.tags && item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))) ||
         (item.subcategory && item.subcategory.toLowerCase().includes(query.toLowerCase()))
       );
       
       // אם זה חיפוש של אמני חושים, וודא שאמני החושים מופיעים בתוצאות
       if (isMentalismSearch) {
         // חפש את אמני החושים הספציפיים שאנחנו יודעים עליהם
-        const specificMentalists = mockSearchResults.filter(item => 
-          item.provider.includes('נטע ברסלר') || 
-          item.provider.includes('קליספרו') ||
-          item.name.includes('קריאת מחשבות') ||
-          item.category.includes('אמני חושים') ||
+        const specificMentalists = allResults.filter(item => 
+          (item.provider && item.provider.includes('נטע ברסלר')) || 
+          (item.provider && item.provider.includes('קליספרו')) ||
+          (item.provider && item.provider.includes('דורון רוזן')) ||
+          (item.provider && item.provider.includes('מאיה הקוסמת')) ||
+          (item.name && item.name.includes('קריאת מחשבות')) ||
+          (item.category && item.category.includes('אמני חושים')) ||
+          (item.subcategory && item.subcategory.includes('אמני חושים')) ||
           (item.tags && item.tags.some(tag => tag.includes('אמני חושים')))
         );
         
@@ -101,15 +107,21 @@ const Search = () => {
         // מיון התוצאות כך שאמני החושים יופיעו ראשונים
         filtered.sort((a, b) => {
           const aIsMentalist = 
-            a.provider.includes('נטע ברסלר') || 
-            a.provider.includes('קליספרו') ||
-            a.category.includes('אמני חושים') || 
+            (a.provider && a.provider.includes('נטע ברסלר')) || 
+            (a.provider && a.provider.includes('קליספרו')) ||
+            (a.provider && a.provider.includes('דורון רוזן')) ||
+            (a.provider && a.provider.includes('מאיה הקוסמת')) ||
+            (a.category && a.category.includes('אמני חושים')) || 
+            (a.subcategory && a.subcategory.includes('אמני חושים')) || 
             (a.tags && a.tags.some(tag => tag.includes('אמני חושים')));
           
           const bIsMentalist = 
-            b.provider.includes('נטע ברסלר') || 
-            b.provider.includes('קליספרו') ||
-            b.category.includes('אמני חושים') || 
+            (b.provider && b.provider.includes('נטע ברסלר')) || 
+            (b.provider && b.provider.includes('קליספרו')) ||
+            (b.provider && b.provider.includes('דורון רוזן')) ||
+            (b.provider && b.provider.includes('מאיה הקוסמת')) ||
+            (b.category && b.category.includes('אמני חושים')) || 
+            (b.subcategory && b.subcategory.includes('אמני חושים')) || 
             (b.tags && b.tags.some(tag => tag.includes('אמני חושים')));
           
           if (aIsMentalist && !bIsMentalist) return -1;
@@ -120,15 +132,20 @@ const Search = () => {
       
       // מציג הודעה אם לא נמצאו תוצאות אך החיפוש היה עבור אמני חושים
       if (filtered.length === 0 && isMentalismSearch) {
-        toast.info("אנחנו עובדים על הוספת אמני חושים נוספים למערכת", {
-          description: "בינתיים, תוכל למצוא את נטע ברסלר וקליספרו"
+        toast.info("מחפש אמני חושים נוספים...", {
+          description: "מציג תוצאות רלוונטיות"
         });
         
         // הוסף תוצאות מוגדרות מראש לאמני חושים
-        filtered = mockSearchResults.filter(item => 
-          item.provider.includes('נטע ברסלר') || 
-          item.provider.includes('קליספרו') ||
-          item.category.includes('אמני חושים')
+        filtered = allResults.filter(item => 
+          (item.provider && (
+            item.provider.includes('נטע ברסלר') || 
+            item.provider.includes('קליספרו') ||
+            item.provider.includes('דורון רוזן') ||
+            item.provider.includes('מאיה הקוסמת')
+          )) ||
+          (item.category && item.category.includes('אמני חושים')) ||
+          (item.subcategory && item.subcategory.includes('אמני חושים'))
         );
       }
       
