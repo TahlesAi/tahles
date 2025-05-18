@@ -1,3 +1,4 @@
+
 // Hierarchical Data Types
 export interface Category {
   id: string;
@@ -62,61 +63,47 @@ export interface Service {
   tags?: string[];
   is_featured?: boolean;
   suitableFor?: string[]; // Event concepts
-  audience_size?: AudienceSize;
+  audience_size?: string;
   location?: string;
-  videos?: string[]; // הוספתי את התכונה videos כמערך של מחרוזות
+  videos?: string[]; 
 }
 
-export type AudienceSize = 
-  | "0-30"
-  | "31-50" 
-  | "51-100"
-  | "101-200"
-  | "201-300"
-  | "301-500"
-  | "500+";
-
-// Hebrew-specific category structure
-export interface HebrewHierarchy {
-  categories: HebrewCategory[];
-  concepts: HebrewConcept[];
+// Hebrew Hierarchy Types
+export interface HebrewSubcategory {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  categoryId: string;
 }
 
 export interface HebrewCategory {
   id: string;
   name: string;
+  icon?: string;
+  description?: string;
   subcategories: HebrewSubcategory[];
-  icon?: string;
-  description?: string;
-}
-
-export interface HebrewSubcategory {
-  id: string;
-  name: string;
-  serviceTypes?: HebrewServiceType[];
-  categoryId: string;
-  icon?: string;
-  description?: string;
-}
-
-export interface HebrewServiceType {
-  id: string;
-  name: string;
-  subcategoryId: string;
-  icon?: string;
-  description?: string;
-}
-
-export interface HebrewConcept {
-  id: string;
-  name: string;
-  subconcepts: HebrewSubconcept[];
-  icon?: string;
 }
 
 export interface HebrewSubconcept {
   id: string;
   name: string;
   conceptId: string;
+  description?: string;
   icon?: string;
 }
+
+export interface HebrewConcept {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+  subconcepts: HebrewSubconcept[];
+}
+
+export interface HebrewHierarchy {
+  categories: HebrewCategory[];
+  concepts: HebrewConcept[];
+}
+
+export type AudienceSize = '0-30' | '31-50' | '51-100' | '101-200' | '201-500' | '500+';

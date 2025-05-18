@@ -131,6 +131,15 @@ export const hebrewHierarchy: HebrewHierarchy = {
         { id: "event-tickets", name: "כרטיסים לאירועים", categoryId: "gifts-tickets" },
         { id: "retirement-gifts", name: "מתנות פרישה", categoryId: "gifts-tickets" }
       ]
+    },
+    {
+      id: "other-category",
+      name: "אחר - לא מצאתי",
+      icon: "PlusCircle",
+      description: "קטגוריות נוספות",
+      subcategories: [
+        { id: "other-subcategory", name: "אחר", categoryId: "other-category" }
+      ]
     }
   ],
   // קונספטים נוספים לפי האפיון

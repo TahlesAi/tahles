@@ -1,83 +1,146 @@
 
 import { Button } from "@/components/ui/button";
-import { User, Briefcase, Users, Baby } from "lucide-react";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 import { EventType } from "../GuidedSearchModal";
+import { Check } from "lucide-react";
 import { HebrewConcept } from "@/lib/types/hierarchy";
 
-interface EventTypeStepProps {
+// Props type definition
+export interface EventTypeStepProps {
   selectedType: EventType | undefined;
   onSelect: (type: EventType) => void;
-  hebrewConcepts?: HebrewConcept[];
-  onSelectHebrewConcept?: (concept: HebrewConcept) => void;
+  hebrewConcepts: HebrewConcept[];
+  onSelectHebrewConcept: (concept: HebrewConcept) => void;
 }
 
-const EventTypeStep = ({ selectedType, onSelect, hebrewConcepts, onSelectHebrewConcept }: EventTypeStepProps) => {
-  const eventTypes = [
-    {
-      id: "private",
-      name: "אירוע פרטי",
-      description: "ימי הולדת, חתונות, בריתות, בר/בת מצווה וכו׳",
-      icon: <User className="h-8 w-8 mb-2" />
-    },
-    {
-      id: "business",
-      name: "אירוע עסקי",
-      description: "אירועי חברה, גיבוש, כנסים, אירועים מקצועיים",
-      icon: <Briefcase className="h-8 w-8 mb-2" />
-    },
-    {
-      id: "mixed",
-      name: "אירוע מעורב",
-      description: "שילוב של אירוע פרטי ועסקי",
-      icon: <Users className="h-8 w-8 mb-2" />
-    },
-    {
-      id: "children",
-      name: "אירוע לילדים",
-      description: "ימי הולדת, מסיבות כיתה, חגיגות לילדים",
-      icon: <Baby className="h-8 w-8 mb-2" />
-    }
-  ];
-  
+const EventTypeStep = ({ 
+  selectedType, 
+  onSelect,
+  hebrewConcepts,
+  onSelectHebrewConcept
+}: EventTypeStepProps) => {
   return (
-    <div className="space-y-6 text-right" dir="rtl">
-      <h3 className="text-lg font-medium text-center">מהו סוג האירוע?</h3>
+    <div>
+      <h3 className="text-lg font-medium mb-4">איזה סוג אירוע אתם מתכננים?</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {eventTypes.map(type => (
-          <button
-            key={type.id}
-            onClick={() => onSelect(type.id as EventType)}
-            className={`p-4 rounded-lg border text-right flex flex-col hover:border-primary transition-all ${
-              selectedType === type.id ? "border-primary bg-primary/10" : "border-gray-200"
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Using Hebrew hierarchy concepts */}
+        {hebrewConcepts && hebrewConcepts.map((concept) => (
+          <Card 
+            key={concept.id} 
+            className={`cursor-pointer transition-all hover:border-primary ${
+              (concept.id === "family-event" && selectedType === "private") ||
+              (concept.id === "company-event" && selectedType === "business") ? 
+              'border-2 border-primary' : 'border'
             }`}
+            onClick={() => onSelectHebrewConcept(concept)}
           >
-            <div className="flex flex-col items-start">
-              {type.icon}
-              <h4 className="font-medium text-lg">{type.name}</h4>
-              <p className="text-sm text-gray-500 mt-1">{type.description}</p>
-            </div>
-          </button>
+            <CardContent className="flex justify-between items-center p-4">
+              <div>
+                <p className="font-medium">{concept.name}</p>
+                <p className="text-sm text-gray-500">
+                  {concept.id === "family-event" && "אירועים פרטיים, חגיגות משפחתיות וימי הולדת"}
+                  {concept.id === "company-event" && "אירועים עסקיים, כנסים וימי גיבוש"}
+                  {concept.id === "personal-development" && "סדנאות, הרצאות והכשרות"}
+                  {concept.id === "outdoor-team-building" && "פעילויות חוץ וימי כיף"}
+                  {concept.id === "gifts-and-tickets" && "מתנות, כרטיסים ותווי קנייה"}
+                </p>
+              </div>
+              
+              {((concept.id === "family-event" && selectedType === "private") ||
+                (concept.id === "company-event" && selectedType === "business")) && (
+                <div className="bg-primary rounded-full p-1 text-white">
+                  <Check className="h-4 w-4" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
         ))}
+
+        {/* Fallback for older event types if Hebrew concepts aren't available */}
+        {(!hebrewConcepts || hebrewConcepts.length === 0) && (
+          <>
+            <Card 
+              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "private" ? 'border-2 border-primary' : 'border'}`}
+              onClick={() => onSelect("private")}
+            >
+              <CardContent className="flex justify-between items-center p-4">
+                <div>
+                  <p className="font-medium">אירוע פרטי</p>
+                  <p className="text-sm text-gray-500">אירועים פרטיים, חגיגות משפחתיות וימי הולדת</p>
+                </div>
+                
+                {selectedType === "private" && (
+                  <div className="bg-primary rounded-full p-1 text-white">
+                    <Check className="h-4 w-4" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "business" ? 'border-2 border-primary' : 'border'}`}
+              onClick={() => onSelect("business")}
+            >
+              <CardContent className="flex justify-between items-center p-4">
+                <div>
+                  <p className="font-medium">אירוע עסקי</p>
+                  <p className="text-sm text-gray-500">אירועים עסקיים, כנסים וימי גיבוש</p>
+                </div>
+                
+                {selectedType === "business" && (
+                  <div className="bg-primary rounded-full p-1 text-white">
+                    <Check className="h-4 w-4" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "mixed" ? 'border-2 border-primary' : 'border'}`}
+              onClick={() => onSelect("mixed")}
+            >
+              <CardContent className="flex justify-between items-center p-4">
+                <div>
+                  <p className="font-medium">אירוע מעורב</p>
+                  <p className="text-sm text-gray-500">שילוב של אירוע פרטי ועסקי</p>
+                </div>
+                
+                {selectedType === "mixed" && (
+                  <div className="bg-primary rounded-full p-1 text-white">
+                    <Check className="h-4 w-4" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "children" ? 'border-2 border-primary' : 'border'}`}
+              onClick={() => onSelect("children")}
+            >
+              <CardContent className="flex justify-between items-center p-4">
+                <div>
+                  <p className="font-medium">אירוע ילדים</p>
+                  <p className="text-sm text-gray-500">אירועים וחגיגות לילדים ונוער</p>
+                </div>
+                
+                {selectedType === "children" && (
+                  <div className="bg-primary rounded-full p-1 text-white">
+                    <Check className="h-4 w-4" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
       
-      {/* הוספת תמיכה בקונספטים עבריים, אם סופקו */}
-      {hebrewConcepts && hebrewConcepts.length > 0 && onSelectHebrewConcept && (
-        <div className="mt-8">
-          <h3 className="text-lg font-medium mb-4">או בחר קטגוריית אירוע:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {hebrewConcepts.map(concept => (
-              <button
-                key={concept.id}
-                onClick={() => onSelectHebrewConcept(concept)}
-                className="p-3 border rounded-lg hover:bg-gray-50"
-              >
-                <h4 className="font-medium">{concept.name}</h4>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="mt-6 text-center text-sm text-gray-500">
+        בחירת סוג האירוע תעזור לנו להתאים לכם את השירותים המתאימים ביותר
+      </div>
     </div>
   );
 };

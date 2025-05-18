@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, BarChartBig } from "lucide-react";
+import { Menu, UserPlus } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import SearchableHeader from "@/components/ui/searchable-header";
 
@@ -27,29 +27,33 @@ const Header = () => {
 
   // Extract user metadata safely
   const userMeta = user?.user_metadata || {};
-  const userName = userMeta.name || user?.email?.split('@')[0] || 'User';
+  const userName = userMeta.name || user?.email?.split('@')[0] || 'משתמש';
   const userAvatar = userMeta.avatar_url || '';
 
   return (
     <header className="bg-white border-b sticky top-0 z-40">
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-brand-600">תכלס</span>
-          </Link>
+          {/* Logo - moved to the right side */}
+          <div className="order-2 md:order-1">
+            <Link to="/" className="flex items-center">
+              <span className="text-2xl font-bold text-brand-600 ml-6">תכלס</span>
+            </Link>
+          </div>
           
-          {/* Button for Provider Onboarding - Added prominently next to logo */}
-          <Link 
-            to="/provider-onboarding" 
-            className="hidden md:flex mr-3 px-4 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
-          >
-            <BarChartBig className="h-4 w-4 ml-2" />
-            הצטרף כספק
-          </Link>
+          {/* Button for Provider Onboarding - added prominent styling */}
+          <div className="order-3 md:order-2 mx-6">
+            <Link 
+              to="/provider-onboarding" 
+              className="hidden md:flex px-6 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
+            >
+              <UserPlus className="h-4 w-4 ml-2" />
+              הצטרפות כספק חדש
+            </Link>
+          </div>
           
           {/* Search Bar - only on desktop */}
-          <div className="hidden md:block flex-1 mx-8 max-w-md">
+          <div className="hidden md:block flex-1 mx-8 max-w-md order-4 md:order-3">
             <SearchableHeader 
               placeholder="חיפוש שירותים, נותני שירות..." 
               dir="rtl"
@@ -59,9 +63,9 @@ const Header = () => {
           </div>
           
           {/* Navigation Menu */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">איך זה עובד</Link>
+          <nav className="hidden md:flex items-center space-x-6 order-5 md:order-4">
             <Link to="/categories" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">קטגוריות</Link>
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">איך זה עובד</Link>
             <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">צור קשר</Link>
             
             {user ? (
@@ -97,42 +101,44 @@ const Header = () => {
           
           {/* Mobile Menu */}
           {isMobile && (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:w-1/2 bg-white" dir="rtl">
-                <SheetHeader>
-                  <SheetTitle>תפריט</SheetTitle>
-                  <SheetDescription>
-                    גלו את כל האפשרויות שלנו.
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="flex flex-col space-y-4 mt-4">
-                  {/* Provider Onboarding Button in Mobile Menu */}
-                  <Link 
-                    to="/provider-onboarding" 
-                    className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
-                  >
-                    <BarChartBig className="h-4 w-4 ml-2 inline-block" />
-                    הצטרף כספק
-                  </Link>
-                  <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
-                  <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
-                  <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
-                  {user ? (
-                    <>
-                      <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">לוח ניהול</Link>
-                      <Button variant="ghost" className="justify-start" onClick={() => signOut()}>התנתקות</Button>
-                    </>
-                  ) : (
-                    <Button variant="ghost" className="justify-start" onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
+            <div className="flex items-center order-1 md:order-5">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:w-1/2 bg-white" dir="rtl">
+                  <SheetHeader>
+                    <SheetTitle>תפריט</SheetTitle>
+                    <SheetDescription>
+                      גלו את כל האפשרויות שלנו.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="flex flex-col space-y-4 mt-4">
+                    {/* Provider Onboarding Button in Mobile Menu */}
+                    <Link 
+                      to="/provider-onboarding" 
+                      className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
+                    >
+                      <UserPlus className="h-4 w-4 ml-2 inline-block" />
+                      הצטרפות כספק חדש
+                    </Link>
+                    <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
+                    <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
+                    <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
+                    {user ? (
+                      <>
+                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">לוח ניהול</Link>
+                        <Button variant="ghost" className="justify-start" onClick={() => signOut()}>התנתקות</Button>
+                      </>
+                    ) : (
+                      <Button variant="ghost" className="justify-start" onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           )}
         </div>
       </div>

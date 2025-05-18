@@ -5,25 +5,18 @@ import { Button } from "@/components/ui/button";
 import { 
   Search, 
   Music, 
-  Camera, 
   Utensils, 
   MapPin, 
   Mic2, 
-  Monitor, 
   Gift, 
   Sparkles, 
-  Calendar, 
-  Wand2, 
   PartyPopper, 
   TentTree, 
-  User, 
   PlusCircle, 
-  Users, 
-  Headphones,
+  Users,
   Building,
   Lightbulb
 } from "lucide-react";
-import { useSearchSuggestions } from "@/lib/searchSuggestions";
 import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
 import useIsMobile from "@/hooks/use-mobile";
 import { useEventContext } from "@/context/EventContext";
@@ -31,12 +24,10 @@ import { useEventContext } from "@/context/EventContext";
 const Hero = () => {
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const { searchSuggestions } = useSearchSuggestions();
   const isMobile = useIsMobile();
   const { hebrewCategories, isLoading } = useEventContext();
   
   const handleSearch = () => {
-    // פתיחת החיפוש המונחה
     setIsGuidedSearchOpen(true);
   };
   
@@ -60,11 +51,6 @@ const Hero = () => {
     
     return iconComponents[iconName] || <PlusCircle className="h-5 w-5" />;
   };
-  
-  // סינון הקטגוריות כדי להסיר את "אחר - לא מצאתי"
-  const filteredCategories = hebrewCategories?.filter(category => 
-    category.id !== 'other-category'
-  );
   
   return (
     <section className="relative overflow-hidden">
@@ -100,7 +86,7 @@ const Hero = () => {
             <input
               type="text"
               placeholder="מצא לי פתרון לאירוע מושלם..."
-              className="w-full py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
+              className="w-full py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full pl-12"
               onClick={handleSearch}
               readOnly
             />
@@ -116,17 +102,19 @@ const Hero = () => {
         
         {/* קטגוריות - רק קטגוריות ראשיות כפי שהוגדרו בהיררכיה העברית */}
         <div className={`flex flex-wrap justify-center gap-3 md:gap-5 mt-10 ${isMobile ? 'overflow-x-auto pb-4 flex-nowrap justify-start w-full' : ''}`} dir="rtl">
-          {!isLoading && filteredCategories && filteredCategories.map((category) => (
-            <Button 
-              key={category.id}
-              variant="outline" 
-              className={`bg-white/20 text-white border-white/30 hover:bg-white/30 ${isMobile ? 'min-w-[120px] flex-shrink-0' : ''}`}
-              onClick={() => navigate(`/categories/${category.id}`)}
-            >
-              {getCategoryIcon(category.icon)}
-              <span className="mr-2">{category.name}</span>
-            </Button>
-          ))}
+          {!isLoading && hebrewCategories && hebrewCategories
+            .filter(category => category.id !== 'other-category')
+            .map((category) => (
+              <Button 
+                key={category.id}
+                variant="outline" 
+                className={`bg-white/20 text-white border-white/30 hover:bg-white/30 ${isMobile ? 'min-w-[120px] flex-shrink-0' : ''}`}
+                onClick={() => navigate(`/categories/${category.id}`)}
+              >
+                {getCategoryIcon(category.icon)}
+                <span className="mr-2">{category.name}</span>
+              </Button>
+            ))}
         </div>
       </div>
       

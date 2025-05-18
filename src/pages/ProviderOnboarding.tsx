@@ -6,10 +6,10 @@ import Footer from "@/components/Footer";
 import OnboardingStep1 from "@/components/onboarding/OnboardingStep1";
 import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
+import OnboardingDocuments from "@/components/onboarding/OnboardingDocuments";
+import OnboardingPersonalInfo from "@/components/onboarding/OnboardingPersonalInfo";
+import OnboardingTerms from "@/components/onboarding/OnboardingTerms";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
-import OnboardingSubcategory from "@/components/onboarding/OnboardingSubcategory";
-import OnboardingServiceType from "@/components/onboarding/OnboardingServiceType";
-import { Button } from "@/components/ui/button";
 import { EventProvider } from "@/context/EventContext";
 import { 
   CheckCircle, 
@@ -19,37 +19,39 @@ import {
   ChevronRight, 
   ChevronLeft,
   Layers,
-  Layers3
+  Layers3,
+  FileCheck,
+  ShieldCheck
 } from "lucide-react";
 
 const steps = [
   {
     id: 1,
+    title: "פרטים אישיים",
+    description: "פרטי ספק וזהות",
+    icon: <User className="h-5 w-5" />,
+  },
+  {
+    id: 2,
+    title: "מסמכים",
+    description: "העלאת מסמכים נדרשים",
+    icon: <FileCheck className="h-5 w-5" />,
+  },
+  {
+    id: 3,
     title: "קטגוריה",
     description: "בחירת קטגוריה ראשית",
     icon: <Layers className="h-5 w-5" />,
   },
   {
-    id: 2,
+    id: 4,
     title: "תת-קטגוריה",
     description: "בחירת תת-קטגוריה",
     icon: <Layers3 className="h-5 w-5" />,
   },
   {
-    id: 3,
-    title: "סוג שירות",
-    description: "בחירת סוג שירות",
-    icon: <ClipboardList className="h-5 w-5" />,
-  },
-  {
-    id: 4,
-    title: "פרטי ספק",
-    description: "מידע בסיסי על העסק",
-    icon: <User className="h-5 w-5" />,
-  },
-  {
     id: 5,
-    title: "שירותים",
+    title: "פרטי שירות",
     description: "הוספת שירותים ומוצרים",
     icon: <ClipboardList className="h-5 w-5" />,
   },
@@ -61,6 +63,12 @@ const steps = [
   },
   {
     id: 7,
+    title: "תנאי שימוש",
+    description: "אישור תנאים",
+    icon: <ShieldCheck className="h-5 w-5" />,
+  },
+  {
+    id: 8,
     title: "סיום",
     description: "אישור ופרסום",
     icon: <CheckCircle className="h-5 w-5" />,
@@ -71,28 +79,37 @@ const ProviderOnboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Step 1-3 - Hierarchy Selection
-    category: "",
-    subcategory: "",
-    serviceType: "",
-    
-    // Step 4 - Provider Info
+    // Step 1 - Personal Info
     businessName: "",
-    contactPerson: "",
+    fullName: "",
+    idNumber: "",
+    businessType: "", // עוסק מורשה/חברה
     email: "",
     phone: "",
     address: "",
     city: "",
-    description: "",
+    
+    // Step 2 - Documents
+    idImage: "",
+    businessLicense: "",
+    insuranceDoc: "",
+    
+    // Step 3-4 - Hierarchy Selection
+    category: "",
+    subcategory: "",
     
     // Step 5 - Services
     services: [] as Array<{
       name: string;
       description: string;
+      mainImage: string;
       price: number;
       priceUnit: string;
-      suitableFor: string[];
-      audienceSize: string[];
+      targetAudience: string[];
+      limitations: string;
+      priceRange: string;
+      availability: string;
+      additionalImages: string[];
     }>,
     
     // Step 6 - Media
@@ -101,7 +118,10 @@ const ProviderOnboarding = () => {
     gallery: [] as string[],
     videos: [] as string[],
 
-    // Additional fields
+    // Step 7 - Terms
+    termsAccepted: false,
+    
+    // Additional fields for backward compatibility
     name: "",
     title: "",
     duration: 60,
@@ -130,14 +150,15 @@ const ProviderOnboarding = () => {
   
   const handleSubmit = () => {
     console.log("Form Submission:", formData);
-    setCurrentStep(7); // Go to success step
+    setCurrentStep(8); // Go to success step
+    // אימייל אישור יישלח כאן
   };
   
   const getStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
-          <OnboardingStep1 
+          <OnboardingPersonalInfo
             data={formData}
             onUpdate={updateFormData}
             onNext={handleNext}
@@ -145,42 +166,22 @@ const ProviderOnboarding = () => {
         );
       case 2:
         return (
-          <OnboardingSubcategory 
-            categoryId={formData.category}
-            selectedSubcategory={formData.subcategory}
-            onSelectSubcategory={(subcategoryId) => updateFormData({ subcategory: subcategoryId })}
-            onBack={handleBack}
+          <OnboardingDocuments
+            data={formData}
+            onUpdate={updateFormData}
             onNext={handleNext}
+            onBack={handleBack}
           />
         );
       case 3:
         return (
-          <OnboardingServiceType 
-            subcategoryId={formData.subcategory}
-            selectedServiceType={formData.serviceType}
-            onSelectServiceType={(serviceTypeId) => updateFormData({ serviceType: serviceTypeId })}
-            onBack={handleBack}
+          <OnboardingStep1 
+            data={formData}
+            onUpdate={updateFormData}
             onNext={handleNext}
           />
         );
       case 4:
-        return (
-          <div className="max-w-4xl mx-auto" dir="rtl">
-            <h2 className="text-2xl font-bold mb-6">פרטי ספק</h2>
-            <p className="text-gray-500 mb-8">
-              שלב זה בפיתוח. יש להמשיך לשלב הבא.
-            </p>
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={handleBack}>
-                חזרה
-              </Button>
-              <Button onClick={handleNext}>
-                המשך
-              </Button>
-            </div>
-          </div>
-        );
-      case 5:
         return (
           <OnboardingStep2 
             data={formData}
@@ -189,16 +190,26 @@ const ProviderOnboarding = () => {
             onBack={handleBack}
           />
         );
+      case 5:
       case 6:
         return (
           <OnboardingStep3 
             data={formData}
             onUpdate={updateFormData}
-            onSubmit={handleSubmit}
+            onSubmit={handleNext}
             onBack={handleBack}
           />
         );
       case 7:
+        return (
+          <OnboardingTerms
+            accepted={formData.termsAccepted}
+            onUpdate={(accepted) => updateFormData({ termsAccepted: accepted })}
+            onNext={handleSubmit}
+            onBack={handleBack}
+          />
+        );
+      case 8:
         return (
           <OnboardingSuccess 
             onFinish={() => navigate('/dashboard')}
@@ -227,7 +238,7 @@ const ProviderOnboarding = () => {
               </div>
               
               {/* Progress Steps */}
-              <div className="flex mb-10 overflow-x-auto" dir="rtl">
+              <div className="flex mb-10 overflow-x-auto pb-2" dir="rtl">
                 {steps.map((step) => (
                   <div 
                     key={step.id}
@@ -241,7 +252,7 @@ const ProviderOnboarding = () => {
                             : "bg-gray-200 text-gray-500"
                         }`}
                       >
-                        {step.id < 7 ? step.id : <CheckCircle className="h-4 w-4" />}
+                        {step.id < 8 ? step.id : <CheckCircle className="h-4 w-4" />}
                       </div>
                       <div className={`h-1 flex-1 ${
                         currentStep > step.id ? "bg-brand-600" : "bg-gray-200"

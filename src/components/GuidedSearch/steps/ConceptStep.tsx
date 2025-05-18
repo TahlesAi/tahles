@@ -1,198 +1,258 @@
 
 import { useState } from "react";
-import { EventType } from "../GuidedSearchModal";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { EventType, GuidedSearchData } from "../GuidedSearchModal";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { HebrewCategory, HebrewConcept } from "@/lib/types/hierarchy";
+import { ChevronLeft } from "lucide-react";
 
 interface ConceptStepProps {
   eventType?: EventType;
   selectedConcept?: string;
-  selectedHebrewConcept?: HebrewConcept | null;
-  hebrewCategories?: HebrewCategory[];
-  onUpdate: (
-    concept: string, 
-    details?: string, 
-    audience?: 'family' | 'friends' | 'mixed' | null,
-    category?: string,
-    subcategory?: string
-  ) => void;
+  selectedHebrewConcept: HebrewConcept | null | undefined;
+  hebrewCategories: HebrewCategory[] | undefined;
+  onUpdate: (concept: string, details?: string, audience?: "family" | "friends" | "mixed", category?: string, subcategory?: string) => void;
 }
 
 const ConceptStep = ({ 
-  eventType, 
-  selectedConcept, 
-  selectedHebrewConcept, 
+  eventType,
+  selectedConcept,
+  selectedHebrewConcept,
   hebrewCategories,
   onUpdate 
 }: ConceptStepProps) => {
-  const [details, setDetails] = useState("");
-  const [audience, setAudience] = useState<'family' | 'friends' | 'mixed' | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>();
-  
-  // קונספטים לפי סוג האירוע
-  const getConceptsByType = () => {
-    switch(eventType) {
-      case 'private':
-        return [
-          { id: 'birthday', name: 'יום הולדת' },
-          { id: 'wedding', name: 'חתונה' },
-          { id: 'bar_mitzvah', name: 'בר/בת מצווה' },
-          { id: 'housewarming', name: 'חנוכת בית' },
-          { id: 'anniversary', name: 'יום נישואין' }
-        ];
-      case 'business':
-        return [
-          { id: 'team_building', name: 'גיבוש צוות' },
-          { id: 'conference', name: 'כנס' },
-          { id: 'product_launch', name: 'השקת מוצר' },
-          { id: 'retirement', name: 'פרישה לגמלאות' },
-          { id: 'holiday_party', name: 'חגיגת חג' }
-        ];
-      case 'mixed':
-        return [
-          { id: 'community_event', name: 'אירוע קהילתי' },
-          { id: 'fundraiser', name: 'התרמה' },
-          { id: 'networking', name: 'נטוורקינג' },
-          { id: 'workshop', name: 'סדנה' }
-        ];
-      case 'children':
-        return [
-          { id: 'kids_birthday', name: 'יום הולדת ילדים' },
-          { id: 'class_party', name: 'מסיבת כיתה' },
-          { id: 'holiday_event', name: 'חגיגת חג לילדים' },
-          { id: 'camp_activity', name: 'פעילות קייטנה' }
-        ];
-      default:
-        return [
-          { id: 'general_event', name: 'אירוע כללי' },
-          { id: 'misc', name: 'אחר' }
-        ];
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>(undefined);
+  const [detailInput, setDetailInput] = useState("");
+  const [audience, setAudience] = useState<"family" | "friends" | "mixed" | undefined>(undefined);
+
+  // Filter concepts based on event type
+  const getFilteredConcepts = () => {
+    let concepts: { id: string, name: string }[] = [];
+    
+    if (eventType === "private") {
+      concepts = [
+        { id: "birthday", name: "יום הולדת" },
+        { id: "bar-mitzvah", name: "בר/בת מצווה" },
+        { id: "wedding", name: "חתונה" },
+        { id: "housewarming", name: "חנוכת בית" },
+        { id: "anniversary", name: "יום נישואין" },
+        { id: "other", name: "אחר" }
+      ];
+    } else if (eventType === "business") {
+      concepts = [
+        { id: "conference", name: "כנס" },
+        { id: "team-building", name: "יום גיבוש" },
+        { id: "product-launch", name: "השקת מוצר" },
+        { id: "retirement", name: "מסיבת פרישה" },
+        { id: "client-meeting", name: "פגישת לקוחות" },
+        { id: "other", name: "אחר" }
+      ];
+    } else {
+      concepts = [
+        { id: "mixed-event", name: "אירוע מעורב" },
+        { id: "outdoor", name: "אירוע חוץ" },
+        { id: "other", name: "אחר" }
+      ];
     }
-  };
-  
-  // Handle Hebrew concept if selected
-  const handleHebrewSelection = () => {
-    const categoryId = hebrewCategories?.[0]?.id || "";
-    const subcategoryId = hebrewCategories?.[0]?.subcategories[0]?.id || "";
     
-    setSelectedCategory(categoryId);
-    setSelectedSubcategory(subcategoryId);
-    
-    // Continue to next step
-    handleContinue();
+    return concepts;
   };
-  
-  const handleContinue = () => {
-    const conceptId = selectedHebrewConcept?.id || selectedConcept || 'general_event';
-    onUpdate(
-      conceptId, 
-      details, 
-      audience,
-      selectedCategory,
-      selectedSubcategory
-    );
-  };
-  
-  // אם נבחר קונספט עברי, הצג אותו
-  if (selectedHebrewConcept) {
-    return (
-      <div className="space-y-6 text-right" dir="rtl">
-        <h3 className="text-lg font-medium text-center">פרטים על {selectedHebrewConcept.name}</h3>
-        
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="font-medium">קונספט נבחר: {selectedHebrewConcept.name}</p>
-          
-          {selectedHebrewConcept.subconcepts && selectedHebrewConcept.subconcepts.length > 0 && (
-            <div className="mt-4">
-              <p className="mb-2">בחר סוג ספציפי:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {selectedHebrewConcept.subconcepts.map(subconcept => (
-                  <Button 
-                    key={subconcept.id}
-                    variant="outline" 
-                    className="justify-start" 
-                    onClick={() => setDetails(subconcept.name)}
-                  >
-                    {subconcept.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* קטגוריות שירותים */}
-          {hebrewCategories && hebrewCategories.length > 0 && (
-            <div className="mt-6">
-              <p className="mb-2">בחר קטגוריית שירות:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {hebrewCategories.map(category => (
-                  <Button 
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    className="justify-start" 
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          <div className="mt-6">
-            <p className="mb-2">מיועד עבור:</p>
-            <div className="flex gap-2">
-              <Button 
-                variant={audience === 'family' ? "default" : "outline"} 
-                onClick={() => setAudience('family')}
-              >
-                משפחה
-              </Button>
-              <Button 
-                variant={audience === 'friends' ? "default" : "outline"} 
-                onClick={() => setAudience('friends')}
-              >
-                חברים
-              </Button>
-              <Button 
-                variant={audience === 'mixed' ? "default" : "outline"} 
-                onClick={() => setAudience('mixed')}
-              >
-                מעורב
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-center pt-4">
-          <Button onClick={handleHebrewSelection}>המשך</Button>
-        </div>
-      </div>
-    );
-  }
-  
-  // תצוגה רגילה של קונספטים
-  const concepts = getConceptsByType();
-  
+
   return (
-    <div className="space-y-6 text-right" dir="rtl">
-      <h3 className="text-lg font-medium text-center">מהו סוג האירוע?</h3>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {concepts.map(concept => (
-          <Card 
-            key={concept.id}
-            className={`p-4 cursor-pointer hover:border-primary transition-all ${
-              selectedConcept === concept.id ? 'border-primary bg-primary/10' : ''
-            }`}
-            onClick={() => onUpdate(concept.id)}
+    <div dir="rtl">
+      {selectedHebrewConcept ? (
+        <>
+          {/* Using Hebrew concept & categories */}
+          <h3 className="text-lg font-medium mb-1">{selectedHebrewConcept.name}</h3>
+          <p className="text-gray-500 text-sm mb-4">בחרו את סוג האירוע המדויק והשירותים הרצויים</p>
+          
+          {/* Step 1: Specific subconcept */}
+          <div className="mb-6">
+            <label htmlFor="subconcept" className="block text-sm font-medium mb-2">בחרו את סוג האירוע המדויק:</label>
+            <Select
+              onValueChange={(value) => setDetailInput(value)}
+              defaultValue={detailInput}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="בחרו סוג אירוע" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedHebrewConcept.subconcepts && selectedHebrewConcept.subconcepts.map((subconcept) => (
+                  <SelectItem key={subconcept.id} value={subconcept.id}>
+                    {subconcept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Step 2: Service category */}
+          <div className="mb-6">
+            <label htmlFor="category" className="block text-sm font-medium mb-2">איזה סוג שירות אתם מחפשים?</label>
+            <Select
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setSelectedSubcategory(undefined);
+              }}
+              defaultValue={selectedCategory}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="בחרו קטגוריה" />
+              </SelectTrigger>
+              <SelectContent>
+                {hebrewCategories && hebrewCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Step 3: Service subcategory - only if category is selected */}
+          {selectedCategory && (
+            <div className="mb-6">
+              <label htmlFor="subcategory" className="block text-sm font-medium mb-2">בחרו תת-קטגוריה:</label>
+              <Select
+                onValueChange={(value) => setSelectedSubcategory(value)}
+                defaultValue={selectedSubcategory}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="בחרו תת-קטגוריה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hebrewCategories &&
+                    hebrewCategories
+                      .find(cat => cat.id === selectedCategory)
+                      ?.subcategories.map((subcategory) => (
+                        <SelectItem key={subcategory.id} value={subcategory.id}>
+                          {subcategory.name}
+                        </SelectItem>
+                      ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Step 4: Target audience */}
+          <div className="mb-6">
+            <p className="block text-sm font-medium mb-3">האירוע מיועד עבור:</p>
+            <RadioGroup 
+              defaultValue={audience}
+              onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
+              className="flex flex-col space-y-2"
+            >
+              <div className="flex items-center space-x-3 space-x-reverse">
+                <RadioGroupItem value="family" id="family" />
+                <Label htmlFor="family">משפחה</Label>
+              </div>
+              <div className="flex items-center space-x-3 space-x-reverse">
+                <RadioGroupItem value="friends" id="friends" />
+                <Label htmlFor="friends">חברים</Label>
+              </div>
+              <div className="flex items-center space-x-3 space-x-reverse">
+                <RadioGroupItem value="mixed" id="mixed" />
+                <Label htmlFor="mixed">מעורב (משפחה וחברים)</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="mt-8">
+            <Button 
+              onClick={() => onUpdate(
+                selectedHebrewConcept.id, 
+                detailInput, 
+                audience,
+                selectedCategory,
+                selectedSubcategory
+              )} 
+              disabled={!detailInput || !selectedCategory || !selectedSubcategory || !audience}
+              className="w-full"
+            >
+              המשך לתוצאות
+              <ChevronLeft className="mr-2 h-4 w-4" />
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Legacy fallback */}
+          <h3 className="text-lg font-medium mb-4">מהו סוג האירוע?</h3>
+          
+          <Select
+            onValueChange={(value) => setDetailInput(value)}
+            defaultValue={detailInput}
           >
-            <h4 className="font-medium">{concept.name}</h4>
-          </Card>
-        ))}
-      </div>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="בחר סוג אירוע" />
+            </SelectTrigger>
+            <SelectContent>
+              {getFilteredConcepts().map((concept) => (
+                <SelectItem key={concept.id} value={concept.id}>
+                  {concept.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {detailInput === "birthday" && (
+            <div className="mt-4">
+              <label htmlFor="age" className="block text-sm font-medium mb-2">גיל:</label>
+              <Input 
+                id="age" 
+                type="number"
+                placeholder="הזן גיל"
+                onChange={(e) => setDetailInput(`יום הולדת ${e.target.value}`)}
+              />
+            </div>
+          )}
+          
+          {(eventType === "private" || eventType === "mixed") && (
+            <div className="mt-6">
+              <p className="block text-sm font-medium mb-3">האירוע מיועד עבור:</p>
+              <RadioGroup 
+                defaultValue={audience}
+                onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
+                className="flex flex-col space-y-2"
+              >
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <RadioGroupItem value="family" id="family" />
+                  <Label htmlFor="family">משפחה</Label>
+                </div>
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <RadioGroupItem value="friends" id="friends" />
+                  <Label htmlFor="friends">חברים</Label>
+                </div>
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <RadioGroupItem value="mixed" id="mixed" />
+                  <Label htmlFor="mixed">מעורב (משפחה וחברים)</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
+          
+          <div className="mt-8">
+            <Button 
+              onClick={() => onUpdate(detailInput, undefined, audience)} 
+              disabled={!detailInput || ((eventType === "private" || eventType === "mixed") && !audience)}
+              className="w-full"
+            >
+              המשך לתוצאות
+              <ChevronLeft className="mr-2 h-4 w-4" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
