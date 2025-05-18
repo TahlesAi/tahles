@@ -41,7 +41,7 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Button for Provider Onboarding - with shorter text */}
+          {/* Button for Provider Onboarding - shorter text */}
           <div className="order-3 md:order-2 mx-6">
             <Link 
               to="/provider-onboarding" 
@@ -52,7 +52,7 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Search Bar - only on desktop - now with more space */}
+          {/* Search Bar - only on desktop - with more space */}
           <div className="hidden md:block flex-1 mx-8 max-w-xl order-4 md:order-3">
             <SearchableHeader 
               placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
@@ -117,7 +117,7 @@ const Header = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col space-y-4 mt-4">
-                    {/* Provider Onboarding Button in Mobile Menu - with shorter text */}
+                    {/* Provider Onboarding Button in Mobile Menu - shorter text */}
                     <Link 
                       to="/provider-onboarding" 
                       className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"

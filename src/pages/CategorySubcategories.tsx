@@ -11,9 +11,35 @@ import { useEventContext } from '@/context/EventContext';
 import { 
   Music, Camera, Utensils, MapPin, Mic2, Monitor, 
   Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones 
+  TentTree, User, PlusCircle, Users, Headphones,
+  Building, ChefHat, BookOpen, Lightbulb
 } from "lucide-react";
 import { HebrewCategory, HebrewSubcategory } from '@/lib/types/hierarchy';
+
+// מיפוי שמות אייקונים לקומפוננטות של Lucide React
+const iconMap: Record<string, React.ReactNode> = {
+  "Music": <Music className="h-5 w-5" />,
+  "Camera": <Camera className="h-5 w-5" />,
+  "Utensils": <Utensils className="h-5 w-5" />,
+  "MapPin": <MapPin className="h-5 w-5" />,
+  "Mic": <Mic2 className="h-5 w-5" />,
+  "Mic2": <Mic2 className="h-5 w-5" />,
+  "Monitor": <Monitor className="h-5 w-5" />,
+  "Gift": <Gift className="h-5 w-5" />,
+  "Sparkles": <Sparkles className="h-5 w-5" />,
+  "Calendar": <Calendar className="h-5 w-5" />,
+  "Wand2": <Wand2 className="h-5 w-5" />,
+  "PartyPopper": <PartyPopper className="h-5 w-5" />,
+  "TentTree": <TentTree className="h-5 w-5" />,
+  "User": <User className="h-5 w-5" />,
+  "PlusCircle": <PlusCircle className="h-5 w-5" />,
+  "Users": <Users className="h-5 w-5" />,
+  "Headphones": <Headphones className="h-5 w-5" />,
+  "Building": <Building className="h-5 w-5" />,
+  "ChefHat": <ChefHat className="h-5 w-5" />,
+  "BookOpen": <BookOpen className="h-5 w-5" />,
+  "Lightbulb": <Lightbulb className="h-5 w-5" />
+};
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -34,10 +60,14 @@ const CategorySubcategories = () => {
     // Reset selected subcategory when viewing a new category
     setSelectedSubcategory(null);
     
+    // Track page view
+    console.log(`Viewing category with ID: ${categoryId}`);
+    
     // Find and set the selected Hebrew category
     if (categoryId && hebrewCategories && hebrewCategories.length > 0) {
-      const category = hebrewCategories.find(c => c.id === categoryId) || null;
-      setHebrewCategory(category);
+      const foundCategory = hebrewCategories.find(c => c.id === categoryId);
+      console.log(foundCategory ? `Found Hebrew category: ${foundCategory.name}` : "Hebrew category not found");
+      setHebrewCategory(foundCategory || null);
     }
     
     // For backward compatibility, also set the selected category from the regular categories
@@ -94,15 +124,12 @@ const CategorySubcategories = () => {
   }
 
   // Use Hebrew subcategories if available, otherwise fall back to legacy subcategories
-  const subcategories = hebrewCategory ? hebrewCategory.subcategories : 
-    getSubcategoriesByCategory(categoryId || '');
+  const subcategories = hebrewCategory?.subcategories || getSubcategoriesByCategory(categoryId || '');
 
   // Get the category name from either Hebrew or legacy data
-  const categoryName = hebrewCategory ? hebrewCategory.name : 
-    selectedCategory ? selectedCategory.name : '';
+  const categoryName = hebrewCategory?.name || (selectedCategory ? selectedCategory.name : '');
     
-  const categoryDescription = hebrewCategory ? hebrewCategory.description : 
-    selectedCategory ? selectedCategory.description : '';
+  const categoryDescription = hebrewCategory?.description || (selectedCategory ? selectedCategory.description : '');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -158,9 +185,7 @@ const CategorySubcategories = () => {
                             <div className="ml-3 p-2 bg-brand-50 rounded-md">
                               <div className="h-5 w-5 text-brand-600">
                                 {subcategoryIcon && typeof subcategoryIcon === 'string' && iconMap[subcategoryIcon] ? (
-                                  <div className="text-brand-600">
-                                    {iconMap[subcategoryIcon]}
-                                  </div>
+                                  iconMap[subcategoryIcon]
                                 ) : (
                                   <div className="h-5 w-5 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
                                     {subcategoryName.substring(0, 1)}
@@ -234,27 +259,6 @@ const CateringRedirect = () => {
       <Footer />
     </div>
   );
-};
-
-// מיפוי שמות אייקונים לקומפוננטות של Lucide React
-const iconMap: Record<string, React.ReactNode> = {
-  "Music": <Music className="h-5 w-5" />,
-  "Camera": <Camera className="h-5 w-5" />,
-  "Utensils": <Utensils className="h-5 w-5" />,
-  "MapPin": <MapPin className="h-5 w-5" />,
-  "Mic": <Mic2 className="h-5 w-5" />,
-  "Mic2": <Mic2 className="h-5 w-5" />,
-  "Monitor": <Monitor className="h-5 w-5" />,
-  "Gift": <Gift className="h-5 w-5" />,
-  "Sparkles": <Sparkles className="h-5 w-5" />,
-  "Calendar": <Calendar className="h-5 w-5" />,
-  "Wand2": <Wand2 className="h-5 w-5" />,
-  "PartyPopper": <PartyPopper className="h-5 w-5" />,
-  "TentTree": <TentTree className="h-5 w-5" />,
-  "User": <User className="h-5 w-5" />,
-  "PlusCircle": <PlusCircle className="h-5 w-5" />,
-  "Users": <Users className="h-5 w-5" />,
-  "Headphones": <Headphones className="h-5 w-5" />
 };
 
 export default CategorySubcategories;

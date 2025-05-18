@@ -52,7 +52,14 @@ const Categories = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     setSelectedCategory(null);
-  }, [setSelectedCategory]);
+    
+    // Check if we have data loaded
+    if (!hebrewCategories || hebrewCategories.length === 0) {
+      console.log("No categories data available");
+    } else {
+      console.log(`Loaded ${hebrewCategories.length} categories`);
+    }
+  }, [setSelectedCategory, hebrewCategories]);
 
   // מצב של טעינה
   if (isLoading) {
@@ -127,7 +134,7 @@ const Categories = () => {
             <h2 className="text-3xl font-bold mb-8">קטגוריות עיקריות</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {hebrewCategories.map((category) => {
-                const subcategoryCount = category.subcategories.length;
+                const subcategoryCount = category.subcategories ? category.subcategories.length : 0;
                 return (
                   <Link 
                     key={category.id} 
@@ -138,7 +145,9 @@ const Categories = () => {
                       <CardContent className="p-6 flex flex-col items-center">
                         <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
                           <div className="text-brand-600">
-                            {category.icon && iconMap[category.icon] || (
+                            {category.icon && iconMap[category.icon] ? (
+                              iconMap[category.icon]
+                            ) : (
                               <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white">
                                 {category.name.substring(0, 1)}
                               </div>
@@ -147,7 +156,9 @@ const Categories = () => {
                         </div>
                         <h3 className="text-xl font-semibold mb-2 text-center">{category.name}</h3>
                         <p className="text-gray-500 text-center mb-4">{category.description || ""}</p>
-                        <div className="mt-auto text-sm text-gray-400">{subcategoryCount} תת-קטגוריות</div>
+                        <div className="mt-auto text-sm text-gray-400">
+                          {subcategoryCount} תת-קטגוריות
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>
@@ -162,7 +173,7 @@ const Categories = () => {
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8">קונספטים פופולריים</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-              {hebrewConcepts.map((concept) => {
+              {hebrewConcepts && hebrewConcepts.map((concept) => {
                 const subconcept_count = concept.subconcepts ? concept.subconcepts.length : 0;
                 return (
                   <Link 
@@ -174,7 +185,9 @@ const Categories = () => {
                       <CardContent className="p-6 flex flex-col items-center">
                         <div className="w-14 h-14 rounded-full bg-accent1-50 flex items-center justify-center mb-4">
                           <div className="text-accent1-600">
-                            {concept.icon && iconMap[concept.icon] || (
+                            {concept.icon && iconMap[concept.icon] ? (
+                              iconMap[concept.icon]
+                            ) : (
                               <div className="w-8 h-8 rounded-full bg-accent1-500 flex items-center justify-center text-white">
                                 {concept.name.substring(0, 1)}
                               </div>
