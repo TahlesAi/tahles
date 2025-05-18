@@ -12,6 +12,8 @@ import { ChevronLeft, Home, Star, Phone, Mail, Globe, MapPin } from "lucide-reac
 import { useEventContext } from "@/context/EventContext";
 import ServiceResultCard from "@/components/search/ServiceResultCard";
 import { Service } from "@/lib/types/hierarchy";
+import { SearchResultService } from "@/lib/types";
+import { convertServiceToSearchResult } from "@/utils/serviceConverters";
 
 const ProviderServices = () => {
   const { providerId } = useParams<{ providerId: string }>();
@@ -27,6 +29,7 @@ const ProviderServices = () => {
   
   const [provider, setProvider] = useState<any | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [serviceResults, setServiceResults] = useState<SearchResultService[]>([]);
   const [activeTab, setActiveTab] = useState("services");
 
   useEffect(() => {
@@ -37,6 +40,12 @@ const ProviderServices = () => {
       if (foundProvider) {
         const providerServices = getServicesByProvider(providerId);
         setServices(providerServices);
+        
+        // המרה של Service לפורמט SearchResultService שמתאים ל-ServiceResultCard
+        const convertedServices = providerServices.map(service => 
+          convertServiceToSearchResult(service, foundProvider.name)
+        );
+        setServiceResults(convertedServices);
       }
     }
   }, [providerId, providers, getServicesByProvider]);
@@ -220,9 +229,9 @@ const ProviderServices = () => {
                 </TabsList>
                 
                 <TabsContent value="services">
-                  {services.length > 0 ? (
+                  {serviceResults.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {services.map((service) => (
+                      {serviceResults.map((service) => (
                         <ServiceResultCard key={service.id} service={service} />
                       ))}
                     </div>
