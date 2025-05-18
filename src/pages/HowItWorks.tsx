@@ -1,14 +1,22 @@
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, PackageCheck, ShieldCheck, Sparkles, Trophy, Users } from "lucide-react";
+import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
 
 const HowItWorks = () => {
+  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleStartSearch = () => {
+    setIsGuidedSearchOpen(true);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -22,26 +30,13 @@ const HowItWorks = () => {
               <p className="text-xl mb-8">
                 הפלטפורמה שעושה לכם סדר בהפקת האירועים
               </p>
-              <Link 
-                to="/search" 
+              <button 
+                onClick={handleStartSearch}
                 className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
                 בואו נתחיל <ArrowLeft className="mr-4 rotate-[10deg]" size={18} />
-              </Link>
+              </button>
             </div>
-          </div>
-        </section>
-
-        {/* Quick Search Section */}
-        <section className="py-10 bg-brand-50">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl font-semibold mb-5">יודעים מה מחפשים?</h2>
-            <Link 
-              to="/search" 
-              className="inline-flex items-center bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
-            >
-              קדימה&nbsp;&nbsp;<ArrowLeft className="mr-6 rotate-[10deg]" size={18} />
-            </Link>
           </div>
         </section>
 
@@ -78,86 +73,230 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* For customers */}
+        {/* For customers - Expanded Benefits */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">למה להשתמש בתכלס?</h2>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold mb-4 text-brand-600">ללקוחות</h3>
-                <ul className="space-y-4">
+                <h3 className="text-2xl font-semibold mb-6 text-brand-600">יתרונות ללקוחות</h3>
+                <ul className="space-y-5">
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>גישה למגוון רחב של אמנים, מרצים ונותני שירות מובילים</span>
+                    <div>
+                      <p className="font-semibold">גישה למגוון רחב של ספקים איכותיים</p>
+                      <p className="text-gray-600 mt-1">מאגר מקיף של אמנים, מרצים ונותני שירות מובילים מכל התחומים</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>השוואת מחירים ומפרטים בקלות ובמהירות</span>
+                    <div>
+                      <p className="font-semibold">השוואת מחירים וחוות דעת</p>
+                      <p className="text-gray-600 mt-1">קבלו מידע מפורט על כל שירות, כולל מחירים, זמינות וביקורות של לקוחות קודמים</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>ביצוע הזמנה מהירה, פשוטה ומאובטחת בזמן אמת</span>
+                    <div>
+                      <p className="font-semibold">חיסכון משמעותי בזמן</p>
+                      <p className="text-gray-600 mt-1">שריון בדקות במקום ימים של חיפושים וטלפונים לבדיקת זמינות</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>חיסכון בזמן ובכסף בתהליך חיפוש ומציאת השירותים המושלמים</span>
+                    <div>
+                      <p className="font-semibold">דף מוצר מקצועי לכל חלופה</p>
+                      <p className="text-gray-600 mt-1">טעימה חווייתית בכל מוצר בו אתם מתעניינים, כולל סרטונים ותמונות איכותיות</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
+                      <Check className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">5% קשבק להזמנה הבאה</p>
+                      <p className="text-gray-600 mt-1">לקוחות תכלס חוסכים בכל הזמנה 5% קשבק להזמנה הבאה</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="bg-brand-100 text-brand-600 p-2 rounded-full mt-1 ml-4">
+                      <Check className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">אבטחת תשלומים ושקיפות מלאה</p>
+                      <p className="text-gray-600 mt-1">מערכת תשלומים מאובטחת ושקיפות מלאה לגבי המחירים והתנאים</p>
+                    </div>
                   </li>
                 </ul>
               </div>
               
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold mb-4 text-accent1-600">לספקים</h3>
-                <ul className="space-y-4">
+                <h3 className="text-2xl font-semibold mb-6 text-accent1-600">יתרונות לספקים</h3>
+                <ul className="space-y-5">
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>הצגת השירותים לקהל לקוחות רחב ורלוונטי</span>
+                    <div>
+                      <p className="font-semibold">חשיפה מוגברת לקהל יעד רלוונטי</p>
+                      <p className="text-gray-600 mt-1">הגיעו ללקוחות פוטנציאליים בדיוק ברגע שהם מחפשים את השירותים שלכם</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>ניהול נוח ומהיר של הזמנות ויומן האירועים</span>
+                    <div>
+                      <p className="font-semibold">ניהול יומן חכם ואוטומטי</p>
+                      <p className="text-gray-600 mt-1">מערכת ניהול אירועים מתקדמת המסנכרנת את היומן שלכם ומונעת התנגשויות</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>קבלת תשלומים באופן מאובטח ומהיר</span>
+                    <div>
+                      <p className="font-semibold">מערכת ניהול ושיווק מושלמת</p>
+                      <p className="text-gray-600 mt-1">מערכת ניהול ושיווק מקצועית להצגת השירותים שלכם בצורה הטובה ביותר</p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <Check className="h-5 w-5" />
                     </div>
-                    <span>בניית מוניטין באמצעות חוות דעת של לקוחות מרוצים</span>
+                    <div>
+                      <p className="font-semibold">תשלומים מהירים ומאובטחים</p>
+                      <p className="text-gray-600 mt-1">קבלו את התשלומים ישירות לחשבון שלכם באופן מהיר, בטוח ושקוף</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
+                      <Check className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">פטור מדמי ניהול</p>
+                      <p className="text-gray-600 mt-1">פטור מדמי ניהול למשך 5 שנים למצטרפים בתקופת ההרצה</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="bg-accent1-100 text-accent1-600 p-2 rounded-full mt-1 ml-4">
+                      <Check className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">בניית מוניטין דיגיטלי</p>
+                      <p className="text-gray-600 mt-1">בניית פרופיל מקצועי הכולל ביקורות וחוות דעת שמחזקות את המוניטין שלכם</p>
+                    </div>
                   </li>
                 </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Advanced Features Section - New Section */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold mb-12 text-center">יתרונות מתקדמים במערכת תכלס</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex justify-center mb-6">
+                  <ShieldCheck className="h-12 w-12 text-brand-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-center">אבטחה מתקדמת</h3>
+                <p className="text-gray-700">
+                  מערכת אבטחה מתקדמת להגנה על הנתונים שלכם ועל התשלומים, כולל הצפנת SSL ומערכות הגנה נגד הונאות.
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex justify-center mb-6">
+                  <Trophy className="h-12 w-12 text-accent1-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-center">שקיפות מלאה</h3>
+                <p className="text-gray-700">
+                  מחירים, זמינות, תנאים ודירוגים - הכל שקוף וגלוי לעיניכם לפני ביצוע ההזמנה, ללא הפתעות או עלויות נסתרות.
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex justify-center mb-6">
+                  <PackageCheck className="h-12 w-12 text-brand-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-center">בקרת איכות</h3>
+                <p className="text-gray-700">
+                  כל ספק עובר תהליך אימות ובדיקת איכות לפני הצטרפותו למערכת, להבטחת רמת שירות ומקצועיות גבוהה לכל לקוחותינו.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Exclusive Benefits - New Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold mb-12 text-center">יתרונות בלעדיים במערכת תכלס</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="bg-brand-600 text-white p-4 rounded-full">
+                  <Sparkles className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">התאמה אישית מדויקת</h3>
+                  <p className="text-gray-700 mb-4">
+                    מנוע החיפוש החכם שלנו משתמש בטכנולוגיה מתקדמת כדי להתאים בין צרכי הלקוחות לבין הספקים המתאימים ביותר, תוך התחשבות במגוון רחב של פרמטרים.
+                  </p>
+                  <ul className="space-y-2">
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-brand-600 ml-2" />
+                      <span>התאמה לפי סוג אירוע, קהל יעד וגודל</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-brand-600 ml-2" />
+                      <span>שיקלול התקציב והמיקום הגיאוגרפי</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-brand-600 ml-2" />
+                      <span>מערכת שיקלול חוות דעת קודמות</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="bg-accent1-600 text-white p-4 rounded-full">
+                  <Users className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">שירות לקוחות מקצועי</h3>
+                  <p className="text-gray-700 mb-4">
+                    צוות שירות הלקוחות שלנו זמין לעזור לכם בכל שלב בתהליך, החל מבחירת הספקים המתאימים ועד להשלמת ההזמנה וביצועה המוצלח.
+                  </p>
+                  <ul className="space-y-2">
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-accent1-600 ml-2" />
+                      <span>תמיכה זמינה בטלפון ובצ'אט</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-accent1-600 ml-2" />
+                      <span>מענה מהיר לכל בעיה או שאלה</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-5 w-5 text-accent1-600 ml-2" />
+                      <span>מומחי תוכן לייעוץ מקצועי</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -220,12 +359,12 @@ const HowItWorks = () => {
               מצאו את האמנים, המרצים ונותני השירות המושלמים לאירוע הבא שלכם או הצטרפו כנותני שירות
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link 
-                to="/search" 
+              <button 
+                onClick={handleStartSearch}
                 className="inline-flex items-center bg-white text-brand-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
                 קדימה&nbsp;&nbsp;<ArrowLeft className="mr-6 rotate-[10deg]" size={18} />
-              </Link>
+              </button>
               <Link 
                 to="/provider-onboarding" 
                 className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors"
@@ -237,6 +376,12 @@ const HowItWorks = () => {
         </section>
       </main>
       <Footer />
+      
+      {/* Guided Search Modal */}
+      <GuidedSearchModal 
+        isOpen={isGuidedSearchOpen} 
+        onClose={() => setIsGuidedSearchOpen(false)} 
+      />
     </div>
   );
 };

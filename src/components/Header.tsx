@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserPlus } from "lucide-react";
+import { Menu, UserPlus, Search } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import SearchableHeader from "@/components/ui/searchable-header";
 
@@ -29,6 +29,18 @@ const Header = () => {
   const userMeta = user?.user_metadata || {};
   const userName = userMeta.name || user?.email?.split('@')[0] || 'משתמש';
   const userAvatar = userMeta.avatar_url || '';
+
+  const handleSearchClick = () => {
+    // Open guided search modal
+    const searchModal = document.querySelector('div[role="dialog"]');
+    if (searchModal) {
+      searchModal.dispatchEvent(new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      }));
+    }
+  };
 
   return (
     <header className="bg-white border-b sticky top-0 z-40">
@@ -52,15 +64,24 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Search Bar - only on desktop - with more space */}
+          {/* Search Bar - simplified with only icon */}
           <div className="hidden md:block flex-1 mx-8 max-w-2xl order-4 md:order-3">
-            <SearchableHeader 
-              placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
-              dir="rtl"
-              inputClassName="rounded-full h-9"
-              maxWidth="100%" 
-              useGuidedSearch={false}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder=""
+                className="w-full py-2 px-10 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
+                onClick={handleSearchClick}
+                readOnly
+              />
+              <button 
+                onClick={handleSearchClick}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700"
+                aria-label="חיפוש"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           
           {/* Navigation Menu - REMOVED CATEGORIES LINK */}
@@ -146,12 +167,22 @@ const Header = () => {
       {/* Mobile Search - only visible on mobile */}
       {isMobile && (
         <div className="border-t p-2">
-          <SearchableHeader 
-            placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
-            dir="rtl"
-            inputClassName="rounded-full h-9"
-            useGuidedSearch={false}
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder=""
+              className="w-full py-2 px-10 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
+              onClick={handleSearchClick}
+              readOnly
+            />
+            <button 
+              onClick={handleSearchClick}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700"
+              aria-label="חיפוש"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       )}
       
