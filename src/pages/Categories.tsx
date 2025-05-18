@@ -6,7 +6,8 @@ import Footer from "@/components/Footer";
 import { 
   Music, Camera, Utensils, MapPin, Mic2, Monitor, 
   Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones
+  TentTree, User, PlusCircle, Users, Headphones,
+  Building, ChefHat, BookOpen, MapPin as Map, 
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,7 +32,11 @@ const iconMap: Record<string, React.ReactNode> = {
   "User": <User className="h-8 w-8" />,
   "PlusCircle": <PlusCircle className="h-8 w-8" />,
   "Users": <Users className="h-8 w-8" />,
-  "Headphones": <Headphones className="h-8 w-8" />
+  "Headphones": <Headphones className="h-8 w-8" />,
+  "BookOpen": <BookOpen className="h-8 w-8" />,
+  "Map": <Map className="h-8 w-8" />,
+  "Building": <Building className="h-8 w-8" />,
+  "ChefHat": <ChefHat className="h-8 w-8" />
 };
 
 const Categories = () => {
@@ -40,7 +45,8 @@ const Categories = () => {
     isLoading, 
     error, 
     getSubcategoriesByCategory,
-    setSelectedCategory
+    setSelectedCategory,
+    hebrewCategories
   } = useEventContext();
 
   useEffect(() => {
@@ -95,44 +101,41 @@ const Categories = () => {
           </div>
         </section>
 
-        {/* קטגוריות עיקריות */}
-        {categories.length > 0 && (
-          <section className="py-16 bg-white" dir="rtl">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-8">קטגוריות עיקריות</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                {categories.map((category) => {
-                  const subcategoryCount = getSubcategoriesByCategory(category.id).length;
-                  return (
-                    <Link 
-                      key={category.id} 
-                      to={`/categories/${category.id}`}
-                      className="block"
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      <Card className="h-full hover:shadow-lg transition-shadow">
-                        <CardContent className="p-6 flex flex-col items-center">
-                          <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
-                            <div className="text-brand-600">
-                              {iconMap[category.icon || ""] || (
-                                <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white">
-                                  {category.name.substring(0, 1)}
-                                </div>
-                              )}
-                            </div>
+        {/* קטגוריות עיקריות - Using Hebrew Categories */}
+        <section className="py-16 bg-white" dir="rtl">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold mb-8">קטגוריות עיקריות</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {hebrewCategories.map((category) => {
+                const subcategoryCount = category.subcategories.length;
+                return (
+                  <Link 
+                    key={category.id} 
+                    to={`/categories/${category.id}`}
+                    className="block"
+                  >
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6 flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4">
+                          <div className="text-brand-600">
+                            {iconMap[category.icon || ""] || (
+                              <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white">
+                                {category.name.substring(0, 1)}
+                              </div>
+                            )}
                           </div>
-                          <h3 className="text-xl font-semibold mb-2 text-center">{category.name}</h3>
-                          <p className="text-gray-500 text-center mb-4">{category.description}</p>
-                          <div className="mt-auto text-sm text-gray-400">{subcategoryCount} תת-קטגוריות</div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-              </div>
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2 text-center">{category.name}</h3>
+                        <p className="text-gray-500 text-center mb-4">{category.description}</p>
+                        <div className="mt-auto text-sm text-gray-400">{subcategoryCount} תת-קטגוריות</div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* CTA Section */}
         <section className="py-16 bg-brand-600 text-white" dir="rtl">

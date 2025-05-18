@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +5,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEventContext } from "@/context/EventContext";
 import { Label } from "@/components/ui/label";
 import { ServiceType } from "@/lib/types/hierarchy";
+import { 
+  Music, 
+  Camera, 
+  Utensils, 
+  MapPin, 
+  Mic2, 
+  Monitor, 
+  Gift, 
+  Sparkles, 
+  Calendar, 
+  Wand2, 
+  PartyPopper, 
+  TentTree, 
+  User, 
+  PlusCircle, 
+  Users, 
+  Headphones 
+} from "lucide-react";
 
 interface OnboardingServiceTypeProps {
   subcategoryId: string;

@@ -1,8 +1,19 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { 
+  Search, 
+  Music, 
+  Camera, 
+  Utensils, 
+  MapPin, 
+  Mic2, 
+  Monitor, 
+  Gift, 
+  Sparkles, 
+  Calendar, 
+  Wand2 
+} from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
 import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";

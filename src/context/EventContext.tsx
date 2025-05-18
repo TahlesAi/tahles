@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, Subcategory, ServiceType, Provider, Service } from '@/lib/types/hierarchy';
+import { hebrewHierarchy } from '@/lib/hebrewHierarchyData';
 
 interface EventContextProps {
   categories: Category[];
@@ -23,6 +24,8 @@ interface EventContextProps {
   getSubcategoriesByCategory: (categoryId: string) => Subcategory[];
   getServiceTypesBySubcategory: (subcategoryId: string) => ServiceType[];
   refreshData: () => Promise<void>;
+  hebrewCategories: typeof hebrewHierarchy.categories;
+  hebrewConcepts: typeof hebrewHierarchy.concepts;
 }
 
 const EventContext = createContext<EventContextProps | undefined>(undefined);
@@ -73,19 +76,16 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (subcategoriesError) throw subcategoriesError;
       setSubcategories(subcategoriesData || []);
 
-      // Fetch service types
-      const { data: serviceTypesData, error: serviceTypesError } = await supabase
-        .from('service_types')
-        .select('*')
-        .order('name');
-        
-      if (serviceTypesError) throw serviceTypesError;
-      setServiceTypes(serviceTypesData || []);
+      // Instead of fetching service_types (which might not exist yet), we'll use placeholder data
+      // We'll remove this once the new table is created in the database
+      // Note: Replace this with actual fetch from 'service_types' table once it's created
+      const placeholderServiceTypes: ServiceType[] = [];
+      setServiceTypes(placeholderServiceTypes);
 
       // Fetch providers
       const { data: providersData, error: providersError } = await supabase
         .from('providers')
-        .select('*, provider_categories(category_id), provider_subcategories(subcategory_id), provider_service_types(service_type_id)')
+        .select('*, provider_categories(category_id), provider_subcategories(subcategory_id)')
         .order('name');
         
       if (providersError) throw providersError;
@@ -95,7 +95,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         ...provider,
         category_ids: provider.provider_categories?.map((pc: any) => pc.category_id) || [],
         subcategory_ids: provider.provider_subcategories?.map((ps: any) => ps.subcategory_id) || [],
-        service_type_ids: provider.provider_service_types?.map((pst: any) => pst.service_type_id) || []
+        service_type_ids: [] // Placeholder until service_type_ids are implemented
       }));
       
       setProviders(formattedProviders);
@@ -107,27 +107,47 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         .order('name');
         
       if (servicesError) throw servicesError;
-      setServices(servicesData || []);
+      
+      // Convert database services to match our Service type
+      const typedServices: Service[] = (servicesData || []).map((service: any) => ({
+        id: service.id,
+        name: service.name,
+        description: service.description || '',
+        price: parseFloat(service.price_range?.replace(/[^\d.-]/g, '') || '0'),
+        price_unit: service.price_unit,
+        imageUrl: service.image_url || '',
+        additional_images: service.additional_images || [],
+        provider_id: service.provider_id,
+        category_id: '', // These will be populated based on provider's data
+        subcategory_id: '',
+        service_type_id: '',
+        rating: 0, // Placeholder
+        review_count: 0, // Placeholder
+        tags: service.features || [],
+        is_featured: false,
+        suitableFor: service.event_types || [],
+        audience_size: service.audience_size ? `${service.audience_size}` as any : "0-30",
+        location: ''
+      }));
+      
+      setServices(typedServices);
 
       // Set featured services (most viewed/booked)
-      const { data: featuredData, error: featuredError } = await supabase
-        .from('services')
-        .select('*')
-        .eq('is_featured', true)
-        .limit(12);
+      const featuredServiceIds = typedServices
+        .filter((_, index) => index < 12) // Take first 12 services as featured for now
+        .map(service => service.id);
         
-      if (featuredError) throw featuredError;
-      setFeaturedServices(featuredData || []);
+      setFeaturedServices(typedServices.filter(service => featuredServiceIds.includes(service.id)));
 
       // Set top providers (highest rated)
-      const { data: topProvidersData, error: topProvidersError } = await supabase
-        .from('providers')
-        .select('*')
-        .order('rating', { ascending: false })
-        .limit(12);
+      const topProviderIds = formattedProviders
+        .sort((a: Provider, b: Provider) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 12)
+        .map((provider: Provider) => provider.id);
         
-      if (topProvidersError) throw topProvidersError;
-      setTopProviders(topProvidersData || []);
+      setTopProviders(formattedProviders.filter((provider: Provider) => 
+        topProviderIds.includes(provider.id)
+      ));
     } catch (error: any) {
       console.error('Error fetching data:', error);
       setError(error.message);
@@ -189,7 +209,9 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         getServicesByProvider,
         getSubcategoriesByCategory,
         getServiceTypesBySubcategory,
-        refreshData
+        refreshData,
+        hebrewCategories: hebrewHierarchy.categories,
+        hebrewConcepts: hebrewHierarchy.concepts
       }}
     >
       {children}

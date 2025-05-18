@@ -75,3 +75,48 @@ export type AudienceSize =
   | "201-300"
   | "301-500"
   | "500+";
+
+// Hebrew-specific category structure
+export interface HebrewHierarchy {
+  categories: HebrewCategory[];
+  concepts: HebrewConcept[];
+}
+
+export interface HebrewCategory {
+  id: string;
+  name: string;
+  subcategories: HebrewSubcategory[];
+  icon?: string;
+  description?: string;
+}
+
+export interface HebrewSubcategory {
+  id: string;
+  name: string;
+  serviceTypes?: HebrewServiceType[];
+  categoryId: string;
+  icon?: string;
+  description?: string;
+}
+
+export interface HebrewServiceType {
+  id: string;
+  name: string;
+  subcategoryId: string;
+  icon?: string;
+  description?: string;
+}
+
+export interface HebrewConcept {
+  id: string;
+  name: string;
+  subconcepts: HebrewSubconcept[];
+  icon?: string;
+}
+
+export interface HebrewSubconcept {
+  id: string;
+  name: string;
+  conceptId: string;
+  icon?: string;
+}

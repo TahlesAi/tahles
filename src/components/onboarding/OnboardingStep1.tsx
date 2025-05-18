@@ -1,10 +1,27 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEventContext } from "@/context/EventContext";
 import { Category } from "@/lib/types/hierarchy";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  Music, 
+  Camera, 
+  Utensils, 
+  MapPin, 
+  Mic2, 
+  Monitor, 
+  Gift, 
+  Sparkles, 
+  Calendar, 
+  Wand2, 
+  PartyPopper, 
+  TentTree, 
+  User, 
+  PlusCircle, 
+  Users, 
+  Headphones 
+} from "lucide-react";
 
 interface OnboardingStep1Props {
   data: any;
