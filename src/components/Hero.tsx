@@ -23,14 +23,12 @@ import {
   Building,
   Lightbulb
 } from "lucide-react";
-import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
 import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
 import useIsMobile from "@/hooks/use-mobile";
 import { useEventContext } from "@/context/EventContext";
 
 const Hero = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { searchSuggestions } = useSearchSuggestions();
@@ -38,7 +36,7 @@ const Hero = () => {
   const { hebrewCategories, isLoading } = useEventContext();
   
   const handleSearch = () => {
-    // פתיחת החיפוש המונחה במקום חיפוש רגיל
+    // פתיחת החיפוש המונחה
     setIsGuidedSearchOpen(true);
   };
   
@@ -97,7 +95,7 @@ const Hero = () => {
         </p>
         
         <div className="w-full max-w-2xl relative z-10">
-          {/* שינוי חיפוש ראשי להפעלת החיפוש המונחה */}
+          {/* חיפוש מונחה במרכז */}
           <div className="relative" dir="rtl">
             <input
               type="text"
@@ -130,8 +128,6 @@ const Hero = () => {
             </Button>
           ))}
         </div>
-        
-        {/* הסרה של הכפתור המיותר */}
       </div>
       
       {/* מודל החיפוש המונחה */}

@@ -43,7 +43,9 @@ export default function ServiceCategoriesHebrew() {
   
   useEffect(() => {
     if (hebrewCategories && hebrewCategories.length > 0) {
+      // עדכון הקטגוריה הנבחרת הראשונית
       setSelectedCategory(hebrewCategories[0]);
+      // עדכון תת-הקטגוריות הנבחרות הראשוניות
       setSelectedSubcategories(hebrewCategories[0].subcategories.slice(0, 6));
     }
   }, [hebrewCategories]);
@@ -82,7 +84,7 @@ export default function ServiceCategoriesHebrew() {
         {/* קטגוריות ראשיות */}
         <h3 className="text-2xl font-bold mb-6 text-right">קטגוריות ראשיות</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-          {hebrewCategories.map((category) => (
+          {hebrewCategories && hebrewCategories.map((category) => (
             <Link key={category.id} to={`/categories/${category.id}`}>
               <Card className={`h-full hover:shadow-md transition-all transform hover:-translate-y-1 duration-300 ${
                 selectedCategory?.id === category.id ? 'border-brand-600 border-2' : ''
@@ -102,8 +104,8 @@ export default function ServiceCategoriesHebrew() {
                     </div>
                   </div>
                   <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-2">{category.description}</p>
-                  {category.subcategories.length > 0 && (
+                  <p className="text-sm text-gray-500 line-clamp-2">{category.description || ""}</p>
+                  {category.subcategories && category.subcategories.length > 0 && (
                     <span className="mt-3 text-xs px-2 py-1 bg-brand-50 text-brand-700 rounded-full">
                       {category.subcategories.length} תתי-קטגוריות
                     </span>
@@ -152,7 +154,7 @@ export default function ServiceCategoriesHebrew() {
         {/* קונספטים מובילים */}
         <h3 className="text-2xl font-bold mb-6 text-right">קונספטים פופולריים</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
-          {hebrewConcepts.slice(0, 5).map((concept) => (
+          {hebrewConcepts && hebrewConcepts.slice(0, 5).map((concept) => (
             <Link key={concept.id} to={`/concepts/${concept.id}`}>
               <Card className="h-full hover:shadow-md transition-all transform hover:-translate-y-1 duration-300">
                 <CardContent className="flex flex-col items-center justify-center p-4 text-center h-full">
@@ -166,9 +168,11 @@ export default function ServiceCategoriesHebrew() {
                     </div>
                   </div>
                   <h3 className="font-semibold text-base mb-1">{concept.name}</h3>
-                  <span className="mt-2 text-xs px-2 py-1 bg-accent1-50 text-accent1-700 rounded-full">
-                    {concept.subconcepts.length} סוגי אירועים
-                  </span>
+                  {concept.subconcepts && (
+                    <span className="mt-2 text-xs px-2 py-1 bg-accent1-50 text-accent1-700 rounded-full">
+                      {concept.subconcepts.length} סוגי אירועים
+                    </span>
+                  )}
                 </CardContent>
               </Card>
             </Link>

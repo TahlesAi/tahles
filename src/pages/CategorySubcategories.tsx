@@ -35,15 +35,15 @@ const CategorySubcategories = () => {
     setSelectedSubcategory(null);
     
     // Find and set the selected Hebrew category
-    if (categoryId && hebrewCategories.length > 0) {
-      const category = hebrewCategories.find(c => c.id === categoryId);
-      setHebrewCategory(category || null);
+    if (categoryId && hebrewCategories && hebrewCategories.length > 0) {
+      const category = hebrewCategories.find(c => c.id === categoryId) || null;
+      setHebrewCategory(category);
     }
     
     // For backward compatibility, also set the selected category from the regular categories
-    if (categoryId && categories.length > 0) {
-      const category = categories.find(c => c.id === categoryId);
-      setSelectedCategory(category || null);
+    if (categoryId && categories && categories.length > 0) {
+      const category = categories.find(c => c.id === categoryId) || null;
+      setSelectedCategory(category);
     }
   }, [categoryId, categories, hebrewCategories, setSelectedCategory, setSelectedSubcategory]);
 
@@ -130,12 +130,12 @@ const CategorySubcategories = () => {
           <div className="mb-10">
             <h2 className="text-xl font-semibold mb-4">תת-קטגוריות ב{categoryName}</h2>
             
-            {subcategories.length > 0 ? (
+            {subcategories && subcategories.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {subcategories.map((subcategory) => {
                   // Handle both Hebrew subcategory and legacy subcategory
-                  const subcategoryId = 'subcategoryId' in subcategory ? 
-                    subcategory.subcategoryId : subcategory.id;
+                  const subcategoryId = 'categoryId' in subcategory ? 
+                    subcategory.id : subcategory.id;
                   const subcategoryName = subcategory.name;
                   const subcategoryIcon = subcategory.icon;
                   const subcategoryDescription = subcategory.description || '';
@@ -147,7 +147,7 @@ const CategorySubcategories = () => {
                       className="group"
                       onClick={() => {
                         // Only set selected subcategory if it's a legacy subcategory
-                        if (!('subcategoryId' in subcategory)) {
+                        if (!('categoryId' in subcategory)) {
                           setSelectedSubcategory(subcategory);
                         }
                       }}

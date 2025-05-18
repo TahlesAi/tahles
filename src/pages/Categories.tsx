@@ -146,7 +146,7 @@ const Categories = () => {
                           </div>
                         </div>
                         <h3 className="text-xl font-semibold mb-2 text-center">{category.name}</h3>
-                        <p className="text-gray-500 text-center mb-4">{category.description}</p>
+                        <p className="text-gray-500 text-center mb-4">{category.description || ""}</p>
                         <div className="mt-auto text-sm text-gray-400">{subcategoryCount} תת-קטגוריות</div>
                       </CardContent>
                     </Card>
@@ -163,7 +163,7 @@ const Categories = () => {
             <h2 className="text-3xl font-bold mb-8">קונספטים פופולריים</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
               {hebrewConcepts.map((concept) => {
-                const subconcept_count = concept.subconcepts.length;
+                const subconcept_count = concept.subconcepts ? concept.subconcepts.length : 0;
                 return (
                   <Link 
                     key={concept.id} 

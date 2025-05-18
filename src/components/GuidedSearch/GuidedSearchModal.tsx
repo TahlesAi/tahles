@@ -13,7 +13,7 @@ import AttendeesStep from "./steps/AttendeesStep";
 import ConceptStep from "./steps/ConceptStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
-import { HebrewConcept } from "@/lib/types/hierarchy";
+import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
 import { useEventContext } from "@/context/EventContext";
 
 export type EventType = 'private' | 'business' | 'mixed' | 'children';
