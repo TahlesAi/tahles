@@ -12,7 +12,9 @@ import EventDateStep from "./steps/EventDateStep";
 import AttendeesStep from "./steps/AttendeesStep";
 import ConceptStep from "./steps/ConceptStep";
 import ResultsStep from "./steps/ResultsStep";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { HebrewConcept } from "@/lib/types/hierarchy";
+import { useEventContext } from "@/context/EventContext";
 
 export type EventType = 'private' | 'business' | 'mixed' | 'children';
 export type EventConcept = {
@@ -28,6 +30,10 @@ export interface GuidedSearchData {
   eventConcept?: string;
   conceptDetails?: string; // לפרטים נוספים כמו גיל בימי הולדת
   conceptAudience?: 'family' | 'friends' | 'mixed' | null; // למי מיועד האירוע
+  // שדות נוספים לפי הקונספטים העבריים
+  selectedCategory?: string;
+  selectedSubcategory?: string;
+  selectedHebrewConcept?: HebrewConcept | null;
 }
 
 interface GuidedSearchModalProps {
@@ -46,6 +52,7 @@ const STEPS = {
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   const [currentStep, setCurrentStep] = useState(STEPS.EVENT_DATE);
   const [searchData, setSearchData] = useState<GuidedSearchData>({});
+  const { hebrewCategories, hebrewConcepts } = useEventContext();
   
   const handleNext = () => {
     if (currentStep < STEPS.RESULTS) {
@@ -73,8 +80,17 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
     setSearchData({});
   };
   
+  const handleCloseModal = () => {
+    onClose();
+    // איפוס שלבים ונתונים בעת סגירת החלון
+    setTimeout(() => {
+      setCurrentStep(STEPS.EVENT_DATE);
+      setSearchData({});
+    }, 300);
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleCloseModal}>
       <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl text-right" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
@@ -98,6 +114,17 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
             <EventTypeStep 
               selectedType={searchData.eventType}
               onSelect={(type) => updateSearchData({ eventType: type })}
+              hebrewConcepts={hebrewConcepts}
+              onSelectHebrewConcept={(concept) => 
+                updateSearchData({ 
+                  selectedHebrewConcept: concept,
+                  // מיפוי קונספט עברי לסוג אירוע של המערכת
+                  eventType: 
+                    concept.id === 'family-event' ? 'private' : 
+                    concept.id === 'company-event' ? 'business' : 
+                    'mixed'
+                })
+              }
             />
           )}
           
@@ -112,11 +139,15 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
             <ConceptStep 
               eventType={searchData.eventType}
               selectedConcept={searchData.eventConcept}
-              onUpdate={(concept, details, audience) => 
+              selectedHebrewConcept={searchData.selectedHebrewConcept}
+              hebrewCategories={hebrewCategories}
+              onUpdate={(concept, details, audience, category, subcategory) => 
                 updateSearchData({ 
                   eventConcept: concept, 
                   conceptDetails: details,
-                  conceptAudience: audience
+                  conceptAudience: audience,
+                  selectedCategory: category,
+                  selectedSubcategory: subcategory
                 })
               }
             />

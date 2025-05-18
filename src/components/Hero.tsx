@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,15 @@ import {
   Gift, 
   Sparkles, 
   Calendar, 
-  Wand2 
+  Wand2, 
+  PartyPopper, 
+  TentTree, 
+  User, 
+  PlusCircle, 
+  Users, 
+  Headphones,
+  Building,
+  Lightbulb
 } from "lucide-react";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
@@ -26,7 +35,7 @@ const Hero = () => {
   const navigate = useNavigate();
   const { searchSuggestions } = useSearchSuggestions();
   const isMobile = useIsMobile();
-  const { categories, isLoading } = useEventContext();
+  const { hebrewCategories, isLoading } = useEventContext();
   
   const handleSearch = (term: string) => {
     if (term.trim()) {
@@ -39,6 +48,27 @@ const Hero = () => {
   
   const handleButtonClick = () => {
     setIsGuidedSearchOpen(true);
+  };
+  
+  // מיפוי אייקונים עבור הקטגוריות העבריות
+  const getCategoryIcon = (iconName: string | undefined) => {
+    if (!iconName) return <PlusCircle className="h-5 w-5" />;
+    
+    const iconComponents: Record<string, JSX.Element> = {
+      "MapPin": <MapPin className="h-5 w-5" />,
+      "Utensils": <Utensils className="h-5 w-5" />,
+      "Music": <Music className="h-5 w-5" />,
+      "Mic2": <Mic2 className="h-5 w-5" />,
+      "TentTree": <TentTree className="h-5 w-5" />,
+      "Sparkles": <Sparkles className="h-5 w-5" />,
+      "Gift": <Gift className="h-5 w-5" />,
+      "PlusCircle": <PlusCircle className="h-5 w-5" />,
+      "Users": <Users className="h-5 w-5" />,
+      "Building": <Building className="h-5 w-5" />,
+      "Lightbulb": <Lightbulb className="h-5 w-5" />
+    };
+    
+    return iconComponents[iconName] || <PlusCircle className="h-5 w-5" />;
   };
   
   return (
@@ -73,7 +103,7 @@ const Hero = () => {
           <AutocompleteSearch
             suggestions={searchSuggestions}
             onSearch={handleSearch}
-            placeholder="מצא לי פתרון תוכן לאירוע מושלם..."
+            placeholder="מצא לי פתרון לאירוע מושלם..."
             value={searchTerm}
             onChange={setSearchTerm}
             buttonText="חיפוש מונחה"
@@ -87,43 +117,30 @@ const Hero = () => {
           />
         </div>
         
-        {/* קטגוריות - שיפור תצוגה למובייל */}
+        {/* קטגוריות - רק קטגוריות ראשיות כפי שהוגדרו בהיררכיה העברית */}
         <div className={`flex flex-wrap justify-center gap-3 md:gap-5 mt-10 ${isMobile ? 'overflow-x-auto pb-4 flex-nowrap justify-start w-full' : ''}`} dir="rtl">
-          {!isLoading && categories.slice(0, 6).map((category) => (
+          {!isLoading && hebrewCategories && hebrewCategories.map((category) => (
             <Button 
               key={category.id}
               variant="outline" 
               className={`bg-white/20 text-white border-white/30 hover:bg-white/30 ${isMobile ? 'min-w-[120px] flex-shrink-0' : ''}`}
               onClick={() => navigate(`/categories/${category.id}`)}
             >
-              {category.icon && typeof category.icon === 'string' && iconMap[category.icon] ? (
-                iconMap[category.icon]
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-white flex items-center justify-center text-brand-600 text-xs ml-2">
-                  {category.name.substring(0, 1)}
-                </div>
-              )}
+              {getCategoryIcon(category.icon)}
               <span className="mr-2">{category.name}</span>
             </Button>
           ))}
-          
-          <Button
-            variant="outline"
-            className={`bg-white/20 text-white border-white/30 hover:bg-white/30 ${isMobile ? 'min-w-[120px] flex-shrink-0' : ''}`}
-            onClick={() => navigate('/categories')}
-          >
-            <span>כל הקטגוריות</span>
-          </Button>
         </div>
         
         <Button
           variant="outline"
           size="lg"
           className="mt-8 bg-brand-500 text-white hover:bg-brand-600 border-white"
-          onClick={() => navigate('/categories')}
+          onClick={handleButtonClick}
           dir="rtl"
         >
-          צפה בכל הקטגוריות
+          <Search className="ml-2 h-5 w-5" />
+          מצא לי פתרון לאירוע מושלם
         </Button>
       </div>
       
@@ -134,21 +151,6 @@ const Hero = () => {
       />
     </section>
   );
-};
-
-// מיפוי אייקונים 
-const iconMap: Record<string, React.ReactNode> = {
-  "Music": <Music className="h-5 w-5" />,
-  "Camera": <Camera className="h-5 w-5" />,
-  "Utensils": <Utensils className="h-5 w-5" />,
-  "MapPin": <MapPin className="h-5 w-5" />,
-  "Mic": <Mic2 className="h-5 w-5" />,
-  "Mic2": <Mic2 className="h-5 w-5" />,
-  "Monitor": <Monitor className="h-5 w-5" />,
-  "Gift": <Gift className="h-5 w-5" />,
-  "Sparkles": <Sparkles className="h-5 w-5" />,
-  "Calendar": <Calendar className="h-5 w-5" />,
-  "Wand2": <Wand2 className="h-5 w-5" />,
 };
 
 export default Hero;

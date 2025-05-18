@@ -1,7 +1,7 @@
 
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import ServiceCategories from "@/components/ServiceCategories";
+import ServiceCategoriesHebrew from "@/components/ServiceCategoriesHebrew";
 import FeaturedProviders from "@/components/FeaturedProviders";
 import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
@@ -40,6 +40,39 @@ const features = [
     title: "הכל במקום אחד",
     description: "מתקשורת ועד תשלומים, נהלו את כל היבטי האירוע שלכם בפלטפורמה אחת נוחה וידידותית.",
     icon: "📱"
+  }
+];
+
+// יתרונות חדשים למשתמשים
+const userBenefits = [
+  {
+    title: "דף מוצר מקצועי",
+    description: "דף מוצר מקצועי לכל חלופה – המאפשר טעימה חווייתית בכל מוצר בו מתעניינים.",
+    icon: "📋"
+  },
+  {
+    title: "מערכת שיתוף ביקורות",
+    description: "מערכת שיתוף ביקורות פנימית בין הלקוחות – אשר מבטיחה הצלחה בבחירת המוצרים.",
+    icon: "⭐"
+  },
+  {
+    title: "5% קשבק להזמנה הבאה",
+    description: "לקוחות תכלס חוסכים בכל הזמנה 5% קשבק להזמנה הבאה.",
+    icon: "💰"
+  }
+];
+
+// יתרונות חדשים לספקים
+const providerBenefits = [
+  {
+    title: "מערכת ניהול ושיווק מושלמת",
+    description: "מערכת ניהול ושיווק מושלמת להצגת השירותים שלכם בצורה מקצועית.",
+    icon: "📊"
+  },
+  {
+    title: "פטור מדמי ניהול",
+    description: "פטור מדמי ניהול למשך 5 שנים למצטרפים בתקופת ההרצה.",
+    icon: "🎁"
   }
 ];
 
@@ -99,10 +132,10 @@ const Index = () => {
           </div>
         </section>
         
-        {/* קטגוריות שירות - השתמש ברכיב ServiceCategories הקיים */}
-        <ServiceCategories />
+        {/* קטגוריות שירות - עכשיו עם הרכיב העברי החדש */}
+        <ServiceCategoriesHebrew />
         
-        {/* ספקים מובילים - הצגת הספקים המובילים */}
+        {/* ספקים מובילים */}
         <section className="py-16 bg-white" dir="rtl">
           <div className="container px-4">
             <div className="flex justify-between items-center mb-8">
@@ -157,7 +190,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* מאפיינים */}
+        {/* מאפיינים והיתרונות החדשים */}
         <section className="py-16 bg-gray-50" dir="rtl">
           <div className="container px-4">
             <h2 className="text-2xl font-bold mb-8 text-center">למה ת'כל'ס?</h2>
@@ -168,6 +201,30 @@ const Index = () => {
                   <span className="text-4xl mb-4 block">{feature.icon}</span>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* יתרונות ללקוחות */}
+            <h2 className="text-2xl font-bold mt-16 mb-8 text-center">יתרונות ללקוחות</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {userBenefits.map((benefit, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 border-brand-100">
+                  <span className="text-4xl mb-4 block">{benefit.icon}</span>
+                  <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-gray-600">{benefit.description}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* יתרונות לספקים */}
+            <h2 className="text-2xl font-bold mt-16 mb-8 text-center">יתרונות לספקים</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {providerBenefits.map((benefit, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 border-accent1-100">
+                  <span className="text-4xl mb-4 block">{benefit.icon}</span>
+                  <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-gray-600">{benefit.description}</p>
                 </div>
               ))}
             </div>
