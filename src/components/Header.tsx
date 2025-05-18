@@ -53,7 +53,7 @@ const Header = () => {
           </div>
           
           {/* Search Bar - only on desktop - now with more space */}
-          <div className="hidden md:block flex-1 mx-8 max-w-lg order-4 md:order-3">
+          <div className="hidden md:block flex-1 mx-8 max-w-xl order-4 md:order-3">
             <SearchableHeader 
               placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
               dir="rtl"

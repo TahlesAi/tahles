@@ -18,6 +18,7 @@ import ProviderOnboarding from './pages/ProviderOnboarding';
 import SubcategoryServiceTypes from './pages/SubcategoryServiceTypes';
 import ServiceTypeProviders from './pages/ServiceTypeProviders';
 import ProviderServices from './pages/ProviderServices';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/services/:serviceId" element={<ServiceDetails />} />
             <Route path="/catering-search" element={<CateringSearch />} />
             <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />
