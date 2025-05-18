@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Zap, Star, ShieldCheck, CalendarClock, Trophy, Users, Search, ReceiptText } from "lucide-react";
+import { Check, Zap, Star, ShieldCheck, CalendarClock, Trophy, Users, Search, ReceiptText, Megaphone, BarChart, BadgePercent, GraduationCap, Award } from "lucide-react";
 
 const BenefitsCard = () => {
   return (
@@ -96,6 +96,56 @@ const BenefitsCard = () => {
             <div>
               <p className="font-medium">קבלת לידים איכותיים</p>
               <p className="text-sm text-gray-600">מערכת התאמה חכמה המקשרת בין לקוחות פוטנציאליים לספקים המתאימים ביותר, מה שמבטיח לידים ממוקדים בדיוק לקהל היעד שלכם.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-accent1-500 rounded-full flex items-center justify-center text-white">
+              <Megaphone className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-medium">שיווק דיגיטלי משולב</p>
+              <p className="text-sm text-gray-600">הופעה בקמפיינים שיווקיים וברשתות החברתיות של תכל'ס. חשיפה לקהל רחב ומגוון באמצעות פרסום ממוקד.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-accent1-500 rounded-full flex items-center justify-center text-white">
+              <BarChart className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-medium">נתונים ותובנות עסקיות</p>
+              <p className="text-sm text-gray-600">גישה לדוחות וניתוחים מפורטים על ביצועי העסק. מעקב אחרי מגמות, העדפות לקוחות וזיהוי הזדמנויות צמיחה.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-accent1-500 rounded-full flex items-center justify-center text-white">
+              <BadgePercent className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-medium">הטבות ומבצעים לספקים</p>
+              <p className="text-sm text-gray-600">גישה להטבות בלעדיות, הנחות על שירותים משלימים והשתתפות במבצעים ייעודיים לקהילת הספקים שלנו.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-accent1-500 rounded-full flex items-center justify-center text-white">
+              <GraduationCap className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-medium">הדרכה וליווי מקצועי</p>
+              <p className="text-sm text-gray-600">תמיכה מלאה מצוות המומחים שלנו, סדנאות שיווק וחומרי הדרכה לשיפור ביצועי העסק ומקסום פוטנציאל ההכנסות.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-accent1-500 rounded-full flex items-center justify-center text-white">
+              <Award className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-medium">אמינות ויוקרה</p>
+              <p className="text-sm text-gray-600">הנוכחות שלכם בפלטפורמה מעניקה תו איכות ואמינות בעיני לקוחות פוטנציאליים, ומגבירה את האמון בשירותים שלכם.</p>
             </div>
           </div>
         </div>

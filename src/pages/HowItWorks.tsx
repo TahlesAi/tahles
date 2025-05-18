@@ -1,12 +1,19 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Zap, Search, CreditCard, CalendarClock, Award } from "lucide-react";
+import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
 
 const HowItWorks = () => {
+  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
+
+  const handleStartClick = () => {
+    setIsGuidedSearchOpen(true);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -18,8 +25,11 @@ const HowItWorks = () => {
               מערכת תכל'ס מחברת בין ספקים לבין אנשים המחפשים שירותים לאירועים שלהם בצורה פשוטה, מהירה ואמינה.
             </p>
             <div className="mt-6">
-              <Button asChild className="bg-accent1-500 hover:bg-accent1-600 text-white px-8 py-6 text-lg rounded-full">
-                <Link to="/#search-section">בואו נתחיל</Link>
+              <Button 
+                className="bg-accent1-500 hover:bg-accent1-600 text-white px-8 py-6 text-lg rounded-full"
+                onClick={handleStartClick}
+              >
+                בואו נתחיל
               </Button>
             </div>
           </div>
@@ -92,8 +102,11 @@ const HowItWorks = () => {
             </div>
             
             <div className="mt-12 text-center">
-              <Button asChild className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-6 text-lg rounded-full">
-                <Link to="/#search-section">חפשו שירותים עכשיו</Link>
+              <Button 
+                className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-6 text-lg rounded-full"
+                onClick={handleStartClick}
+              >
+                חפשו שירותים עכשיו
               </Button>
             </div>
           </div>
@@ -139,8 +152,11 @@ const HowItWorks = () => {
             </p>
             
             <div className="flex flex-col md:flex-row gap-4 justify-center">
-              <Button asChild className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-6 text-lg">
-                <Link to="/#search-section">חיפוש שירותים</Link>
+              <Button 
+                className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-6 text-lg"
+                onClick={handleStartClick}
+              >
+                חיפוש שירותים
               </Button>
               
               <Button asChild variant="outline" className="border-brand-600 text-brand-600 hover:bg-brand-50 px-8 py-6 text-lg">
@@ -151,6 +167,12 @@ const HowItWorks = () => {
         </section>
       </main>
       <Footer />
+      
+      {/* Guided Search Modal */}
+      <GuidedSearchModal 
+        isOpen={isGuidedSearchOpen} 
+        onClose={() => setIsGuidedSearchOpen(false)} 
+      />
     </div>
   );
 };

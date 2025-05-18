@@ -13,7 +13,6 @@ import Search from './pages/Search';
 import CateringSearch from "./pages/CateringSearch";
 import Index from './pages/Index';
 import HowItWorks from './pages/HowItWorks';
-import HowItWorksAlternative from './pages/HowItWorksAlternative';
 import ProviderOnboarding from './pages/ProviderOnboarding';
 import SubcategoryServiceTypes from './pages/SubcategoryServiceTypes';
 import ServiceTypeProviders from './pages/ServiceTypeProviders';
@@ -28,7 +27,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/how-it-works-alt" element={<HowItWorksAlternative />} />
             <Route path="/search" element={<Search />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
@@ -41,7 +39,17 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />
+          <ToastContainer 
+            position="bottom-right" 
+            autoClose={5000} 
+            hideProgressBar={false} 
+            newestOnTop 
+            closeOnClick 
+            rtl 
+            pauseOnFocusLoss 
+            draggable 
+            pauseOnHover 
+          />
         </Router>
       </EventProvider>
     </AuthProvider>

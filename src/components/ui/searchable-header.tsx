@@ -65,32 +65,20 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     return searchSuggestions;
   }, [searchSuggestions, mentalistProviders]);
 
+  const handleOpenGuidedSearch = () => {
+    setIsGuidedSearchOpen(true);
+  };
+
   return (
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
-        <AutocompleteSearch
-          suggestions={enhancedSuggestions}
-          onSearch={handleSearch}
-          placeholder={placeholder}
-          value={searchTerm}
-          onChange={setSearchTerm}
-          buttonText=""
-          dir={dir}
-          inputClassName={inputClassName}
-          buttonClassName={buttonClassName}
-          showButton={false}
-          autoFocus={false}
-          onButtonClick={() => useGuidedSearch ? setIsGuidedSearchOpen(true) : handleSearch(searchTerm)}
-        />
         <Button
           type="button"
+          className={cn("w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full", inputClassName)}
+          onClick={handleOpenGuidedSearch}
           variant="ghost"
-          size="icon"
-          className="absolute left-1 top-1/2 transform -translate-y-1/2"
-          onClick={() => useGuidedSearch ? setIsGuidedSearchOpen(true) : handleSearch(searchTerm)}
-          aria-label="חיפוש"
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-4 w-4 text-gray-500" />
         </Button>
       </div>
       

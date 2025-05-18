@@ -16,13 +16,14 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, UserPlus, Search } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
-import SearchableHeader from "@/components/ui/searchable-header";
+import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [userType, setUserType] = useState<"client" | "provider">("client");
+  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Extract user metadata safely
@@ -31,15 +32,8 @@ const Header = () => {
   const userAvatar = userMeta.avatar_url || '';
 
   const handleSearchClick = () => {
-    // Open guided search modal
-    const searchModal = document.querySelector('div[role="dialog"]');
-    if (searchModal) {
-      searchModal.dispatchEvent(new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      }));
-    }
+    // Open guided search modal directly
+    setIsGuidedSearchOpen(true);
   };
 
   return (
@@ -53,7 +47,7 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Button for Provider Onboarding - shorter text */}
+          {/* Button for Provider Onboarding */}
           <div className="order-3 md:order-2 mx-6">
             <Link 
               to="/provider-onboarding" 
@@ -130,7 +124,7 @@ const Header = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col space-y-4 mt-4">
-                    {/* Provider Onboarding Button in Mobile Menu - shorter text */}
+                    {/* Provider Onboarding Button in Mobile Menu */}
                     <Link 
                       to="/provider-onboarding" 
                       className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
@@ -179,6 +173,12 @@ const Header = () => {
         setMode={setAuthMode}
         userType={userType}
         setUserType={setUserType}
+      />
+
+      {/* Guided Search Modal */}
+      <GuidedSearchModal 
+        isOpen={isGuidedSearchOpen} 
+        onClose={() => setIsGuidedSearchOpen(false)} 
       />
     </header>
   );
