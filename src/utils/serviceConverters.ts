@@ -23,6 +23,7 @@ export function convertServiceToSearchResult(service: Service, providerName: str
     suitableFor: service.suitableFor || [],
     featured: service.is_featured || false,
     additionalImages: service.additional_images || [],
+    // בדיקה אם המאפיין videos קיים, אם לא מחזירים מערך ריק
     videos: service.videos || []
   };
 }

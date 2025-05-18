@@ -1,4 +1,3 @@
-
 // Hierarchical Data Types
 export interface Category {
   id: string;
@@ -65,6 +64,7 @@ export interface Service {
   suitableFor?: string[]; // Event concepts
   audience_size?: AudienceSize;
   location?: string;
+  videos?: string[]; // הוספתי את התכונה videos כמערך של מחרוזות
 }
 
 export type AudienceSize = 
