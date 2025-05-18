@@ -1,127 +1,36 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { ChevronLeft, Home, ChevronRight } from 'lucide-react';
+import { useEventContext } from '@/context/EventContext';
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const [category, setCategory] = useState<any | null>(null);
-  const [subcategories, setSubcategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [providers, setProviders] = useState<any[]>([]);
+  const { 
+    categories, 
+    selectedCategory, 
+    setSelectedCategory, 
+    setSelectedSubcategory, 
+    getSubcategoriesByCategory,
+    isLoading, 
+    error 
+  } = useEventContext();
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        // Fetch category data
-        const { data: categoryData, error: categoryError } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('id', categoryId)
-          .single();
-
-        if (categoryError) throw categoryError;
-        setCategory(categoryData);
-
-        // Fetch subcategories for this category
-        const { data: subcategoriesData, error: subcategoriesError } = await supabase
-          .from('subcategories')
-          .select('id, name, description, icon, provider_subcategories(provider_id)')
-          .eq('category_id', categoryId)
-          .order('name', { ascending: true });
-
-        if (subcategoriesError) throw subcategoriesError;
-        setSubcategories(subcategoriesData);
-
-        // ספקים ייחודיים לקטגוריה זו 
-        if (subcategoriesData.length > 0) {
-          // אוסף את כל ספקי המשנה לתת-קטגוריה
-          const allProviderIds = subcategoriesData
-            .flatMap(sub => sub.provider_subcategories)
-            .map(ps => ps.provider_id)
-            .filter((id, index, self) => id && self.indexOf(id) === index); // רק ערכים ייחודיים
-
-          if (allProviderIds.length > 0) {
-            const { data: providersData, error: providersError } = await supabase
-              .from('providers')
-              .select('id, name, description, logo_url, services(id)')
-              .in('id', allProviderIds);
-
-            if (providersError) throw providersError;
-            setProviders(providersData);
-          } else {
-            // אם אין תת-קטגוריות, בדוק אם יש ספקים משויכים ישירות לקטגוריה
-            const { data: directProviders, error: directProvidersError } = await supabase
-              .from('provider_subcategories')
-              .select('providers(id, name, description, logo_url, services(id)), subcategories(category_id)')
-              .eq('subcategories.category_id', categoryId);
-
-            if (directProvidersError) throw directProvidersError;
-            
-            if (directProviders && directProviders.length > 0) {
-              // שמירת הספקים הייחודיים
-              const uniqueProviders = directProviders
-                .filter(p => p.providers) // הסרת שורות ללא ספקים
-                .map(p => p.providers)
-                .filter((provider, index, self) => 
-                  index === self.findIndex(p => p.id === provider.id)
-                );
-              
-              setProviders(uniqueProviders);
-            } else {
-              setProviders([]);
-            }
-          }
-        } else {
-          // אם אין תת-קטגוריות, בדוק אם יש ספקים משויכים ישירות לקטגוריה
-          const { data: directProviders, error: directProvidersError } = await supabase
-            .from('provider_subcategories')
-            .select('providers(id, name, description, logo_url, services(id)), subcategories(category_id)')
-            .eq('subcategories.category_id', categoryId);
-
-          if (directProvidersError) throw directProvidersError;
-          
-          if (directProviders && directProviders.length > 0) {
-            // שמירת הספקים הייחודיים
-            const uniqueProviders = directProviders
-              .filter(p => p.providers) // הסרת שורות ללא ספקים
-              .map(p => p.providers)
-              .filter((provider, index, self) => 
-                index === self.findIndex(p => p.id === provider.id)
-              );
-            
-            setProviders(uniqueProviders);
-          } else {
-            setProviders([]);
-          }
-        }
-      } catch (error) {
-        console.error('שגיאה בטעינת הנתונים:', error);
-        toast.error('אירעה שגיאה בטעינת הנתונים');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (categoryId) {
-      fetchData();
+    // Reset selected subcategory when viewing a new category
+    setSelectedSubcategory(null);
+    
+    // Find and set the selected category
+    if (categoryId && categories.length > 0) {
+      const category = categories.find(c => c.id === categoryId);
+      setSelectedCategory(category || null);
     }
-  }, [categoryId]);
-
-  // פותחים דף קייטרינג מיוחד אם זה קטגוריית קייטרינג
-  if (categoryId === 'cb6c8965-2dfc-442b-824d-528ab2ab5648') {
-    return (
-      <CateringRedirect />
-    );
-  }
+  }, [categoryId, categories, setSelectedCategory, setSelectedSubcategory]);
 
   if (isLoading) {
     return (
@@ -133,15 +42,8 @@ const CategorySubcategories = () => {
             <Skeleton className="h-6 w-full mb-8" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {Array(3).fill(null).map((_, i) => (
+              {Array(6).fill(null).map((_, i) => (
                 <Skeleton key={i} className="h-40 rounded-lg" />
-              ))}
-            </div>
-
-            <Skeleton className="h-8 w-64 mb-4" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array(3).fill(null).map((_, i) => (
-                <Skeleton key={i} className="h-64 rounded-lg" />
               ))}
             </div>
           </div>
@@ -151,7 +53,7 @@ const CategorySubcategories = () => {
     );
   }
 
-  if (!category) {
+  if (error || !selectedCategory) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -169,10 +71,19 @@ const CategorySubcategories = () => {
     );
   }
 
+  // קטגוריית קייטרינג מופנית לדף ייעודי
+  if (categoryId === 'cb6c8965-2dfc-442b-824d-528ab2ab5648') {
+    return (
+      <CateringRedirect />
+    );
+  }
+
+  const subcategories = getSubcategoriesByCategory(categoryId);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow" dir="rtl">
         <div className="container px-4 py-8">
           {/* פירורי לחם */}
           <nav className="flex mb-6 text-sm items-center text-gray-500">
@@ -182,32 +93,43 @@ const CategorySubcategories = () => {
             <ChevronLeft className="h-3 w-3 mx-1" />
             <Link to="/categories" className="hover:text-brand-600">קטגוריות</Link>
             <ChevronLeft className="h-3 w-3 mx-1" />
-            <span className="text-gray-900 font-medium">{category.name}</span>
+            <span className="text-gray-900 font-medium">{selectedCategory.name}</span>
           </nav>
 
           {/* כותרת הקטגוריה */}
           <div className="max-w-3xl mx-auto mb-10">
-            <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
-            <p className="text-gray-600">{category.description}</p>
+            <h1 className="text-3xl font-bold mb-2">{selectedCategory.name}</h1>
+            <p className="text-gray-600">{selectedCategory.description}</p>
           </div>
 
           {/* תת-קטגוריות */}
-          {subcategories.length > 0 && (
-            <div className="mb-10">
-              <h2 className="text-xl font-semibold mb-4">תת-קטגוריות ב{category.name}</h2>
+          <div className="mb-10">
+            <h2 className="text-xl font-semibold mb-4">תת-קטגוריות ב{selectedCategory.name}</h2>
+            
+            {subcategories.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {subcategories.map((subcategory) => (
                   <Link
                     key={subcategory.id}
                     to={`/subcategories/${subcategory.id}`}
                     className="group"
+                    onClick={() => setSelectedSubcategory(subcategory)}
                   >
                     <Card className="h-full hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-center">
                           <div className="ml-3 p-2 bg-brand-50 rounded-md">
-                            {/* אייקון קשיח למטרות הדגמה, אפשר להשתמש בספריית האייקונים */}
-                            <div className="h-5 w-5 text-brand-600">{subcategory.icon}</div>
+                            <div className="h-5 w-5 text-brand-600">
+                              {subcategory.icon ? (
+                                <div className="text-brand-600">
+                                  {typeof subcategory.icon === 'string' && iconMap[subcategory.icon]}
+                                </div>
+                              ) : (
+                                <div className="h-5 w-5 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
+                                  {subcategory.name.substring(0, 1)}
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div>
                             <h3 className="font-medium group-hover:text-brand-600 transition-colors">
@@ -226,57 +148,23 @@ const CategorySubcategories = () => {
                   </Link>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* ספקים פופולאריים */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">ספקי {category.name} מובילים</h2>
-            {providers.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {providers.map((provider) => (
-                  <Link
-                    key={provider.id}
-                    to={`/providers/${provider.id}`}
-                    className="group"
-                  >
-                    <Card className="h-full hover:shadow-md transition-shadow overflow-hidden">
-                      <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                        {provider.logo_url ? (
-                          <img
-                            src={provider.logo_url}
-                            alt={provider.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-gray-400 text-sm">אין תמונה</span>
-                        )}
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-medium group-hover:text-brand-600 transition-colors mb-1">
-                          {provider.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 line-clamp-2 mb-3">
-                          {provider.description}
-                        </p>
-                        <div className="flex justify-end">
-                          <span className="text-xs text-brand-600 font-medium">
-                            {provider.services?.length || 0} שירותים זמינים
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
             ) : (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">לא נמצאו ספקים בקטגוריה זו</p>
+                <p className="text-gray-500">לא נמצאו תת-קטגוריות בקטגוריה זו</p>
                 <Button asChild variant="link" className="mt-2">
                   <Link to="/categories">חזרה לקטגוריות</Link>
                 </Button>
               </div>
             )}
+          </div>
+          
+          {/* CTA */}
+          <div className="text-center py-8 bg-brand-50 rounded-lg mt-10">
+            <h3 className="text-xl font-bold mb-2">מעוניינים להציע שירותים בקטגוריה זו?</h3>
+            <p className="text-gray-600 mb-4">הצטרפו כספק ופרסמו את השירותים שלכם</p>
+            <Button asChild>
+              <Link to="/provider-onboarding">הצטרפו כספק</Link>
+            </Button>
           </div>
         </div>
       </main>
@@ -308,6 +196,27 @@ const CateringRedirect = () => {
       <Footer />
     </div>
   );
+};
+
+// מיפוי שמות אייקונים לקומפוננטות של Lucide React
+const iconMap: Record<string, React.ReactNode> = {
+  "Music": <Music className="h-8 w-8" />,
+  "Camera": <Camera className="h-8 w-8" />,
+  "Utensils": <Utensils className="h-8 w-8" />,
+  "MapPin": <MapPin className="h-8 w-8" />,
+  "Mic": <Mic2 className="h-8 w-8" />,
+  "Mic2": <Mic2 className="h-8 w-8" />,
+  "Monitor": <Monitor className="h-8 w-8" />,
+  "Gift": <Gift className="h-8 w-8" />,
+  "Sparkles": <Sparkles className="h-8 w-8" />,
+  "Calendar": <Calendar className="h-8 w-8" />,
+  "Wand2": <Wand2 className="h-8 w-8" />,
+  "PartyPopper": <PartyPopper className="h-8 w-8" />,
+  "TentTree": <TentTree className="h-8 w-8" />,
+  "User": <User className="h-8 w-8" />,
+  "PlusCircle": <PlusCircle className="h-8 w-8" />,
+  "Users": <Users className="h-8 w-8" />,
+  "Headphones": <Headphones className="h-8 w-8" />
 };
 
 export default CategorySubcategories;
