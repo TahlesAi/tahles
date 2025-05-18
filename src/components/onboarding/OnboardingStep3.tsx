@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ProductForm from "./product/ProductForm";
 import ProductPreview from "./product/ProductPreview";
-import BenefitsCard from "./product/BenefitsCard";
+import BenefitsCard from "./BenefitsCard"; // Updated import path
 import TermsAgreement from "./product/TermsAgreement";
 
 interface OnboardingStep3Props {
@@ -102,17 +101,50 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
         .single();
       
       if (providerError) {
-        console.error("Provider creation error:", providerError);
-        toast({
-          title: "שגיאה ביצירת ספק",
-          description: providerError.message,
-          variant: "destructive"
-        });
-        return;
+        // Check if error is due to duplicate provider
+        if (providerError.code === '23505') {
+          // Provider already exists, just update it
+          const { data: updateData, error: updateError } = await supabase
+            .from('providers')
+            .update({
+              name: data.name || "ספק חדש",
+              email: data.email,
+              phone: data.phone,
+              description: data.description
+            })
+            .eq('id', sessionData.session.user.id)
+            .select()
+            .single();
+            
+          if (updateError) {
+            console.error("Provider update error:", updateError);
+            toast({
+              title: "שגיאה בעדכון פרופיל הספק",
+              description: updateError.message,
+              variant: "destructive"
+            });
+            return;
+          }
+        } else {
+          console.error("Provider creation error:", providerError);
+          toast({
+            title: "שגיאה ביצירת ספק",
+            description: providerError.message,
+            variant: "destructive"
+          });
+          return;
+        }
       }
       
       // Associate provider with selected subcategories
       if (data.selectedSubcategories && data.selectedSubcategories.length > 0) {
+        // First, remove existing subcategory mappings
+        await supabase
+          .from('provider_subcategories')
+          .delete()
+          .eq('provider_id', sessionData.session.user.id);
+        
+        // Then create new mappings
         const subcategoryMappings = data.selectedSubcategories.map((subcategoryId: string) => ({
           provider_id: sessionData.session.user.id,
           subcategory_id: subcategoryId
@@ -141,7 +173,9 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
           description: `מופע באורך ${productData.duration} דקות לקהל של עד ${productData.audience} אנשים בגילאי ${productData.ageRange}`,
           price_range: `₪${productData.price} לכרטיס`,
           duration: `${productData.duration} דקות`,
-          provider_id: sessionData.session.user.id
+          provider_id: sessionData.session.user.id,
+          audience_size: productData.audience,
+          price_unit: 'לכרטיס'
         });
       
       if (serviceError) {
@@ -153,6 +187,12 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
         });
         return;
       }
+      
+      // Update user profile to mark as provider
+      await supabase
+        .from('profiles')
+        .update({ is_provider: true })
+        .eq('id', sessionData.session.user.id);
       
       onUpdate(productData);
       toast({
@@ -177,7 +217,7 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
     <div className="max-w-3xl mx-auto">
       <div className="mb-8 text-center">
         <h2 className="text-2xl font-bold mb-2">פתיחת עמוד מוצר</h2>
-        <p className="text-gray-600">כמה פרטים בסיסים על המוצר בשביל מאגר יותר טוב להוסיף עוד פרטים</p>
+        <p className="text-gray-600">כמה פרטים בסיסים על המוצר בשביל להציג אותו בצורה המיטבית</p>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">

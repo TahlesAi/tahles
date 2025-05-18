@@ -67,27 +67,20 @@ const Header = () => {
           {/* Search Bar - simplified with only icon */}
           <div className="hidden md:block flex-1 mx-8 max-w-2xl order-4 md:order-3">
             <div className="relative">
-              <input
-                type="text"
-                placeholder=""
-                className="w-full py-2 px-10 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
-                onClick={handleSearchClick}
-                readOnly
-              />
               <button 
                 onClick={handleSearchClick}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700"
+                className="w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
                 aria-label="חיפוש"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-5 w-5 text-gray-500" />
               </button>
             </div>
           </div>
           
-          {/* Navigation Menu - REMOVED CATEGORIES LINK */}
-          <nav className="hidden md:flex items-center space-x-8 order-5 md:order-4">
-            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">איך זה עובד</Link>
-            <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">צור קשר</Link>
+          {/* Navigation Menu - wider spacing */}
+          <nav className="hidden md:flex items-center space-x-12 order-5 md:order-4">
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium">איך זה עובד</Link>
+            <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium">צור קשר</Link>
             
             {user ? (
               <DropdownMenu>
@@ -113,7 +106,7 @@ const Header = () => {
             ) : (
               <Button 
                 onClick={() => setOpenAuthModal(true)}
-                className="bg-brand-600 hover:bg-brand-700 text-white"
+                className="bg-brand-600 hover:bg-brand-700 text-white px-6"
               >
                 התחברות | הרשמה
               </Button>
@@ -145,7 +138,6 @@ const Header = () => {
                       <UserPlus className="h-4 w-4 ml-2 inline-block" />
                       ספק חדש
                     </Link>
-                    {/* REMOVED CATEGORIES LINK FROM MOBILE MENU AS WELL */}
                     <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
                     <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
                     {user ? (
@@ -168,19 +160,12 @@ const Header = () => {
       {isMobile && (
         <div className="border-t p-2">
           <div className="relative">
-            <input
-              type="text"
-              placeholder=""
-              className="w-full py-2 px-10 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
-              onClick={handleSearchClick}
-              readOnly
-            />
             <button 
               onClick={handleSearchClick}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700"
+              className="w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
               aria-label="חיפוש"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
