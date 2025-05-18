@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { cn } from "@/lib/utils";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
+import GuidedSearchModal from "../GuidedSearch/GuidedSearchModal";
 
 interface SearchableHeaderProps {
   className?: string;
@@ -25,12 +26,17 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   maxWidth = "75%"
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
+    // אם יש מונח חיפוש ספציפי, עדיין נאפשר חיפוש רגיל
     if (term.trim()) {
       navigate(`/search?q=${encodeURIComponent(term)}`);
+    } else {
+      // אם אין מונח חיפוש, נפתח את החיפוש המונחה
+      setIsGuidedSearchOpen(true);
     }
   };
 
@@ -56,31 +62,39 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   }, [searchSuggestions, mentalistProviders]);
 
   return (
-    <div className={cn("relative", className)} style={{ maxWidth }}>
-      <AutocompleteSearch
-        suggestions={enhancedSuggestions}
-        onSearch={handleSearch}
-        placeholder={placeholder}
-        value={searchTerm}
-        onChange={setSearchTerm}
-        buttonText=""
-        dir={dir}
-        inputClassName={inputClassName}
-        buttonClassName={buttonClassName}
-        showButton={false}
-        autoFocus={false}
+    <>
+      <div className={cn("relative", className)} style={{ maxWidth }}>
+        <AutocompleteSearch
+          suggestions={enhancedSuggestions}
+          onSearch={handleSearch}
+          placeholder={placeholder}
+          value={searchTerm}
+          onChange={setSearchTerm}
+          buttonText=""
+          dir={dir}
+          inputClassName={inputClassName}
+          buttonClassName={buttonClassName}
+          showButton={false}
+          autoFocus={false}
+          onButtonClick={() => setIsGuidedSearchOpen(true)}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute left-1 top-1/2 transform -translate-y-1/2"
+          onClick={() => setIsGuidedSearchOpen(true)}
+          aria-label="חיפוש מונחה"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <GuidedSearchModal
+        isOpen={isGuidedSearchOpen}
+        onClose={() => setIsGuidedSearchOpen(false)}
       />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="absolute left-1 top-1/2 transform -translate-y-1/2"
-        onClick={() => handleSearch(searchTerm)}
-        aria-label="חיפוש"
-      >
-        <Search className="h-4 w-4" />
-      </Button>
-    </div>
+    </>
   );
 };
 

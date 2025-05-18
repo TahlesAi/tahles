@@ -7,19 +7,22 @@ interface GuidedSearchButtonProps {
   className?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  size?: "default" | "sm" | "lg";
+  variant?: "default" | "outline" | "ghost";
 }
 
-const GuidedSearchButton = ({ className, isOpen, onOpenChange }: GuidedSearchButtonProps) => {
+const GuidedSearchButton = ({ className, isOpen, onOpenChange, size = "lg", variant = "default" }: GuidedSearchButtonProps) => {
   return (
     <>
       <Button 
         onClick={() => onOpenChange(true)} 
-        size="lg" 
+        size={size} 
+        variant={variant}
         className={className}
         dir="rtl"
       >
         <Search className="ml-2 h-4 w-4" />
-        מצא לי פתרון תוכן לאירוע מושלם
+        מצא לי פתרון לאירוע מושלם
       </Button>
       
       <GuidedSearchModal 

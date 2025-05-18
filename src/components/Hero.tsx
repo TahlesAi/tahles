@@ -37,16 +37,8 @@ const Hero = () => {
   const isMobile = useIsMobile();
   const { hebrewCategories, isLoading } = useEventContext();
   
-  const handleSearch = (term: string) => {
-    if (term.trim()) {
-      navigate(`/search?q=${encodeURIComponent(term)}`);
-    } else {
-      // אם אין מונח חיפוש, פתח את החיפוש המונחה
-      setIsGuidedSearchOpen(true);
-    }
-  };
-  
-  const handleButtonClick = () => {
+  const handleSearch = () => {
+    // פתיחת החיפוש המונחה במקום חיפוש רגיל
     setIsGuidedSearchOpen(true);
   };
   
@@ -70,6 +62,11 @@ const Hero = () => {
     
     return iconComponents[iconName] || <PlusCircle className="h-5 w-5" />;
   };
+  
+  // סינון הקטגוריות כדי להסיר את "אחר - לא מצאתי"
+  const filteredCategories = hebrewCategories?.filter(category => 
+    category.id !== 'other-category'
+  );
   
   return (
     <section className="relative overflow-hidden">
@@ -100,26 +97,28 @@ const Hero = () => {
         </p>
         
         <div className="w-full max-w-2xl relative z-10">
-          <AutocompleteSearch
-            suggestions={searchSuggestions}
-            onSearch={handleSearch}
-            placeholder="מצא לי פתרון לאירוע מושלם..."
-            value={searchTerm}
-            onChange={setSearchTerm}
-            buttonText="חיפוש מונחה"
-            autoFocus={false}
-            dir="rtl"
-            className="w-full"
-            inputClassName="py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
-            buttonClassName="px-6 rounded-r-full"
-            showCommandBar={true}
-            onButtonClick={handleButtonClick}
-          />
+          {/* שינוי חיפוש ראשי להפעלת החיפוש המונחה */}
+          <div className="relative" dir="rtl">
+            <input
+              type="text"
+              placeholder="מצא לי פתרון לאירוע מושלם..."
+              className="w-full py-4 px-6 text-base text-gray-700 focus:outline-none border-none rounded-full"
+              onClick={handleSearch}
+              readOnly
+            />
+            <button 
+              onClick={handleSearch}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-primary text-white p-2 rounded-full"
+              aria-label="חיפוש מונחה"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
         </div>
         
         {/* קטגוריות - רק קטגוריות ראשיות כפי שהוגדרו בהיררכיה העברית */}
         <div className={`flex flex-wrap justify-center gap-3 md:gap-5 mt-10 ${isMobile ? 'overflow-x-auto pb-4 flex-nowrap justify-start w-full' : ''}`} dir="rtl">
-          {!isLoading && hebrewCategories && hebrewCategories.map((category) => (
+          {!isLoading && filteredCategories && filteredCategories.map((category) => (
             <Button 
               key={category.id}
               variant="outline" 
@@ -132,16 +131,7 @@ const Hero = () => {
           ))}
         </div>
         
-        <Button
-          variant="outline"
-          size="lg"
-          className="mt-8 bg-brand-500 text-white hover:bg-brand-600 border-white"
-          onClick={handleButtonClick}
-          dir="rtl"
-        >
-          <Search className="ml-2 h-5 w-5" />
-          מצא לי פתרון לאירוע מושלם
-        </Button>
+        {/* הסרה של הכפתור המיותר */}
       </div>
       
       {/* מודל החיפוש המונחה */}
