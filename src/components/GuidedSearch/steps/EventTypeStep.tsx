@@ -2,13 +2,16 @@
 import { Button } from "@/components/ui/button";
 import { User, Briefcase, Users, Baby } from "lucide-react";
 import { EventType } from "../GuidedSearchModal";
+import { HebrewConcept } from "@/lib/types/hierarchy";
 
 interface EventTypeStepProps {
   selectedType: EventType | undefined;
   onSelect: (type: EventType) => void;
+  hebrewConcepts?: HebrewConcept[];
+  onSelectHebrewConcept?: (concept: HebrewConcept) => void;
 }
 
-const EventTypeStep = ({ selectedType, onSelect }: EventTypeStepProps) => {
+const EventTypeStep = ({ selectedType, onSelect, hebrewConcepts, onSelectHebrewConcept }: EventTypeStepProps) => {
   const eventTypes = [
     {
       id: "private",
@@ -57,6 +60,24 @@ const EventTypeStep = ({ selectedType, onSelect }: EventTypeStepProps) => {
           </button>
         ))}
       </div>
+      
+      {/* הוספת תמיכה בקונספטים עבריים, אם סופקו */}
+      {hebrewConcepts && hebrewConcepts.length > 0 && onSelectHebrewConcept && (
+        <div className="mt-8">
+          <h3 className="text-lg font-medium mb-4">או בחר קטגוריית אירוע:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {hebrewConcepts.map(concept => (
+              <button
+                key={concept.id}
+                onClick={() => onSelectHebrewConcept(concept)}
+                className="p-3 border rounded-lg hover:bg-gray-50"
+              >
+                <h4 className="font-medium">{concept.name}</h4>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
