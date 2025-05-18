@@ -53,7 +53,7 @@ const Header = () => {
           </div>
           
           {/* Search Bar - only on desktop - with more space */}
-          <div className="hidden md:block flex-1 mx-8 max-w-xl order-4 md:order-3">
+          <div className="hidden md:block flex-1 mx-8 max-w-2xl order-4 md:order-3">
             <SearchableHeader 
               placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
               dir="rtl"
@@ -63,9 +63,8 @@ const Header = () => {
             />
           </div>
           
-          {/* Navigation Menu */}
-          <nav className="hidden md:flex items-center space-x-6 order-5 md:order-4">
-            <Link to="/categories" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">קטגוריות</Link>
+          {/* Navigation Menu - REMOVED CATEGORIES LINK */}
+          <nav className="hidden md:flex items-center space-x-8 order-5 md:order-4">
             <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">איך זה עובד</Link>
             <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors">צור קשר</Link>
             
@@ -125,7 +124,7 @@ const Header = () => {
                       <UserPlus className="h-4 w-4 ml-2 inline-block" />
                       ספק חדש
                     </Link>
-                    <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
+                    {/* REMOVED CATEGORIES LINK FROM MOBILE MENU AS WELL */}
                     <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
                     <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
                     {user ? (
