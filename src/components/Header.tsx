@@ -41,24 +41,25 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Button for Provider Onboarding - added prominent styling */}
+          {/* Button for Provider Onboarding - with shorter text */}
           <div className="order-3 md:order-2 mx-6">
             <Link 
               to="/provider-onboarding" 
               className="hidden md:flex px-6 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
             >
               <UserPlus className="h-4 w-4 ml-2" />
-              הצטרפות כספק חדש
+              ספק חדש
             </Link>
           </div>
           
-          {/* Search Bar - only on desktop */}
-          <div className="hidden md:block flex-1 mx-8 max-w-md order-4 md:order-3">
+          {/* Search Bar - only on desktop - now with more space */}
+          <div className="hidden md:block flex-1 mx-8 max-w-lg order-4 md:order-3">
             <SearchableHeader 
-              placeholder="חיפוש שירותים, נותני שירות..." 
+              placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
               dir="rtl"
               inputClassName="rounded-full h-9"
-              maxWidth="75%" // Reduced width
+              maxWidth="100%" 
+              useGuidedSearch={false}
             />
           </div>
           
@@ -116,13 +117,13 @@ const Header = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col space-y-4 mt-4">
-                    {/* Provider Onboarding Button in Mobile Menu */}
+                    {/* Provider Onboarding Button in Mobile Menu - with shorter text */}
                     <Link 
                       to="/provider-onboarding" 
                       className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
                     >
                       <UserPlus className="h-4 w-4 ml-2 inline-block" />
-                      הצטרפות כספק חדש
+                      ספק חדש
                     </Link>
                     <Link to="/categories" className="text-gray-600 hover:text-gray-800">קטגוריות</Link>
                     <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
@@ -147,9 +148,10 @@ const Header = () => {
       {isMobile && (
         <div className="border-t p-2">
           <SearchableHeader 
-            placeholder="חיפוש שירותים, נותני שירות..." 
+            placeholder="חיפוש קטגוריות, שירותים, ספקים..." 
             dir="rtl"
             inputClassName="rounded-full h-9"
+            useGuidedSearch={false}
           />
         </div>
       )}

@@ -15,6 +15,7 @@ interface SearchableHeaderProps {
   placeholder?: string;
   dir?: "rtl" | "ltr";
   maxWidth?: string;
+  useGuidedSearch?: boolean;  // New prop to control search behavior
 }
 
 const SearchableHeader: React.FC<SearchableHeaderProps> = ({
@@ -23,7 +24,8 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   inputClassName,
   placeholder = "חיפוש...",
   dir = "rtl",
-  maxWidth = "75%"
+  maxWidth = "75%",
+  useGuidedSearch = true  // Default to guided search for backward compatibility
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
@@ -31,12 +33,14 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
-    // אם יש מונח חיפוש ספציפי, עדיין נאפשר חיפוש רגיל
-    if (term.trim()) {
-      navigate(`/search?q=${encodeURIComponent(term)}`);
-    } else {
-      // אם אין מונח חיפוש, נפתח את החיפוש המונחה
+    // אם השתמשנו בחיפוש מונחה, נפתח את המודל
+    if (useGuidedSearch) {
       setIsGuidedSearchOpen(true);
+    } else {
+      // חיפוש רגיל - ניווט לדף חיפוש עם המונח שהוקלד
+      if (term.trim()) {
+        navigate(`/search?q=${encodeURIComponent(term)}`);
+      }
     }
   };
 
@@ -76,24 +80,27 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
           buttonClassName={buttonClassName}
           showButton={false}
           autoFocus={false}
-          onButtonClick={() => setIsGuidedSearchOpen(true)}
+          onButtonClick={() => useGuidedSearch ? setIsGuidedSearchOpen(true) : handleSearch(searchTerm)}
         />
         <Button
           type="button"
           variant="ghost"
           size="icon"
           className="absolute left-1 top-1/2 transform -translate-y-1/2"
-          onClick={() => setIsGuidedSearchOpen(true)}
-          aria-label="חיפוש מונחה"
+          onClick={() => useGuidedSearch ? setIsGuidedSearchOpen(true) : handleSearch(searchTerm)}
+          aria-label="חיפוש"
         >
           <Search className="h-4 w-4" />
         </Button>
       </div>
       
-      <GuidedSearchModal
-        isOpen={isGuidedSearchOpen}
-        onClose={() => setIsGuidedSearchOpen(false)}
-      />
+      {/* מודל החיפוש המונחה מופיע רק אם useGuidedSearch=true */}
+      {useGuidedSearch && (
+        <GuidedSearchModal
+          isOpen={isGuidedSearchOpen}
+          onClose={() => setIsGuidedSearchOpen(false)}
+        />
+      )}
     </>
   );
 };
