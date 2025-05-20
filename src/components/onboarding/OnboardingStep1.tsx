@@ -1,159 +1,151 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
-import { Category } from "@/lib/types/hierarchy";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Music, 
-  Camera, 
-  Utensils, 
-  MapPin, 
-  Mic2, 
-  Monitor, 
-  Gift, 
-  Sparkles, 
-  Calendar, 
-  Wand2, 
-  PartyPopper, 
-  TentTree, 
-  User, 
-  PlusCircle, 
-  Users, 
-  Headphones 
-} from "lucide-react";
 
 interface OnboardingStep1Props {
-  data: any;
-  onUpdate: (data: any) => void;
+  data: {
+    category: string;
+  };
+  onUpdate: (data: Partial<{category: string}>) => void;
   onNext: () => void;
+  adminMode?: boolean;
 }
 
-const OnboardingStep1 = ({ data, onUpdate, onNext }: OnboardingStep1Props) => {
-  const { categories, isLoading } = useEventContext();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(data.category || null);
-  
+interface Category {
+  id: string;
+  name: string;
+  icon?: string;
+  image_url?: string;
+  description?: string;
+}
+
+const OnboardingStep1: React.FC<OnboardingStep1Props> = ({ 
+  data, 
+  onUpdate, 
+  onNext,
+  adminMode = false 
+}) => {
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState("");
+  const { categories: contextCategories, isLoading: contextLoading } = useEventContext();
+
   useEffect(() => {
-    if (selectedCategory) {
-      onUpdate({ category: selectedCategory });
-    }
-  }, [selectedCategory, onUpdate]);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        
+        // If we have categories from context, use those
+        if (contextCategories && contextCategories.length > 0) {
+          setCategories(contextCategories);
+          setLoading(false);
+          return;
+        }
+        
+        // Otherwise fetch from database
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name');
+          
+        if (categoriesError) throw categoriesError;
+        
+        setCategories(categoriesData || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setError("שגיאה בטעינת הקטגוריות, אנא נסה שוב מאוחר יותר");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, [contextCategories, contextLoading]);
 
   const handleSelectCategory = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-  };
-
-  const handleNext = () => {
-    if (selectedCategory) {
-      onNext();
-    }
+    onUpdate({ category: categoryId });
   };
   
-  if (isLoading) {
-    return (
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8 text-center">
-          <Skeleton className="h-8 w-3/4 mx-auto mb-2" />
-          <Skeleton className="h-4 w-1/2 mx-auto" />
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-          {Array(6).fill(null).map((_, i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const handleNext = () => {
+    if (!data.category && !adminMode) {
+      toast.error("יש לבחור קטגוריה כדי להמשיך");
+      setError("יש לבחור קטגוריה כדי להמשיך");
+      return;
+    }
+    
+    onNext();
+  };
 
   return (
     <div className="max-w-3xl mx-auto" dir="rtl">
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold mb-2">איזו קטגוריה הכי מתאימה לשירות שלכם?</h2>
-        <p className="text-gray-600">בחרו את הקטגוריה הראשית שמתאימה לשירות שלכם</p>
+        <h2 className="text-2xl font-bold mb-2">בחירת קטגוריה</h2>
+        <p className="text-gray-600">בחר/י את הקטגוריה הראשית של העסק שלך</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-        {categories.map((category: Category) => (
-          <Card 
-            key={category.id}
-            className={`cursor-pointer transition-all ${
-              selectedCategory === category.id 
-                ? 'border-primary border-2 shadow-md' 
-                : 'hover:shadow-md'
-            }`}
-            onClick={() => handleSelectCategory(category.id)}
-          >
-            <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${
-                selectedCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
-              }`}>
-                {category.icon && typeof category.icon === 'string' && iconMap[category.icon] ? (
-                  iconMap[category.icon]
-                ) : (
-                  <div className="text-xl font-bold">{category.name.substring(0, 1)}</div>
+      {adminMode && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4 text-sm">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-yellow-600" />
+            <p className="font-medium">מצב מנהל מופעל</p>
+          </div>
+          <p>ניתן לדלג על בחירת קטגוריה לצורך בדיקת התהליך</p>
+        </div>
+      )}
+      
+      {error && !adminMode && (
+        <div className="bg-red-50 text-red-800 p-3 rounded mb-4 text-sm">
+          {error}
+        </div>
+      )}
+      
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {categories.map((category) => (
+            <Card 
+              key={category.id}
+              className={`cursor-pointer transition-all hover:border-brand-300 ${
+                data.category === category.id ? "border-2 border-brand-600" : ""
+              }`}
+              onClick={() => handleSelectCategory(category.id)}
+            >
+              <CardHeader className="p-4">
+                <CardTitle className="text-center text-lg">
+                  {category.icon && <span className="mr-2">{category.icon}</span>}
+                  {category.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {category.image_url && (
+                  <div className="h-32 overflow-hidden">
+                    <img 
+                      src={category.image_url} 
+                      alt={category.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 )}
-              </div>
-              <h3 className="font-semibold mb-1">{category.name}</h3>
-              <p className="text-sm text-gray-500">{category.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-        
-        <Card 
-          className={`cursor-pointer transition-all ${
-            selectedCategory === 'other' 
-              ? 'border-primary border-2 shadow-md' 
-              : 'hover:shadow-md'
-          }`}
-          onClick={() => handleSelectCategory('other')}
-        >
-          <CardContent className="p-6 flex flex-col items-center text-center">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${
-              selectedCategory === 'other' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
-            }`}>
-              <div className="text-xl">🔍</div>
-            </div>
-            <h3 className="font-semibold mb-1">אחר</h3>
-            <p className="text-sm text-gray-500">השירות שלי לא מתאים לקטגוריות הקיימות</p>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
       
-      <div className="flex justify-between">
-        <Button variant="ghost" disabled>
-          אחורה
-        </Button>
-        <Button 
-          onClick={handleNext} 
-          disabled={!selectedCategory}
-        >
-          המשך לשלב הבא
+      <div className="mt-8 flex justify-end">
+        <Button onClick={handleNext}>
+          המשך
         </Button>
       </div>
     </div>
   );
-};
-
-// מיפוי אייקונים
-const iconMap: Record<string, React.ReactNode> = {
-  "Music": <Music className="h-8 w-8" />,
-  "Camera": <Camera className="h-8 w-8" />,
-  "Utensils": <Utensils className="h-8 w-8" />,
-  "MapPin": <MapPin className="h-8 w-8" />,
-  "Mic": <Mic2 className="h-8 w-8" />,
-  "Mic2": <Mic2 className="h-8 w-8" />,
-  "Monitor": <Monitor className="h-8 w-8" />,
-  "Gift": <Gift className="h-8 w-8" />,
-  "Sparkles": <Sparkles className="h-8 w-8" />,
-  "Calendar": <Calendar className="h-8 w-8" />,
-  "Wand2": <Wand2 className="h-8 w-8" />,
-  "PartyPopper": <PartyPopper className="h-8 w-8" />,
-  "TentTree": <TentTree className="h-8 w-8" />,
-  "User": <User className="h-8 w-8" />,
-  "PlusCircle": <PlusCircle className="h-8 w-8" />,
-  "Users": <Users className="h-8 w-8" />,
-  "Headphones": <Headphones className="h-8 w-8" />
 };
 
 export default OnboardingStep1;

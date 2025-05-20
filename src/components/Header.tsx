@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,6 +25,7 @@ const Header = () => {
   const [userType, setUserType] = useState<"client" | "provider">("client");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const location = useLocation();
 
   // Extract user metadata safely
   const userMeta = user?.user_metadata || {};
@@ -38,8 +39,8 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b sticky top-0 z-40">
-      <div className="container px-4 mx-auto">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between h-16 px-4 md:px-6">
           {/* Logo - moved to the right side */}
           <div className="order-2 md:order-1">
             <Link to="/" className="flex items-center">
@@ -48,10 +49,10 @@ const Header = () => {
           </div>
           
           {/* Button for Provider Onboarding */}
-          <div className="order-3 md:order-2 mx-6">
+          <div className="order-3 md:order-2 mx-2 md:mx-6">
             <Link 
               to="/provider-onboarding" 
-              className="hidden md:flex px-6 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
+              className="hidden md:flex px-5 py-2 rounded-full text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
             >
               <UserPlus className="h-4 w-4 ml-2" />
               ספק חדש
@@ -59,7 +60,7 @@ const Header = () => {
           </div>
           
           {/* Search Bar - simplified with only icon */}
-          <div className="hidden md:block flex-1 mx-8 max-w-2xl order-4 md:order-3">
+          <div className="hidden md:block flex-1 mx-4 md:mx-8 max-w-2xl order-4 md:order-3">
             <div className="relative">
               <button 
                 onClick={handleSearchClick}
@@ -72,15 +73,30 @@ const Header = () => {
           </div>
           
           {/* Navigation Menu - wider spacing */}
-          <nav className="hidden md:flex items-center space-x-12 order-5 md:order-4">
-            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium">איך זה עובד</Link>
-            <Link to="/contact" className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium">צור קשר</Link>
+          <nav className="hidden md:flex items-center space-x-8 order-5 md:order-4">
+            <Link 
+              to="/how-it-works" 
+              className={`text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium ${
+                location.pathname === '/how-it-works' ? 'bg-gray-100 text-gray-800' : ''
+              }`}
+            >
+              איך זה עובד
+            </Link>
+            
+            <Link 
+              to="/contact" 
+              className={`text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium ${
+                location.pathname === '/contact' ? 'bg-gray-100 text-gray-800' : ''
+              }`}
+            >
+              צור קשר
+            </Link>
             
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <Avatar className="h-8 w-8">
+                  <Button variant="ghost" className="h-10 w-10 p-0 rounded-full">
+                    <Avatar className="h-9 w-9">
                       <AvatarImage src={userAvatar} alt={userName} />
                       <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
@@ -100,7 +116,7 @@ const Header = () => {
             ) : (
               <Button 
                 onClick={() => setOpenAuthModal(true)}
-                className="bg-brand-600 hover:bg-brand-700 text-white px-6"
+                className="bg-brand-600 hover:bg-brand-700 text-white px-5"
               >
                 התחברות | הרשמה
               </Button>
@@ -132,11 +148,11 @@ const Header = () => {
                       <UserPlus className="h-4 w-4 ml-2 inline-block" />
                       ספק חדש
                     </Link>
-                    <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800">איך זה עובד</Link>
-                    <Link to="/contact" className="text-gray-600 hover:text-gray-800">צור קשר</Link>
+                    <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 py-2">איך זה עובד</Link>
+                    <Link to="/contact" className="text-gray-600 hover:text-gray-800 py-2">צור קשר</Link>
                     {user ? (
                       <>
-                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">לוח ניהול</Link>
+                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-800 py-2">לוח ניהול</Link>
                         <Button variant="ghost" className="justify-start" onClick={() => signOut()}>התנתקות</Button>
                       </>
                     ) : (

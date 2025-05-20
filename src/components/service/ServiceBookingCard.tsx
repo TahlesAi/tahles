@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Bookmark, Share2, User, MapPin, Star } from "lucide-react";
 import { toast } from "sonner";
+import ServiceBookingTerms from "./ServiceBookingTerms";
 
 interface ServiceBookingCardProps {
   service: any;
@@ -24,6 +25,15 @@ const ServiceBookingCard = ({
   toggleSave 
 }: ServiceBookingCardProps) => {
   const navigate = useNavigate();
+  const [showTerms, setShowTerms] = useState(false);
+
+  const handleBookNowClick = () => {
+    setShowTerms(true);
+  };
+
+  const handleProceedWithBooking = () => {
+    navigate(`/booking/${service.id}`);
+  };
 
   return (
     <div className="border rounded-lg bg-white p-6 shadow-sm sticky top-20">
@@ -33,12 +43,19 @@ const ServiceBookingCard = ({
       </div>
       
       <div className="border-t border-b py-4 my-4">
-        <Button 
-          className="w-full bg-brand-600 hover:bg-brand-700 mb-3"
-          onClick={() => navigate(`/booking/${service.id}`)}
-        >
-          הזמן עכשיו
-        </Button>
+        {!showTerms ? (
+          <Button 
+            className="w-full bg-brand-600 hover:bg-brand-700 mb-3"
+            onClick={handleBookNowClick}
+          >
+            הזמן עכשיו
+          </Button>
+        ) : (
+          <ServiceBookingTerms 
+            serviceId={service.id}
+            onProceed={handleProceedWithBooking}
+          />
+        )}
         
         <Button 
           variant="outline" 

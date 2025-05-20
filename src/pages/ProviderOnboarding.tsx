@@ -24,6 +24,9 @@ import {
   ShieldCheck
 } from "lucide-react";
 
+// Admin mode for testing - allows skipping validation
+const ADMIN_MODE = true;
+
 const steps = [
   {
     id: 1,
@@ -162,6 +165,7 @@ const ProviderOnboarding = () => {
             data={formData}
             onUpdate={updateFormData}
             onNext={handleNext}
+            adminMode={ADMIN_MODE}
           />
         );
       case 2:
@@ -171,6 +175,7 @@ const ProviderOnboarding = () => {
             onUpdate={updateFormData}
             onNext={handleNext}
             onBack={handleBack}
+            adminMode={ADMIN_MODE}
           />
         );
       case 3:
@@ -179,6 +184,7 @@ const ProviderOnboarding = () => {
             data={formData}
             onUpdate={updateFormData}
             onNext={handleNext}
+            adminMode={ADMIN_MODE}
           />
         );
       case 4:
@@ -188,6 +194,7 @@ const ProviderOnboarding = () => {
             onUpdate={updateFormData}
             onNext={handleNext}
             onBack={handleBack}
+            adminMode={ADMIN_MODE}
           />
         );
       case 5:
@@ -198,6 +205,7 @@ const ProviderOnboarding = () => {
             onUpdate={updateFormData}
             onSubmit={handleNext}
             onBack={handleBack}
+            adminMode={ADMIN_MODE}
           />
         );
       case 7:
@@ -235,6 +243,11 @@ const ProviderOnboarding = () => {
                 <p className="text-gray-600">
                   מלא את הפרטים הבאים כדי להצטרף כספק שירות ולהתחיל למכור באתר שלנו
                 </p>
+                {ADMIN_MODE && (
+                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                    <strong>מצב בדיקה מופעל:</strong> ניתן לדלג על שדות חובה למטרות בדיקה בלבד
+                  </div>
+                )}
               </div>
               
               {/* Progress Steps */}

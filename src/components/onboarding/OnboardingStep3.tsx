@@ -1,20 +1,23 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ProductForm from "./product/ProductForm";
 import ProductPreview from "./product/ProductPreview";
-import BenefitsCard from "./BenefitsCard"; // Updated import path
+import BenefitsCard from "./BenefitsCard"; 
 import TermsAgreement from "./product/TermsAgreement";
+import { AlertCircle } from "lucide-react";
 
 interface OnboardingStep3Props {
   data: any;
   onUpdate: (data: any) => void;
   onSubmit: () => void;
   onBack: () => void;
+  adminMode?: boolean;
 }
 
-const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Props) => {
+const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }: OnboardingStep3Props) => {
   const [productData, setProductData] = useState({
     title: data.title || "",
     duration: data.duration || 60,
@@ -54,6 +57,9 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
   };
   
   const validate = () => {
+    // Skip validation in admin mode
+    if (adminMode) return true;
+    
     const newErrors: Record<string, string> = {};
     
     if (!productData.title.trim()) {
@@ -219,6 +225,16 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack }: OnboardingStep3Pr
         <h2 className="text-2xl font-bold mb-2">פתיחת עמוד מוצר</h2>
         <p className="text-gray-600">כמה פרטים בסיסים על המוצר בשביל להציג אותו בצורה המיטבית</p>
       </div>
+      
+      {adminMode && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4 text-sm">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-yellow-600" />
+            <p className="font-medium">מצב מנהל מופעל</p>
+          </div>
+          <p>ניתן לדלג על מילוי פרטי המוצר לצורך בדיקת התהליך</p>
+        </div>
+      )}
       
       <div className="grid md:grid-cols-2 gap-6">
         <div className="md:col-span-1">

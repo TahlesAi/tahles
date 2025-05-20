@@ -1,235 +1,269 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import { Label } from "@/components/ui/label";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 interface OnboardingPersonalInfoProps {
-  data: any;
-  onUpdate: (data: any) => void;
+  data: {
+    businessName: string;
+    fullName: string;
+    idNumber: string;
+    businessType: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+  };
+  onUpdate: (data: Partial<typeof data>) => void;
   onNext: () => void;
+  adminMode?: boolean; // Opt-in for admin mode to skip validation
 }
 
-const OnboardingPersonalInfo = ({ data, onUpdate, onNext }: OnboardingPersonalInfoProps) => {
-  const [formData, setFormData] = useState({
-    fullName: data.fullName || "",
-    businessName: data.businessName || "",
-    businessType: data.businessType || "",
-    idNumber: data.idNumber || "",
-    email: data.email || "",
-    phone: data.phone || "",
-    address: data.address || "",
-    city: data.city || "",
-  });
-  
+const OnboardingPersonalInfo: React.FC<OnboardingPersonalInfoProps> = ({
+  data,
+  onUpdate,
+  onNext,
+  adminMode = false,
+}) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    onUpdate({ [name]: value });
+
     // Clear error when user types
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
     }
   };
-  
-  const handleSelectChange = (value: string, name: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+
+  const handleSelectChange = (name: string, value: string) => {
+    onUpdate({ [name]: value });
+
     // Clear error when user selects
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
     }
   };
-  
+
   const validate = () => {
+    // Skip validation in admin mode
+    if (adminMode) return true;
+    
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "נא להזין שם מלא";
+
+    if (!data.businessName.trim()) {
+      newErrors.businessName = "שם העסק הוא שדה חובה";
     }
-    
-    if (!formData.businessName.trim()) {
-      newErrors.businessName = "נא להזין שם עסק";
+
+    if (!data.fullName.trim()) {
+      newErrors.fullName = "שם מלא הוא שדה חובה";
     }
-    
-    if (!formData.businessType) {
-      newErrors.businessType = "נא לבחור סוג עסק";
+
+    if (!data.idNumber.trim()) {
+      newErrors.idNumber = "מספר תעודת זהות/ח.פ. הוא שדה חובה";
     }
-    
-    if (!formData.idNumber.trim()) {
-      newErrors.idNumber = "נא להזין מספר זהות / ח.פ";
-    } else if (!/^\d{9}$/.test(formData.idNumber) && !/^\d{8,9}$/.test(formData.idNumber)) {
-      newErrors.idNumber = "מספר זהות / ח.פ לא תקין";
+
+    if (!data.businessType) {
+      newErrors.businessType = "סוג העסק הוא שדה חובה";
     }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = "נא להזין כתובת אימייל";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "כתובת אימייל לא תקינה";
+
+    if (!data.email.trim()) {
+      newErrors.email = "כתובת אימייל היא שדה חובה";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      newErrors.email = "יש להזין כתובת אימייל תקינה";
     }
-    
-    if (!formData.phone.trim()) {
-      newErrors.phone = "נא להזין מספר טלפון";
-    } else if (!/^05\d{8}$/.test(formData.phone) && !/^0\d{8,9}$/.test(formData.phone)) {
-      newErrors.phone = "מספר טלפון לא תקין";
+
+    if (!data.phone.trim()) {
+      newErrors.phone = "מספר טלפון הוא שדה חובה";
+    } else if (!/^\d{9,10}$/.test(data.phone.replace(/[- ]/g, ""))) {
+      newErrors.phone = "יש להזין מספר טלפון תקין";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  const handleSubmit = () => {
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (validate()) {
-      onUpdate(formData);
       toast.success("פרטים אישיים נשמרו בהצלחה");
       onNext();
     } else {
-      toast.error("יש לתקן את השגיאות בטופס");
+      toast.error("יש למלא את כל שדות החובה");
     }
   };
-  
+
   return (
-    <div className="max-w-3xl mx-auto" dir="rtl">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold mb-2">פרטי ספק השירות</h2>
-        <p className="text-gray-600">נא למלא את הפרטים האישיים והעסקיים שלך</p>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
+      {adminMode && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4 text-sm">
+          <p className="font-medium">מצב מנהל מופעל</p>
+          <p>ניתן לדלג על שדות חובה לצורך בדיקת התהליך</p>
+        </div>
+      )}
       
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="fullName" className="block mb-2">שם מלא</Label>
-            <Input
-              id="fullName"
-              name="fullName"
-              placeholder="שם מלא"
-              value={formData.fullName}
-              onChange={handleChange}
-              className={errors.fullName ? "border-red-500" : ""}
-            />
-            {errors.fullName && <span className="text-red-500 text-sm mt-1">{errors.fullName}</span>}
-          </div>
-          
-          <div>
-            <Label htmlFor="businessName" className="block mb-2">שם העסק</Label>
-            <Input
-              id="businessName"
-              name="businessName"
-              placeholder="שם העסק"
-              value={formData.businessName}
-              onChange={handleChange}
-              className={errors.businessName ? "border-red-500" : ""}
-            />
-            {errors.businessName && <span className="text-red-500 text-sm mt-1">{errors.businessName}</span>}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="businessName">
+            שם העסק <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="businessName"
+            name="businessName"
+            value={data.businessName}
+            onChange={handleChange}
+            placeholder="הזן את שם העסק"
+            className={errors.businessName ? "border-destructive" : ""}
+          />
+          {errors.businessName && (
+            <p className="text-destructive text-sm">{errors.businessName}</p>
+          )}
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="businessType" className="block mb-2">סוג העסק</Label>
-            <Select 
-              value={formData.businessType} 
-              onValueChange={(value) => handleSelectChange(value, "businessType")}
+
+        <div className="space-y-2">
+          <Label htmlFor="fullName">
+            שם איש קשר <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="fullName"
+            name="fullName"
+            value={data.fullName}
+            onChange={handleChange}
+            placeholder="הזן שם מלא"
+            className={errors.fullName ? "border-destructive" : ""}
+          />
+          {errors.fullName && (
+            <p className="text-destructive text-sm">{errors.fullName}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="idNumber">
+            מספר תעודת זהות / ח.פ. <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="idNumber"
+            name="idNumber"
+            value={data.idNumber}
+            onChange={handleChange}
+            placeholder="הזן מספר תעודת זהות או ח.פ."
+            className={errors.idNumber ? "border-destructive" : ""}
+          />
+          {errors.idNumber && (
+            <p className="text-destructive text-sm">{errors.idNumber}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="businessType">
+            סוג העסק <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={data.businessType}
+            onValueChange={(value) => handleSelectChange("businessType", value)}
+          >
+            <SelectTrigger
+              id="businessType"
+              className={errors.businessType ? "border-destructive" : ""}
             >
-              <SelectTrigger className={errors.businessType ? "border-red-500" : ""}>
-                <SelectValue placeholder="בחר סוג עסק" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="עוסק מורשה">עוסק מורשה</SelectItem>
-                <SelectItem value="עוסק פטור">עוסק פטור</SelectItem>
-                <SelectItem value="חברה בע״מ">חברה בע״מ</SelectItem>
-                <SelectItem value="שותפות">שותפות</SelectItem>
-                <SelectItem value="עמותה">עמותה</SelectItem>
-                <SelectItem value="אחר">אחר</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.businessType && <span className="text-red-500 text-sm mt-1">{errors.businessType}</span>}
-          </div>
-          
-          <div>
-            <Label htmlFor="idNumber" className="block mb-2">מספר זהות / ח.פ</Label>
-            <Input
-              id="idNumber"
-              name="idNumber"
-              placeholder="מספר זהות או ח.פ"
-              value={formData.idNumber}
-              onChange={handleChange}
-              className={errors.idNumber ? "border-red-500" : ""}
-            />
-            {errors.idNumber && <span className="text-red-500 text-sm mt-1">{errors.idNumber}</span>}
-          </div>
+              <SelectValue placeholder="בחר סוג עסק" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="self_employed">עוסק מורשה</SelectItem>
+              <SelectItem value="company">חברה בע״מ</SelectItem>
+              <SelectItem value="partnership">שותפות</SelectItem>
+              <SelectItem value="non_profit">עמותה</SelectItem>
+              <SelectItem value="other">אחר</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.businessType && (
+            <p className="text-destructive text-sm">{errors.businessType}</p>
+          )}
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="email" className="block mb-2">דוא״ל</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="דואר אלקטרוני"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? "border-red-500" : ""}
-            />
-            {errors.email && <span className="text-red-500 text-sm mt-1">{errors.email}</span>}
-          </div>
-          
-          <div>
-            <Label htmlFor="phone" className="block mb-2">טלפון</Label>
-            <Input
-              id="phone"
-              name="phone"
-              placeholder="מספר טלפון"
-              value={formData.phone}
-              onChange={handleChange}
-              className={errors.phone ? "border-red-500" : ""}
-            />
-            {errors.phone && <span className="text-red-500 text-sm mt-1">{errors.phone}</span>}
-          </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">
+            אימייל <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            value={data.email}
+            onChange={handleChange}
+            placeholder="הזן כתובת אימייל"
+            className={errors.email ? "border-destructive" : ""}
+          />
+          {errors.email && (
+            <p className="text-destructive text-sm">{errors.email}</p>
+          )}
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="address" className="block mb-2">כתובת</Label>
-            <Input
-              id="address"
-              name="address"
-              placeholder="כתובת מלאה"
-              value={formData.address}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="city" className="block mb-2">עיר</Label>
-            <Input
-              id="city"
-              name="city"
-              placeholder="עיר"
-              value={formData.city}
-              onChange={handleChange}
-            />
-          </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">
+            טלפון <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="phone"
+            name="phone"
+            value={data.phone}
+            onChange={handleChange}
+            placeholder="הזן מספר טלפון"
+            className={errors.phone ? "border-destructive" : ""}
+          />
+          {errors.phone && (
+            <p className="text-destructive text-sm">{errors.phone}</p>
+          )}
         </div>
-        
-        <div className="flex justify-end mt-6">
-          <Button onClick={handleSubmit}>
-            המשך לשלב הבא
-          </Button>
+
+        <div className="space-y-2">
+          <Label htmlFor="address">כתובת</Label>
+          <Input
+            id="address"
+            name="address"
+            value={data.address}
+            onChange={handleChange}
+            placeholder="הזן כתובת"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="city">עיר</Label>
+          <Input
+            id="city"
+            name="city"
+            value={data.city}
+            onChange={handleChange}
+            placeholder="הזן עיר"
+          />
         </div>
       </div>
-    </div>
+
+      <div className="flex justify-end pt-4">
+        <Button type="submit">
+          המשך
+        </Button>
+      </div>
+    </form>
   );
 };
 

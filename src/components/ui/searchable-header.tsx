@@ -15,7 +15,7 @@ interface SearchableHeaderProps {
   placeholder?: string;
   dir?: "rtl" | "ltr";
   maxWidth?: string;
-  useGuidedSearch?: boolean;  // New prop to control search behavior
+  useGuidedSearch?: boolean;  // Controls search behavior
 }
 
 const SearchableHeader: React.FC<SearchableHeaderProps> = ({
@@ -33,25 +33,25 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
-    // אם השתמשנו בחיפוש מונחה, נפתח את המודל
+    // If using guided search, open the modal
     if (useGuidedSearch) {
       setIsGuidedSearchOpen(true);
     } else {
-      // חיפוש רגיל - ניווט לדף חיפוש עם המונח שהוקלד
-      if (term.trim()) {
+      // Regular search - navigate to search page with the term
+      if (term && term.trim()) {
         navigate(`/search?q=${encodeURIComponent(term)}`);
       }
     }
   };
 
-  // הרחבת ההצעות בחיפוש
+  // Enhanced search suggestions
   const enhancedSuggestions = React.useMemo(() => {
-    // וידוא שיש אמני חושים בהצעות
+    // Make sure all mentalist providers are included in suggestions
     const hasAllMentalists = mentalistProviders.every(mentalist => 
       searchSuggestions.some(s => s.value === mentalist.value)
     );
     
-    // אם חסרים אמני חושים, הוסף אותם
+    // If some mentalists are missing, add them
     if (!hasAllMentalists) {
       return [
         ...searchSuggestions,
@@ -69,6 +69,10 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     setIsGuidedSearchOpen(true);
   };
 
+  const handleCloseGuidedSearch = () => {
+    setIsGuidedSearchOpen(false);
+  };
+
   return (
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
@@ -82,13 +86,11 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
         </Button>
       </div>
       
-      {/* מודל החיפוש המונחה מופיע רק אם useGuidedSearch=true */}
-      {useGuidedSearch && (
-        <GuidedSearchModal
-          isOpen={isGuidedSearchOpen}
-          onClose={() => setIsGuidedSearchOpen(false)}
-        />
-      )}
+      {/* Guided search modal */}
+      <GuidedSearchModal
+        isOpen={isGuidedSearchOpen}
+        onClose={handleCloseGuidedSearch}
+      />
     </>
   );
 };
