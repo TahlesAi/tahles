@@ -12,18 +12,21 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
+// Define a separate interface for the data object
+interface PersonalInfoData {
+  businessName: string;
+  fullName: string;
+  idNumber: string;
+  businessType: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+}
+
 interface OnboardingPersonalInfoProps {
-  data: {
-    businessName: string;
-    fullName: string;
-    idNumber: string;
-    businessType: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-  };
-  onUpdate: (data: Partial<typeof data>) => void;
+  data: PersonalInfoData;
+  onUpdate: (data: Partial<PersonalInfoData>) => void;
   onNext: () => void;
   adminMode?: boolean; // Opt-in for admin mode to skip validation
 }
