@@ -5,7 +5,7 @@ import FeaturedProviders from "@/components/FeaturedProviders";
 import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChartBig } from "lucide-react";
+import { ArrowRight, BarChartBig, UserPlus } from "lucide-react";
 import { 
   Carousel,
   CarouselContent,
@@ -110,7 +110,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* CTA - מוקם אחרי הקונספטים */}
+        {/* CTA - מוקם אחרי הקונספטים - updated button texts */}
         <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white" dir="rtl">
           <div className="container px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
@@ -118,13 +118,13 @@ const Index = () => {
               הצטרפו לאלפי מארגני אירועים שמצאו את האמנים, המרצים ונותני השירות המושלמים עבור האירועים המיוחדים שלהם.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100">
-                <Link to="/categories">חיפוש שירותים</Link>
+              <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100" asChild>
+                <Link to="/search">חיפוש שירותים</Link>
               </Button>
-              <Button size="lg" variant="secondary" className="bg-accent1-500 text-white hover:bg-accent1-600 border-2 border-white">
+              <Button size="lg" variant="secondary" className="bg-accent1-500 text-white hover:bg-accent1-600 border-2 border-white" asChild>
                 <Link to="/provider-onboarding" className="flex items-center">
-                  <BarChartBig className="h-5 w-5 ml-2" />
-                  הצטרפות כנותן שירות
+                  <UserPlus className="h-5 w-5 ml-2" />
+                  ספק חדש
                 </Link>
               </Button>
             </div>

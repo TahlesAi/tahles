@@ -17,6 +17,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Menu, UserPlus, Search } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
+import SearchableHeader from "./ui/searchable-header";
+import { useSearchSuggestions } from "@/lib/searchSuggestions";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -26,16 +28,12 @@ const Header = () => {
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const location = useLocation();
+  const { searchSuggestions } = useSearchSuggestions();
 
   // Extract user metadata safely
   const userMeta = user?.user_metadata || {};
   const userName = userMeta.name || user?.email?.split('@')[0] || 'משתמש';
   const userAvatar = userMeta.avatar_url || '';
-
-  const handleSearchClick = () => {
-    // Open guided search modal directly
-    setIsGuidedSearchOpen(true);
-  };
 
   return (
     <header className="bg-white border-b sticky top-0 z-40">
@@ -59,17 +57,12 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* Search Bar - simplified with only icon */}
+          {/* Search Bar - now using SearchableHeader with regular search */}
           <div className="hidden md:block flex-1 mx-4 md:mx-8 max-w-2xl order-4 md:order-3">
-            <div className="relative">
-              <button 
-                onClick={handleSearchClick}
-                className="w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
-                aria-label="חיפוש"
-              >
-                <Search className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
+            <SearchableHeader 
+              placeholder="חיפוש שירותים, ספקים, מוצרים..."
+              useGuidedSearch={false}
+            />
           </div>
           
           {/* Navigation Menu - wider spacing */}
@@ -169,15 +162,10 @@ const Header = () => {
       {/* Mobile Search - only visible on mobile */}
       {isMobile && (
         <div className="border-t p-2">
-          <div className="relative">
-            <button 
-              onClick={handleSearchClick}
-              className="w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full"
-              aria-label="חיפוש"
-            >
-              <Search className="h-5 w-5 text-gray-500" />
-            </button>
-          </div>
+          <SearchableHeader 
+            placeholder="חיפוש שירותים, ספקים, מוצרים..."
+            useGuidedSearch={false}
+          />
         </div>
       )}
       

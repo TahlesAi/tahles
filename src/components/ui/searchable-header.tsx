@@ -25,7 +25,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   placeholder = "חיפוש...",
   dir = "rtl",
   maxWidth = "75%",
-  useGuidedSearch = true  // Default to guided search for backward compatibility
+  useGuidedSearch = false  // Default to regular search now
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
@@ -65,31 +65,36 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     return searchSuggestions;
   }, [searchSuggestions, mentalistProviders]);
 
-  const handleOpenGuidedSearch = () => {
-    setIsGuidedSearchOpen(true);
-  };
-
-  const handleCloseGuidedSearch = () => {
-    setIsGuidedSearchOpen(false);
-  };
-
+  // Now let's update the component to use AutocompleteSearch for regular search
   return (
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
-        <Button
-          type="button"
-          className={cn("w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full", inputClassName)}
-          onClick={handleOpenGuidedSearch}
-          variant="ghost"
-        >
-          <Search className="h-4 w-4 text-gray-500" />
-        </Button>
+        {useGuidedSearch ? (
+          <Button
+            type="button"
+            className={cn("w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full", inputClassName)}
+            onClick={() => setIsGuidedSearchOpen(true)}
+            variant="ghost"
+          >
+            <Search className="h-4 w-4 text-gray-500" />
+          </Button>
+        ) : (
+          <AutocompleteSearch 
+            suggestions={enhancedSuggestions}
+            onSearch={handleSearch}
+            placeholder={placeholder}
+            className={className}
+            inputClassName={inputClassName}
+            buttonClassName={buttonClassName}
+            dir={dir}
+          />
+        )}
       </div>
       
       {/* Guided search modal */}
       <GuidedSearchModal
         isOpen={isGuidedSearchOpen}
-        onClose={handleCloseGuidedSearch}
+        onClose={() => setIsGuidedSearchOpen(false)}
       />
     </>
   );
