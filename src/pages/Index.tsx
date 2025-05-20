@@ -1,3 +1,4 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServiceCategoriesHebrew from "@/components/ServiceCategoriesHebrew";
@@ -5,7 +6,7 @@ import FeaturedProviders from "@/components/FeaturedProviders";
 import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChartBig, UserPlus } from "lucide-react";
+import { ArrowRight, BarChartBig, UserPlus, Search } from "lucide-react";
 import { 
   Carousel,
   CarouselContent,
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { eventConcepts } from "@/lib/searchSuggestions";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useIsMobile from "@/hooks/use-mobile";
 import { useEventContext } from "@/context/EventContext";
 
@@ -77,7 +78,13 @@ const providerBenefits = [
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate(); // הוספת ניווט
   const { featuredServices, topProviders } = useEventContext();
+
+  // פונקציה לניווט לדף החיפוש
+  const goToSearch = () => {
+    navigate('/search');
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -110,7 +117,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* CTA - מוקם אחרי הקונספטים - updated button texts */}
+        {/* CTA - קריאה לפעולה עם כפתורים מעודכנים */}
         <section className="py-16 bg-gradient-to-r from-brand-600 to-accent1-600 text-white" dir="rtl">
           <div className="container px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">מוכנים ליצור אירוע מדהים?</h2>
@@ -118,8 +125,14 @@ const Index = () => {
               הצטרפו לאלפי מארגני אירועים שמצאו את האמנים, המרצים ונותני השירות המושלמים עבור האירועים המיוחדים שלהם.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" variant="default" className="bg-white text-brand-600 hover:bg-gray-100" asChild>
-                <Link to="/search">חיפוש שירותים</Link>
+              <Button 
+                size="lg" 
+                variant="default" 
+                className="bg-white text-brand-600 hover:bg-gray-100 flex items-center"
+                onClick={goToSearch}
+              >
+                <Search className="ml-2 h-5 w-5" />
+                חיפוש שירותים
               </Button>
               <Button size="lg" variant="secondary" className="bg-accent1-500 text-white hover:bg-accent1-600 border-2 border-white" asChild>
                 <Link to="/provider-onboarding" className="flex items-center">
@@ -131,7 +144,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* קטגוריות שירות - עכשיו עם הרכיב העברי החדש */}
+        {/* קטגוריות שירות */}
         <ServiceCategoriesHebrew />
         
         {/* ספקים מובילים */}
@@ -189,7 +202,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* מאפיינים והיתרונות החדשים */}
+        {/* מאפיינים והיתרונות */}
         <section className="py-16 bg-gray-50" dir="rtl">
           <div className="container px-4">
             <h2 className="text-2xl font-bold mb-8 text-center">למה ת'כל'ס?</h2>

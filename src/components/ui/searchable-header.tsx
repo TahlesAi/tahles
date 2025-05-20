@@ -15,17 +15,19 @@ interface SearchableHeaderProps {
   placeholder?: string;
   dir?: "rtl" | "ltr";
   maxWidth?: string;
-  useGuidedSearch?: boolean;  // Controls search behavior
+  useGuidedSearch?: boolean;
+  onSearchComplete?: () => void;
 }
 
 const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   className,
   buttonClassName,
   inputClassName,
-  placeholder = "חיפוש...",
+  placeholder = "חיפוש שירותים, ספקים, קטגוריות...",
   dir = "rtl",
   maxWidth = "75%",
-  useGuidedSearch = false  // Default to regular search now
+  useGuidedSearch = false,
+  onSearchComplete
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
@@ -33,25 +35,29 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
-    // If using guided search, open the modal
-    if (useGuidedSearch) {
-      setIsGuidedSearchOpen(true);
-    } else {
-      // Regular search - navigate to search page with the term
-      if (term && term.trim()) {
+    // אם יש מונח חיפוש
+    if (term && term.trim()) {
+      // אם זה חיפוש מונחה, פתח את המודאל
+      if (useGuidedSearch) {
+        setIsGuidedSearchOpen(true);
+      } else {
+        // חיפוש רגיל - ניווט לדף החיפוש עם המונח
         navigate(`/search?q=${encodeURIComponent(term)}`);
+        if (onSearchComplete) {
+          onSearchComplete();
+        }
       }
     }
   };
 
-  // Enhanced search suggestions
+  // הצעות חיפוש משופרות
   const enhancedSuggestions = React.useMemo(() => {
-    // Make sure all mentalist providers are included in suggestions
+    // מוודא שכל ספקי המנטליזם נכללים בהצעות
     const hasAllMentalists = mentalistProviders.every(mentalist => 
       searchSuggestions.some(s => s.value === mentalist.value)
     );
     
-    // If some mentalists are missing, add them
+    // אם חסרים מנטליסטים, מוסיף אותם
     if (!hasAllMentalists) {
       return [
         ...searchSuggestions,
@@ -65,7 +71,6 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     return searchSuggestions;
   }, [searchSuggestions, mentalistProviders]);
 
-  // Now let's update the component to use AutocompleteSearch for regular search
   return (
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
@@ -87,11 +92,13 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
             inputClassName={inputClassName}
             buttonClassName={buttonClassName}
             dir={dir}
+            showButton={true}
+            showCommandBar={true}
           />
         )}
       </div>
       
-      {/* Guided search modal */}
+      {/* מודאל חיפוש מונחה */}
       <GuidedSearchModal
         isOpen={isGuidedSearchOpen}
         onClose={() => setIsGuidedSearchOpen(false)}
