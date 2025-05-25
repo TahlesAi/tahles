@@ -104,6 +104,15 @@ const DigitalSignatureForm: React.FC<DigitalSignatureFormProps> = ({
     }
   };
 
+  // Handler functions that properly handle CheckedState
+  const handleAgreementChange = (checked: boolean | "indeterminate") => {
+    setAgreementAccepted(checked === true);
+  };
+
+  const handleMarketingChange = (checked: boolean | "indeterminate") => {
+    setMarketingConsent(checked === true);
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <Card>
@@ -192,7 +201,7 @@ const DigitalSignatureForm: React.FC<DigitalSignatureFormProps> = ({
               <Checkbox 
                 id="agreement" 
                 checked={agreementAccepted}
-                onCheckedChange={setAgreementAccepted}
+                onCheckedChange={handleAgreementChange}
               />
               <Label htmlFor="agreement" className="text-sm font-medium">
                 אני מאשר/ת כי קראתי, הבנתי ומסכים/ה לכל תנאי {agreementType === "provider" ? "ההסכם" : "התקנון"} *
@@ -204,7 +213,7 @@ const DigitalSignatureForm: React.FC<DigitalSignatureFormProps> = ({
                 <Checkbox 
                   id="marketing" 
                   checked={marketingConsent}
-                  onCheckedChange={setMarketingConsent}
+                  onCheckedChange={handleMarketingChange}
                 />
                 <Label htmlFor="marketing" className="text-sm font-medium">
                   אני מסכים/ה לקבל תקשורת שיווקית ועדכונים ממערכת ת'כל'ס *
