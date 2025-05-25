@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { cn } from "@/lib/utils";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
@@ -31,17 +32,15 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
   const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
 
   const handleSearch = (term: string) => {
-    // אם יש מונח חיפוש
     if (term && term.trim()) {
-      // אם זה חיפוש מונחה, פתח את המודאל
       if (useGuidedSearch) {
         setIsGuidedSearchOpen(true);
       } else {
-        // חיפוש רגיל - ניווט לדף החיפוש עם המונח
         navigate(`/search?q=${encodeURIComponent(term)}`);
         if (onSearchComplete) {
           onSearchComplete();
@@ -50,14 +49,11 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     }
   };
 
-  // הצעות חיפוש משופרות
   const enhancedSuggestions = React.useMemo(() => {
-    // מוודא שכל ספקי המנטליזם נכללים בהצעות
     const hasAllMentalists = mentalistProviders.every(mentalist => 
       searchSuggestions.some(s => s.value === mentalist.value)
     );
     
-    // אם חסרים מנטליסטים, מוסיף אותם
     if (!hasAllMentalists) {
       return [
         ...searchSuggestions,
@@ -71,34 +67,77 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     return searchSuggestions;
   }, [searchSuggestions, mentalistProviders]);
 
-  return (
-    <>
-      <div className={cn("relative", className)} style={{ maxWidth }}>
-        {useGuidedSearch ? (
+  if (useGuidedSearch) {
+    return (
+      <>
+        <div className={cn("relative", className)} style={{ maxWidth }}>
           <Button
             type="button"
-            className={cn("w-full flex items-center justify-end py-2 px-4 text-base text-gray-700 focus:outline-none border border-gray-300 rounded-full", inputClassName)}
+            className={cn(
+              "w-full flex items-center justify-between py-3 px-4 text-base text-gray-500 bg-white border border-gray-300 rounded-full hover:border-brand-400 transition-colors",
+              inputClassName
+            )}
             onClick={() => setIsGuidedSearchOpen(true)}
             variant="ghost"
           >
-            <Search className="h-4 w-4 text-gray-500" />
+            <span className="flex-1 text-right">{placeholder}</span>
+            <Search className="h-5 w-5 text-gray-400" />
           </Button>
-        ) : (
+        </div>
+        
+        <GuidedSearchModal
+          isOpen={isGuidedSearchOpen}
+          onClose={() => setIsGuidedSearchOpen(false)}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className={cn("relative", className)} style={{ maxWidth }}>
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder={isFocused ? "" : placeholder}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch(searchTerm);
+              }
+            }}
+            className={cn(
+              "w-full pl-12 pr-4 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all",
+              inputClassName
+            )}
+            dir={dir}
+          />
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+        </div>
+        
+        {/* הצגת הצעות חיפוש כשיש פוקוס ותוכן */}
+        {isFocused && searchTerm.trim() && (
           <AutocompleteSearch 
             suggestions={enhancedSuggestions}
             onSearch={handleSearch}
-            placeholder={placeholder}
-            className={className}
-            inputClassName={inputClassName}
-            buttonClassName={buttonClassName}
+            placeholder=""
+            className="absolute top-full mt-1 w-full z-50"
+            inputClassName="hidden"
+            buttonClassName="hidden"
             dir={dir}
-            showButton={true}
+            showButton={false}
             showCommandBar={true}
+            value={searchTerm}
+            onChange={setSearchTerm}
           />
         )}
       </div>
       
-      {/* מודאל חיפוש מונחה */}
       <GuidedSearchModal
         isOpen={isGuidedSearchOpen}
         onClose={() => setIsGuidedSearchOpen(false)}

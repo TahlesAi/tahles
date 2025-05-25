@@ -14,11 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserPlus, Search } from "lucide-react";
+import { Menu, UserPlus } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
 import SearchableHeader from "./ui/searchable-header";
-import { useSearchSuggestions } from "@/lib/searchSuggestions";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -28,9 +27,7 @@ const Header = () => {
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const location = useLocation();
-  const { searchSuggestions } = useSearchSuggestions();
 
-  // מיצוי מטה-דאטה של המשתמש בצורה בטוחה
   const userMeta = user?.user_metadata || {};
   const userName = userMeta.name || user?.email?.split('@')[0] || 'משתמש';
   const userAvatar = userMeta.avatar_url || '';
@@ -39,7 +36,7 @@ const Header = () => {
     <header className="bg-white border-b sticky top-0 z-40">
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16 px-4 md:px-6">
-          {/* לוגו - ממוקם בצד ימין */}
+          {/* לוגו */}
           <div className="order-2 md:order-1">
             <Link to="/" className="flex items-center">
               <span className="text-2xl font-bold text-brand-600">תכלס</span>
@@ -57,7 +54,7 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* סרגל חיפוש - כעת משתמש ב-SearchableHeader עם חיפוש רגיל */}
+          {/* סרגל חיפוש */}
           <div className="hidden md:block flex-1 mx-4 max-w-md order-4 md:order-3">
             <SearchableHeader 
               placeholder="חיפוש שירותים, ספקים, קטגוריות..."
@@ -68,7 +65,7 @@ const Header = () => {
             />
           </div>
           
-          {/* תפריט ניווט - ריווח רחב יותר */}
+          {/* תפריט ניווט */}
           <nav className="hidden md:flex items-center space-x-4 md:space-x-6 order-5 md:order-4">
             <Link 
               to="/how-it-works" 
@@ -136,7 +133,6 @@ const Header = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col space-y-4 mt-4">
-                    {/* כפתור הצטרפות ספק בתפריט מובייל */}
                     <Link 
                       to="/provider-onboarding" 
                       className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
@@ -162,7 +158,7 @@ const Header = () => {
         </div>
       </div>
       
-      {/* חיפוש מובייל - נראה רק במובייל */}
+      {/* חיפוש מובייל */}
       {isMobile && (
         <div className="border-t p-2">
           <SearchableHeader 
@@ -174,7 +170,6 @@ const Header = () => {
         </div>
       )}
       
-      {/* מודאל התחברות */}
       <AuthModal 
         isOpen={openAuthModal} 
         onClose={() => setOpenAuthModal(false)} 
@@ -184,7 +179,6 @@ const Header = () => {
         setUserType={setUserType}
       />
 
-      {/* מודאל חיפוש מונחה */}
       <GuidedSearchModal 
         isOpen={isGuidedSearchOpen} 
         onClose={() => setIsGuidedSearchOpen(false)} 

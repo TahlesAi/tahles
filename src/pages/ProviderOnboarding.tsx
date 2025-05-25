@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -8,7 +7,7 @@ import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingDocuments from "@/components/onboarding/OnboardingDocuments";
 import OnboardingPersonalInfo from "@/components/onboarding/OnboardingPersonalInfo";
-import OnboardingTerms from "@/components/onboarding/OnboardingTerms";
+import OnboardingMediaUpload from "@/components/onboarding/OnboardingMediaUpload";
 import OnboardingDigitalSignature from "@/components/onboarding/OnboardingDigitalSignature";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
 import { EventProvider } from "@/context/EventContext";
@@ -20,11 +19,9 @@ import {
   Layers,
   Layers3,
   FileCheck,
-  ShieldCheck,
   PenTool
 } from "lucide-react";
 
-// Admin mode for testing - allows skipping validation
 const ADMIN_MODE = true;
 
 const steps = [
@@ -54,7 +51,7 @@ const steps = [
   },
   {
     id: 5,
-    title: "פרטי שירות",
+    title: "פרטי שירותים",
     description: "הוספת שירותים ומוצרים",
     icon: <ClipboardList className="h-5 w-5" />,
   },
@@ -82,26 +79,22 @@ const ProviderOnboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Step 1 - Personal Info
     businessName: "",
     fullName: "",
     idNumber: "",
-    businessType: "", // עוסק מורשה/חברה
+    businessType: "",
     email: "",
     phone: "",
     address: "",
     city: "",
     
-    // Step 2 - Documents
     idImage: "",
     businessLicense: "",
     insuranceDoc: "",
     
-    // Step 3-4 - Hierarchy Selection
     category: "",
     subcategory: "",
     
-    // Step 5 - Services
     services: [] as Array<{
       name: string;
       description: string;
@@ -115,17 +108,14 @@ const ProviderOnboarding = () => {
       additionalImages: string[];
     }>,
     
-    // Step 6 - Media
     logo: "",
     coverImage: "",
     gallery: [] as string[],
     videos: [] as string[],
 
-    // Step 7 - Terms
     termsAccepted: false,
     digitalSignatureData: null as any,
     
-    // Additional fields for backward compatibility
     name: "",
     title: "",
     duration: 60,
@@ -213,12 +203,21 @@ const ProviderOnboarding = () => {
           />
         );
       case 5:
-      case 6:
         return (
           <OnboardingStep3 
             data={formData}
             onUpdate={updateFormData}
             onSubmit={handleNext}
+            onBack={handleBack}
+            adminMode={ADMIN_MODE}
+          />
+        );
+      case 6:
+        return (
+          <OnboardingMediaUpload
+            data={formData}
+            onUpdate={updateFormData}
+            onNext={handleNext}
             onBack={handleBack}
             adminMode={ADMIN_MODE}
           />
@@ -248,7 +247,6 @@ const ProviderOnboarding = () => {
         <main className="flex-grow bg-gray-50">
           <div className="container px-4 py-8">
             <div className="max-w-4xl mx-auto">
-              {/* Header */}
               <div className="mb-8 text-right" dir="rtl">
                 <h1 className="text-2xl font-bold mb-2">
                   הצטרפות לתכלס כספק שירות
@@ -263,7 +261,6 @@ const ProviderOnboarding = () => {
                 )}
               </div>
               
-              {/* Progress Steps */}
               <div className="flex mb-10 overflow-x-auto pb-2" dir="rtl">
                 {steps.map((step) => (
                   <div 
@@ -301,7 +298,6 @@ const ProviderOnboarding = () => {
                 ))}
               </div>
               
-              {/* Step Content */}
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 {getStepContent()}
               </div>

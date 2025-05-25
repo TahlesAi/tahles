@@ -7,7 +7,20 @@ import ProductForm from "./product/ProductForm";
 import ProductPreview from "./product/ProductPreview";
 import BenefitsCard from "./BenefitsCard"; 
 import TermsAgreement from "./product/TermsAgreement";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Plus, Edit, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface Service {
+  id?: string;
+  title: string;
+  duration: number;
+  audience: number;
+  ageRange: string;
+  price: number;
+  description?: string;
+  features?: string[];
+  targetAudience?: string[];
+}
 
 interface OnboardingStep3Props {
   data: any;
@@ -18,14 +31,20 @@ interface OnboardingStep3Props {
 }
 
 const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }: OnboardingStep3Props) => {
-  const [productData, setProductData] = useState({
-    title: data.title || "",
-    duration: data.duration || 60,
-    audience: data.audience || 350,
-    ageRange: data.ageRange || "20-40",
-    price: data.price || 120,
-    termsAccepted: false
+  const [services, setServices] = useState<Service[]>(data.services || []);
+  const [currentService, setCurrentService] = useState<Service>({
+    title: "",
+    duration: 60,
+    audience: 350,
+    ageRange: "20-40",
+    price: 120,
+    description: "",
+    features: [],
+    targetAudience: []
   });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isFormVisible, setIsFormVisible] = useState(services.length === 0);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,178 +52,120 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProductData(prev => ({ ...prev, [name]: value }));
+    setCurrentService(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
   
   const handleNumberChange = (name: string, value: number) => {
-    setProductData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleCheckboxChange = (checked: boolean) => {
-    setProductData(prev => ({ ...prev, termsAccepted: checked }));
-    if (!checked && errors.termsAccepted) {
-      setErrors(prev => ({ ...prev, termsAccepted: "" }));
-    }
+    setCurrentService(prev => ({ ...prev, [name]: value }));
   };
   
   const handleAgeRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProductData(prev => ({ ...prev, ageRange: e.target.value }));
+    setCurrentService(prev => ({ ...prev, ageRange: e.target.value }));
   };
   
-  const validate = () => {
-    // Skip validation in admin mode
+  const validateService = () => {
     if (adminMode) return true;
     
     const newErrors: Record<string, string> = {};
     
-    if (!productData.title.trim()) {
+    if (!currentService.title.trim()) {
       newErrors.title = "נא להזין שם למוצר";
-    }
-    
-    if (!productData.termsAccepted) {
-      newErrors.termsAccepted = "יש לאשר את התנאים כדי להמשיך";
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  const handleSubmit = async () => {
-    if (!validate()) {
+
+  const handleAddService = () => {
+    if (!validateService()) return;
+    
+    if (editingIndex !== null) {
+      // עריכת שירות קיים
+      const updatedServices = [...services];
+      updatedServices[editingIndex] = { ...currentService };
+      setServices(updatedServices);
+      setEditingIndex(null);
+      toast({
+        title: "השירות עודכן בהצלחה",
+        description: `"${currentService.title}" עודכן`,
+      });
+    } else {
+      // הוספת שירות חדש
+      const newService = { ...currentService, id: Date.now().toString() };
+      setServices(prev => [...prev, newService]);
+      toast({
+        title: "השירות נוסף בהצלחה",
+        description: `"${currentService.title}" נוסף לרשימת השירותים`,
+      });
+    }
+    
+    // איפוס הטופס
+    setCurrentService({
+      title: "",
+      duration: 60,
+      audience: 350,
+      ageRange: "20-40",
+      price: 120,
+      description: "",
+      features: [],
+      targetAudience: []
+    });
+    setIsFormVisible(false);
+  };
+
+  const handleEditService = (index: number) => {
+    setCurrentService(services[index]);
+    setEditingIndex(index);
+    setIsFormVisible(true);
+  };
+
+  const handleDeleteService = (index: number) => {
+    const updatedServices = services.filter((_, i) => i !== index);
+    setServices(updatedServices);
+    toast({
+      title: "השירות הוסר",
+      description: "השירות הוסר מהרשימה",
+    });
+  };
+
+  const handleNext = async () => {
+    if (!adminMode && services.length === 0) {
+      toast({
+        title: "שגיאה",
+        description: "יש להוסיף לפחות שירות אחד",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!adminMode && !termsAccepted) {
+      toast({
+        title: "שגיאה",
+        description: "יש לאשר את התנאים כדי להמשיך",
+        variant: "destructive"
+      });
       return;
     }
     
     try {
       setIsSubmitting(true);
       
-      // Check if user is authenticated
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        toast({
-          title: "שגיאת הרשאה",
-          description: "יש להתחבר למערכת לפני יצירת שירות חדש",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Create provider record
-      const { data: providerData, error: providerError } = await supabase
-        .from('providers')
-        .insert({
-          id: sessionData.session.user.id, // Use the auth user ID as the provider ID
-          name: data.name || "ספק חדש",
-          email: data.email,
-          phone: data.phone,
-          description: data.description
-        })
-        .select()
-        .single();
-      
-      if (providerError) {
-        // Check if error is due to duplicate provider
-        if (providerError.code === '23505') {
-          // Provider already exists, just update it
-          const { data: updateData, error: updateError } = await supabase
-            .from('providers')
-            .update({
-              name: data.name || "ספק חדש",
-              email: data.email,
-              phone: data.phone,
-              description: data.description
-            })
-            .eq('id', sessionData.session.user.id)
-            .select()
-            .single();
-            
-          if (updateError) {
-            console.error("Provider update error:", updateError);
-            toast({
-              title: "שגיאה בעדכון פרופיל הספק",
-              description: updateError.message,
-              variant: "destructive"
-            });
-            return;
-          }
-        } else {
-          console.error("Provider creation error:", providerError);
-          toast({
-            title: "שגיאה ביצירת ספק",
-            description: providerError.message,
-            variant: "destructive"
-          });
-          return;
-        }
-      }
-      
-      // Associate provider with selected subcategories
-      if (data.selectedSubcategories && data.selectedSubcategories.length > 0) {
-        // First, remove existing subcategory mappings
-        await supabase
-          .from('provider_subcategories')
-          .delete()
-          .eq('provider_id', sessionData.session.user.id);
-        
-        // Then create new mappings
-        const subcategoryMappings = data.selectedSubcategories.map((subcategoryId: string) => ({
-          provider_id: sessionData.session.user.id,
-          subcategory_id: subcategoryId
-        }));
-        
-        const { error: subcategoryError } = await supabase
-          .from('provider_subcategories')
-          .insert(subcategoryMappings);
-          
-        if (subcategoryError) {
-          console.error("Error associating provider with subcategories:", subcategoryError);
-          toast({
-            title: "שגיאה בשיוך קטגוריות",
-            description: "נוצר פרופיל ספק, אך אירעה שגיאה בשיוך לקטגוריות",
-            variant: "destructive"
-          });
-          // We continue despite this error since the provider was created
-        }
-      }
-      
-      // Create service record
-      const { error: serviceError } = await supabase
-        .from('services')
-        .insert({
-          name: productData.title,
-          description: `מופע באורך ${productData.duration} דקות לקהל של עד ${productData.audience} אנשים בגילאי ${productData.ageRange}`,
-          price_range: `₪${productData.price} לכרטיס`,
-          duration: `${productData.duration} דקות`,
-          provider_id: sessionData.session.user.id,
-          audience_size: productData.audience,
-          price_unit: 'לכרטיס'
-        });
-      
-      if (serviceError) {
-        console.error("Service creation error:", serviceError);
-        toast({
-          title: "שגיאה ביצירת שירות",
-          description: serviceError.message,
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Update user profile to mark as provider
-      await supabase
-        .from('profiles')
-        .update({ is_provider: true })
-        .eq('id', sessionData.session.user.id);
-      
-      onUpdate(productData);
-      toast({
-        title: "הפעולה הושלמה בהצלחה",
-        description: "השירות נוצר והוא מוכן לשימוש",
+      // עדכון הנתונים
+      onUpdate({ 
+        ...data, 
+        services,
+        termsAccepted 
       });
+      
+      toast({
+        title: "השירותים נשמרו בהצלחה",
+        description: `נוספו ${services.length} שירותים`,
+      });
+      
       onSubmit();
       
     } catch (error) {
@@ -220,10 +181,10 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-6" dir="rtl">
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold mb-2">פתיחת עמוד מוצר</h2>
-        <p className="text-gray-600">כמה פרטים בסיסים על המוצר בשביל להציג אותו בצורה המיטבית</p>
+        <h2 className="text-2xl font-bold mb-2">פרטי השירותים</h2>
+        <p className="text-gray-600">הוסף את השירותים והמוצרים שברצונך להציע</p>
       </div>
       
       {adminMode && (
@@ -232,43 +193,141 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
             <AlertCircle className="h-5 w-5 text-yellow-600" />
             <p className="font-medium">מצב מנהל מופעל</p>
           </div>
-          <p>ניתן לדלג על מילוי פרטי המוצר לצורך בדיקת התהליך</p>
+          <p>ניתן לדלג על מילוי פרטי השירותים לצורך בדיקת התהליך</p>
         </div>
       )}
+
+      {/* רשימת שירותים קיימים */}
+      {services.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>השירותים שלך ({services.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {services.map((service, index) => (
+                <div key={service.id || index} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-lg">{service.title}</h3>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <span>משך: {service.duration} דקות</span>
+                      <span className="mx-2">•</span>
+                      <span>קהל: עד {service.audience} אנשים</span>
+                      <span className="mx-2">•</span>
+                      <span>מחיר: ₪{service.price}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditService(index)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteService(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* כפתור הוספת שירות */}
+      {!isFormVisible && (
+        <div className="text-center">
+          <Button 
+            onClick={() => setIsFormVisible(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {services.length === 0 ? "הוסף שירות ראשון" : "הוסף שירות נוסף"}
+          </Button>
+        </div>
+      )}
+
+      {/* טופס הוספת/עריכת שירות */}
+      {isFormVisible && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {editingIndex !== null ? "עריכת שירות" : "הוספת שירות חדש"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <ProductForm 
+                  productData={currentService}
+                  errors={errors}
+                  onTitleChange={handleChange}
+                  onNumberChange={handleNumberChange}
+                  onAgeRangeChange={handleAgeRangeChange}
+                />
+              </div>
+              
+              <div>
+                <ProductPreview productData={currentService} />
+              </div>
+            </div>
+            
+            <div className="flex justify-between mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsFormVisible(false);
+                  setEditingIndex(null);
+                  setCurrentService({
+                    title: "",
+                    duration: 60,
+                    audience: 350,
+                    ageRange: "20-40",
+                    price: 120,
+                    description: "",
+                    features: [],
+                    targetAudience: []
+                  });
+                }}
+              >
+                ביטול
+              </Button>
+              <Button onClick={handleAddService}>
+                {editingIndex !== null ? "עדכן שירות" : "הוסף שירות"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* יתרונות המערכת */}
+      {!isFormVisible && <BenefitsCard />}
       
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="md:col-span-1">
-          <ProductForm 
-            productData={productData}
-            errors={errors}
-            onTitleChange={handleChange}
-            onNumberChange={handleNumberChange}
-            onAgeRangeChange={handleAgeRangeChange}
+      {/* אישור תנאים ומעבר */}
+      {!isFormVisible && (
+        <div className="border-t pt-6">
+          <TermsAgreement 
+            accepted={termsAccepted}
+            onChange={setTermsAccepted}
+            error={!adminMode && !termsAccepted ? "יש לאשר את התנאים כדי להמשיך" : undefined}
           />
+          
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={onBack} disabled={isSubmitting}>
+              חזרה
+            </Button>
+            <Button onClick={handleNext} disabled={isSubmitting}>
+              {isSubmitting ? "מעבד..." : "המשך למדיה"}
+            </Button>
+          </div>
         </div>
-        
-        <div className="md:col-span-1">
-          <ProductPreview productData={productData} />
-          <BenefitsCard />
-        </div>
-      </div>
-      
-      <div className="mt-8 border-t pt-6">
-        <TermsAgreement 
-          accepted={productData.termsAccepted}
-          onChange={handleCheckboxChange}
-          error={errors.termsAccepted}
-        />
-        
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={onBack} disabled={isSubmitting}>
-            חזרה
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "מעבד..." : "פרסום ויצירת עמוד מוצר"}
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
