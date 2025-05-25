@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import TermsAgreement from "@/components/terms/TermsAgreement";
+import UpdatedTermsAgreement from "@/components/terms/UpdatedTermsAgreement";
 import { toast } from "sonner";
 
 interface ServiceBookingTermsProps {
@@ -31,7 +31,7 @@ const ServiceBookingTerms: React.FC<ServiceBookingTermsProps> = ({
 
   return (
     <div className="border-t border-gray-200 pt-4 mt-4">
-      <TermsAgreement 
+      <UpdatedTermsAgreement 
         type="customer"
         accepted={termsAccepted}
         onChange={setTermsAccepted}

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,6 +8,7 @@ import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingDocuments from "@/components/onboarding/OnboardingDocuments";
 import OnboardingPersonalInfo from "@/components/onboarding/OnboardingPersonalInfo";
 import OnboardingTerms from "@/components/onboarding/OnboardingTerms";
+import OnboardingDigitalSignature from "@/components/onboarding/OnboardingDigitalSignature";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
 import { EventProvider } from "@/context/EventContext";
 import { 
@@ -16,12 +16,11 @@ import {
   ClipboardList, 
   ImagePlus, 
   User, 
-  ChevronRight, 
-  ChevronLeft,
   Layers,
   Layers3,
   FileCheck,
-  ShieldCheck
+  ShieldCheck,
+  PenTool
 } from "lucide-react";
 
 // Admin mode for testing - allows skipping validation
@@ -66,9 +65,9 @@ const steps = [
   },
   {
     id: 7,
-    title: "תנאי שימוש",
-    description: "אישור תנאים",
-    icon: <ShieldCheck className="h-5 w-5" />,
+    title: "חתימה דיגיטלית",
+    description: "חתימה על הסכם ספק",
+    icon: <PenTool className="h-5 w-5" />,
   },
   {
     id: 8,
@@ -123,6 +122,7 @@ const ProviderOnboarding = () => {
 
     // Step 7 - Terms
     termsAccepted: false,
+    digitalSignatureData: null as any,
     
     // Additional fields for backward compatibility
     name: "",
@@ -150,11 +150,18 @@ const ProviderOnboarding = () => {
       window.scrollTo(0, 0);
     }
   };
+
+  const handleDigitalSignatureComplete = (signatureData: any) => {
+    updateFormData({ 
+      digitalSignatureData: signatureData,
+      termsAccepted: true 
+    });
+    handleNext();
+  };
   
   const handleSubmit = () => {
     console.log("Form Submission:", formData);
-    setCurrentStep(8); // Go to success step
-    // אימייל אישור יישלח כאן
+    setCurrentStep(8);
   };
   
   const getStepContent = () => {
@@ -210,10 +217,8 @@ const ProviderOnboarding = () => {
         );
       case 7:
         return (
-          <OnboardingTerms
-            accepted={formData.termsAccepted}
-            onUpdate={(accepted) => updateFormData({ termsAccepted: accepted })}
-            onNext={handleSubmit}
+          <OnboardingDigitalSignature
+            onSignatureComplete={handleDigitalSignatureComplete}
             onBack={handleBack}
           />
         );

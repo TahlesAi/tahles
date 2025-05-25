@@ -9,8 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import CustomerTerms from "./CustomerTerms";
-import ProviderTerms from "./ProviderTerms";
+import CustomerAgreement from "./CustomerAgreement";
+import ProviderAgreement from "./ProviderAgreement";
 
 interface TermsAgreementProps {
   type: "customer" | "provider";
@@ -25,8 +25,8 @@ const TermsAgreement: React.FC<TermsAgreementProps> = ({
   onChange,
   error,
 }) => {
-  const TermsComponent = type === "customer" ? CustomerTerms : ProviderTerms;
-  const termTitle = type === "customer" ? "תקנון לקוח" : "תקנון ספק";
+  const TermsComponent = type === "customer" ? CustomerAgreement : ProviderAgreement;
+  const termTitle = type === "customer" ? "תקנון לקוח" : "הסכם ספק";
 
   return (
     <div className="space-y-2 my-4">
@@ -43,7 +43,7 @@ const TermsAgreement: React.FC<TermsAgreementProps> = ({
             <Dialog>
               <DialogTrigger asChild>
                 <span className="text-brand-600 cursor-pointer hover:underline">
-                  לתקנון האתר
+                  ל{termTitle}
                 </span>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
