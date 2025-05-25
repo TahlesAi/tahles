@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -151,6 +152,13 @@ const ProviderOnboarding = () => {
     }
   };
 
+  const handleStepNavigation = (stepId: number) => {
+    if (ADMIN_MODE || stepId <= currentStep) {
+      setCurrentStep(stepId);
+      window.scrollTo(0, 0);
+    }
+  };
+
   const handleDigitalSignatureComplete = (signatureData: any) => {
     updateFormData({ 
       digitalSignatureData: signatureData,
@@ -243,7 +251,7 @@ const ProviderOnboarding = () => {
               {/* Header */}
               <div className="mb-8 text-right" dir="rtl">
                 <h1 className="text-2xl font-bold mb-2">
-                  הצטרפות לת׳כל׳ס כספק שירות
+                  הצטרפות לתכלס כספק שירות
                 </h1>
                 <p className="text-gray-600">
                   מלא את הפרטים הבאים כדי להצטרף כספק שירות ולהתחיל למכור באתר שלנו
@@ -264,11 +272,12 @@ const ProviderOnboarding = () => {
                   >
                     <div className="relative flex items-center">
                       <div 
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer transition-all ${
                           currentStep >= step.id 
                             ? "bg-brand-600 text-white" 
                             : "bg-gray-200 text-gray-500"
-                        }`}
+                        } ${(ADMIN_MODE || step.id <= currentStep) ? "hover:bg-brand-700" : ""}`}
+                        onClick={() => handleStepNavigation(step.id)}
                       >
                         {step.id < 8 ? step.id : <CheckCircle className="h-4 w-4" />}
                       </div>
@@ -279,9 +288,11 @@ const ProviderOnboarding = () => {
                       </div>
                     </div>
                     <div className="mt-2 text-center">
-                      <div className={`font-medium text-xs ${
+                      <div className={`font-medium text-xs cursor-pointer ${
                         currentStep >= step.id ? "text-gray-900" : "text-gray-500"
-                      }`}>
+                      }`}
+                      onClick={() => handleStepNavigation(step.id)}
+                      >
                         {step.title}
                       </div>
                       <div className="text-xs text-gray-500 hidden md:block">{step.description}</div>

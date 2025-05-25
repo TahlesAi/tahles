@@ -18,7 +18,7 @@ const TermsAgreement = ({ accepted, onChange, error }: TermsAgreementProps) => {
       />
       <div>
         <Label htmlFor="terms" className="mr-2 font-medium">
-          אני מסכים/ה לתנאי השימוש של ת'כל'ס
+          אני מסכים/ה לתנאי השימוש של תכלס
         </Label>
         <p className="text-sm text-gray-500 mr-2 mt-1">
           בלחיצה על כפתור "פרסום" אתם מאשרים שקראתם והסכמתם לתנאי השימוש והפרטיות של האתר

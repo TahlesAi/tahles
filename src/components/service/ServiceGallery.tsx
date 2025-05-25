@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ImageIcon, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, Play, Maximize2 } from "lucide-react";
 
 interface MediaItem {
   type: 'image' | 'video';
@@ -15,6 +15,7 @@ interface ServiceGalleryProps {
 
 const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handlePrevImage = () => {
     setSelectedImageIndex((prev) => (prev === 0 ? mediaGallery.length - 1 : prev - 1));
@@ -24,23 +25,30 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
     setSelectedImageIndex((prev) => (prev === mediaGallery.length - 1 ? 0 : prev + 1));
   };
 
+  const handleFullscreen = () => {
+    setIsFullscreen(true);
+  };
+
   if (mediaGallery.length === 0) {
     return (
-      <div className="relative rounded-xl overflow-hidden mb-8 aspect-[16/9] bg-gray-100 flex items-center justify-center">
-        <ImageIcon className="h-16 w-16 text-gray-300" />
+      <div className="relative rounded-xl overflow-hidden mb-8 aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+        <div className="text-center">
+          <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-2" />
+          <p className="text-gray-500 text-sm">אין תמונות זמינות</p>
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      {/* Image Gallery */}
-      <div className="relative rounded-xl overflow-hidden mb-8 aspect-[16/9]">
+      {/* Main Gallery */}
+      <div className="relative rounded-xl overflow-hidden mb-6 aspect-[16/9] bg-black group">
         {mediaGallery[selectedImageIndex].type === 'image' ? (
           <img 
             src={mediaGallery[selectedImageIndex].url || "/placeholder.svg"} 
             alt={serviceName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full bg-black flex items-center justify-center">
@@ -53,7 +61,7 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
         )}
         
         {/* Media type indicator */}
-        <div className="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-xs flex items-center">
+        <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs flex items-center backdrop-blur-sm">
           {mediaGallery[selectedImageIndex].type === 'image' ? (
             <>
               <ImageIcon className="h-3 w-3 ml-1" />
@@ -66,14 +74,26 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
             </>
           )}
         </div>
+
+        {/* Fullscreen button */}
+        {mediaGallery[selectedImageIndex].type === 'image' && (
+          <Button
+            size="icon"
+            variant="outline"
+            className="absolute top-4 right-4 bg-black/70 border-white/20 text-white hover:bg-black/80 backdrop-blur-sm"
+            onClick={handleFullscreen}
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        )}
         
-        {/* Image Navigation */}
+        {/* Navigation Arrows */}
         {mediaGallery.length > 1 && (
-          <div className="absolute inset-0 flex items-center justify-between px-4">
+          <>
             <Button 
               size="icon" 
               variant="outline" 
-              className="rounded-full bg-white/80"
+              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg"
               onClick={handlePrevImage}
             >
               <ChevronRight className="h-5 w-5" />
@@ -81,17 +101,17 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
             <Button 
               size="icon" 
               variant="outline" 
-              className="rounded-full bg-white/80"
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg"
               onClick={handleNextImage}
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
-          </div>
+          </>
         )}
         
         {/* Image Counter */}
         {mediaGallery.length > 1 && (
-          <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-xs">
+          <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm">
             {selectedImageIndex + 1} / {mediaGallery.length}
           </div>
         )}
@@ -99,12 +119,14 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
       
       {/* Thumbnails */}
       {mediaGallery.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-6">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 mb-6">
           {mediaGallery.map((media, idx) => (
             <div 
               key={idx} 
-              className={`w-20 h-20 rounded overflow-hidden cursor-pointer flex-shrink-0 border-2 relative ${
-                idx === selectedImageIndex ? 'border-brand-500' : 'border-transparent'
+              className={`aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 relative group ${
+                idx === selectedImageIndex 
+                  ? 'ring-2 ring-brand-500 shadow-lg scale-105' 
+                  : 'hover:ring-2 hover:ring-brand-300 hover:scale-102'
               }`}
               onClick={() => setSelectedImageIndex(idx)}
             >
@@ -112,15 +134,41 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
                 <img 
                   src={media.url} 
                   alt={`תמונה ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                  <Play className="h-8 w-8 text-white" />
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
+                  <Play className="h-6 w-6 text-white z-10" />
+                  <div className="absolute inset-0 bg-black/50"></div>
                 </div>
+              )}
+              {idx === selectedImageIndex && (
+                <div className="absolute inset-0 bg-brand-500/20"></div>
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Fullscreen Modal */}
+      {isFullscreen && mediaGallery[selectedImageIndex].type === 'image' && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <img 
+            src={mediaGallery[selectedImageIndex].url} 
+            alt={serviceName}
+            className="max-w-full max-h-full object-contain"
+          />
+          <Button
+            size="icon"
+            variant="outline"
+            className="absolute top-4 right-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
+            onClick={() => setIsFullscreen(false)}
+          >
+            ×
+          </Button>
         </div>
       )}
     </>

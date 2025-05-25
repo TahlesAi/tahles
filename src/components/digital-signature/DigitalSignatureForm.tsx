@@ -216,7 +216,7 @@ const DigitalSignatureForm: React.FC<DigitalSignatureFormProps> = ({
                   onCheckedChange={handleMarketingChange}
                 />
                 <Label htmlFor="marketing" className="text-sm font-medium">
-                  אני מסכים/ה לקבל תקשורת שיווקית ועדכונים ממערכת ת'כל'ס *
+                  אני מסכים/ה לקבל תקשורת שיווקית ועדכונים ממערכת תכלס *
                 </Label>
               </div>
             )}
