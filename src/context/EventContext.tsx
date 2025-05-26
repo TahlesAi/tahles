@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, Subcategory, ServiceType, Provider, Service } from '@/lib/types/hierarchy';
@@ -8,6 +9,7 @@ interface EventContextProps {
   subcategories: Subcategory[];
   serviceTypes: ServiceType[];
   providers: Provider[];
+  services: Service[];
   featuredServices: Service[];
   topProviders: Provider[];
   isLoading: boolean;
@@ -21,6 +23,7 @@ interface EventContextProps {
   getProvidersByServiceType: (serviceTypeId: string) => Provider[];
   getProvidersBySubcategory: (subcategoryId: string) => Provider[];
   getServicesByProvider: (providerId: string) => Service[];
+  getServicesBySubcategory: (services: Service[], subcategoryId: string) => Service[];
   getSubcategoriesByCategory: (categoryId: string) => Subcategory[];
   getServiceTypesBySubcategory: (subcategoryId: string) => ServiceType[];
   refreshData: () => Promise<void>;
@@ -232,6 +235,12 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     );
   };
 
+  const getServicesBySubcategory = (services: Service[], subcategoryId: string) => {
+    return services.filter(
+      (service) => service.subcategory_id === subcategoryId
+    );
+  };
+
   const refreshData = async () => {
     await fetchData();
   };
@@ -243,6 +252,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         subcategories,
         serviceTypes,
         providers,
+        services,
         featuredServices,
         topProviders,
         isLoading,
@@ -256,6 +266,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         getProvidersByServiceType,
         getProvidersBySubcategory,
         getServicesByProvider,
+        getServicesBySubcategory,
         getSubcategoriesByCategory,
         getServiceTypesBySubcategory,
         refreshData,
