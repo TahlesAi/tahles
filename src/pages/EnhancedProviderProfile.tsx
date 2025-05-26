@@ -9,6 +9,7 @@ import { useEventContext } from "@/context/EventContext";
 import { mockProviders } from '@/lib/mockData';
 import { expandedMockProviders } from '@/lib/mockDataExpanded';
 import { Provider } from '@/lib/types/hierarchy';
+import { ProviderProfile } from '@/lib/types';
 
 const EnhancedProviderProfile = () => {
   const { providerId } = useParams<{ providerId: string }>();
@@ -26,18 +27,41 @@ const EnhancedProviderProfile = () => {
     // If not found in context, try mock data
     if (!foundProvider) {
       const combinedMockProviders = [...expandedMockProviders, ...mockProviders];
-      foundProvider = combinedMockProviders.find(p => p.id === providerId);
+      const mockProvider = combinedMockProviders.find(p => p.id === providerId) as any;
+      
+      if (mockProvider) {
+        // Convert ProviderProfile to Provider format
+        foundProvider = {
+          id: mockProvider.id,
+          name: mockProvider.name || mockProvider.businessName || '',
+          description: mockProvider.description || '',
+          city: mockProvider.city || '',
+          contact_phone: mockProvider.contact_phone || mockProvider.phone || '',
+          contact_email: mockProvider.contact_email || mockProvider.email || '',
+          contact_person: mockProvider.contact_person || mockProvider.contactPerson || '',
+          address: mockProvider.address || '',
+          website: mockProvider.website || '',
+          rating: mockProvider.rating || 0,
+          review_count: mockProvider.review_count || mockProvider.reviewCount || 0,
+          is_verified: mockProvider.is_verified || mockProvider.verified || false,
+          logo_url: mockProvider.logo_url || mockProvider.logo || '',
+          subcategory_ids: mockProvider.subcategory_ids || [],
+          category_ids: mockProvider.category_ids || mockProvider.categories || [],
+          service_type_ids: mockProvider.service_type_ids || [],
+          services: mockProvider.services || []
+        };
+      }
     }
 
     if (foundProvider) {
       // Ensure provider has all required Provider type properties
       const enhancedProvider: Provider = {
         id: foundProvider.id,
-        name: foundProvider.name || (foundProvider as any).businessName || '',
+        name: foundProvider.name || '',
         description: foundProvider.description || '',
         city: foundProvider.city || '',
-        contact_phone: foundProvider.contact_phone || (foundProvider as any).phone || '',
-        contact_email: foundProvider.contact_email || (foundProvider as any).email || '',
+        contact_phone: foundProvider.contact_phone || '',
+        contact_email: foundProvider.contact_email || '',
         contact_person: foundProvider.contact_person || '',
         address: foundProvider.address || '',
         website: foundProvider.website || '',
