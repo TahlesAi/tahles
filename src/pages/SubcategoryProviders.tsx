@@ -13,11 +13,10 @@ const SubcategoryProviders = () => {
   const { subcategoryId } = useParams<{ subcategoryId: string }>();
   const navigate = useNavigate();
   const { 
-    categories, 
-    subcategories, 
     getProvidersBySubcategory,
     getServicesByProvider,
-    isLoading 
+    isLoading,
+    hebrewCategories
   } = useEventContext();
   
   const [subcategory, setSubcategory] = useState<any>(null);
@@ -29,15 +28,22 @@ const SubcategoryProviders = () => {
     
     console.log('Viewing subcategory with ID:', subcategoryId);
     
-    // מציאת תת הקטגוריה
-    const foundSubcategory = subcategories.find(sub => sub.id === subcategoryId);
+    // חיפוש תת הקטגוריה בהיררכיה העברית
+    let foundSubcategory = null;
+    let foundCategory = null;
     
-    if (foundSubcategory) {
-      console.log('Found subcategory:', foundSubcategory.name);
+    for (const cat of hebrewCategories) {
+      const sub = cat.subcategories?.find(s => s.id === subcategoryId);
+      if (sub) {
+        foundSubcategory = sub;
+        foundCategory = cat;
+        break;
+      }
+    }
+    
+    if (foundSubcategory && foundCategory) {
+      console.log('Found Hebrew subcategory:', foundSubcategory.name);
       setSubcategory(foundSubcategory);
-      
-      // מציאת הקטגוריה האם
-      const foundCategory = categories.find(cat => cat.id === foundSubcategory.category_id);
       setCategory(foundCategory);
       
       // מציאת הספקים
@@ -59,9 +65,9 @@ const SubcategoryProviders = () => {
       
       setSubcategoryProviders(enrichedProviders);
     } else {
-      console.log('Subcategory not found');
+      console.log('Subcategory not found in Hebrew hierarchy');
     }
-  }, [subcategoryId, subcategories, categories, getProvidersBySubcategory, getServicesByProvider]);
+  }, [subcategoryId, hebrewCategories, getProvidersBySubcategory, getServicesByProvider]);
 
   if (isLoading) {
     return (
@@ -161,7 +167,7 @@ const SubcategoryProviders = () => {
               {subcategoryProviders.map((provider) => (
                 <Link
                   key={provider.id}
-                  to={`/providers/${provider.id}`}
+                  to={`/enhanced-providers/${provider.id}`}
                   className="group block"
                 >
                   <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">

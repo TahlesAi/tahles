@@ -13,14 +13,12 @@ const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const { 
-    categories, 
-    subcategories, 
     providers,
     services,
-    getSubcategoriesByCategory,
     getProvidersBySubcategory,
     getServicesBySubcategory,
-    isLoading 
+    isLoading,
+    hebrewCategories
   } = useEventContext();
   
   const [category, setCategory] = useState<any>(null);
@@ -31,15 +29,15 @@ const CategorySubcategories = () => {
     
     console.log('Viewing category with ID:', categoryId);
     
-    // מציאת הקטגוריה
-    const foundCategory = categories.find(cat => cat.id === categoryId);
+    // מציאת הקטגוריה בהיררכיה העברית
+    const foundCategory = hebrewCategories.find(cat => cat.id === categoryId);
     
     if (foundCategory) {
-      console.log('Found category:', foundCategory.name);
+      console.log('Found Hebrew category:', foundCategory.name);
       setCategory(foundCategory);
       
-      // מציאת תתי הקטגוריות
-      const subs = getSubcategoriesByCategory(categoryId);
+      // מציאת תתי הקטגוריות מההיררכיה העברית
+      const subs = foundCategory.subcategories || [];
       console.log('Found subcategories:', subs.length);
       
       // עדכון תתי הקטגוריות עם מידע על מספר ספקים ושירותים
@@ -56,9 +54,9 @@ const CategorySubcategories = () => {
       
       setCategorySubcategories(enrichedSubs);
     } else {
-      console.log('Category not found');
+      console.log('Category not found in Hebrew hierarchy');
     }
-  }, [categoryId, categories, subcategories, providers, services, getSubcategoriesByCategory, getProvidersBySubcategory, getServicesBySubcategory]);
+  }, [categoryId, hebrewCategories, providers, services, getProvidersBySubcategory, getServicesBySubcategory]);
 
   if (isLoading) {
     return (
