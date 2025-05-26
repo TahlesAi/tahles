@@ -35,7 +35,9 @@ export interface Provider {
   logo_url?: string;
   contact_email: string;
   contact_phone: string;
+  contact_person?: string;
   address?: string;
+  city?: string;
   website?: string;
   rating?: number;
   review_count?: number;

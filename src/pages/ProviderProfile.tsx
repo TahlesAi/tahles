@@ -63,6 +63,8 @@ const ProviderProfile = () => {
               service_type_ids: [],
               contact_email: data.email || '',
               contact_phone: data.phone || '',
+              contact_person: data.contact_person || data.name,
+              city: data.city || 'לא צוין',
               is_verified: data.is_verified || false,
               rating: data.rating || 4.5,
               review_count: data.review_count || 0
@@ -80,7 +82,7 @@ const ProviderProfile = () => {
             email: providerData.contact_email,
             phone: providerData.contact_phone,
             address: providerData.address,
-            city: providerData.city,
+            city: providerData.city || 'לא צוין',
             categories: providerData.category_ids?.map((catId: string) => {
               const category = categories.find(c => c.id === catId);
               return category?.name || '';
