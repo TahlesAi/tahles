@@ -8,7 +8,6 @@ import { useEventContext } from "@/context/EventContext";
 import { mockSearchResults, mockProviders } from '@/lib/mockData';
 import { expandedMockSearchResults, expandedMockProviders } from '@/lib/mockDataExpanded';
 import { Service, Provider } from '@/lib/types/hierarchy';
-import { ProviderProfile } from '@/lib/types';
 
 const EnhancedServiceDetails = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
@@ -65,27 +64,27 @@ const EnhancedServiceDetails = () => {
       if (!foundProvider) {
         const mockProvider = combinedMockProviders.find(p => 
           p.id === foundService.provider_id || p.id === (foundService as any).providerId
-        ) as ProviderProfile;
+        ) as any;
         
         if (mockProvider) {
-          // Convert ProviderProfile to Provider format
+          // Convert ProviderProfile to Provider format with all required fields
           foundProvider = {
             id: mockProvider.id,
-            name: mockProvider.businessName || '',
+            name: mockProvider.name || mockProvider.businessName || '',
             description: mockProvider.description || '',
-            contact_phone: mockProvider.phone || '',
-            contact_email: mockProvider.email || '',
-            contact_person: mockProvider.contactPerson || '',
+            contact_phone: mockProvider.contact_phone || mockProvider.phone || '',
+            contact_email: mockProvider.contact_email || mockProvider.email || '',
+            contact_person: mockProvider.contact_person || mockProvider.contactPerson || '',
             address: mockProvider.address || '',
             city: mockProvider.city || '',
             website: mockProvider.website || '',
             rating: mockProvider.rating || 0,
-            review_count: mockProvider.reviewCount || 0,
-            is_verified: mockProvider.verified || false,
-            logo_url: mockProvider.logo || '',
-            subcategory_ids: [],
-            category_ids: mockProvider.categories || [],
-            service_type_ids: [],
+            review_count: mockProvider.review_count || mockProvider.reviewCount || 0,
+            is_verified: mockProvider.is_verified || mockProvider.verified || false,
+            logo_url: mockProvider.logo_url || mockProvider.logo || '',
+            subcategory_ids: mockProvider.subcategory_ids || [],
+            category_ids: mockProvider.category_ids || mockProvider.categories || [],
+            service_type_ids: mockProvider.service_type_ids || [],
             services: []
           } as Provider;
         }

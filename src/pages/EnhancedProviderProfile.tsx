@@ -9,7 +9,6 @@ import { useEventContext } from "@/context/EventContext";
 import { mockProviders } from '@/lib/mockData';
 import { expandedMockProviders } from '@/lib/mockDataExpanded';
 import { Provider } from '@/lib/types/hierarchy';
-import { ProviderProfile } from '@/lib/types';
 
 const EnhancedProviderProfile = () => {
   const { providerId } = useParams<{ providerId: string }>();
@@ -30,11 +29,11 @@ const EnhancedProviderProfile = () => {
       const mockProvider = combinedMockProviders.find(p => p.id === providerId) as any;
       
       if (mockProvider) {
-        // Convert ProviderProfile to Provider format
+        // Convert ProviderProfile to Provider format with all required fields
         foundProvider = {
           id: mockProvider.id,
           name: mockProvider.name || mockProvider.businessName || '',
-          description: mockProvider.description || '',
+          description: mockProvider.description || 'ספק מקצועי עם ניסיון רב בתחום',
           city: mockProvider.city || '',
           contact_phone: mockProvider.contact_phone || mockProvider.phone || '',
           contact_email: mockProvider.contact_email || mockProvider.email || '',
@@ -54,11 +53,11 @@ const EnhancedProviderProfile = () => {
     }
 
     if (foundProvider) {
-      // Ensure provider has all required Provider type properties
+      // Ensure provider has all required Provider type properties with defaults
       const enhancedProvider: Provider = {
         id: foundProvider.id,
         name: foundProvider.name || '',
-        description: foundProvider.description || '',
+        description: foundProvider.description || 'ספק מקצועי עם ניסיון רב בתחום',
         city: foundProvider.city || '',
         contact_phone: foundProvider.contact_phone || '',
         contact_email: foundProvider.contact_email || '',
@@ -176,6 +175,28 @@ const EnhancedProviderProfile = () => {
     );
   }
 
+  // Create the provider object that matches ProviderBusinessProfile's expected interface
+  const providerForProfile = {
+    id: provider.id,
+    name: provider.name,
+    description: provider.description,
+    city: provider.city,
+    contact_phone: provider.contact_phone,
+    contact_email: provider.contact_email,
+    website: provider.website,
+    rating: provider.rating,
+    review_count: provider.review_count,
+    is_verified: provider.is_verified,
+    logo_url: provider.logo_url,
+    serviceAreas: provider.serviceAreas,
+    experience: provider.experience,
+    specialties: provider.specialties,
+    testimonials: provider.testimonials,
+    socialLinks: provider.socialLinks,
+    mediaLinks: provider.mediaLinks,
+    clientRecommendations: provider.clientRecommendations
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -184,7 +205,7 @@ const EnhancedProviderProfile = () => {
           <div className="space-y-8">
             {/* Business Profile */}
             <ProviderBusinessProfile 
-              provider={provider} 
+              provider={providerForProfile} 
               gallery={gallery}
             />
             
