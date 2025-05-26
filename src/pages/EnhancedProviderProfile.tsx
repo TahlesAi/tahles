@@ -8,11 +8,12 @@ import ProductGrid from "@/components/provider/ProductGrid";
 import { useEventContext } from "@/context/EventContext";
 import { mockProviders } from '@/lib/mockData';
 import { expandedMockProviders } from '@/lib/mockDataExpanded';
+import { Provider } from '@/lib/types/hierarchy';
 
 const EnhancedProviderProfile = () => {
   const { providerId } = useParams<{ providerId: string }>();
   const { providers, services } = useEventContext();
-  const [provider, setProvider] = useState<any>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [providerServices, setProviderServices] = useState<any[]>([]);
   const [gallery, setGallery] = useState<any[]>([]);
 
@@ -29,19 +30,25 @@ const EnhancedProviderProfile = () => {
     }
 
     if (foundProvider) {
-      // Enhance provider with additional business profile data
-      const enhancedProvider = {
+      // Ensure provider has all required Provider type properties
+      const enhancedProvider: Provider = {
         id: foundProvider.id,
-        name: foundProvider.name || foundProvider.businessName || '',
+        name: foundProvider.name || (foundProvider as any).businessName || '',
         description: foundProvider.description || '',
         city: foundProvider.city || '',
-        contact_phone: foundProvider.contact_phone || foundProvider.phone || '',
-        contact_email: foundProvider.contact_email || foundProvider.email || '',
+        contact_phone: foundProvider.contact_phone || (foundProvider as any).phone || '',
+        contact_email: foundProvider.contact_email || (foundProvider as any).email || '',
+        contact_person: foundProvider.contact_person || '',
+        address: foundProvider.address || '',
         website: foundProvider.website || '',
         rating: foundProvider.rating || 0,
         review_count: foundProvider.review_count || 0,
         is_verified: foundProvider.is_verified || false,
         logo_url: foundProvider.logo_url || '',
+        subcategory_ids: foundProvider.subcategory_ids || [],
+        category_ids: foundProvider.category_ids || [],
+        service_type_ids: foundProvider.service_type_ids || [],
+        services: foundProvider.services || [],
         serviceAreas: foundProvider.serviceAreas || [foundProvider.city || 'כל הארץ'],
         experience: foundProvider.experience || 'מעל 5 שנות ניסיון בתחום',
         specialties: foundProvider.specialties || ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
@@ -91,10 +98,10 @@ const EnhancedProviderProfile = () => {
       const galleryItems = [];
       
       // Add provider logo as first image
-      if (foundProvider.logo_url) {
+      if (enhancedProvider.logo_url) {
         galleryItems.push({
           type: 'image',
-          url: foundProvider.logo_url
+          url: enhancedProvider.logo_url
         });
       }
 

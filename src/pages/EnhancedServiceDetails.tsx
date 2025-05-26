@@ -7,6 +7,7 @@ import DetailedProductPage from "@/components/provider/DetailedProductPage";
 import { useEventContext } from "@/context/EventContext";
 import { mockSearchResults, mockProviders } from '@/lib/mockData';
 import { expandedMockSearchResults, expandedMockProviders } from '@/lib/mockDataExpanded';
+import { Service, Provider } from '@/lib/types/hierarchy';
 
 const EnhancedServiceDetails = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
@@ -22,7 +23,35 @@ const EnhancedServiceDetails = () => {
     // If not found in context, try mock data
     if (!foundService) {
       const combinedMockServices = [...expandedMockSearchResults, ...mockSearchResults];
-      foundService = combinedMockServices.find(s => s.id === serviceId);
+      const mockService = combinedMockServices.find(s => s.id === serviceId);
+      
+      if (mockService) {
+        // Convert SearchResultService to Service format
+        foundService = {
+          id: mockService.id,
+          name: mockService.name,
+          description: mockService.description || '',
+          price: typeof mockService.price === 'number' ? mockService.price : 0,
+          price_unit: mockService.priceUnit || 'לאירוע',
+          imageUrl: mockService.imageUrl,
+          additional_images: mockService.additionalImages || mockService.additional_images || [],
+          provider_id: mockService.providerId || '',
+          category_id: '',
+          subcategory_id: '',
+          service_type_id: '',
+          rating: mockService.rating,
+          review_count: mockService.reviewCount,
+          tags: mockService.tags || [],
+          is_featured: mockService.featured || false,
+          suitableFor: mockService.suitableFor || [],
+          audience_size: mockService.category || 'כללי',
+          audience_ages: [],
+          location: mockService.location || '',
+          duration: '',
+          videos: mockService.videos || mockService.video_urls || [],
+          technical_requirements: []
+        } as Service;
+      }
     }
 
     if (foundService) {
@@ -33,9 +62,32 @@ const EnhancedServiceDetails = () => {
       );
       
       if (!foundProvider) {
-        foundProvider = combinedMockProviders.find(p => 
-          p.id === foundService.provider_id || p.id === foundService.providerId
+        const mockProvider = combinedMockProviders.find(p => 
+          p.id === foundService.provider_id || p.id === (foundService as any).providerId
         );
+        
+        if (mockProvider) {
+          // Convert ProviderProfile to Provider format
+          foundProvider = {
+            id: mockProvider.id,
+            name: mockProvider.name || (mockProvider as any).businessName || '',
+            description: mockProvider.description || '',
+            contact_phone: mockProvider.contact_phone || (mockProvider as any).phone || '',
+            contact_email: mockProvider.contact_email || (mockProvider as any).email || '',
+            contact_person: mockProvider.contact_person || '',
+            address: mockProvider.address || '',
+            city: mockProvider.city || '',
+            website: mockProvider.website || '',
+            rating: mockProvider.rating || 0,
+            review_count: mockProvider.review_count || 0,
+            is_verified: mockProvider.is_verified || false,
+            logo_url: mockProvider.logo_url || (mockProvider as any).logo || '',
+            subcategory_ids: mockProvider.subcategory_ids || [],
+            category_ids: mockProvider.category_ids || [],
+            service_type_ids: mockProvider.service_type_ids || [],
+            services: mockProvider.services || []
+          } as Provider;
+        }
       }
 
       if (foundProvider) {
@@ -46,7 +98,7 @@ const EnhancedServiceDetails = () => {
           description: foundService.description || '',
           longDescription: foundService.description,
           price: typeof foundService.price === 'number' ? foundService.price : 
-                 parseFloat(foundService.price_range?.replace(/[^\d.-]/g, '') || '0'),
+                 parseFloat((foundService as any).price_range?.replace(/[^\d.-]/g, '') || '0'),
           priceVariations: [],
           price_unit: foundService.price_unit || 'לאירוע',
           imageUrl: foundService.imageUrl,
@@ -55,8 +107,8 @@ const EnhancedServiceDetails = () => {
           provider: {
             id: foundProvider.id,
             name: foundProvider.name || '',
-            contact_phone: foundProvider.contact_phone || foundProvider.phone || '',
-            contact_email: foundProvider.contact_email || foundProvider.email || '',
+            contact_phone: foundProvider.contact_phone || '',
+            contact_email: foundProvider.contact_email || '',
             rating: foundProvider.rating,
             is_verified: foundProvider.is_verified || false
           },
