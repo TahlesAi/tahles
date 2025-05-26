@@ -206,37 +206,52 @@ export type Database = {
       providers: {
         Row: {
           address: string | null
+          city: string | null
+          contact_person: string | null
           created_at: string | null
           description: string | null
           email: string | null
           id: string
+          is_verified: boolean | null
           logo_url: string | null
           name: string
           phone: string | null
+          rating: number | null
+          review_count: number | null
           updated_at: string | null
           website: string | null
         }
         Insert: {
           address?: string | null
+          city?: string | null
+          contact_person?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
           id?: string
+          is_verified?: boolean | null
           logo_url?: string | null
           name: string
           phone?: string | null
+          rating?: number | null
+          review_count?: number | null
           updated_at?: string | null
           website?: string | null
         }
         Update: {
           address?: string | null
+          city?: string | null
+          contact_person?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
           id?: string
+          is_verified?: boolean | null
           logo_url?: string | null
           name?: string
           phone?: string | null
+          rating?: number | null
+          review_count?: number | null
           updated_at?: string | null
           website?: string | null
         }
@@ -298,6 +313,7 @@ export type Database = {
           additional_images: string[] | null
           audience_ages: string[] | null
           audience_size: number | null
+          category_id: string | null
           created_at: string | null
           description: string | null
           duration: string | null
@@ -310,6 +326,7 @@ export type Database = {
           price_range: string | null
           price_unit: string | null
           provider_id: string
+          subcategory_id: string | null
           technical_requirements: string[] | null
           updated_at: string | null
           videos: string[] | null
@@ -318,6 +335,7 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
@@ -330,6 +348,7 @@ export type Database = {
           price_range?: string | null
           price_unit?: string | null
           provider_id: string
+          subcategory_id?: string | null
           technical_requirements?: string[] | null
           updated_at?: string | null
           videos?: string[] | null
@@ -338,6 +357,7 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
@@ -350,6 +370,7 @@ export type Database = {
           price_range?: string | null
           price_unit?: string | null
           provider_id?: string
+          subcategory_id?: string | null
           technical_requirements?: string[] | null
           updated_at?: string | null
           videos?: string[] | null

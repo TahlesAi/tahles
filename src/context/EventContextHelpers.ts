@@ -38,8 +38,8 @@ export const getServicesByProvider = (
   );
 };
 
-// חיפוש ספקים לפי קטגוריה עברית
-export const getProvidersByHebrewCategory = (
+// חיפוש ספקים לפי קטגוריה
+export const getProvidersByCategory = (
   providers: Provider[],
   categoryId: string
 ): Provider[] => {
@@ -48,8 +48,18 @@ export const getProvidersByHebrewCategory = (
   );
 };
 
-// חיפוש שירותים לפי קטגוריה עברית
-export const getServicesByHebrewCategory = (
+// חיפוש ספקים לפי תת-קטגוריה
+export const getProvidersBySubcategory = (
+  providers: Provider[],
+  subcategoryId: string
+): Provider[] => {
+  return providers.filter(
+    (provider) => provider.subcategory_ids?.includes(subcategoryId)
+  );
+};
+
+// חיפוש שירותים לפי קטגוריה
+export const getServicesByCategory = (
   services: Service[],
   categoryId: string
 ): Service[] => {
@@ -58,8 +68,8 @@ export const getServicesByHebrewCategory = (
   );
 };
 
-// חיפוש שירותים לפי תת-קטגוריה עברית
-export const getServicesByHebrewSubcategory = (
+// חיפוש שירותים לפי תת-קטגוריה
+export const getServicesBySubcategory = (
   services: Service[],
   subcategoryId: string
 ): Service[] => {
@@ -78,7 +88,7 @@ export const getServicesByConcept = (
   );
 };
 
-// חיפוש אם קיים שירות לקטגוריה מסוימת
+// בדיקה אם קיימים שירותים לקטגוריה מסוימת
 export const hasServicesForCategory = (
   services: Service[],
   categoryId: string
@@ -86,9 +96,26 @@ export const hasServicesForCategory = (
   return services.some((service) => service.category_id === categoryId);
 };
 
+// בדיקה אם קיימים ספקים לתת-קטגוריה מסוימת
+export const hasProvidersForSubcategory = (
+  providers: Provider[],
+  subcategoryId: string
+): boolean => {
+  return providers.some((provider) => provider.subcategory_ids?.includes(subcategoryId));
+};
+
 // חיפוש שירותים מובילים
 export const getTopServices = (services: Service[], limit: number = 12): Service[] => {
   return services
     .filter(service => service.is_featured)
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, limit);
+};
+
+// חיפוש ספקים מובילים
+export const getTopProviders = (providers: Provider[], limit: number = 12): Provider[] => {
+  return providers
+    .filter(provider => provider.rating && provider.rating > 4.0)
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
     .slice(0, limit);
 };
