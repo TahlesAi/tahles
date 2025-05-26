@@ -21,6 +21,8 @@ import { Button } from './components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import ProviderProfile from './pages/ProviderProfile';
 import SubcategoryProviders from './pages/SubcategoryProviders';
+import EnhancedProviderProfile from './pages/EnhancedProviderProfile';
+import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
 
 // Create a context for navigation history
 interface NavigationContextProps {
@@ -75,7 +77,7 @@ const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       <BackButton />
     </NavigationContext.Provider>
   );
-};
+}
 
 function AppRoutes() {
   return (
@@ -90,7 +92,9 @@ function AppRoutes() {
         <Route path="/subcategories/:subcategoryId/service-types" element={<SubcategoryServiceTypes />} />
         <Route path="/service-types/:serviceTypeId" element={<ServiceTypeProviders />} />
         <Route path="/providers/:providerId" element={<ProviderProfile />} />
+        <Route path="/enhanced-providers/:providerId" element={<EnhancedProviderProfile />} />
         <Route path="/services/:serviceId" element={<ServiceDetails />} />
+        <Route path="/enhanced-services/:serviceId" element={<EnhancedServiceDetails />} />
         <Route path="/catering-search" element={<CateringSearch />} />
         <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
         <Route path="/contact" element={<Contact />} />
