@@ -29,7 +29,7 @@ const EnhancedServiceDetails = () => {
       // Find the provider
       const combinedMockProviders = [...expandedMockProviders, ...mockProviders];
       let foundProvider = providers.find(p => 
-        p.id === foundService.provider_id || p.id === foundService.providerId
+        p.id === foundService.provider_id
       );
       
       if (!foundProvider) {
@@ -43,44 +43,44 @@ const EnhancedServiceDetails = () => {
         const detailedProduct = {
           id: foundService.id,
           name: foundService.name,
-          description: foundService.description || foundService.short_description || '',
-          longDescription: foundService.long_description || foundService.description,
+          description: foundService.description || '',
+          longDescription: foundService.description,
           price: typeof foundService.price === 'number' ? foundService.price : 
                  parseFloat(foundService.price_range?.replace(/[^\d.-]/g, '') || '0'),
-          priceVariations: foundService.priceVariations || [],
-          price_unit: foundService.price_unit || foundService.priceUnit || 'לאירוע',
-          imageUrl: foundService.image_url || foundService.imageUrl,
-          additionalImages: foundService.additional_images || foundService.additionalImages || [],
-          videos: foundService.videos || foundService.video_urls || [],
+          priceVariations: [],
+          price_unit: foundService.price_unit || 'לאירוע',
+          imageUrl: foundService.imageUrl,
+          additionalImages: foundService.additional_images || [],
+          videos: foundService.videos || [],
           provider: {
             id: foundProvider.id,
-            name: foundProvider.name || foundProvider.businessName,
-            contact_phone: foundProvider.contact_phone || foundProvider.phone,
-            contact_email: foundProvider.contact_email || foundProvider.email,
+            name: foundProvider.name || '',
+            contact_phone: foundProvider.contact_phone || foundProvider.phone || '',
+            contact_email: foundProvider.contact_email || foundProvider.email || '',
             rating: foundProvider.rating,
             is_verified: foundProvider.is_verified || false
           },
-          audienceSize: foundService.audience_size || foundService.audienceSize,
-          minAudience: foundService.minAudience,
-          maxAudience: foundService.maxAudience,
-          duration: foundService.duration,
-          setupTime: foundService.setupTime || foundService.setup_time,
+          audienceSize: foundService.audience_size ? `${foundService.audience_size}` : undefined,
+          minAudience: undefined,
+          maxAudience: undefined,
+          duration: foundService.duration || 'משך האירוע יתואם',
+          setupTime: undefined,
           location: foundService.location || foundProvider.city || 'כל הארץ',
-          serviceAreas: foundService.serviceAreas || [foundProvider.city || 'כל הארץ'],
+          serviceAreas: [foundProvider.city || 'כל הארץ'],
           rating: foundService.rating,
-          review_count: foundService.review_count || foundService.reviewCount,
-          tags: foundService.tags || foundService.features || [],
-          is_featured: foundService.is_featured || foundService.featured,
-          suitableFor: foundService.suitableFor || foundService.event_types || [],
-          targetAudience: foundService.targetAudience || foundService.audience_ages || [],
-          technicalRequirements: foundService.technicalRequirements || foundService.technical_requirements || [],
-          includedServices: foundService.includedServices || [
+          review_count: foundService.review_count,
+          tags: foundService.tags || [],
+          is_featured: foundService.is_featured || false,
+          suitableFor: foundService.suitableFor || [],
+          targetAudience: foundService.audience_ages || [],
+          technicalRequirements: foundService.technical_requirements || [],
+          includedServices: [
             'ייעוץ מקדים',
             'התאמה אישית',
             'תמיכה במהלך האירוע'
           ],
-          additionalOptions: foundService.additionalOptions || [],
-          availability: foundService.availability || {
+          additionalOptions: [],
+          availability: {
             timeSlots: [
               {
                 day: 'ראשון',

@@ -29,8 +29,18 @@ const EnhancedProviderProfile = () => {
     if (foundProvider) {
       // Enhance provider with additional business profile data
       const enhancedProvider = {
-        ...foundProvider,
-        serviceAreas: foundProvider.serviceAreas || ['כל הארץ'],
+        id: foundProvider.id,
+        name: foundProvider.name || foundProvider.businessName || '',
+        description: foundProvider.description || '',
+        city: foundProvider.city || '',
+        contact_phone: foundProvider.contact_phone || foundProvider.phone || '',
+        contact_email: foundProvider.contact_email || foundProvider.email || '',
+        website: foundProvider.website || '',
+        rating: foundProvider.rating || 0,
+        review_count: foundProvider.review_count || 0,
+        is_verified: foundProvider.is_verified || false,
+        logo_url: foundProvider.logo_url || '',
+        serviceAreas: foundProvider.serviceAreas || [foundProvider.city || 'כל הארץ'],
         experience: foundProvider.experience || 'מעל 5 שנות ניסיון בתחום',
         specialties: foundProvider.specialties || ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
         testimonials: foundProvider.testimonials || [
@@ -48,7 +58,7 @@ const EnhancedProviderProfile = () => {
 
       // Get services for this provider
       const relatedServices = services.filter(s => 
-        s.provider_id === providerId || s.providerId === providerId
+        s.provider_id === providerId
       );
       
       // Convert services to expected format
@@ -58,17 +68,17 @@ const EnhancedProviderProfile = () => {
         description: service.description,
         price: typeof service.price === 'number' ? service.price : 
                parseFloat(service.price_range?.replace(/[^\d.-]/g, '') || '0'),
-        price_unit: service.price_unit || service.priceUnit || 'לאירוע',
-        imageUrl: service.image_url || service.imageUrl,
-        audienceSize: service.audience_size || service.audienceSize,
-        duration: service.duration,
+        price_unit: service.price_unit || 'לאירוע',
+        imageUrl: service.imageUrl,
+        audienceSize: service.audience_size ? `${service.audience_size}` : undefined,
+        duration: service.duration || 'משך האירוע יתואם',
         location: service.location || foundProvider.city || 'כל הארץ',
         rating: service.rating,
-        review_count: service.review_count || service.reviewCount,
-        tags: service.tags || service.features || [],
+        review_count: service.review_count,
+        tags: service.tags || [],
         is_featured: service.is_featured,
-        suitableFor: service.suitableFor || service.event_types || [],
-        technicalRequirements: service.technicalRequirements || service.technical_requirements || []
+        suitableFor: service.suitableFor || [],
+        technicalRequirements: service.technical_requirements || []
       }));
 
       setProviderServices(formattedServices);
@@ -86,15 +96,15 @@ const EnhancedProviderProfile = () => {
 
       // Add service images
       relatedServices.forEach(service => {
-        if (service.image_url || service.imageUrl) {
+        if (service.imageUrl) {
           galleryItems.push({
             type: 'image',
-            url: service.image_url || service.imageUrl
+            url: service.imageUrl
           });
         }
         
         // Add additional images
-        const additionalImages = service.additional_images || service.additionalImages || [];
+        const additionalImages = service.additional_images || [];
         additionalImages.forEach((img: string) => {
           galleryItems.push({
             type: 'image',
@@ -103,7 +113,7 @@ const EnhancedProviderProfile = () => {
         });
 
         // Add videos
-        const videos = service.videos || service.video_urls || [];
+        const videos = service.videos || [];
         videos.forEach((video: string) => {
           galleryItems.push({
             type: 'video',

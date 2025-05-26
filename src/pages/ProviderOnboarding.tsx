@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,6 +8,7 @@ import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingDocuments from "@/components/onboarding/OnboardingDocuments";
 import OnboardingPersonalInfo from "@/components/onboarding/OnboardingPersonalInfo";
+import OnboardingBusinessProfile from "@/components/onboarding/OnboardingBusinessProfile";
 import OnboardingMediaUpload from "@/components/onboarding/OnboardingMediaUpload";
 import OnboardingDigitalSignature from "@/components/onboarding/OnboardingDigitalSignature";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
@@ -19,7 +21,8 @@ import {
   Layers,
   Layers3,
   FileCheck,
-  PenTool
+  PenTool,
+  Building
 } from "lucide-react";
 
 const ADMIN_MODE = true;
@@ -39,36 +42,42 @@ const steps = [
   },
   {
     id: 3,
+    title: "פרופיל עסקי",
+    description: "תיאור העסק ותחומי התמחות",
+    icon: <Building className="h-5 w-5" />,
+  },
+  {
+    id: 4,
     title: "קטגוריה",
     description: "בחירת קטגוריה ראשית",
     icon: <Layers className="h-5 w-5" />,
   },
   {
-    id: 4,
+    id: 5,
     title: "תת-קטגוריה",
     description: "בחירת תת-קטגוריה",
     icon: <Layers3 className="h-5 w-5" />,
   },
   {
-    id: 5,
+    id: 6,
     title: "פרטי שירותים",
     description: "הוספת שירותים ומוצרים",
     icon: <ClipboardList className="h-5 w-5" />,
   },
   {
-    id: 6,
+    id: 7,
     title: "מדיה",
     description: "תמונות וסרטונים",
     icon: <ImagePlus className="h-5 w-5" />,
   },
   {
-    id: 7,
+    id: 8,
     title: "חתימה דיגיטלית",
     description: "חתימה על הסכם ספק",
     icon: <PenTool className="h-5 w-5" />,
   },
   {
-    id: 8,
+    id: 9,
     title: "סיום",
     description: "אישור ופרסום",
     icon: <CheckCircle className="h-5 w-5" />,
@@ -87,6 +96,19 @@ const ProviderOnboarding = () => {
     phone: "",
     address: "",
     city: "",
+    
+    // Business Profile fields
+    businessDescription: "",
+    experience: "",
+    serviceAreas: [] as string[],
+    specialties: [] as string[],
+    targetAudience: [] as string[],
+    website: "",
+    socialLinks: {
+      facebook: "",
+      instagram: "",
+      linkedin: ""
+    },
     
     idImage: "",
     businessLicense: "",
@@ -159,7 +181,7 @@ const ProviderOnboarding = () => {
   
   const handleSubmit = () => {
     console.log("Form Submission:", formData);
-    setCurrentStep(8);
+    setCurrentStep(9);
   };
   
   const getStepContent = () => {
@@ -185,6 +207,16 @@ const ProviderOnboarding = () => {
         );
       case 3:
         return (
+          <OnboardingBusinessProfile
+            data={formData}
+            onUpdate={updateFormData}
+            onNext={handleNext}
+            onBack={handleBack}
+            adminMode={ADMIN_MODE}
+          />
+        );
+      case 4:
+        return (
           <OnboardingStep1 
             data={formData}
             onUpdate={updateFormData}
@@ -192,7 +224,7 @@ const ProviderOnboarding = () => {
             adminMode={ADMIN_MODE}
           />
         );
-      case 4:
+      case 5:
         return (
           <OnboardingStep2 
             data={formData}
@@ -202,7 +234,7 @@ const ProviderOnboarding = () => {
             adminMode={ADMIN_MODE}
           />
         );
-      case 5:
+      case 6:
         return (
           <OnboardingStep3 
             data={formData}
@@ -212,7 +244,7 @@ const ProviderOnboarding = () => {
             adminMode={ADMIN_MODE}
           />
         );
-      case 6:
+      case 7:
         return (
           <OnboardingMediaUpload
             data={formData}
@@ -222,14 +254,14 @@ const ProviderOnboarding = () => {
             adminMode={ADMIN_MODE}
           />
         );
-      case 7:
+      case 8:
         return (
           <OnboardingDigitalSignature
             onSignatureComplete={handleDigitalSignatureComplete}
             onBack={handleBack}
           />
         );
-      case 8:
+      case 9:
         return (
           <OnboardingSuccess 
             onFinish={() => navigate('/dashboard')}
@@ -276,7 +308,7 @@ const ProviderOnboarding = () => {
                         } ${(ADMIN_MODE || step.id <= currentStep) ? "hover:bg-brand-700" : ""}`}
                         onClick={() => handleStepNavigation(step.id)}
                       >
-                        {step.id < 8 ? step.id : <CheckCircle className="h-4 w-4" />}
+                        {step.id < 9 ? step.id : <CheckCircle className="h-4 w-4" />}
                       </div>
                       <div className={`h-1 flex-1 ${
                         currentStep > step.id ? "bg-brand-600" : "bg-gray-200"
