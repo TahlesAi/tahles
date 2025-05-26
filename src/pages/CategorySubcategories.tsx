@@ -1,261 +1,189 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, Home, ChevronRight } from 'lucide-react';
-import { useEventContext } from '@/context/EventContext';
-import { 
-  Music, Camera, Utensils, MapPin, Mic2, Monitor, 
-  Gift, Sparkles, Calendar, Wand2, PartyPopper, 
-  TentTree, User, PlusCircle, Users, Headphones,
-  Building, ChefHat, BookOpen, Lightbulb
-} from "lucide-react";
-import { HebrewCategory, HebrewSubcategory } from '@/lib/types/hierarchy';
-
-// מיפוי שמות אייקונים לקומפוננטות של Lucide React
-const iconMap: Record<string, React.ReactNode> = {
-  "Music": <Music className="h-5 w-5" />,
-  "Camera": <Camera className="h-5 w-5" />,
-  "Utensils": <Utensils className="h-5 w-5" />,
-  "MapPin": <MapPin className="h-5 w-5" />,
-  "Mic": <Mic2 className="h-5 w-5" />,
-  "Mic2": <Mic2 className="h-5 w-5" />,
-  "Monitor": <Monitor className="h-5 w-5" />,
-  "Gift": <Gift className="h-5 w-5" />,
-  "Sparkles": <Sparkles className="h-5 w-5" />,
-  "Calendar": <Calendar className="h-5 w-5" />,
-  "Wand2": <Wand2 className="h-5 w-5" />,
-  "PartyPopper": <PartyPopper className="h-5 w-5" />,
-  "TentTree": <TentTree className="h-5 w-5" />,
-  "User": <User className="h-5 w-5" />,
-  "PlusCircle": <PlusCircle className="h-5 w-5" />,
-  "Users": <Users className="h-5 w-5" />,
-  "Headphones": <Headphones className="h-5 w-5" />,
-  "Building": <Building className="h-5 w-5" />,
-  "ChefHat": <ChefHat className="h-5 w-5" />,
-  "BookOpen": <BookOpen className="h-5 w-5" />,
-  "Lightbulb": <Lightbulb className="h-5 w-5" />
-};
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Layers, ChevronLeft } from "lucide-react";
+import { useEventContext } from "@/context/EventContext";
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
+  const navigate = useNavigate();
   const { 
     categories, 
-    selectedCategory, 
-    setSelectedCategory, 
-    setSelectedSubcategory, 
+    subcategories, 
+    providers,
+    services,
     getSubcategoriesByCategory,
-    hebrewCategories,
-    isLoading, 
-    error 
+    getProvidersBySubcategory,
+    getServicesBySubcategory,
+    isLoading 
   } = useEventContext();
   
-  const [hebrewCategory, setHebrewCategory] = useState<HebrewCategory | null>(null);
+  const [category, setCategory] = useState<any>(null);
+  const [categorySubcategories, setCategorySubcategories] = useState<any[]>([]);
 
   useEffect(() => {
-    // Reset selected subcategory when viewing a new category
-    setSelectedSubcategory(null);
+    if (!categoryId) return;
     
-    // Track page view
-    console.log(`Viewing category with ID: ${categoryId}`);
+    console.log('Viewing category with ID:', categoryId);
     
-    // Find and set the selected Hebrew category
-    if (categoryId && hebrewCategories && hebrewCategories.length > 0) {
-      const foundCategory = hebrewCategories.find(c => c.id === categoryId);
-      console.log(foundCategory ? `Found Hebrew category: ${foundCategory.name}` : "Hebrew category not found");
-      setHebrewCategory(foundCategory || null);
+    // מציאת הקטגוריה
+    const foundCategory = categories.find(cat => cat.id === categoryId);
+    
+    if (foundCategory) {
+      console.log('Found category:', foundCategory.name);
+      setCategory(foundCategory);
+      
+      // מציאת תתי הקטגוריות
+      const subs = getSubcategoriesByCategory(categoryId);
+      console.log('Found subcategories:', subs.length);
+      
+      // עדכון תתי הקטגוריות עם מידע על מספר ספקים ושירותים
+      const enrichedSubs = subs.map(sub => {
+        const subProviders = getProvidersBySubcategory(sub.id);
+        const subServices = getServicesBySubcategory(services, sub.id);
+        
+        return {
+          ...sub,
+          providersCount: subProviders.length,
+          servicesCount: subServices.length
+        };
+      });
+      
+      setCategorySubcategories(enrichedSubs);
+    } else {
+      console.log('Category not found');
     }
-    
-    // For backward compatibility, also set the selected category from the regular categories
-    if (categoryId && categories && categories.length > 0) {
-      const category = categories.find(c => c.id === categoryId) || null;
-      setSelectedCategory(category);
-    }
-  }, [categoryId, categories, hebrewCategories, setSelectedCategory, setSelectedSubcategory]);
+  }, [categoryId, categories, subcategories, providers, services, getSubcategoriesByCategory, getProvidersBySubcategory, getServicesBySubcategory]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="container px-4 py-8 flex-grow">
-          <div className="max-w-3xl mx-auto">
-            <Skeleton className="h-8 w-64 mb-4" />
-            <Skeleton className="h-6 w-full mb-8" />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {Array(6).fill(null).map((_, i) => (
-                <Skeleton key={i} className="h-40 rounded-lg" />
-              ))}
-            </div>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">טוען קטגוריות...</p>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
   }
 
-  if (error || (!hebrewCategory && !selectedCategory)) {
+  if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="container px-4 py-16 flex-grow">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-2xl font-bold mb-4">קטגוריה לא נמצאה</h1>
-            <p className="text-gray-600 mb-6">מצטערים, הקטגוריה שחיפשת אינה קיימת.</p>
-            <Button asChild>
-              <Link to="/categories">חזרה לקטגוריות</Link>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">הקטגוריה לא נמצאה</h2>
+            <p className="mb-6">לא הצלחנו למצוא את הקטגוריה המבוקשת.</p>
+            <Button onClick={() => navigate(-1)}>
+              <ArrowRight className="h-4 w-4 ml-2" />
+              חזרה
             </Button>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
   }
 
-  // קטגוריית קייטרינג מופנית לדף ייעודי
-  if (categoryId === 'catering') {
-    return (
-      <CateringRedirect />
-    );
-  }
-
-  // Use Hebrew subcategories if available, otherwise fall back to legacy subcategories
-  const subcategories = hebrewCategory?.subcategories || getSubcategoriesByCategory(categoryId || '');
-
-  // Get the category name from either Hebrew or legacy data
-  const categoryName = hebrewCategory?.name || (selectedCategory ? selectedCategory.name : '');
-    
-  const categoryDescription = hebrewCategory?.description || (selectedCategory ? selectedCategory.description : '');
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
-      <main className="flex-grow" dir="rtl">
+      <main className="flex-grow">
         <div className="container px-4 py-8">
-          {/* פירורי לחם */}
-          <nav className="flex mb-6 text-sm items-center text-gray-500">
-            <Link to="/" className="hover:text-brand-600">
-              <Home className="h-4 w-4 ml-1" />
+          {/* ניווט נתיב */}
+          <nav className="flex items-center space-x-2 mb-8" dir="rtl">
+            <Link to="/" className="text-gray-500 hover:text-brand-600 transition-colors">
+              דף הבית
             </Link>
-            <ChevronLeft className="h-3 w-3 mx-1" />
-            <Link to="/categories" className="hover:text-brand-600">קטגוריות</Link>
-            <ChevronLeft className="h-3 w-3 mx-1" />
-            <span className="text-gray-900 font-medium">{categoryName}</span>
+            <ChevronLeft className="h-4 w-4 text-gray-400" />
+            <Link to="/categories" className="text-gray-500 hover:text-brand-600 transition-colors">
+              קטגוריות
+            </Link>
+            <ChevronLeft className="h-4 w-4 text-gray-400" />
+            <span className="text-brand-600 font-medium">{category.name}</span>
           </nav>
 
           {/* כותרת הקטגוריה */}
-          <div className="max-w-3xl mx-auto mb-10">
-            <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
-            <p className="text-gray-600">{categoryDescription}</p>
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold mb-4">{category.name}</h1>
+            {category.description && (
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                {category.description}
+              </p>
+            )}
+            <div className="mt-6">
+              <Badge variant="outline" className="text-base px-4 py-2">
+                {categorySubcategories.length} תתי קטגוריות זמינות
+              </Badge>
+            </div>
           </div>
 
-          {/* תת-קטגוריות */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">תת-קטגוריות ב{categoryName}</h2>
-            
-            {subcategories && subcategories.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {subcategories.map((subcategory) => {
-                  // Handle both Hebrew subcategory and legacy subcategory
-                  const subcategoryId = 'categoryId' in subcategory ? 
-                    subcategory.id : subcategory.id;
-                  const subcategoryName = subcategory.name;
-                  const subcategoryIcon = subcategory.icon;
-                  const subcategoryDescription = subcategory.description || '';
-                  
-                  return (
-                    <Link
-                      key={subcategoryId}
-                      to={`/subcategories/${subcategoryId}`}
-                      className="group"
-                      onClick={() => {
-                        // Only set selected subcategory if it's a legacy subcategory
-                        if (!('categoryId' in subcategory)) {
-                          setSelectedSubcategory(subcategory);
-                        }
-                      }}
-                    >
-                      <Card className="h-full hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-center">
-                            <div className="ml-3 p-2 bg-brand-50 rounded-md">
-                              <div className="h-5 w-5 text-brand-600">
-                                {subcategoryIcon && typeof subcategoryIcon === 'string' && iconMap[subcategoryIcon] ? (
-                                  iconMap[subcategoryIcon]
-                                ) : (
-                                  <div className="h-5 w-5 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
-                                    {subcategoryName.substring(0, 1)}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <h3 className="font-medium group-hover:text-brand-600 transition-colors">
-                                {subcategoryName}
-                              </h3>
-                              <p className="text-sm text-gray-500 line-clamp-1">
-                                {subcategoryDescription}
-                              </p>
-                            </div>
-                            <div className="mr-auto">
-                              <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-brand-600 transition-colors" />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">לא נמצאו תת-קטגוריות בקטגוריה זו</p>
-                <Button asChild variant="link" className="mt-2">
-                  <Link to="/categories">חזרה לקטגוריות</Link>
-                </Button>
-              </div>
-            )}
-          </div>
-          
-          {/* CTA */}
-          <div className="text-center py-8 bg-brand-50 rounded-lg mt-10">
-            <h3 className="text-xl font-bold mb-2">מעוניינים להציע שירותים בקטגוריה זו?</h3>
-            <p className="text-gray-600 mb-4">הצטרפו כספק ופרסמו את השירותים שלכם</p>
-            <Button asChild>
-              <Link to="/provider-onboarding">הצטרפו כספק</Link>
-            </Button>
-          </div>
+          {/* רשימת תתי קטגוריות */}
+          {categorySubcategories.length === 0 ? (
+            <div className="text-center py-16">
+              <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                אין תתי קטגוריות זמינות
+              </h3>
+              <p className="text-gray-500 mb-6">
+                לא נמצאו תתי קטגוריות עבור קטגוריה זו כרגע.
+              </p>
+              <Button onClick={() => navigate(-1)} variant="outline">
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה לקטגוריות
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categorySubcategories.map((subcategory) => (
+                <Link
+                  key={subcategory.id}
+                  to={`/subcategories/${subcategory.id}`}
+                  className="group block"
+                >
+                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                    <CardContent className="p-6">
+                      <div className="mb-4">
+                        <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center group-hover:bg-brand-200 transition-colors mb-3">
+                          <Layers className="h-6 w-6 text-brand-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2 group-hover:text-brand-600 transition-colors">
+                          {subcategory.name}
+                        </h3>
+                        {subcategory.description && (
+                          <p className="text-sm text-gray-600 line-clamp-3">
+                            {subcategory.description}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
+                        <span>{subcategory.providersCount} ספקים</span>
+                        <span>{subcategory.servicesCount} שירותים</span>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <span className="text-brand-600 font-medium text-sm group-hover:underline">
+                          צפה בספקים ←
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </main>
-      <Footer />
-    </div>
-  );
-};
-
-// רכיב הפניה מחדש לדף הקייטרינג הייעודי
-const CateringRedirect = () => {
-  useEffect(() => {
-    // פשוט ניווט לדף הקייטרינג הייעודי
-    window.location.href = '/catering-search';
-  }, []);
-  
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <div className="container px-4 py-16 flex-grow flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-xl">מעבר לדף חיפוש שירותי קייטרינג...</p>
-          <div className="mt-4">
-            <Button asChild>
-              <Link to="/catering-search">לחץ כאן אם לא הועברת אוטומטית</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
       <Footer />
     </div>
   );

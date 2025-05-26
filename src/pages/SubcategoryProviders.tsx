@@ -1,173 +1,95 @@
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Star, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
-
-interface Provider {
-  id: string;
-  name: string;
-  description: string;
-  logo_url: string | null;
-  service_count: number;
-}
-
-interface Subcategory {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category_id: string;
-  category_name?: string;
-}
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, User, Star, MapPin, ChevronLeft, CheckCircle } from "lucide-react";
+import { useEventContext } from "@/context/EventContext";
 
 const SubcategoryProviders = () => {
-  const { subcategoryId } = useParams();
+  const { subcategoryId } = useParams<{ subcategoryId: string }>();
   const navigate = useNavigate();
-  const [subcategory, setSubcategory] = useState<Subcategory | null>(null);
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    categories, 
+    subcategories, 
+    getProvidersBySubcategory,
+    getServicesByProvider,
+    isLoading 
+  } = useEventContext();
+  
+  const [subcategory, setSubcategory] = useState<any>(null);
+  const [category, setCategory] = useState<any>(null);
+  const [subcategoryProviders, setSubcategoryProviders] = useState<any[]>([]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!subcategoryId) return;
     
-    const fetchSubcategoryData = async () => {
-      try {
-        setLoading(true);
+    console.log('Viewing subcategory with ID:', subcategoryId);
+    
+    // מציאת תת הקטגוריה
+    const foundSubcategory = subcategories.find(sub => sub.id === subcategoryId);
+    
+    if (foundSubcategory) {
+      console.log('Found subcategory:', foundSubcategory.name);
+      setSubcategory(foundSubcategory);
+      
+      // מציאת הקטגוריה האם
+      const foundCategory = categories.find(cat => cat.id === foundSubcategory.category_id);
+      setCategory(foundCategory);
+      
+      // מציאת הספקים
+      const providers = getProvidersBySubcategory(subcategoryId);
+      console.log('Found providers:', providers.length);
+      
+      // עדכון הספקים עם מידע על מספר שירותים
+      const enrichedProviders = providers.map(provider => {
+        const providerServices = getServicesByProvider(provider.id);
         
-        // Validate if subcategoryId is a valid UUID
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!subcategoryId || !uuidRegex.test(subcategoryId)) {
-          throw new Error("מזהה תת-קטגוריה לא תקין");
-        }
-        
-        // שליפת נתוני תת-הקטגוריה
-        const { data: subcategoryData, error: subcategoryError } = await supabase
-          .from("subcategories")
-          .select(`
-            id, 
-            name, 
-            description, 
-            icon,
-            category_id,
-            categories(name)
-          `)
-          .eq("id", subcategoryId)
-          .single();
-
-        if (subcategoryError) {
-          throw new Error(subcategoryError.message);
-        }
-
-        setSubcategory({
-          ...subcategoryData,
-          category_name: subcategoryData.categories?.name
-        });
-
-        // שליפת ספקי השירות בתת-הקטגוריה
-        const { data: providersData, error: providersError } = await supabase
-          .from("provider_subcategories")
-          .select(`
-            providers(
-              id,
-              name,
-              description,
-              logo_url,
-              services(id)
-            )
-          `)
-          .eq("subcategory_id", subcategoryId);
-
-        if (providersError) {
-          throw new Error(providersError.message);
-        }
-
-        // עיבוד הנתונים
-        const processedProviders = providersData
-          .filter(item => item.providers) // Filter out null providers
-          .map(item => {
-            const provider = item.providers;
-            return {
-              id: provider.id,
-              name: provider.name,
-              description: provider.description,
-              logo_url: provider.logo_url,
-              service_count: provider.services ? provider.services.length : 0
-            };
-          });
-
-        setProviders(processedProviders);
-        
-      } catch (err: any) {
-        console.error("Error fetching data:", err);
-        setError(err.message);
-        toast.error("שגיאה בטעינת הנתונים", {
-          description: err.message
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (subcategoryId) {
-      fetchSubcategoryData();
+        return {
+          ...provider,
+          servicesCount: providerServices.length,
+          averagePrice: providerServices.length > 0 
+            ? Math.round(providerServices.reduce((sum, service) => sum + (service.price || 0), 0) / providerServices.length)
+            : 0
+        };
+      });
+      
+      setSubcategoryProviders(enrichedProviders);
+    } else {
+      console.log('Subcategory not found');
     }
-  }, [subcategoryId, navigate]);
+  }, [subcategoryId, subcategories, categories, getProvidersBySubcategory, getServicesByProvider]);
 
-  // מצב של טעינה
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow">
-          <section className="bg-gray-100 py-16">
-            <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto">
-                <Skeleton className="h-10 w-3/4 mb-4" />
-                <Skeleton className="h-6 w-full mb-8" />
-              </div>
-            </div>
-          </section>
-          
-          <section className="py-16">
-            <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-48" />
-                ))}
-              </div>
-            </div>
-          </section>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">טוען ספקים...</p>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  // מצב של שגיאה
-  if (error || !subcategory) {
+  if (!subcategory) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow py-16">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-4">שגיאה בטעינת הנתונים</h1>
-              <p className="mb-6 text-gray-600">{error || "תת-הקטגוריה לא נמצאה"}</p>
-              <Link 
-                to="/categories" 
-                className="bg-brand-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
-              >
-                חזרה לכל הקטגוריות
-              </Link>
-            </div>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">תת הקטגוריה לא נמצאה</h2>
+            <p className="mb-6">לא הצלחנו למצוא את תת הקטגוריה המבוקשת.</p>
+            <Button onClick={() => navigate(-1)}>
+              <ArrowRight className="h-4 w-4 ml-2" />
+              חזרה
+            </Button>
           </div>
         </main>
         <Footer />
@@ -176,107 +98,145 @@ const SubcategoryProviders = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section with Subcategory Info */}
-        <section className="bg-brand-600 text-white py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              {subcategory.category_id && (
-                <Link to={`/categories/${subcategory.category_id}`} className="inline-flex items-center text-white/80 hover:text-white mb-2">
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  חזרה ל{subcategory.category_name || 'קטגוריה'}
+        <div className="container px-4 py-8">
+          {/* ניווט נתיב */}
+          <nav className="flex items-center space-x-2 mb-8" dir="rtl">
+            <Link to="/" className="text-gray-500 hover:text-brand-600 transition-colors">
+              דף הבית
+            </Link>
+            <ChevronLeft className="h-4 w-4 text-gray-400" />
+            <Link to="/categories" className="text-gray-500 hover:text-brand-600 transition-colors">
+              קטגוריות
+            </Link>
+            <ChevronLeft className="h-4 w-4 text-gray-400" />
+            {category && (
+              <>
+                <Link 
+                  to={`/categories/${category.id}`} 
+                  className="text-gray-500 hover:text-brand-600 transition-colors"
+                >
+                  {category.name}
                 </Link>
-              )}
-              <h1 className="text-3xl font-bold mb-4">{subcategory.name}</h1>
-              <p className="text-lg">{subcategory.description}</p>
+                <ChevronLeft className="h-4 w-4 text-gray-400" />
+              </>
+            )}
+            <span className="text-brand-600 font-medium">{subcategory.name}</span>
+          </nav>
+
+          {/* כותרת תת הקטגוריה */}
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold mb-4">{subcategory.name}</h1>
+            {subcategory.description && (
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                {subcategory.description}
+              </p>
+            )}
+            <div className="mt-6">
+              <Badge variant="outline" className="text-base px-4 py-2">
+                {subcategoryProviders.length} ספקים זמינים
+              </Badge>
             </div>
           </div>
-        </section>
 
-        {/* Providers List */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-8">
-              {providers.length > 0 ? `נותני שירות ב${subcategory.name}` : ''}
-            </h2>
-            
-            {providers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {providers.map((provider) => (
-                  <Link 
-                    key={provider.id} 
-                    to={`/providers/${provider.id}`}
-                    className="block"
-                  >
-                    <Card className="h-full hover:shadow-lg transition-shadow">
-                      <CardContent className="p-0">
-                        <div className="flex flex-col md:flex-row h-full">
-                          <div className="md:w-1/3 h-48 md:h-auto bg-gray-100 relative">
-                            {provider.logo_url ? (
-                              <img 
-                                src={provider.logo_url} 
-                                alt={provider.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                <span className="text-gray-400 text-lg">אין תמונה</span>
-                              </div>
+          {/* רשימת ספקים */}
+          {subcategoryProviders.length === 0 ? (
+            <div className="text-center py-16">
+              <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                אין ספקים זמינים
+              </h3>
+              <p className="text-gray-500 mb-6">
+                לא נמצאו ספקים עבור תת קטגוריה זו כרגע.
+              </p>
+              <Button onClick={() => navigate(-1)} variant="outline">
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה לתתי קטגוריות
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {subcategoryProviders.map((provider) => (
+                <Link
+                  key={provider.id}
+                  to={`/providers/${provider.id}`}
+                  className="group block"
+                >
+                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                    <CardContent className="p-6">
+                      <div className="flex items-start mb-4">
+                        <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                          {provider.logo_url ? (
+                            <img 
+                              src={provider.logo_url} 
+                              alt={provider.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-brand-100">
+                              <User className="h-8 w-8 text-brand-600" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="mr-4 flex-grow">
+                          <div className="flex items-center">
+                            <h3 className="text-lg font-semibold group-hover:text-brand-600 transition-colors">
+                              {provider.name}
+                            </h3>
+                            {provider.is_verified && (
+                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                             )}
                           </div>
-                          
-                          <div className="p-6 md:w-2/3 flex flex-col">
-                            <h3 className="text-xl font-semibold mb-2">{provider.name}</h3>
-                            <p className="text-gray-600 mb-4 line-clamp-2">{provider.description}</p>
-                            
-                            <div className="mt-auto flex justify-between items-center">
-                              <div className="flex items-center">
-                                <div className="flex items-center mr-2">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star 
-                                      key={i}
-                                      className="h-4 w-4 text-yellow-400 fill-yellow-400"
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-sm text-gray-600">(12 ביקורות)</span>
-                              </div>
-                              <span className="text-sm text-gray-500">{provider.service_count} שירותים</span>
-                            </div>
+                          <div className="flex items-center mt-1">
+                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                            <span className="mr-1 text-sm font-medium">
+                              {provider.rating?.toFixed(1) || '4.5'}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              ({provider.review_count || 0} ביקורות)
+                            </span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">אין ספקי שירות זמינים כרגע בתת-קטגוריה זו.</p>
-                <p className="text-brand-600 mb-6">אנחנו עובדים על הוספת ספקים נוספים בקרוב!</p>
-                <Link to="/categories" className="text-brand-600 hover:underline mt-4 inline-block">
-                  חזרה לכל הקטגוריות
+                      </div>
+                      
+                      {provider.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                          {provider.description}
+                        </p>
+                      )}
+                      
+                      <div className="space-y-2">
+                        {provider.city && (
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 ml-1" />
+                            <span>{provider.city}</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-500">{provider.servicesCount} שירותים</span>
+                          {provider.averagePrice > 0 && (
+                            <span className="text-brand-600 font-medium">
+                              מ-₪{provider.averagePrice}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <span className="text-brand-600 font-medium text-sm group-hover:underline">
+                          צפה בפרופיל ←
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-10 bg-gray-100">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl font-bold mb-4">רוצים להציע את השירות שלכם?</h2>
-            <p className="mb-6">הצטרפו לרשימת נותני השירות שלנו והגדילו את החשיפה לקהל הרחב</p>
-            <Link 
-              to="/provider-onboarding" 
-              className="bg-brand-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors"
-            >
-              הצטרפו כנותני שירות
-            </Link>
-          </div>
-        </section>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
       <Footer />
     </div>

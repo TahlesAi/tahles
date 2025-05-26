@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, Subcategory, ServiceType, Provider, Service } from '@/lib/types/hierarchy';
@@ -20,6 +19,7 @@ interface EventContextProps {
   setSelectedSubcategory: (subcategory: Subcategory | null) => void;
   setSelectedServiceType: (serviceType: ServiceType | null) => void;
   getProvidersByServiceType: (serviceTypeId: string) => Provider[];
+  getProvidersBySubcategory: (subcategoryId: string) => Provider[];
   getServicesByProvider: (providerId: string) => Service[];
   getSubcategoriesByCategory: (categoryId: string) => Subcategory[];
   getServiceTypesBySubcategory: (subcategoryId: string) => ServiceType[];
@@ -220,6 +220,12 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     );
   };
 
+  const getProvidersBySubcategory = (subcategoryId: string) => {
+    return providers.filter(
+      (provider) => provider.subcategory_ids?.includes(subcategoryId)
+    );
+  };
+
   const getServicesByProvider = (providerId: string) => {
     return services.filter(
       (service) => service.provider_id === providerId
@@ -248,6 +254,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setSelectedSubcategory,
         setSelectedServiceType,
         getProvidersByServiceType,
+        getProvidersBySubcategory,
         getServicesByProvider,
         getSubcategoriesByCategory,
         getServiceTypesBySubcategory,

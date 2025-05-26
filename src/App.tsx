@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import Categories from './pages/Categories';
@@ -20,6 +19,8 @@ import ProviderServices from './pages/ProviderServices';
 import Contact from './pages/Contact';
 import { Button } from './components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import ProviderProfile from './pages/ProviderProfile';
+import SubcategoryProviders from './pages/SubcategoryProviders';
 
 // Create a context for navigation history
 interface NavigationContextProps {
@@ -85,9 +86,10 @@ function AppRoutes() {
         <Route path="/search" element={<Search />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
-        <Route path="/subcategories/:subcategoryId" element={<SubcategoryServiceTypes />} />
+        <Route path="/subcategories/:subcategoryId" element={<SubcategoryProviders />} />
+        <Route path="/subcategories/:subcategoryId/service-types" element={<SubcategoryServiceTypes />} />
         <Route path="/service-types/:serviceTypeId" element={<ServiceTypeProviders />} />
-        <Route path="/providers/:providerId" element={<ProviderServices />} />
+        <Route path="/providers/:providerId" element={<ProviderProfile />} />
         <Route path="/services/:serviceId" element={<ServiceDetails />} />
         <Route path="/catering-search" element={<CateringSearch />} />
         <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
