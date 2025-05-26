@@ -46,6 +46,35 @@ export interface Provider {
   service_type_ids: string[];
   services?: Service[];
   is_verified: boolean;
+  serviceAreas?: string[];
+  experience?: string;
+  specialties?: string[];
+  testimonials?: Array<{
+    id: string;
+    text: string;
+    author: string;
+    rating: number;
+  }>;
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
+  mediaLinks?: Array<{
+    id: string;
+    title: string;
+    url: string;
+    source: string;
+    date?: string;
+  }>;
+  clientRecommendations?: Array<{
+    id: string;
+    clientName: string;
+    company: string;
+    position?: string;
+    logoUrl?: string;
+    recommendation: string;
+  }>;
 }
 
 export interface Service {
@@ -54,6 +83,7 @@ export interface Service {
   description: string;
   price: number;
   price_unit?: string;
+  price_range?: string;
   imageUrl: string;
   additional_images?: string[];
   provider_id: string;
@@ -66,8 +96,11 @@ export interface Service {
   is_featured?: boolean;
   suitableFor?: string[]; // Event concepts
   audience_size?: string;
+  audience_ages?: string[];
   location?: string;
+  duration?: string;
   videos?: string[]; 
+  technical_requirements?: string[];
 }
 
 // Hebrew Hierarchy Types

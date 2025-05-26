@@ -7,6 +7,7 @@ import ProviderBusinessProfile from "@/components/provider/ProviderBusinessProfi
 import ProductGrid from "@/components/provider/ProductGrid";
 import { useEventContext } from "@/context/EventContext";
 import { mockProviders } from '@/lib/mockData';
+import { expandedMockProviders } from '@/lib/mockDataExpanded';
 
 const EnhancedProviderProfile = () => {
   const { providerId } = useParams<{ providerId: string }>();
@@ -23,7 +24,8 @@ const EnhancedProviderProfile = () => {
     
     // If not found in context, try mock data
     if (!foundProvider) {
-      foundProvider = mockProviders.find(p => p.id === providerId);
+      const combinedMockProviders = [...expandedMockProviders, ...mockProviders];
+      foundProvider = combinedMockProviders.find(p => p.id === providerId);
     }
 
     if (foundProvider) {
@@ -51,7 +53,9 @@ const EnhancedProviderProfile = () => {
             rating: 5
           }
         ],
-        socialLinks: foundProvider.socialLinks || {}
+        socialLinks: foundProvider.socialLinks || {},
+        mediaLinks: foundProvider.mediaLinks || [],
+        clientRecommendations: foundProvider.clientRecommendations || []
       };
 
       setProvider(enhancedProvider);

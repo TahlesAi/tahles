@@ -14,7 +14,10 @@ import {
   Users, 
   Globe,
   Upload,
-  X
+  X,
+  Plus,
+  Newspaper,
+  ThumbsUp
 } from "lucide-react";
 
 interface OnboardingBusinessProfileProps {
@@ -89,6 +92,59 @@ const OnboardingBusinessProfile: React.FC<OnboardingBusinessProfileProps> = ({
       ? current.filter((a: string) => a !== audience)
       : [...current, audience];
     onUpdate({ targetAudience: updated });
+  };
+
+  const addMediaLink = () => {
+    const mediaLinks = data.mediaLinks || [];
+    onUpdate({
+      mediaLinks: [...mediaLinks, {
+        id: Date.now().toString(),
+        title: '',
+        url: '',
+        source: '',
+        date: ''
+      }]
+    });
+  };
+
+  const updateMediaLink = (index: number, field: string, value: string) => {
+    const mediaLinks = [...(data.mediaLinks || [])];
+    mediaLinks[index] = { ...mediaLinks[index], [field]: value };
+    onUpdate({ mediaLinks });
+  };
+
+  const removeMediaLink = (index: number) => {
+    const mediaLinks = data.mediaLinks || [];
+    onUpdate({
+      mediaLinks: mediaLinks.filter((_: any, i: number) => i !== index)
+    });
+  };
+
+  const addClientRecommendation = () => {
+    const recommendations = data.clientRecommendations || [];
+    onUpdate({
+      clientRecommendations: [...recommendations, {
+        id: Date.now().toString(),
+        clientName: '',
+        company: '',
+        position: '',
+        logoUrl: '',
+        recommendation: ''
+      }]
+    });
+  };
+
+  const updateClientRecommendation = (index: number, field: string, value: string) => {
+    const recommendations = [...(data.clientRecommendations || [])];
+    recommendations[index] = { ...recommendations[index], [field]: value };
+    onUpdate({ clientRecommendations: recommendations });
+  };
+
+  const removeClientRecommendation = (index: number) => {
+    const recommendations = data.clientRecommendations || [];
+    onUpdate({
+      clientRecommendations: recommendations.filter((_: any, i: number) => i !== index)
+    });
   };
 
   const handleSubmit = () => {
@@ -237,6 +293,153 @@ const OnboardingBusinessProfile: React.FC<OnboardingBusinessProfileProps> = ({
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Media Links */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Newspaper className="h-5 w-5" />
+              כתבות ותקשורת
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {(data.mediaLinks || []).map((link: any, index: number) => (
+              <div key={link.id} className="border rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium">כתבה #{index + 1}</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeMediaLink(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label>כותרת הכתבה</Label>
+                    <Input
+                      value={link.title}
+                      onChange={(e) => updateMediaLink(index, 'title', e.target.value)}
+                      placeholder="כותרת הכתבה"
+                    />
+                  </div>
+                  <div>
+                    <Label>מקור הפרסום</Label>
+                    <Input
+                      value={link.source}
+                      onChange={(e) => updateMediaLink(index, 'source', e.target.value)}
+                      placeholder="שם העיתון/אתר"
+                    />
+                  </div>
+                  <div>
+                    <Label>קישור</Label>
+                    <Input
+                      type="url"
+                      value={link.url}
+                      onChange={(e) => updateMediaLink(index, 'url', e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <Label>תאריך פרסום</Label>
+                    <Input
+                      value={link.date}
+                      onChange={(e) => updateMediaLink(index, 'date', e.target.value)}
+                      placeholder="ינואר 2024"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              onClick={addMediaLink}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 ml-2" />
+              הוסף כתבה
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Client Recommendations */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ThumbsUp className="h-5 w-5" />
+              ממליצים
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {(data.clientRecommendations || []).map((rec: any, index: number) => (
+              <div key={rec.id} className="border rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium">ממליץ #{index + 1}</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeClientRecommendation(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label>שם איש הקשר</Label>
+                    <Input
+                      value={rec.clientName}
+                      onChange={(e) => updateClientRecommendation(index, 'clientName', e.target.value)}
+                      placeholder="שם מלא"
+                    />
+                  </div>
+                  <div>
+                    <Label>שם החברה</Label>
+                    <Input
+                      value={rec.company}
+                      onChange={(e) => updateClientRecommendation(index, 'company', e.target.value)}
+                      placeholder="שם החברה"
+                    />
+                  </div>
+                  <div>
+                    <Label>תפקיד</Label>
+                    <Input
+                      value={rec.position}
+                      onChange={(e) => updateClientRecommendation(index, 'position', e.target.value)}
+                      placeholder="מנהל/ת כללי/ת"
+                    />
+                  </div>
+                  <div>
+                    <Label>לוגו החברה (קישור)</Label>
+                    <Input
+                      type="url"
+                      value={rec.logoUrl}
+                      onChange={(e) => updateClientRecommendation(index, 'logoUrl', e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>המלצה</Label>
+                    <Textarea
+                      value={rec.recommendation}
+                      onChange={(e) => updateClientRecommendation(index, 'recommendation', e.target.value)}
+                      placeholder="טקסט ההמלצה..."
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              onClick={addClientRecommendation}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 ml-2" />
+              הוסף ממליץ
+            </Button>
           </CardContent>
         </Card>
 

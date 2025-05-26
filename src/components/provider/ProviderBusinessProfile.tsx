@@ -13,7 +13,10 @@ import {
   Mail,
   Star,
   CheckCircle,
-  Globe
+  Globe,
+  Newspaper,
+  Building,
+  ThumbsUp
 } from "lucide-react";
 
 interface ProviderBusinessProfileProps {
@@ -43,6 +46,21 @@ interface ProviderBusinessProfileProps {
       linkedin?: string;
     };
     specialties?: string[];
+    mediaLinks?: Array<{
+      id: string;
+      title: string;
+      url: string;
+      source: string;
+      date?: string;
+    }>;
+    clientRecommendations?: Array<{
+      id: string;
+      clientName: string;
+      company: string;
+      position?: string;
+      logoUrl?: string;
+      recommendation: string;
+    }>;
   };
   gallery?: Array<{
     type: 'image' | 'video';
@@ -191,6 +209,85 @@ const ProviderBusinessProfile: React.FC<ProviderBusinessProfileProps> = ({
                       </div>
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Media Coverage */}
+      {provider.mediaLinks && provider.mediaLinks.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Newspaper className="h-5 w-5" />
+              כתבו עלינו
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {provider.mediaLinks.map((link) => (
+                <div key={link.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-lg mb-1">{link.title}</h4>
+                      <p className="text-gray-600 text-sm mb-2">{link.source}</p>
+                      {link.date && (
+                        <p className="text-gray-500 text-xs">{link.date}</p>
+                      )}
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                        קרא
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Client Recommendations */}
+      {provider.clientRecommendations && provider.clientRecommendations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ThumbsUp className="h-5 w-5" />
+              ממליצים
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {provider.clientRecommendations.map((rec) => (
+                <div key={rec.id} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-start gap-4">
+                    {rec.logoUrl && (
+                      <div className="flex-shrink-0">
+                        <img 
+                          src={rec.logoUrl} 
+                          alt={rec.company}
+                          className="w-12 h-12 object-contain rounded"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Building className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium">{rec.company}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {rec.clientName}
+                        {rec.position && ` - ${rec.position}`}
+                      </p>
+                      <p className="text-gray-700 text-sm italic">
+                        "{rec.recommendation}"
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
