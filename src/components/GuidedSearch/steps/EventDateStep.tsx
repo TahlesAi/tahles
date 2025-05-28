@@ -5,7 +5,7 @@ import { CalendarIcon, Clock } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EventDateStepProps {
@@ -15,6 +15,7 @@ interface EventDateStepProps {
 }
 
 const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(eventDate || null);
   const [selectedStartTime, setSelectedStartTime] = useState<string>("");
   const [selectedEndTime, setSelectedEndTime] = useState<string>("");
   
@@ -31,35 +32,33 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
   });
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      onUpdate(date, selectedStartTime, selectedEndTime);
-    }
+    const newDate = date || null;
+    setSelectedDate(newDate);
   };
 
   const handleStartTimeSelect = (time: string) => {
     setSelectedStartTime(time);
-    if (eventDate) {
-      onUpdate(eventDate, time, selectedEndTime);
-    }
+    console.log("Start time selected:", time);
   };
 
   const handleEndTimeSelect = (time: string) => {
     setSelectedEndTime(time);
-    if (eventDate) {
-      onUpdate(eventDate, selectedStartTime, time);
-    }
+    console.log("End time selected:", time);
   };
 
   const handleNext = () => {
-    if (eventDate && selectedStartTime) {
-      onUpdate(eventDate, selectedStartTime, selectedEndTime);
-    } else if (eventDate) {
-      // If only date is selected, continue without time
-      onUpdate(eventDate);
+    console.log("HandleNext called with:", { selectedDate, selectedStartTime, selectedEndTime });
+    if (selectedDate && selectedStartTime) {
+      onUpdate(selectedDate, selectedStartTime, selectedEndTime);
     }
   };
 
-  const canProceed = eventDate !== null && eventDate !== undefined;
+  // Both date and start time are required to proceed
+  const canProceed = selectedDate && selectedStartTime;
+
+  useEffect(() => {
+    console.log("EventDateStep state:", { selectedDate, selectedStartTime, selectedEndTime, canProceed });
+  }, [selectedDate, selectedStartTime, selectedEndTime, canProceed]);
 
   return (
     <div className="space-y-6 text-right min-h-[500px] overflow-y-auto" dir="rtl">
@@ -76,13 +75,13 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
                 className="w-full justify-start text-right font-normal"
               >
                 <CalendarIcon className="ml-2 h-4 w-4" />
-                {eventDate ? format(eventDate, "EEEE, d MMMM yyyy", { locale: he }) : "בחר תאריך"}
+                {selectedDate ? format(selectedDate, "EEEE, d MMMM yyyy", { locale: he }) : "בחר תאריך"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={eventDate || undefined}
+                selected={selectedDate || undefined}
                 onSelect={handleDateSelect}
                 initialFocus
                 locale={he}
@@ -93,8 +92,8 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           </Popover>
         </div>
 
-        {/* Start Time Selection */}
-        {eventDate && (
+        {/* Start Time Selection - Always show when date is selected */}
+        {selectedDate && (
           <div className="w-full max-w-xs">
             <label className="block text-sm font-medium mb-2 text-right">שעת התחלה *</label>
             <Select value={selectedStartTime} onValueChange={handleStartTimeSelect}>
@@ -116,8 +115,8 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           </div>
         )}
 
-        {/* End Time Selection */}
-        {eventDate && selectedStartTime && (
+        {/* End Time Selection - Show when start time is selected */}
+        {selectedDate && selectedStartTime && (
           <div className="w-full max-w-xs">
             <label className="block text-sm font-medium mb-2 text-right">שעת סיום (אופציונלי)</label>
             <Select value={selectedEndTime} onValueChange={handleEndTimeSelect}>
@@ -143,11 +142,13 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
       </div>
       
       <div className="flex flex-col gap-2 mt-8">
-        {canProceed && (
-          <Button onClick={handleNext} className="w-full" disabled={!selectedStartTime}>
-            המשך
-          </Button>
-        )}
+        <Button 
+          onClick={handleNext} 
+          className="w-full" 
+          disabled={!canProceed}
+        >
+          המשך
+        </Button>
         <Button onClick={onSkip} variant="ghost" className="w-full">
           דלג, עוד לא יודע
         </Button>
