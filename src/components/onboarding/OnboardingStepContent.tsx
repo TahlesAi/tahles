@@ -1,4 +1,3 @@
-
 import React from "react";
 import OnboardingStep1 from "./OnboardingStep1";
 import OnboardingStep2 from "./OnboardingStep2";
@@ -118,91 +117,84 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   onFinish,
   onDigitalSignatureComplete
 }) => {
-  switch (currentStep) {
-    case 1:
-      return (
-        <OnboardingPersonalInfo
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          adminMode={adminMode}
-        />
-      );
-    case 2:
-      return (
-        <OnboardingDocuments
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          onBack={onBack}
-          adminMode={adminMode}
-        />
-      );
-    case 3:
-      return (
-        <OnboardingBusinessProfile
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          onBack={onBack}
-          adminMode={adminMode}
-        />
-      );
-    case 4:
-      return (
-        <OnboardingStep1 
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          adminMode={adminMode}
-        />
-      );
-    case 5:
-      return (
-        <OnboardingStep2 
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          onBack={onBack}
-          adminMode={adminMode}
-        />
-      );
-    case 6:
-      return (
-        <OnboardingProviderProfile
-          data={formData}
-          onUpdate={onUpdate}
-          onNext={onNext}
-          onBack={onBack}
-          adminMode={adminMode}
-        />
-      );
-    case 7:
-      return (
-        <OnboardingStep3 
-          data={formData}
-          onUpdate={onUpdate}
-          onSubmit={onNext}
-          onBack={onBack}
-          adminMode={adminMode}
-        />
-      );
-    case 8:
-      return (
-        <OnboardingDigitalSignature
-          onSignatureComplete={onDigitalSignatureComplete}
-          onBack={onBack}
-        />
-      );
-    case 9:
-      return (
-        <OnboardingSuccess 
-          onFinish={onFinish}
-        />
-      );
-    default:
-      return null;
-  }
+  const stepComponents = {
+    1: () => (
+      <OnboardingPersonalInfo
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        adminMode={adminMode}
+      />
+    ),
+    2: () => (
+      <OnboardingDocuments
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        onBack={onBack}
+        adminMode={adminMode}
+      />
+    ),
+    3: () => (
+      <OnboardingBusinessProfile
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        onBack={onBack}
+        adminMode={adminMode}
+      />
+    ),
+    4: () => (
+      <OnboardingStep1 
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        adminMode={adminMode}
+      />
+    ),
+    5: () => (
+      <OnboardingStep2 
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        onBack={onBack}
+        adminMode={adminMode}
+      />
+    ),
+    6: () => (
+      <OnboardingProviderProfile
+        data={formData}
+        onUpdate={onUpdate}
+        onNext={onNext}
+        onBack={onBack}
+        adminMode={adminMode}
+      />
+    ),
+    7: () => (
+      <OnboardingStep3 
+        data={formData}
+        onUpdate={onUpdate}
+        onSubmit={onNext}
+        onBack={onBack}
+        adminMode={adminMode}
+      />
+    ),
+    8: () => (
+      <OnboardingDigitalSignature
+        onSignatureComplete={onDigitalSignatureComplete}
+        onBack={onBack}
+      />
+    ),
+    9: () => (
+      <OnboardingSuccess 
+        onFinish={onFinish}
+      />
+    )
+  };
+
+  const StepComponent = stepComponents[currentStep as keyof typeof stepComponents];
+  
+  return StepComponent ? <StepComponent /> : null;
 };
 
 export default OnboardingStepContent;
