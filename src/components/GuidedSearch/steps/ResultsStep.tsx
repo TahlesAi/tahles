@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ArrowRight, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Loader2, ArrowRight, ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
 import { GuidedSearchData } from "../GuidedSearchModal";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
@@ -17,34 +17,51 @@ interface ResultsStepProps {
   onSubmit: () => void;
 }
 
-// מידע מוק לדוגמה - בהמשך זה יגיע מהשרת
 const mockRecommendations = [
   {
-    id: "1",
+    id: "enhanced-mentalist-1",
     name: "נטע ברסלר - אמן החושים",
     image: "https://i.ibb.co/WxDqgWM/mentalist.jpg",
     category: "אמני חושים",
-    description: "חוויה בלתי נשכחת של מנטליזם וקסמים",
+    description: "חוויה בלתי נשכחת של מנטליזם וקסמים המתאימה לכל סוגי האירועים",
     price: "₪2,500",
-    provider: "נטע ברסלר"
+    priceUnit: "לאירוע",
+    provider: "נטע ברסלר",
+    rating: 4.9,
+    reviewCount: 127,
+    location: "תל אביב והמרכז",
+    duration: "45-60 דקות",
+    tags: ["מנטליזם", "קסמים", "אינטראקטיבי"]
   },
   {
-    id: "2", 
+    id: "enhanced-band-1", 
     name: "להקת אנרג'י",
     image: "https://i.ibb.co/wQDXD7y/band.jpg",
     category: "מופעים מוזיקליים",
-    description: "להקה מקצועית לכל סוגי האירועים",
+    description: "להקה מקצועית המתמחה באירועי חברה ואירועים פרטיים",
     price: "₪4,000",
-    provider: "אנרג'י מיוזיק"
+    priceUnit: "לאירוע",
+    provider: "אנרג'י מיוזיק",
+    rating: 4.7,
+    reviewCount: 89,
+    location: "כל הארץ",
+    duration: "60-90 דקות",
+    tags: ["להקה", "מוזיקה חיה", "רחבה"]
   },
   {
-    id: "3",
+    id: "enhanced-catering-1",
     name: "קייטרינג גורמה",
     image: "https://i.ibb.co/mH4n6Yn/catering.jpg", 
     category: "קייטרינג",
-    description: "אוכל איכותי ושירות מעולה לאירועים",
-    price: "₪150 למנה",
-    provider: "גורמה קייטרינג"
+    description: "אוכל איכותי ושירות מעולה לאירועים עד 200 איש",
+    price: "₪150",
+    priceUnit: "למנה",
+    provider: "גורמה קייטרינג",
+    rating: 4.8,
+    reviewCount: 203,
+    location: "ירושלים והסביבה",
+    duration: "שירות מלא",
+    tags: ["קייטרינג", "כשר", "איכותי"]
   }
 ];
 
@@ -110,36 +127,69 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
         </ul>
       </div>
       
-      <h3 className="text-lg font-medium">המלצות עבורך:</h3>
+      <h3 className="text-lg font-medium">המלצות מותאמות עבורך:</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mockRecommendations.map(rec => (
-          <Card key={rec.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="relative">
-              <img 
-                src={rec.image} 
-                alt={rec.name} 
-                className="w-full h-40 object-cover"
-              />
-              <div className="absolute top-2 right-2 bg-primary/90 text-white px-2 py-1 rounded text-xs">
-                {rec.category}
+          <Link 
+            key={rec.id} 
+            to={`/enhanced-services/${rec.id}`}
+            className="block transition-transform hover:scale-105"
+          >
+            <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
+              <div className="relative aspect-video overflow-hidden">
+                <img 
+                  src={rec.image} 
+                  alt={rec.name} 
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                />
+                <div className="absolute top-3 right-3 bg-brand-600/90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {rec.category}
+                </div>
+                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md flex items-center shadow-sm">
+                  <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                  <span className="font-bold text-sm">{rec.rating}</span>
+                  <span className="text-xs text-gray-600 mr-1">({rec.reviewCount})</span>
+                </div>
               </div>
-            </div>
-            <CardContent className="p-3">
-              <h4 className="font-medium mb-1">{rec.name}</h4>
-              <p className="text-xs text-gray-500 mb-1">{rec.provider}</p>
-              <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-brand-600">{rec.price}</span>
-                <Link to={`/enhanced-services/${rec.id}`}>
-                  <Button size="sm" variant="outline">
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                    צפה
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+              
+              <CardContent className="p-4 flex-grow">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-bold text-lg mb-1">{rec.name}</h4>
+                    <p className="text-gray-500 text-sm mb-1">{rec.provider}</p>
+                    <p className="text-gray-700 text-sm leading-relaxed">{rec.description}</p>
+                  </div>
+                  
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 ml-1" />
+                    <span>{rec.location}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    {rec.tags.map((tag, index) => (
+                      <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <div className="text-2xl font-bold text-brand-600">{rec.price}</div>
+                        <div className="text-sm text-gray-500">{rec.priceUnit}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">משך:</div>
+                        <div className="text-sm font-medium">{rec.duration}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
       

@@ -21,7 +21,7 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
   
   // Generate time options (every 30 minutes from 8:00 to 23:30)
   const timeOptions = Array.from({ length: 32 }, (_, i) => {
-    const totalMinutes = 8 * 60 + i * 30; // Start from 8:00, add 30 minutes each time
+    const totalMinutes = 8 * 60 + i * 30;
     const hour = Math.floor(totalMinutes / 60);
     const minute = totalMinutes % 60;
     const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -48,13 +48,13 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
 
   const handleNext = () => {
     console.log("HandleNext called with:", { selectedDate, selectedStartTime, selectedEndTime });
-    if (selectedDate && selectedStartTime) {
+    if (selectedDate && selectedStartTime && selectedEndTime) {
       onUpdate(selectedDate, selectedStartTime, selectedEndTime);
     }
   };
 
-  // Both date and start time are required to proceed
-  const canProceed = selectedDate && selectedStartTime;
+  // All three fields are now required to proceed
+  const canProceed = selectedDate && selectedStartTime && selectedEndTime;
 
   useEffect(() => {
     console.log("EventDateStep state:", { selectedDate, selectedStartTime, selectedEndTime, canProceed });
@@ -92,7 +92,7 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           </Popover>
         </div>
 
-        {/* Start Time Selection - Always show when date is selected */}
+        {/* Start Time Selection */}
         {selectedDate && (
           <div className="w-full max-w-xs">
             <label className="block text-sm font-medium mb-2 text-right">שעת התחלה *</label>
@@ -115,13 +115,13 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           </div>
         )}
 
-        {/* End Time Selection - Show when start time is selected */}
+        {/* End Time Selection - Now Required */}
         {selectedDate && selectedStartTime && (
           <div className="w-full max-w-xs">
-            <label className="block text-sm font-medium mb-2 text-right">שעת סיום (אופציונלי)</label>
+            <label className="block text-sm font-medium mb-2 text-right">שעת סיום *</label>
             <Select value={selectedEndTime} onValueChange={handleEndTimeSelect}>
               <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחר שעת סיום (אופציונלי)" />
+                <SelectValue placeholder="בחר שעת סיום" />
                 <Clock className="ml-2 h-4 w-4" />
               </SelectTrigger>
               <SelectContent className="max-h-48 overflow-y-auto">
@@ -134,8 +134,8 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-gray-500 mt-1 text-right">
-              שעת הסיום עוזרת לחישוב מחיר מדויק יותר
+            <p className="text-xs text-red-500 mt-1 text-right">
+              שעת סיום חובה לחישוב מחיר מדויק והזמנת השירות
             </p>
           </div>
         )}
@@ -147,7 +147,9 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           className="w-full" 
           disabled={!canProceed}
         >
-          המשך
+          {!selectedDate ? 'יש לבחור תאריך' : 
+           !selectedStartTime ? 'יש לבחור שעת התחלה' :
+           !selectedEndTime ? 'יש לבחור שעת סיום' : 'המשך'}
         </Button>
         <Button onClick={onSkip} variant="ghost" className="w-full">
           דלג, עוד לא יודע

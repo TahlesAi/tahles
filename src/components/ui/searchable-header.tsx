@@ -46,6 +46,9 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
           onSearchComplete();
         }
       }
+    } else if (useGuidedSearch) {
+      // אם אין מונח חיפוש אבל זה חיפוש מודרך, פתח את המודאל
+      setIsGuidedSearchOpen(true);
     }
   };
 
@@ -74,14 +77,14 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
           <Button
             type="button"
             className={cn(
-              "w-full flex items-center justify-between py-3 px-6 text-base text-gray-500 bg-white border border-gray-300 rounded-full hover:border-brand-400 transition-colors min-h-[48px]",
+              "w-full flex items-center justify-between py-4 px-6 text-base text-gray-500 bg-white border-2 border-gray-300 rounded-full hover:border-brand-400 hover:shadow-md transition-all min-h-[52px] group",
               inputClassName
             )}
             onClick={() => setIsGuidedSearchOpen(true)}
             variant="ghost"
           >
-            <span className="flex-1 text-right pr-4">{placeholder}</span>
-            <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
+            <span className="flex-1 text-right pr-4 group-hover:text-brand-600 transition-colors">{placeholder}</span>
+            <Search className="h-5 w-5 text-gray-400 flex-shrink-0 group-hover:text-brand-500 transition-colors" />
           </Button>
         </div>
         
@@ -106,14 +109,14 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch(searchTerm);
               }
             }}
             className={cn(
-              "w-full pr-14 pl-6 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right min-h-[48px]",
+              "w-full pr-14 pl-6 py-3 text-base border-2 border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right min-h-[48px]",
               inputClassName
             )}
             dir="rtl"
