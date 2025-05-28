@@ -25,7 +25,8 @@ export type EventConcept = {
 
 export interface GuidedSearchData {
   eventDate?: Date | null;
-  eventTime?: string; // Added time field
+  eventStartTime?: string; // Changed from eventTime
+  eventEndTime?: string; // Added end time
   eventType?: EventType;
   attendeesCount?: string;
   eventConcept?: string;
@@ -92,7 +93,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseModal}>
-      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl text-right" dir="rtl">
+      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             {currentStep === STEPS.RESULTS ? "הפתרונות המומלצים עבורך" : "מצא את הפתרון המושלם לאירוע שלך"}
@@ -102,12 +103,20 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-6">
+        <div className="py-6 overflow-y-auto max-h-[60vh]">
           {currentStep === STEPS.EVENT_DATE && (
             <EventDateStep 
               eventDate={searchData.eventDate} 
-              onUpdate={(date, time) => updateSearchData({ eventDate: date, eventTime: time })}
-              onSkip={() => updateSearchData({ eventDate: null, eventTime: undefined })}
+              onUpdate={(date, startTime, endTime) => updateSearchData({ 
+                eventDate: date, 
+                eventStartTime: startTime, 
+                eventEndTime: endTime 
+              })}
+              onSkip={() => updateSearchData({ 
+                eventDate: null, 
+                eventStartTime: undefined, 
+                eventEndTime: undefined 
+              })}
             />
           )}
           

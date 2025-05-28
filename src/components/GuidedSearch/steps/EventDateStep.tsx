@@ -10,52 +10,65 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface EventDateStepProps {
   eventDate: Date | null | undefined;
-  onUpdate: (date: Date | null, time?: string) => void;
+  onUpdate: (date: Date | null, startTime?: string, endTime?: string) => void;
   onSkip: () => void;
 }
 
 const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedStartTime, setSelectedStartTime] = useState<string>("");
+  const [selectedEndTime, setSelectedEndTime] = useState<string>("");
   
-  // Generate time options (every hour from 8:00 to 23:00)
-  const timeOptions = Array.from({ length: 16 }, (_, i) => {
-    const hour = i + 8;
+  // Generate time options (every 30 minutes from 8:00 to 23:30)
+  const timeOptions = Array.from({ length: 32 }, (_, i) => {
+    const totalMinutes = 8 * 60 + i * 30; // Start from 8:00, add 30 minutes each time
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+    const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     return {
-      value: `${hour}:00`,
-      label: `${hour}:00`
+      value: timeString,
+      label: timeString
     };
   });
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
-      onUpdate(date, selectedTime);
+      onUpdate(date, selectedStartTime, selectedEndTime);
     }
   };
 
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
+  const handleStartTimeSelect = (time: string) => {
+    setSelectedStartTime(time);
     if (eventDate) {
-      onUpdate(eventDate, time);
+      onUpdate(eventDate, time, selectedEndTime);
+    }
+  };
+
+  const handleEndTimeSelect = (time: string) => {
+    setSelectedEndTime(time);
+    if (eventDate) {
+      onUpdate(eventDate, selectedStartTime, time);
     }
   };
 
   const handleNext = () => {
-    if (eventDate && selectedTime) {
-      onUpdate(eventDate, selectedTime);
+    if (eventDate && selectedStartTime) {
+      onUpdate(eventDate, selectedStartTime, selectedEndTime);
     } else if (eventDate) {
       // If only date is selected, continue without time
       onUpdate(eventDate);
     }
   };
 
+  const canProceed = eventDate !== null && eventDate !== undefined;
+
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-6 text-right min-h-[500px] overflow-y-auto" dir="rtl">
       <h3 className="text-lg font-medium text-center">מתי האירוע אמור להתקיים?</h3>
       
       <div className="flex flex-col items-center space-y-4">
         {/* Date Selection */}
         <div className="w-full max-w-xs">
-          <label className="block text-sm font-medium mb-2 text-right">תאריך האירוע</label>
+          <label className="block text-sm font-medium mb-2 text-right">תאריך האירוע *</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -74,38 +87,64 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
                 initialFocus
                 locale={he}
                 disabled={(date) => date < new Date()}
+                className="pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
         </div>
 
-        {/* Time Selection */}
+        {/* Start Time Selection */}
         {eventDate && (
           <div className="w-full max-w-xs">
-            <label className="block text-sm font-medium mb-2 text-right">שעת האירוע (אופציונלי)</label>
-            <Select value={selectedTime} onValueChange={handleTimeSelect}>
+            <label className="block text-sm font-medium mb-2 text-right">שעת התחלה *</label>
+            <Select value={selectedStartTime} onValueChange={handleStartTimeSelect}>
               <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחר שעה (אופציונלי)" />
+                <SelectValue placeholder="בחר שעת התחלה" />
                 <Clock className="ml-2 h-4 w-4" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-48 overflow-y-auto">
                 {timeOptions.map((time) => (
-                  <SelectItem key={time.value} value={time.value}>
+                  <SelectItem key={time.value} value={time.value} className="text-right">
                     {time.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 mt-1 text-right">
-              השעה עוזרת לנו למצוא זמינות מדויקת ומחיר מתאים
+              שעת התחלה חיונית לבדיקת זמינות נותן השירות
+            </p>
+          </div>
+        )}
+
+        {/* End Time Selection */}
+        {eventDate && selectedStartTime && (
+          <div className="w-full max-w-xs">
+            <label className="block text-sm font-medium mb-2 text-right">שעת סיום (אופציונלי)</label>
+            <Select value={selectedEndTime} onValueChange={handleEndTimeSelect}>
+              <SelectTrigger className="w-full text-right">
+                <SelectValue placeholder="בחר שעת סיום (אופציונלי)" />
+                <Clock className="ml-2 h-4 w-4" />
+              </SelectTrigger>
+              <SelectContent className="max-h-48 overflow-y-auto">
+                {timeOptions
+                  .filter(time => time.value > selectedStartTime)
+                  .map((time) => (
+                  <SelectItem key={time.value} value={time.value} className="text-right">
+                    {time.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500 mt-1 text-right">
+              שעת הסיום עוזרת לחישוב מחיר מדויק יותר
             </p>
           </div>
         )}
       </div>
       
-      <div className="flex flex-col gap-2">
-        {eventDate && (
-          <Button onClick={handleNext} className="w-full">
+      <div className="flex flex-col gap-2 mt-8">
+        {canProceed && (
+          <Button onClick={handleNext} className="w-full" disabled={!selectedStartTime}>
             המשך
           </Button>
         )}

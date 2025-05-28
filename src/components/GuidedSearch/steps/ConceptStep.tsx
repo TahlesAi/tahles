@@ -69,50 +69,65 @@ const ConceptStep = ({
   };
 
   const handleNext = () => {
+    console.log("handleNext called", { detailInput, selectedCategory, selectedSubcategory, audience });
+    
     if (selectedHebrewConcept) {
       // Hebrew concept flow - requires all fields
       if (detailInput && selectedCategory && selectedSubcategory && audience) {
+        console.log("Hebrew concept - all fields filled, calling onUpdate");
         onUpdate(selectedHebrewConcept.id, detailInput, audience, selectedCategory, selectedSubcategory);
+      } else {
+        console.log("Hebrew concept - missing fields:", { detailInput, selectedCategory, selectedSubcategory, audience });
       }
     } else {
       // Legacy flow - requires concept and audience (if applicable)
       const isAudienceRequired = eventType === "private" || eventType === "mixed";
       if (detailInput && (!isAudienceRequired || audience)) {
+        console.log("Legacy concept - calling onUpdate");
         onUpdate(detailInput, undefined, audience);
+      } else {
+        console.log("Legacy concept - missing fields:", { detailInput, audience, isAudienceRequired });
       }
     }
   };
 
   const canProceed = () => {
     if (selectedHebrewConcept) {
-      return detailInput && selectedCategory && selectedSubcategory && audience;
+      const result = detailInput && selectedCategory && selectedSubcategory && audience;
+      console.log("Hebrew concept canProceed:", result, { detailInput, selectedCategory, selectedSubcategory, audience });
+      return result;
     } else {
       const isAudienceRequired = eventType === "private" || eventType === "mixed";
-      return detailInput && (!isAudienceRequired || audience);
+      const result = detailInput && (!isAudienceRequired || audience);
+      console.log("Legacy concept canProceed:", result, { detailInput, audience, isAudienceRequired });
+      return result;
     }
   };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir="rtl" className="space-y-6 text-right min-h-[400px] overflow-y-auto">
       {selectedHebrewConcept ? (
         <>
           {/* Using Hebrew concept & categories */}
           <div className="text-right">
-            <h3 className="text-lg font-medium mb-1">{selectedHebrewConcept.name}</h3>
-            <p className="text-gray-500 text-sm mb-4">בחרו את סוג האירוע המדויק והשירותים הרצויים</p>
+            <h3 className="text-lg font-medium mb-1 text-right">{selectedHebrewConcept.name}</h3>
+            <p className="text-gray-500 text-sm mb-4 text-right">בחרו את סוג האירוע המדויק והשירותים הרצויים</p>
           </div>
           
           {/* Step 1: Specific subconcept */}
           <div className="text-right">
             <label htmlFor="subconcept" className="block text-sm font-medium mb-2 text-right">בחרו את סוג האירוע המדויק:</label>
             <Select
-              onValueChange={(value) => setDetailInput(value)}
+              onValueChange={(value) => {
+                console.log("Subconcept selected:", value);
+                setDetailInput(value);
+              }}
               value={detailInput}
             >
-              <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחרו סוג אירוע" />
+              <SelectTrigger className="w-full text-right" dir="rtl">
+                <SelectValue placeholder="בחרו סוג אירוע" className="text-right" />
               </SelectTrigger>
-              <SelectContent className="text-right">
+              <SelectContent className="text-right" dir="rtl">
                 {selectedHebrewConcept.subconcepts && selectedHebrewConcept.subconcepts.map((subconcept) => (
                   <SelectItem key={subconcept.id} value={subconcept.id} className="text-right">
                     {subconcept.name}
@@ -127,15 +142,16 @@ const ConceptStep = ({
             <label htmlFor="category" className="block text-sm font-medium mb-2 text-right">איזה סוג שירות אתם מחפשים?</label>
             <Select
               onValueChange={(value) => {
+                console.log("Category selected:", value);
                 setSelectedCategory(value);
                 setSelectedSubcategory(undefined);
               }}
               value={selectedCategory}
             >
-              <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחרו קטגוריה" />
+              <SelectTrigger className="w-full text-right" dir="rtl">
+                <SelectValue placeholder="בחרו קטגוריה" className="text-right" />
               </SelectTrigger>
-              <SelectContent className="text-right">
+              <SelectContent className="text-right" dir="rtl">
                 {hebrewCategories && hebrewCategories.map((category) => (
                   <SelectItem key={category.id} value={category.id} className="text-right">
                     {category.name}
@@ -150,13 +166,16 @@ const ConceptStep = ({
             <div className="text-right">
               <label htmlFor="subcategory" className="block text-sm font-medium mb-2 text-right">בחרו תת-קטגוריה:</label>
               <Select
-                onValueChange={(value) => setSelectedSubcategory(value)}
+                onValueChange={(value) => {
+                  console.log("Subcategory selected:", value);
+                  setSelectedSubcategory(value);
+                }}
                 value={selectedSubcategory}
               >
-                <SelectTrigger className="w-full text-right">
-                  <SelectValue placeholder="בחרו תת-קטגוריה" />
+                <SelectTrigger className="w-full text-right" dir="rtl">
+                  <SelectValue placeholder="בחרו תת-קטגוריה" className="text-right" />
                 </SelectTrigger>
-                <SelectContent className="text-right">
+                <SelectContent className="text-right" dir="rtl">
                   {hebrewCategories &&
                     hebrewCategories
                       .find(cat => cat.id === selectedCategory)
@@ -175,20 +194,24 @@ const ConceptStep = ({
             <p className="block text-sm font-medium mb-3 text-right">האירוע מיועד עבור:</p>
             <RadioGroup 
               value={audience}
-              onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
+              onValueChange={(value) => {
+                console.log("Audience selected:", value);
+                setAudience(value as "family" | "friends" | "mixed");
+              }}
               className="flex flex-col space-y-2"
+              dir="rtl"
             >
-              <div className="flex items-center space-x-3 space-x-reverse">
-                <RadioGroupItem value="family" id="family" />
+              <div className="flex items-center space-x-3 space-x-reverse justify-end">
                 <Label htmlFor="family" className="text-right">משפחה</Label>
+                <RadioGroupItem value="family" id="family" />
               </div>
-              <div className="flex items-center space-x-3 space-x-reverse">
-                <RadioGroupItem value="friends" id="friends" />
+              <div className="flex items-center space-x-3 space-x-reverse justify-end">
                 <Label htmlFor="friends" className="text-right">חברים</Label>
+                <RadioGroupItem value="friends" id="friends" />
               </div>
-              <div className="flex items-center space-x-3 space-x-reverse">
-                <RadioGroupItem value="mixed" id="mixed" />
+              <div className="flex items-center space-x-3 space-x-reverse justify-end">
                 <Label htmlFor="mixed" className="text-right">מעורב (משפחה וחברים)</Label>
+                <RadioGroupItem value="mixed" id="mixed" />
               </div>
             </RadioGroup>
           </div>
@@ -197,7 +220,7 @@ const ConceptStep = ({
         <>
           {/* Legacy fallback */}
           <div className="text-right">
-            <h3 className="text-lg font-medium mb-4">מהו סוג האירוע?</h3>
+            <h3 className="text-lg font-medium mb-4 text-right">מהו סוג האירוע?</h3>
           </div>
           
           <div className="text-right">
@@ -205,10 +228,10 @@ const ConceptStep = ({
               onValueChange={(value) => setDetailInput(value)}
               value={detailInput}
             >
-              <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחר סוג אירוע" />
+              <SelectTrigger className="w-full text-right" dir="rtl">
+                <SelectValue placeholder="בחר סוג אירוע" className="text-right" />
               </SelectTrigger>
-              <SelectContent className="text-right">
+              <SelectContent className="text-right" dir="rtl">
                 {getFilteredConcepts().map((concept) => (
                   <SelectItem key={concept.id} value={concept.id} className="text-right">
                     {concept.name}
@@ -226,6 +249,7 @@ const ConceptStep = ({
                 type="number"
                 placeholder="הזן גיל"
                 className="text-right"
+                dir="rtl"
                 onChange={(e) => setDetailInput(`יום הולדת ${e.target.value}`)}
               />
             </div>
@@ -238,18 +262,19 @@ const ConceptStep = ({
                 value={audience}
                 onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
                 className="flex flex-col space-y-2"
+                dir="rtl"
               >
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <RadioGroupItem value="family" id="family" />
-                  <Label htmlFor="family" className="text-right">משפחה</Label>
+                <div className="flex items-center space-x-3 space-x-reverse justify-end">
+                  <Label htmlFor="family-legacy" className="text-right">משפחה</Label>
+                  <RadioGroupItem value="family" id="family-legacy" />
                 </div>
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <RadioGroupItem value="friends" id="friends" />
-                  <Label htmlFor="friends" className="text-right">חברים</Label>
+                <div className="flex items-center space-x-3 space-x-reverse justify-end">
+                  <Label htmlFor="friends-legacy" className="text-right">חברים</Label>
+                  <RadioGroupItem value="friends" id="friends-legacy" />
                 </div>
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <RadioGroupItem value="mixed" id="mixed" />
-                  <Label htmlFor="mixed" className="text-right">מעורב (משפחה וחברים)</Label>
+                <div className="flex items-center space-x-3 space-x-reverse justify-end">
+                  <Label htmlFor="mixed-legacy" className="text-right">מעורב (משפחה וחברים)</Label>
+                  <RadioGroupItem value="mixed" id="mixed-legacy" />
                 </div>
               </RadioGroup>
             </div>
@@ -257,7 +282,7 @@ const ConceptStep = ({
         </>
       )}
 
-      <div className="mt-8">
+      <div className="mt-8 sticky bottom-0 bg-white pt-4">
         <Button 
           onClick={handleNext}
           disabled={!canProceed()}

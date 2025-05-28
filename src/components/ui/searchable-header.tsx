@@ -74,14 +74,14 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
           <Button
             type="button"
             className={cn(
-              "w-full flex items-center justify-between py-3 px-4 text-base text-gray-500 bg-white border border-gray-300 rounded-full hover:border-brand-400 transition-colors",
+              "w-full flex items-center justify-between py-3 px-6 text-base text-gray-500 bg-white border border-gray-300 rounded-full hover:border-brand-400 transition-colors min-h-[48px]",
               inputClassName
             )}
             onClick={() => setIsGuidedSearchOpen(true)}
             variant="ghost"
           >
-            <span className="flex-1 text-right">{placeholder}</span>
-            <Search className="h-5 w-5 text-gray-400" />
+            <span className="flex-1 text-right pr-4">{placeholder}</span>
+            <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
           </Button>
         </div>
         
@@ -97,6 +97,9 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
         <div className="relative flex items-center">
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
           <Input
             type="text"
             placeholder={isFocused ? "" : placeholder}
@@ -110,15 +113,16 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
               }
             }}
             className={cn(
-              "w-full pr-14 pl-4 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right",
+              "w-full pr-14 pl-6 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right min-h-[48px]",
               inputClassName
             )}
             dir="rtl"
-            style={{ textAlign: 'right', paddingRight: '3.5rem' }}
+            style={{ 
+              textAlign: 'right', 
+              paddingRight: '3.5rem',
+              paddingLeft: '1.5rem'
+            }}
           />
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
         </div>
         
         {isFocused && searchTerm.trim() && (
