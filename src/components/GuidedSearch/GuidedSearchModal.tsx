@@ -25,6 +25,7 @@ export type EventConcept = {
 
 export interface GuidedSearchData {
   eventDate?: Date | null;
+  eventTime?: string; // Added time field
   eventType?: EventType;
   attendeesCount?: string;
   eventConcept?: string;
@@ -105,8 +106,8 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.EVENT_DATE && (
             <EventDateStep 
               eventDate={searchData.eventDate} 
-              onUpdate={(date) => updateSearchData({ eventDate: date })}
-              onSkip={() => updateSearchData({ eventDate: null })}
+              onUpdate={(date, time) => updateSearchData({ eventDate: date, eventTime: time })}
+              onSkip={() => updateSearchData({ eventDate: null, eventTime: undefined })}
             />
           )}
           

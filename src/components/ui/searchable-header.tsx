@@ -96,7 +96,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   return (
     <>
       <div className={cn("relative", className)} style={{ maxWidth }}>
-        <div className="relative">
+        <div className="relative flex items-center">
           <Input
             type="text"
             placeholder={isFocused ? "" : placeholder}
@@ -110,13 +110,13 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
               }
             }}
             className={cn(
-              "w-full pr-12 pl-4 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-left",
+              "w-full pr-14 pl-4 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right",
               inputClassName
             )}
-            dir="ltr"
-            style={{ textAlign: 'left' }}
+            dir="rtl"
+            style={{ textAlign: 'right', paddingRight: '3.5rem' }}
           />
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
         </div>

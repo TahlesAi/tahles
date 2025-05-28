@@ -68,27 +68,53 @@ const ConceptStep = ({
     return concepts;
   };
 
+  const handleNext = () => {
+    if (selectedHebrewConcept) {
+      // Hebrew concept flow - requires all fields
+      if (detailInput && selectedCategory && selectedSubcategory && audience) {
+        onUpdate(selectedHebrewConcept.id, detailInput, audience, selectedCategory, selectedSubcategory);
+      }
+    } else {
+      // Legacy flow - requires concept and audience (if applicable)
+      const isAudienceRequired = eventType === "private" || eventType === "mixed";
+      if (detailInput && (!isAudienceRequired || audience)) {
+        onUpdate(detailInput, undefined, audience);
+      }
+    }
+  };
+
+  const canProceed = () => {
+    if (selectedHebrewConcept) {
+      return detailInput && selectedCategory && selectedSubcategory && audience;
+    } else {
+      const isAudienceRequired = eventType === "private" || eventType === "mixed";
+      return detailInput && (!isAudienceRequired || audience);
+    }
+  };
+
   return (
-    <div dir="rtl">
+    <div dir="rtl" className="space-y-6">
       {selectedHebrewConcept ? (
         <>
           {/* Using Hebrew concept & categories */}
-          <h3 className="text-lg font-medium mb-1">{selectedHebrewConcept.name}</h3>
-          <p className="text-gray-500 text-sm mb-4">בחרו את סוג האירוע המדויק והשירותים הרצויים</p>
+          <div className="text-right">
+            <h3 className="text-lg font-medium mb-1">{selectedHebrewConcept.name}</h3>
+            <p className="text-gray-500 text-sm mb-4">בחרו את סוג האירוע המדויק והשירותים הרצויים</p>
+          </div>
           
           {/* Step 1: Specific subconcept */}
-          <div className="mb-6">
-            <label htmlFor="subconcept" className="block text-sm font-medium mb-2">בחרו את סוג האירוע המדויק:</label>
+          <div className="text-right">
+            <label htmlFor="subconcept" className="block text-sm font-medium mb-2 text-right">בחרו את סוג האירוע המדויק:</label>
             <Select
               onValueChange={(value) => setDetailInput(value)}
-              defaultValue={detailInput}
+              value={detailInput}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-right">
                 <SelectValue placeholder="בחרו סוג אירוע" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="text-right">
                 {selectedHebrewConcept.subconcepts && selectedHebrewConcept.subconcepts.map((subconcept) => (
-                  <SelectItem key={subconcept.id} value={subconcept.id}>
+                  <SelectItem key={subconcept.id} value={subconcept.id} className="text-right">
                     {subconcept.name}
                   </SelectItem>
                 ))}
@@ -97,21 +123,21 @@ const ConceptStep = ({
           </div>
           
           {/* Step 2: Service category */}
-          <div className="mb-6">
-            <label htmlFor="category" className="block text-sm font-medium mb-2">איזה סוג שירות אתם מחפשים?</label>
+          <div className="text-right">
+            <label htmlFor="category" className="block text-sm font-medium mb-2 text-right">איזה סוג שירות אתם מחפשים?</label>
             <Select
               onValueChange={(value) => {
                 setSelectedCategory(value);
                 setSelectedSubcategory(undefined);
               }}
-              defaultValue={selectedCategory}
+              value={selectedCategory}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-right">
                 <SelectValue placeholder="בחרו קטגוריה" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="text-right">
                 {hebrewCategories && hebrewCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
+                  <SelectItem key={category.id} value={category.id} className="text-right">
                     {category.name}
                   </SelectItem>
                 ))}
@@ -121,21 +147,21 @@ const ConceptStep = ({
           
           {/* Step 3: Service subcategory - only if category is selected */}
           {selectedCategory && (
-            <div className="mb-6">
-              <label htmlFor="subcategory" className="block text-sm font-medium mb-2">בחרו תת-קטגוריה:</label>
+            <div className="text-right">
+              <label htmlFor="subcategory" className="block text-sm font-medium mb-2 text-right">בחרו תת-קטגוריה:</label>
               <Select
                 onValueChange={(value) => setSelectedSubcategory(value)}
-                defaultValue={selectedSubcategory}
+                value={selectedSubcategory}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-right">
                   <SelectValue placeholder="בחרו תת-קטגוריה" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-right">
                   {hebrewCategories &&
                     hebrewCategories
                       .find(cat => cat.id === selectedCategory)
                       ?.subcategories.map((subcategory) => (
-                        <SelectItem key={subcategory.id} value={subcategory.id}>
+                        <SelectItem key={subcategory.id} value={subcategory.id} className="text-right">
                           {subcategory.name}
                         </SelectItem>
                       ))}
@@ -145,114 +171,102 @@ const ConceptStep = ({
           )}
 
           {/* Step 4: Target audience */}
-          <div className="mb-6">
-            <p className="block text-sm font-medium mb-3">האירוע מיועד עבור:</p>
+          <div className="text-right">
+            <p className="block text-sm font-medium mb-3 text-right">האירוע מיועד עבור:</p>
             <RadioGroup 
-              defaultValue={audience}
+              value={audience}
               onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
               className="flex flex-col space-y-2"
             >
               <div className="flex items-center space-x-3 space-x-reverse">
                 <RadioGroupItem value="family" id="family" />
-                <Label htmlFor="family">משפחה</Label>
+                <Label htmlFor="family" className="text-right">משפחה</Label>
               </div>
               <div className="flex items-center space-x-3 space-x-reverse">
                 <RadioGroupItem value="friends" id="friends" />
-                <Label htmlFor="friends">חברים</Label>
+                <Label htmlFor="friends" className="text-right">חברים</Label>
               </div>
               <div className="flex items-center space-x-3 space-x-reverse">
                 <RadioGroupItem value="mixed" id="mixed" />
-                <Label htmlFor="mixed">מעורב (משפחה וחברים)</Label>
+                <Label htmlFor="mixed" className="text-right">מעורב (משפחה וחברים)</Label>
               </div>
             </RadioGroup>
-          </div>
-
-          <div className="mt-8">
-            <Button 
-              onClick={() => onUpdate(
-                selectedHebrewConcept.id, 
-                detailInput, 
-                audience,
-                selectedCategory,
-                selectedSubcategory
-              )} 
-              disabled={!detailInput || !selectedCategory || !selectedSubcategory || !audience}
-              className="w-full"
-            >
-              המשך לתוצאות
-              <ChevronLeft className="mr-2 h-4 w-4" />
-            </Button>
           </div>
         </>
       ) : (
         <>
           {/* Legacy fallback */}
-          <h3 className="text-lg font-medium mb-4">מהו סוג האירוע?</h3>
+          <div className="text-right">
+            <h3 className="text-lg font-medium mb-4">מהו סוג האירוע?</h3>
+          </div>
           
-          <Select
-            onValueChange={(value) => setDetailInput(value)}
-            defaultValue={detailInput}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="בחר סוג אירוע" />
-            </SelectTrigger>
-            <SelectContent>
-              {getFilteredConcepts().map((concept) => (
-                <SelectItem key={concept.id} value={concept.id}>
-                  {concept.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="text-right">
+            <Select
+              onValueChange={(value) => setDetailInput(value)}
+              value={detailInput}
+            >
+              <SelectTrigger className="w-full text-right">
+                <SelectValue placeholder="בחר סוג אירוע" />
+              </SelectTrigger>
+              <SelectContent className="text-right">
+                {getFilteredConcepts().map((concept) => (
+                  <SelectItem key={concept.id} value={concept.id} className="text-right">
+                    {concept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           
           {detailInput === "birthday" && (
-            <div className="mt-4">
-              <label htmlFor="age" className="block text-sm font-medium mb-2">גיל:</label>
+            <div className="text-right">
+              <label htmlFor="age" className="block text-sm font-medium mb-2 text-right">גיל:</label>
               <Input 
                 id="age" 
                 type="number"
                 placeholder="הזן גיל"
+                className="text-right"
                 onChange={(e) => setDetailInput(`יום הולדת ${e.target.value}`)}
               />
             </div>
           )}
           
           {(eventType === "private" || eventType === "mixed") && (
-            <div className="mt-6">
-              <p className="block text-sm font-medium mb-3">האירוע מיועד עבור:</p>
+            <div className="text-right">
+              <p className="block text-sm font-medium mb-3 text-right">האירוע מיועד עבור:</p>
               <RadioGroup 
-                defaultValue={audience}
+                value={audience}
                 onValueChange={(value) => setAudience(value as "family" | "friends" | "mixed")}
                 className="flex flex-col space-y-2"
               >
                 <div className="flex items-center space-x-3 space-x-reverse">
                   <RadioGroupItem value="family" id="family" />
-                  <Label htmlFor="family">משפחה</Label>
+                  <Label htmlFor="family" className="text-right">משפחה</Label>
                 </div>
                 <div className="flex items-center space-x-3 space-x-reverse">
                   <RadioGroupItem value="friends" id="friends" />
-                  <Label htmlFor="friends">חברים</Label>
+                  <Label htmlFor="friends" className="text-right">חברים</Label>
                 </div>
                 <div className="flex items-center space-x-3 space-x-reverse">
                   <RadioGroupItem value="mixed" id="mixed" />
-                  <Label htmlFor="mixed">מעורב (משפחה וחברים)</Label>
+                  <Label htmlFor="mixed" className="text-right">מעורב (משפחה וחברים)</Label>
                 </div>
               </RadioGroup>
             </div>
           )}
-          
-          <div className="mt-8">
-            <Button 
-              onClick={() => onUpdate(detailInput, undefined, audience)} 
-              disabled={!detailInput || ((eventType === "private" || eventType === "mixed") && !audience)}
-              className="w-full"
-            >
-              המשך לתוצאות
-              <ChevronLeft className="mr-2 h-4 w-4" />
-            </Button>
-          </div>
         </>
       )}
+
+      <div className="mt-8">
+        <Button 
+          onClick={handleNext}
+          disabled={!canProceed()}
+          className="w-full"
+        >
+          המשך לתוצאות
+          <ChevronLeft className="mr-2 h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };
