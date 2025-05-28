@@ -7,6 +7,7 @@ import ProductForm from "./product/ProductForm";
 import ProductPreview from "./product/ProductPreview";
 import BenefitsCard from "./BenefitsCard"; 
 import TermsAgreement from "./product/TermsAgreement";
+import ProductVariants from "./product/ProductVariants";
 import { AlertCircle, Plus, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -20,6 +21,16 @@ interface Service {
   description?: string;
   features?: string[];
   targetAudience?: string[];
+  variants?: Array<{
+    parameter: string;
+    options: Array<{
+      name: string;
+      priceModifier: number;
+      priceType: 'fixed' | 'percentage';
+    }>;
+  }>;
+  additionalImages?: string[];
+  mainImage?: string;
 }
 
 interface OnboardingStep3Props {
@@ -40,11 +51,15 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
     price: 120,
     description: "",
     features: [],
-    targetAudience: []
+    targetAudience: [],
+    variants: [],
+    additionalImages: [],
+    mainImage: ""
   });
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isFormVisible, setIsFormVisible] = useState(services.length === 0);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showAddAnother, setShowAddAnother] = useState(false);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,6 +80,10 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
   
   const handleAgeRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentService(prev => ({ ...prev, ageRange: e.target.value }));
+  };
+
+  const handleVariantsChange = (variants: Service['variants']) => {
+    setCurrentService(prev => ({ ...prev, variants }));
   };
   
   const validateService = () => {
@@ -112,15 +131,20 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
       price: 120,
       description: "",
       features: [],
-      targetAudience: []
+      targetAudience: [],
+      variants: [],
+      additionalImages: [],
+      mainImage: ""
     });
     setIsFormVisible(false);
+    setShowAddAnother(true);
   };
 
   const handleEditService = (index: number) => {
     setCurrentService(services[index]);
     setEditingIndex(index);
     setIsFormVisible(true);
+    setShowAddAnother(false);
   };
 
   const handleDeleteService = (index: number) => {
@@ -130,6 +154,35 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
       title: "השירות הוסר",
       description: "השירות הוסר מהרשימה",
     });
+    
+    if (updatedServices.length === 0) {
+      setShowAddAnother(false);
+      setIsFormVisible(true);
+    }
+  };
+
+  const handleAddAnotherService = () => {
+    setIsFormVisible(true);
+    setShowAddAnother(false);
+    setEditingIndex(null);
+    setCurrentService({
+      title: "",
+      duration: 60,
+      audience: 350,
+      ageRange: "20-40",
+      price: 120,
+      description: "",
+      features: [],
+      targetAudience: [],
+      variants: [],
+      additionalImages: [],
+      mainImage: ""
+    });
+  };
+
+  const handleFinishAddingServices = () => {
+    setShowAddAnother(false);
+    setIsFormVisible(false);
   };
 
   const handleNext = async () => {
@@ -214,7 +267,13 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
                       <span className="mx-2">•</span>
                       <span>קהל: עד {service.audience} אנשים</span>
                       <span className="mx-2">•</span>
-                      <span>מחיר: ₪{service.price}</span>
+                      <span>מחיר בסיס: ₪{service.price}</span>
+                      {service.variants && service.variants.length > 0 && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <span>{service.variants.length} וריאנטים</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -240,15 +299,33 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
         </Card>
       )}
 
-      {/* כפתור הוספת שירות */}
-      {!isFormVisible && (
+      {/* שאלה על הוספת שירות נוסף */}
+      {showAddAnother && (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <h3 className="text-lg font-medium mb-4">האם יש לך מוצר נוסף להציע?</h3>
+            <div className="flex gap-4 justify-center">
+              <Button onClick={handleAddAnotherService}>
+                <Plus className="h-4 w-4 ml-2" />
+                כן, הוסף מוצר נוסף
+              </Button>
+              <Button variant="outline" onClick={handleFinishAddingServices}>
+                לא, סיימתי להוסיף מוצרים
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* כפתור הוספת שירות ראשון */}
+      {!isFormVisible && !showAddAnother && services.length === 0 && (
         <div className="text-center">
           <Button 
             onClick={() => setIsFormVisible(true)}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            {services.length === 0 ? "הוסף שירות ראשון" : "הוסף שירות נוסף"}
+            הוסף שירות ראשון
           </Button>
         </div>
       )}
@@ -278,22 +355,23 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
               </div>
             </div>
             
+            {/* וריאנטים ותמחור */}
+            <div className="mt-6">
+              <ProductVariants
+                variants={currentService.variants || []}
+                onChange={handleVariantsChange}
+              />
+            </div>
+            
             <div className="flex justify-between mt-6">
               <Button 
                 variant="outline" 
                 onClick={() => {
                   setIsFormVisible(false);
                   setEditingIndex(null);
-                  setCurrentService({
-                    title: "",
-                    duration: 60,
-                    audience: 350,
-                    ageRange: "20-40",
-                    price: 120,
-                    description: "",
-                    features: [],
-                    targetAudience: []
-                  });
+                  if (services.length > 0) {
+                    setShowAddAnother(true);
+                  }
                 }}
               >
                 ביטול
@@ -307,10 +385,10 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
       )}
 
       {/* יתרונות המערכת */}
-      {!isFormVisible && <BenefitsCard />}
+      {!isFormVisible && !showAddAnother && <BenefitsCard />}
       
       {/* אישור תנאים ומעבר */}
-      {!isFormVisible && (
+      {!isFormVisible && !showAddAnother && (
         <div className="border-t pt-6">
           <TermsAgreement 
             accepted={termsAccepted}
@@ -323,7 +401,7 @@ const OnboardingStep3 = ({ data, onUpdate, onSubmit, onBack, adminMode = false }
               חזרה
             </Button>
             <Button onClick={handleNext} disabled={isSubmitting}>
-              {isSubmitting ? "מעבד..." : "המשך למדיה"}
+              {isSubmitting ? "מעבד..." : "המשך לחתימה דיגיטלית"}
             </Button>
           </div>
         </div>

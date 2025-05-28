@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,20 +8,20 @@ import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import OnboardingDocuments from "@/components/onboarding/OnboardingDocuments";
 import OnboardingPersonalInfo from "@/components/onboarding/OnboardingPersonalInfo";
 import OnboardingBusinessProfile from "@/components/onboarding/OnboardingBusinessProfile";
-import OnboardingMediaUpload from "@/components/onboarding/OnboardingMediaUpload";
+import OnboardingProviderProfile from "@/components/onboarding/OnboardingProviderProfile";
 import OnboardingDigitalSignature from "@/components/onboarding/OnboardingDigitalSignature";
 import OnboardingSuccess from "@/components/onboarding/OnboardingSuccess";
 import { EventProvider } from "@/context/EventContext";
 import { 
   CheckCircle, 
   ClipboardList, 
-  ImagePlus, 
   User, 
   Layers,
   Layers3,
   FileCheck,
   PenTool,
-  Building
+  Building,
+  Star
 } from "lucide-react";
 
 const ADMIN_MODE = true;
@@ -60,15 +59,15 @@ const steps = [
   },
   {
     id: 6,
-    title: "פרטי שירותים",
-    description: "הוספת שירותים ומוצרים",
-    icon: <ClipboardList className="h-5 w-5" />,
+    title: "פרופיל תדמיתי",
+    description: "תמונות, סרטונים והמלצות",
+    icon: <Star className="h-5 w-5" />,
   },
   {
     id: 7,
-    title: "מדיה",
-    description: "תמונות וסרטונים",
-    icon: <ImagePlus className="h-5 w-5" />,
+    title: "פרטי שירותים",
+    description: "הוספת שירותים ומוצרים",
+    icon: <ClipboardList className="h-5 w-5" />,
   },
   {
     id: 8,
@@ -97,7 +96,6 @@ const ProviderOnboarding = () => {
     address: "",
     city: "",
     
-    // Business Profile fields
     businessDescription: "",
     experience: "",
     serviceAreas: [] as string[],
@@ -117,6 +115,38 @@ const ProviderOnboarding = () => {
     category: "",
     subcategory: "",
     
+    // Provider Profile fields (מידה תדמיתי)
+    artistName: "",
+    artistDescription: "",
+    artistExperience: "",
+    coverImage: "",
+    logo: "",
+    gallery: [] as string[],
+    videos: [] as string[],
+    testimonials: [] as Array<{
+      id: string;
+      text: string;
+      author: string;
+      rating: number;
+      company?: string;
+      position?: string;
+    }>,
+    clientRecommendations: [] as Array<{
+      id: string;
+      clientName: string;
+      company: string;
+      position?: string;
+      logoUrl?: string;
+      recommendation: string;
+    }>,
+    mediaLinks: [] as Array<{
+      id: string;
+      title: string;
+      url: string;
+      source: string;
+      date?: string;
+    }>,
+    
     services: [] as Array<{
       name: string;
       description: string;
@@ -128,13 +158,16 @@ const ProviderOnboarding = () => {
       priceRange: string;
       availability: string;
       additionalImages: string[];
+      variants: Array<{
+        parameter: string;
+        options: Array<{
+          name: string;
+          priceModifier: number;
+          priceType: 'fixed' | 'percentage';
+        }>;
+      }>;
     }>,
     
-    logo: "",
-    coverImage: "",
-    gallery: [] as string[],
-    videos: [] as string[],
-
     termsAccepted: false,
     digitalSignatureData: null as any,
     
@@ -236,20 +269,20 @@ const ProviderOnboarding = () => {
         );
       case 6:
         return (
-          <OnboardingStep3 
+          <OnboardingProviderProfile
             data={formData}
             onUpdate={updateFormData}
-            onSubmit={handleNext}
+            onNext={handleNext}
             onBack={handleBack}
             adminMode={ADMIN_MODE}
           />
         );
       case 7:
         return (
-          <OnboardingMediaUpload
+          <OnboardingStep3 
             data={formData}
             onUpdate={updateFormData}
-            onNext={handleNext}
+            onSubmit={handleNext}
             onBack={handleBack}
             adminMode={ADMIN_MODE}
           />
