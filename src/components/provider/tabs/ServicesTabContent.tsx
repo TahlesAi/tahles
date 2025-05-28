@@ -52,7 +52,6 @@ const ServicesTabContent = ({ services, onBookService, providerId }: ServicesTab
                     <ServiceCard 
                       key={`premium-${index}`}
                       service={service}
-                      onBookService={onBookService}
                     />
                   ))}
                 </div>
@@ -68,7 +67,6 @@ const ServicesTabContent = ({ services, onBookService, providerId }: ServicesTab
                     <ServiceCard 
                       key={`standard-${index}`}
                       service={service}
-                      onBookService={onBookService}
                     />
                   ))}
                 </div>
@@ -87,7 +85,6 @@ const ServicesTabContent = ({ services, onBookService, providerId }: ServicesTab
                     <ServiceCard 
                       key={`custom-${index}`}
                       service={service}
-                      onBookService={onBookService}
                     />
                   ))}
                 </div>
