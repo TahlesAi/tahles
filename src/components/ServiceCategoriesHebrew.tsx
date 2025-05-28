@@ -12,28 +12,29 @@ import {
   Camera,
   Music,
   Gift,
-  Clock
+  Clock,
+  TentTree,
+  Sparkles,
+  Building
 } from "lucide-react";
 
 const iconMapping: Record<string, React.ComponentType<any>> = {
-  "מזון ומשקאות": Utensils,
-  "מופעים ואמני במה": Mic,
-  "הסעות ותחבורה": Car,
-  "הפקות ולוגיסטיקה": Lightbulb,
-  "לוקיישנים": MapPin,
-  "צילום ותיעוד": Camera,
-  "אמנות ותרבות": Music,
-  "מתנות": Gift,
-  "שירותי תזמון": Clock,
+  "Utensils": Utensils,
+  "Music": Music,
+  "TentTree": TentTree,
+  "Sparkles": Sparkles,
+  "Building": Building,
+  "MapPin": MapPin,
+  "Gift": Gift,
+  "Mic": Mic,
+  "Car": Car,
+  "Lightbulb": Lightbulb,
+  "Camera": Camera,
+  "Clock": Clock,
 };
 
 const ServiceCategoriesHebrew = () => {
   const { hebrewCategories } = useEventContext();
-
-  // סינון קטגוריות שרלוונטיות למערכת
-  const displayCategories = hebrewCategories.filter(category => 
-    iconMapping[category.name]
-  );
 
   return (
     <section className="py-16 bg-gray-50" dir="rtl">
@@ -46,8 +47,8 @@ const ServiceCategoriesHebrew = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {displayCategories.map((category) => {
-            const Icon = iconMapping[category.name];
+          {hebrewCategories.map((category) => {
+            const Icon = iconMapping[category.icon || "MapPin"];
             
             return (
               <Link

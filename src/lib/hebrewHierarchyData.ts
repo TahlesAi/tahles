@@ -42,35 +42,35 @@ export const hebrewHierarchy: HebrewHierarchy = {
       ]
     },
     {
-      id: "performances",
+      id: "performances-stage",
       name: "מופעים ואמני במה",
       icon: "Music",
       description: "הופעות ואמנים לכל סוג אירוע",
       subcategories: [
-        { id: "musicians-bands", name: "מוזיקאים ולהקות", categoryId: "performances" },
-        { id: "dancers", name: "רקדנים", categoryId: "performances" },
-        { id: "stand-up", name: "סטנדאפיסטים", categoryId: "performances" },
-        { id: "mentalists", name: "אמני חושים", categoryId: "performances" },
-        { id: "circus", name: "קרקס", categoryId: "performances" },
-        { id: "theater", name: "תיאטרון", categoryId: "performances" }
+        { id: "mind-artists", name: "אמני חושים", categoryId: "performances-stage" },
+        { id: "musicians", name: "מוזיקאים ולהקות", categoryId: "performances-stage" },
+        { id: "comedians", name: "סטנדאפיסטים", categoryId: "performances-stage" },
+        { id: "dancers", name: "רקדנים", categoryId: "performances-stage" },
+        { id: "circus", name: "קרקס", categoryId: "performances-stage" },
+        { id: "theater", name: "תיאטרון", categoryId: "performances-stage" }
       ]
     },
     {
-      id: "trips-activities",
+      id: "trips-attractions",
       name: "טיולים, אטרקציות וימי גיבוש בשטח",
       icon: "TentTree",
       description: "חוויות בטבע ואטרקציות מיוחדות",
       subcategories: [
-        { id: "lodging", name: "מקומות לינה", categoryId: "trips-activities" },
-        { id: "attractions", name: "אטרקציות", categoryId: "trips-activities" },
-        { id: "tour-guides", name: "מדריכי טיולים", categoryId: "trips-activities" },
-        { id: "security", name: "אבטחה", categoryId: "trips-activities" },
-        { id: "transportation", name: "הסעות", categoryId: "trips-activities" },
-        { id: "atvs", name: "טרקטורונים", categoryId: "trips-activities" },
-        { id: "hot-air-balloons", name: "בלונים פורחים", categoryId: "trips-activities" },
-        { id: "water-sports", name: "ספורט ימי", categoryId: "trips-activities" },
-        { id: "cable-car", name: "רכבל", categoryId: "trips-activities" },
-        { id: "balloons", name: "בלונים", categoryId: "trips-activities" }
+        { id: "lodging", name: "מקומות לינה", categoryId: "trips-attractions" },
+        { id: "attractions", name: "אטרקציות", categoryId: "trips-attractions" },
+        { id: "tour-guides", name: "מדריכי טיולים", categoryId: "trips-attractions" },
+        { id: "security", name: "אבטחה", categoryId: "trips-attractions" },
+        { id: "transportation", name: "הסעות", categoryId: "trips-attractions" },
+        { id: "atvs", name: "טרקטורונים", categoryId: "trips-attractions" },
+        { id: "hot-air-balloons", name: "בלונים פורחים", categoryId: "trips-attractions" },
+        { id: "water-sports", name: "ספורט ימי", categoryId: "trips-attractions" },
+        { id: "cable-car", name: "רכבל", categoryId: "trips-attractions" },
+        { id: "balloons", name: "בלונים", categoryId: "trips-attractions" }
       ]
     },
     {
@@ -97,7 +97,7 @@ export const hebrewHierarchy: HebrewHierarchy = {
     },
     {
       id: "production-services",
-      name: "שרותי הפקה",
+      name: "שירותי הפקה",
       icon: "Building",
       description: "שירותים מקצועיים להפקת אירועים",
       subcategories: [
@@ -130,15 +130,6 @@ export const hebrewHierarchy: HebrewHierarchy = {
         { id: "birth-gifts", name: "מתנות לידה", categoryId: "gifts-tickets" },
         { id: "event-tickets", name: "כרטיסים לאירועים", categoryId: "gifts-tickets" },
         { id: "retirement-gifts", name: "מתנות פרישה", categoryId: "gifts-tickets" }
-      ]
-    },
-    {
-      id: "other-category",
-      name: "אחר - לא מצאתי",
-      icon: "PlusCircle",
-      description: "קטגוריות נוספות",
-      subcategories: [
-        { id: "other-subcategory", name: "אחר", categoryId: "other-category" }
       ]
     }
   ],
