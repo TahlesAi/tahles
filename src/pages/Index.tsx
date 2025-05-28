@@ -1,7 +1,7 @@
 
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import ServiceCategoriesHebrew from "@/components/ServiceCategoriesHebrew";
+import ServiceCategoriesUnified from "@/components/ServiceCategoriesUnified";
 import AdditionalServices from "@/components/AdditionalServices";
 import Footer from "@/components/Footer";
 
@@ -19,7 +19,7 @@ const Index = () => {
         <Hero />
         <EventConcepts />
         <MainCTA />
-        <ServiceCategoriesHebrew />
+        <ServiceCategoriesUnified />
         <TopProviders />
         <FeaturesBenefits />
         <AdditionalServices />

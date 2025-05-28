@@ -110,22 +110,16 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
               }
             }}
             className={cn(
-              "w-full pr-4 pl-12 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all",
+              "w-full pr-12 pl-4 py-3 text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all text-right",
               inputClassName
             )}
             dir={dir}
-            style={{ 
-              textAlign: 'right',
-              paddingRight: '1rem',
-              paddingLeft: '3rem'
-            }}
           />
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
         </div>
         
-        {/* הצגת הצעות חיפוש כשיש פוקוס ותוכן */}
         {isFocused && searchTerm.trim() && (
           <AutocompleteSearch 
             suggestions={enhancedSuggestions}

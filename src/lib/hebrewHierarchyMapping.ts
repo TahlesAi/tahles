@@ -10,7 +10,7 @@ export const categoryMapping = {
   'gifts-tickets': 'gifts-tickets'
 };
 
-// מיפוי תתי קטגוריות
+// מיפוי תתי קטגוריות - מוודא שהם תואמים למה שיש במערכת
 export const subcategoryMapping = {
   // לוקיישנים
   'coworking-spaces': 'coworking-spaces',
@@ -96,4 +96,22 @@ export const subcategoryMapping = {
   'birth-gifts': 'birth-gifts',
   'event-tickets': 'event-tickets',
   'retirement-gifts': 'retirement-gifts'
+};
+
+// פונקציה לבדוק תקינות ID
+export const validateCategoryId = (id: string): boolean => {
+  return Object.keys(categoryMapping).includes(id);
+};
+
+export const validateSubcategoryId = (id: string): boolean => {
+  return Object.keys(subcategoryMapping).includes(id);
+};
+
+// פונקציה להמרת ID למקרה שצריך
+export const mapCategoryId = (id: string): string => {
+  return categoryMapping[id as keyof typeof categoryMapping] || id;
+};
+
+export const mapSubcategoryId = (id: string): string => {
+  return subcategoryMapping[id as keyof typeof subcategoryMapping] || id;
 };

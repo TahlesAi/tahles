@@ -6,8 +6,10 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Layers, ChevronLeft } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight, Layers, ChevronLeft, AlertCircle } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
+import { validateCategoryId, mapCategoryId } from "@/lib/hebrewHierarchyMapping";
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -18,23 +20,39 @@ const CategorySubcategories = () => {
     getProvidersBySubcategory,
     getServicesBySubcategory,
     isLoading,
-    hebrewCategories
+    hebrewCategories,
+    error
   } = useEventContext();
   
   const [category, setCategory] = useState<any>(null);
   const [categorySubcategories, setCategorySubcategories] = useState<any[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!categoryId) return;
+    if (!categoryId) {
+      setValidationError("ID קטגוריה לא סופק");
+      return;
+    }
     
     console.log('Viewing category with ID:', categoryId);
     
+    // בדיקת תקינות ID
+    if (!validateCategoryId(categoryId)) {
+      console.warn('Invalid category ID:', categoryId);
+      setValidationError(`קטגוריה עם ID "${categoryId}" לא קיימת במערכת`);
+      return;
+    }
+    
+    // מיפוי ID במקרה שצריך
+    const mappedCategoryId = mapCategoryId(categoryId);
+    
     // מציאת הקטגוריה בהיררכיה העברית
-    const foundCategory = hebrewCategories.find(cat => cat.id === categoryId);
+    const foundCategory = hebrewCategories.find(cat => cat.id === mappedCategoryId);
     
     if (foundCategory) {
       console.log('Found Hebrew category:', foundCategory.name);
       setCategory(foundCategory);
+      setValidationError(null);
       
       // מציאת תתי הקטגוריות מההיררכיה העברית
       const subs = foundCategory.subcategories || [];
@@ -55,17 +73,36 @@ const CategorySubcategories = () => {
       setCategorySubcategories(enrichedSubs);
     } else {
       console.log('Category not found in Hebrew hierarchy');
+      setValidationError(`קטגוריה "${categoryId}" לא נמצאה`);
     }
   }, [categoryId, hebrewCategories, providers, services, getProvidersBySubcategory, getServicesBySubcategory]);
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">טוען קטגוריות...</p>
+        <main className="flex-grow">
+          <div className="container px-4 py-8">
+            <nav className="flex items-center space-x-2 mb-8" dir="rtl">
+              <Skeleton className="h-4 w-16" />
+              <ChevronLeft className="h-4 w-4 text-gray-400" />
+              <Skeleton className="h-4 w-20" />
+              <ChevronLeft className="h-4 w-4 text-gray-400" />
+              <Skeleton className="h-4 w-24" />
+            </nav>
+            
+            <div className="mb-12 text-center">
+              <Skeleton className="h-10 w-64 mx-auto mb-4" />
+              <Skeleton className="h-6 w-96 mx-auto mb-6" />
+              <Skeleton className="h-8 w-32 mx-auto" />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="h-48" />
+              ))}
+            </div>
           </div>
         </main>
         <Footer />
@@ -73,18 +110,51 @@ const CategorySubcategories = () => {
     );
   }
 
+  // Error state
+  if (error || validationError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center" dir="rtl">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">שגיאה בטעינת הקטגוריה</h2>
+            <p className="mb-6 text-gray-600">{validationError || error}</p>
+            <div className="space-x-4">
+              <Button onClick={() => navigate(-1)} variant="outline">
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה
+              </Button>
+              <Button onClick={() => navigate("/")} >
+                חזרה לדף הבית
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Category not found
   if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
+          <div className="text-center" dir="rtl">
+            <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">הקטגוריה לא נמצאה</h2>
             <p className="mb-6">לא הצלחנו למצוא את הקטגוריה המבוקשת.</p>
-            <Button onClick={() => navigate(-1)}>
-              <ArrowRight className="h-4 w-4 ml-2" />
-              חזרה
-            </Button>
+            <div className="space-x-4">
+              <Button onClick={() => navigate(-1)} variant="outline">
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה
+              </Button>
+              <Button onClick={() => navigate("/categories")}>
+                צפה בכל הקטגוריות
+              </Button>
+            </div>
           </div>
         </main>
         <Footer />
