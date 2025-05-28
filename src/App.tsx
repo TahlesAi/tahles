@@ -1,8 +1,10 @@
+
 import React, { createContext, useContext, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import Categories from './pages/Categories';
 import CategorySubcategories from './pages/CategorySubcategories';
 import ServiceDetails from './pages/ServiceDetails';
+import ProductDetails from './pages/ProductDetails';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { EventProvider } from './context/EventContext';
@@ -94,6 +96,7 @@ function AppRoutes() {
         <Route path="/providers/:providerId" element={<ProviderProfile />} />
         <Route path="/enhanced-providers/:providerId" element={<EnhancedProviderProfile />} />
         <Route path="/services/:serviceId" element={<ServiceDetails />} />
+        <Route path="/products/:productId" element={<ProductDetails />} />
         <Route path="/enhanced-services/:serviceId" element={<EnhancedServiceDetails />} />
         <Route path="/catering-search" element={<CateringSearch />} />
         <Route path="/provider-onboarding" element={<ProviderOnboarding />} />

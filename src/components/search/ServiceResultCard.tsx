@@ -18,7 +18,7 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
     (service.imageCount !== undefined && service.imageCount > 1);
   
   return (
-    <Link to={`/services/${service.id}`}>
+    <Link to={`/products/${service.id}`}>
       <Card className="overflow-hidden border hover:border-brand-300 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
         <div className="relative aspect-video overflow-hidden">
           <img 
