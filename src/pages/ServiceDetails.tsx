@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +17,8 @@ import ServiceAvailabilityTab from "@/components/service/ServiceAvailabilityTab"
 import ServiceLocationTab from "@/components/service/ServiceLocationTab";
 import ServiceLoadingState from "@/components/service/ServiceLoadingState";
 import ServiceErrorState from "@/components/service/ServiceErrorState";
+import ServicePricing from "@/components/service/ServicePricing";
+import ServiceAvailabilityCalendar from "@/components/service/ServiceAvailabilityCalendar";
 
 import { saveServiceForLater, isServiceSaved, removeSavedService } from "@/components/provider/ServiceCard";
 import { getServiceById, getProviderById, getReviewsByService } from "@/lib/unifiedMockData";
@@ -31,6 +32,9 @@ const ServiceDetails = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [mediaGallery, setMediaGallery] = useState<{type: 'image' | 'video', url: string}[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [pricingDetails, setPricingDetails] = useState<any>({});
+  const [selectedDateTime, setSelectedDateTime] = useState<{date: string, time: string}>({date: '', time: ''});
   
   useEffect(() => {
     console.log('ServiceDetails: Starting with ID:', id);
@@ -249,6 +253,15 @@ const ServiceDetails = () => {
     };
   }, [id]);
   
+  const handlePriceUpdate = (newPrice: number, details: any) => {
+    setTotalPrice(newPrice);
+    setPricingDetails(details);
+  };
+
+  const handleDateTimeSelect = (date: string, timeSlot: string) => {
+    setSelectedDateTime({ date, time: timeSlot });
+  };
+
   const toggleSave = () => {
     if (!service) return;
     
@@ -326,12 +339,27 @@ const ServiceDetails = () => {
               
               <ServiceDetailInfo service={service} showMedia={false} />
               
+              {/* מחיר דינמי וזמינות */}
+              <div className="mb-8 space-y-6">
+                <ServicePricing 
+                  service={service}
+                  basePrice={service.price || 5000}
+                  onPriceUpdate={handlePriceUpdate}
+                />
+                
+                <ServiceAvailabilityCalendar 
+                  serviceId={service.id}
+                  onDateSelect={handleDateTimeSelect}
+                />
+              </div>
+              
               {/* Tabs */}
               <Tabs defaultValue="reviews">
                 <TabsList className="w-full">
                   <TabsTrigger value="reviews" className="flex-1">ביקורות</TabsTrigger>
                   <TabsTrigger value="availability" className="flex-1">זמינות</TabsTrigger>
                   <TabsTrigger value="location" className="flex-1">מיקום</TabsTrigger>
+                  <TabsTrigger value="technical" className="flex-1">דרישות טכניות</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="reviews">
@@ -348,13 +376,47 @@ const ServiceDetails = () => {
                     serviceLocation={service.location} 
                   />
                 </TabsContent>
+                
+                <TabsContent value="technical">
+                  <div className="pt-4">
+                    <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
+                      <h3 className="text-lg font-semibold mb-4">דרישות טכניות והערות</h3>
+                      {service.technicalRequirements && service.technicalRequirements.length > 0 ? (
+                        <ul className="space-y-2">
+                          {service.technicalRequirements.map((req: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span>{req}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-600">אין דרישות טכניות מיוחדות לשירות זה</p>
+                      )}
+                      
+                      <div className="mt-4 p-4 bg-white rounded border">
+                        <h4 className="font-medium mb-2">הערות נוספות:</h4>
+                        <p className="text-sm text-gray-600">
+                          • הגעה לאתר 30 דקות לפני תחילת המופע
+                          • במקרה של שינויים דחופים, יש ליצור קשר 24 שעות מראש
+                          • במקרה של אירוע חיצוני, יש לספק מזג אוויר מתאים או הגנה
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
               </Tabs>
             </div>
             
             {/* Booking Card */}
             <div className="lg:w-1/3">
               <ServiceBookingCard 
-                service={service}
+                service={{
+                  ...service,
+                  calculatedPrice: totalPrice || service.price,
+                  pricingDetails,
+                  selectedDateTime
+                }}
                 provider={provider}
                 averageRating={averageRating}
                 reviewCount={reviews.length || service.reviewCount || 0}
