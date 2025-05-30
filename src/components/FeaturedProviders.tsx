@@ -12,6 +12,7 @@ const FeaturedProviders = () => {
   // המרת שירותים מומלצים לספקים מדומים לצורך התצוגה
   const featuredProviders: ProviderProfile[] = featuredServices.slice(0, 4).map((service, index) => ({
     id: `featured-provider-${index}`,
+    userId: `user-${index}`,
     contactPerson: service.provider,
     businessName: service.provider,
     description: service.description,

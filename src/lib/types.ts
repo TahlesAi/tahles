@@ -73,7 +73,7 @@ export interface Booking extends BookingRequest {
 // Provider related types
 export interface ProviderProfile {
   id: string;
-  userId: string;
+  userId?: string;
   businessName: string;
   description: string;
   contactPerson: string;
@@ -91,6 +91,47 @@ export interface ProviderProfile {
   featured?: boolean;
   verified?: boolean;
   services?: Service[];
+  specialties?: string[];
+  yearsExperience?: number;
+  insurance?: boolean;
+  testimonials?: any[];
+}
+
+export interface ServiceProfile {
+  id: string;
+  providerId: string;
+  name: string;
+  description: string;
+  price: number;
+  priceUnit?: string;
+  duration?: number;
+  maxAttendees?: number;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  suitableFor: string[];
+  featured?: boolean;
+  setupTime?: number;
+  audienceSize?: number;
+  audienceAges?: string[];
+  technicalRequirements?: string[];
+  eventTypes?: string[];
+  isReceptionService?: boolean;
+  videos?: string[];
+  additionalImages?: string[];
+  additional_images?: string[];
+  video_urls?: string[];
+  features?: string[];
+  additionalOptions?: {
+    id: string;
+    name: string;
+    price: number;
+    description?: string;
+  }[];
+  rating?: number;
+  reviewCount?: number;
+  location?: string;
+  tags?: string[];
 }
 
 export interface Service {
