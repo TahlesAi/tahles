@@ -1,4 +1,6 @@
 
+import { unifiedCategoryMapping, mapToUnifiedCategory, mapToHebrewCategory } from './categoryMapping';
+
 // מיפוי בין IDs של הקטגוריות בהיררכיה העברית למערכת
 export const categoryMapping = {
   'locations': 'locations',
@@ -10,7 +12,7 @@ export const categoryMapping = {
   'gifts-tickets': 'gifts-tickets'
 };
 
-// מיפוי תתי קטגוריות - מוודא שהם תואמים למה שיש במערכת
+// מיפוי תתי קטגוריות - מוודא שהם תואמים למה שיש במערכת והנתונים המאוחדים
 export const subcategoryMapping = {
   // לוקיישנים
   'coworking-spaces': 'coworking-spaces',
@@ -36,13 +38,14 @@ export const subcategoryMapping = {
   'food-workshops': 'food-workshops',
   'cocktail-workshops': 'cocktail-workshops',
   
-  // מופעים ובמה
-  'mind-artists': 'mind-artists',
-  'musicians': 'musicians',
-  'comedians': 'comedians',
-  'dancers': 'dancers',
-  'circus': 'circus',
-  'theater': 'theater',
+  // מופעים ובמה - מחובר לנתונים המאוחדים
+  'mind-artists': 'אמני חושים',
+  'musicians': 'זמרים ונגנים',
+  'comedians': 'סטנדאפיסטים',
+  'dancers': 'רקדנים',
+  'circus': 'קרקס',
+  'theater': 'תיאטרון',
+  'magicians': 'קוסמים',
   
   // שירותי הפקה
   'producers': 'producers',
@@ -113,5 +116,30 @@ export const mapCategoryId = (id: string): string => {
 };
 
 export const mapSubcategoryId = (id: string): string => {
-  return subcategoryMapping[id as keyof typeof subcategoryMapping] || id;
+  const mapped = subcategoryMapping[id as keyof typeof subcategoryMapping];
+  if (mapped && typeof mapped === 'string') {
+    // אם זה קטגוריה בעברית, השתמש בה כמו שהיא
+    if (mapped.includes('אמני') || mapped.includes('זמרים') || mapped.includes('סטנדאפ') || mapped.includes('קוסמים')) {
+      return mapped;
+    }
+  }
+  return mapped || id;
+};
+
+// פונקציה חדשה לחיפוש ספקים לפי תת קטגוריה בנתונים המאוחדים
+export const findProvidersForSubcategory = (subcategoryId: string, unifiedProviders: any[]): any[] => {
+  const mappedCategory = mapSubcategoryId(subcategoryId);
+  console.log('Looking for providers in mapped category:', mappedCategory);
+  
+  if (typeof mappedCategory === 'string' && mappedCategory.includes('אמני')) {
+    // חיפוש ספקים שהקטגוריה שלהם תואמת
+    return unifiedProviders.filter(provider => 
+      provider.categories.includes(mappedCategory) ||
+      provider.categories.includes('אמני חושים')
+    );
+  }
+  
+  return unifiedProviders.filter(provider => 
+    provider.categories.includes(mappedCategory)
+  );
 };

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, User, Star, MapPin, ChevronLeft, CheckCircle } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
+import { unifiedProviders, unifiedServices } from '@/lib/unifiedMockData';
 
 const SubcategoryProviders = () => {
   const { subcategoryId } = useParams<{ subcategoryId: string }>();
@@ -46,11 +47,58 @@ const SubcategoryProviders = () => {
       setSubcategory(foundSubcategory);
       setCategory(foundCategory);
       
-      // מציאת הספקים
-      const providers = getProvidersBySubcategory(subcategoryId);
-      console.log('Found providers:', providers.length);
+      // מיפוי קטגוריות לנתונים המאוחדים
+      const categoryMapping: { [key: string]: string } = {
+        'mind-artists': 'אמני חושים',
+        'אמני חושים': 'אמני חושים',
+        'comedians': 'סטנדאפיסטים',
+        'סטנדאפיסטים': 'סטנדאפיסטים',
+        'musicians': 'זמרים ונגנים',
+        'זמרים ונגנים': 'זמרים ונגנים',
+        'magicians': 'קוסמים',
+        'קוסמים': 'קוסמים'
+      };
+      
+      // חיפוש ספקים בנתונים המאוחדים
+      const mappedCategory = categoryMapping[foundSubcategory.name] || foundSubcategory.name;
+      console.log('Looking for providers in category:', mappedCategory);
+      
+      const providers = unifiedProviders.filter(provider => 
+        provider.categories.includes(mappedCategory)
+      );
+      
+      console.log('Found unified providers:', providers.length);
       
       // עדכון הספקים עם מידע על מספר שירותים
+      const enrichedProviders = providers.map(provider => {
+        const providerServices = unifiedServices.filter(service => 
+          service.providerId === provider.id
+        );
+        
+        return {
+          ...provider,
+          servicesCount: providerServices.length,
+          averagePrice: providerServices.length > 0 
+            ? Math.round(providerServices.reduce((sum, service) => sum + (service.price || 0), 0) / providerServices.length)
+            : 0,
+          // Convert to expected format
+          name: provider.businessName,
+          contact_phone: provider.phone,
+          contact_email: provider.email,
+          is_verified: provider.verified,
+          review_count: provider.reviewCount,
+          logo_url: provider.logo
+        };
+      });
+      
+      setSubcategoryProviders(enrichedProviders);
+    } else {
+      console.log('Subcategory not found in Hebrew hierarchy');
+      
+      // Fallback - try context data
+      const providers = getProvidersBySubcategory(subcategoryId);
+      console.log('Found context providers:', providers.length);
+      
       const enrichedProviders = providers.map(provider => {
         const providerServices = getServicesByProvider(provider.id);
         
@@ -64,8 +112,6 @@ const SubcategoryProviders = () => {
       });
       
       setSubcategoryProviders(enrichedProviders);
-    } else {
-      console.log('Subcategory not found in Hebrew hierarchy');
     }
   }, [subcategoryId, hebrewCategories, getProvidersBySubcategory, getServicesByProvider]);
 
@@ -84,7 +130,7 @@ const SubcategoryProviders = () => {
     );
   }
 
-  if (!subcategory) {
+  if (!subcategory && subcategoryProviders.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -129,13 +175,17 @@ const SubcategoryProviders = () => {
                 <ChevronLeft className="h-4 w-4 text-gray-400" />
               </>
             )}
-            <span className="text-brand-600 font-medium">{subcategory.name}</span>
+            <span className="text-brand-600 font-medium">
+              {subcategory?.name || 'ספקים'}
+            </span>
           </nav>
 
           {/* כותרת תת הקטגוריה */}
           <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold mb-4">{subcategory.name}</h1>
-            {subcategory.description && (
+            <h1 className="text-4xl font-bold mb-4">
+              {subcategory?.name || 'ספקים'}
+            </h1>
+            {subcategory?.description && (
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 {subcategory.description}
               </p>
@@ -167,17 +217,17 @@ const SubcategoryProviders = () => {
               {subcategoryProviders.map((provider) => (
                 <Link
                   key={provider.id}
-                  to={`/enhanced-providers/${provider.id}`}
+                  to={`/providers/${provider.id}`}
                   className="group block"
                 >
                   <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                     <CardContent className="p-6">
                       <div className="flex items-start mb-4">
                         <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                          {provider.logo_url ? (
+                          {provider.logo_url || provider.logo ? (
                             <img 
-                              src={provider.logo_url} 
-                              alt={provider.name}
+                              src={provider.logo_url || provider.logo} 
+                              alt={provider.name || provider.businessName}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -189,7 +239,7 @@ const SubcategoryProviders = () => {
                         <div className="mr-4 flex-grow">
                           <div className="flex items-center">
                             <h3 className="text-lg font-semibold group-hover:text-brand-600 transition-colors">
-                              {provider.name}
+                              {provider.name || provider.businessName}
                             </h3>
                             {provider.is_verified && (
                               <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
@@ -201,7 +251,7 @@ const SubcategoryProviders = () => {
                               {provider.rating?.toFixed(1) || '4.5'}
                             </span>
                             <span className="text-sm text-gray-500">
-                              ({provider.review_count || 0} ביקורות)
+                              ({provider.review_count || provider.reviewCount || 0} ביקורות)
                             </span>
                           </div>
                         </div>

@@ -9,17 +9,13 @@ import { Slider } from "@/components/ui/slider";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { CalendarIcon, Filter, SlidersHorizontal } from "lucide-react";
-import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { he } from 'date-fns/locale';
 import ServiceResultCard from "@/components/search/ServiceResultCard";
 import { useSearchSuggestions } from "@/lib/searchSuggestions";
 import { toast } from "sonner";
-
-// Mock search results data - will be replaced with actual API calls later
-import { mockSearchResults } from "@/lib/mockData";
-import { expandedMockSearchResults } from "@/lib/mockDataExpanded";
+import { unifiedServices } from '@/lib/unifiedMockData';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,8 +25,8 @@ const Search = () => {
   // Search state
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [showFilters, setShowFilters] = useState(false);
-  const [results, setResults] = useState([...mockSearchResults, ...expandedMockSearchResults]);
-  const [filteredResults, setFilteredResults] = useState([...mockSearchResults, ...expandedMockSearchResults]);
+  const [results, setResults] = useState(unifiedServices);
+  const [filteredResults, setFilteredResults] = useState(unifiedServices);
   const [isLoading, setIsLoading] = useState(false);
   
   // Filters state
@@ -50,67 +46,10 @@ const Search = () => {
   const performSearch = (query: string) => {
     setIsLoading(true);
     
-    // רשימת מילות מפתח לאמני חושים
-    const mentalismKeywords = [
-      'אמני חושים', 
-      'אמן חושים', 
-      'קריאת מחשבות', 
-      'קורא מחשבות',
-      'מנטליסט',
-      'מנטליזם',
-      'טלפתיה',
-      'נטע ברסלר',
-      'קליספרו',
-      'דורון רוזן',
-      'מאיה הקוסמת'
-    ];
-    
-    // מילות מפתח לכרטיסי מתנה
-    const giftCardKeywords = [
-      'כרטיסי מתנה',
-      'כרטיס מתנה',
-      'שובר מתנה',
-      'שוברי מתנה',
-      'כרטיס שי',
-      'כרטיסי שי',
-      'מתנות',
-      'gift card',
-      'כרטיס מתנה דיגיטלי'
-    ];
-    
-    // מילות מפתח לכרטיסים למופעים
-    const eventTicketsKeywords = [
-      'כרטיסים',
-      'כרטיס',
-      'כרטיסים למופעים',
-      'כרטיס למופע',
-      'כרטיס להופעה',
-      'כרטיסים להופעות',
-      'tickets',
-      'כרטיס הופעה'
-    ];
-    
-    // בודק אם החיפוש קשור לאמני חושים
-    const searchLower = query.toLowerCase().trim();
-    const isMentalismSearch = mentalismKeywords.some(keyword => 
-      keyword.includes(searchLower) || searchLower.includes(keyword)
-    );
-    
-    // בודק אם החיפוש קשור לכרטיסי מתנה
-    const isGiftCardSearch = giftCardKeywords.some(keyword => 
-      keyword.includes(searchLower) || searchLower.includes(keyword)
-    );
-    
-    // בודק אם החיפוש קשור לכרטיסים למופעים
-    const isEventTicketsSearch = eventTicketsKeywords.some(keyword => 
-      keyword.includes(searchLower) || searchLower.includes(keyword)
-    ) && !isGiftCardSearch; // מוודא שזה לא כרטיסי מתנה
-    
     // Simulate API call
     setTimeout(() => {
-      // בסימולציה, הבא תוצאות רלוונטיות בהתאם לחיפוש
-      let allResults = [...mockSearchResults, ...expandedMockSearchResults];
-      let filtered = allResults.filter(item => 
+      // Filter unified services based on search query
+      let filtered = unifiedServices.filter(item => 
         (item.name && item.name.toLowerCase().includes(query.toLowerCase())) ||
         (item.description && item.description.toLowerCase().includes(query.toLowerCase())) ||
         (item.provider && item.provider.toLowerCase().includes(query.toLowerCase())) ||
@@ -119,273 +58,16 @@ const Search = () => {
         (item.subcategory && item.subcategory.toLowerCase().includes(query.toLowerCase()))
       );
 
-      // אם זה חיפוש כרטיסי מתנה
-      if (isGiftCardSearch) {
-        // יצירת תוצאות לכרטיסי מתנה
-        const giftCardResults = allResults.filter(item => 
-          (item.category && item.category.includes('מתנות')) ||
-          (item.tags && item.tags.some(tag => 
-            tag.includes('כרטיס מתנה') || tag.includes('שובר') || tag.includes('מתנה')
-          )) ||
-          (item.name && (item.name.includes('מתנה') || item.name.includes('שובר'))) ||
-          (item.description && item.description.includes('מתנה'))
-        );
-        
-        // אם אין תוצאות ספציפיות, ייצר כמה דוגמאות לכרטיסי מתנה
-        if (giftCardResults.length < 5) {
-          const dummyGiftCards = [
-            {
-              id: 'gift-card-1',
-              name: 'כרטיס מתנה דיגיטלי - חוויות אישיות',
-              description: 'כרטיס מתנה דיגיטלי לבחירה מתוך מגוון חוויות - ספא, מסעדות, אטרקציות ועוד',
-              provider: 'מתנאיי',
-              imageUrl: 'https://picsum.photos/id/188/400/300',
-              price: 200,
-              rating: 4.8,
-              reviewCount: 120,
-              featured: true,
-              category: 'מתנות',
-              subcategory: 'כרטיסי מתנה',
-              tags: ['כרטיס מתנה', 'חוויות', 'דיגיטלי'],
-              suitableFor: ['יום הולדת', 'חתונה', 'בר מצווה', 'גיבוש צוות']
-            },
-            {
-              id: 'gift-card-2',
-              name: 'כרטיס מתנה לחנויות ספרים',
-              description: 'שובר לרכישת ספרים ברשת חנויות הספרים המובילה בישראל',
-              provider: 'רשת הספרים',
-              imageUrl: 'https://picsum.photos/id/76/400/300',
-              price: 150,
-              rating: 4.6,
-              reviewCount: 85,
-              category: 'מתנות',
-              subcategory: 'כרטיסי מתנה',
-              tags: ['ספרים', 'כרטיס מתנה', 'תרבות'],
-              suitableFor: ['יום הולדת', 'חג', 'בר מצווה']
-            },
-            {
-              id: 'gift-card-3',
-              name: 'שובר חופשה זוגית',
-              description: 'שובר מפנק לחופשה זוגית במבחר בתי מלון ברחבי הארץ',
-              provider: 'נופש פרימיום',
-              imageUrl: 'https://picsum.photos/id/43/400/300',
-              price: 1200,
-              rating: 4.9,
-              reviewCount: 212,
-              category: 'מתנות',
-              subcategory: 'כרטיסי מתנה',
-              tags: ['שובר', 'חופשה', 'זוגי', 'נופש'],
-              suitableFor: ['יום נישואין', 'חתונה', 'יום הולדת']
-            },
-            {
-              id: 'gift-card-4',
-              name: 'כרטיס מתנה לסדנאות בישול',
-              description: 'כרטיס מתנה המעניק חווית בישול עם שפים מובילים',
-              provider: 'טעימות קולינריות',
-              imageUrl: 'https://picsum.photos/id/8/400/300',
-              price: 350,
-              rating: 4.7,
-              reviewCount: 68,
-              category: 'מתנות',
-              subcategory: 'כרטיסי מתנה',
-              tags: ['בישול', 'סדנא', 'שף', 'כרטיס מתנה'],
-              suitableFor: ['יום הולדת', 'גיבוש צוות', 'חג']
-            },
-            {
-              id: 'gift-card-5',
-              name: 'שובר לסיור טעימות יינות',
-              description: 'חוויה של סיור וטעימות ביקבים נבחרים בארץ',
-              provider: 'יינות ישראל',
-              imageUrl: 'https://picsum.photos/id/54/400/300',
-              price: 280,
-              rating: 4.5,
-              reviewCount: 95,
-              category: 'מתנות',
-              subcategory: 'כרטיסי מתנה',
-              tags: ['יין', 'סיור', 'טעימות', 'שובר מתנה'],
-              suitableFor: ['יום הולדת', 'יום נישואין', 'ארוע חברה']
-            }
-          ];
-          
-          // הוסף את כרטיסי המתנה הדמה לתוצאות
-          filtered = [...giftCardResults, ...dummyGiftCards];
-        } else {
-          filtered = giftCardResults;
-        }
-        
-        // הוספת הודעה למשתמש
-        toast.info("מציג תוצאות לכרטיסי מתנה", {
-          description: `נמצאו ${filtered.length} תוצאות מתאימות`
+      // If no results found but search seems relevant, show message
+      if (filtered.length === 0 && query.trim()) {
+        toast.info(`לא נמצאו תוצאות עבור "${query}"`, {
+          description: "נסה להקליד מילות חיפוש אחרות"
         });
+        // Show all services as fallback
+        filtered = unifiedServices;
       }
       
-      // אם זה חיפוש כרטיסים למופעים
-      else if (isEventTicketsSearch) {
-        // יצירת תוצאות לכרטיסים למופעים
-        const ticketResults = allResults.filter(item => 
-          (item.category && item.category.includes('כרטיסים')) ||
-          (item.tags && item.tags.some(tag => 
-            tag.includes('כרטיס') || tag.includes('הופעה') || tag.includes('מופע')
-          )) ||
-          (item.name && (item.name.includes('כרטיס') || item.name.includes('הופעה'))) ||
-          (item.description && (item.description.includes('כרטיס') || item.description.includes('הופעה')))
-        );
-        
-        // אם אין תוצאות ספציפיות, ייצר כמה דוגמאות לכרטיסים למופעים
-        if (ticketResults.length < 5) {
-          const dummyTickets = [
-            {
-              id: 'ticket-1',
-              name: 'כרטיסים להופעת רוק',
-              description: 'כרטיסים להופעת רוק של הלהקה הלוהטת ביותר בישראל',
-              provider: 'כרטיסים לייב',
-              imageUrl: 'https://picsum.photos/id/96/400/300',
-              price: 180,
-              rating: 4.8,
-              reviewCount: 245,
-              featured: true,
-              category: 'כרטיסים',
-              subcategory: 'כרטיסים למופעים',
-              tags: ['כרטיס', 'הופעה', 'רוק', 'מוזיקה'],
-              suitableFor: ['בילוי זוגי', 'יום הולדת', 'בילוי עם חברים']
-            },
-            {
-              id: 'ticket-2',
-              name: 'כרטיסים להצגת תיאטרון',
-              description: 'כרטיסים להצגה החדשה והמדוברת בתיאטרון הלאומי',
-              provider: 'תיאטרון הבמה',
-              imageUrl: 'https://picsum.photos/id/42/400/300',
-              price: 130,
-              rating: 4.7,
-              reviewCount: 112,
-              category: 'כרטיסים',
-              subcategory: 'כרטיסים למופעים',
-              tags: ['כרטיס', 'תיאטרון', 'הצגה', 'תרבות'],
-              suitableFor: ['בילוי זוגי', 'תרבות', 'ערב משפחתי']
-            },
-            {
-              id: 'ticket-3',
-              name: 'כרטיסים למופע סטנדאפ',
-              description: 'כרטיסים למופע הסטנדאפ החדש של הקומיקאי המוביל',
-              provider: 'צחוק בפארק',
-              imageUrl: 'https://picsum.photos/id/64/400/300',
-              price: 120,
-              rating: 4.9,
-              reviewCount: 198,
-              category: 'כרטיסים',
-              subcategory: 'כרטיסים למופעים',
-              tags: ['כרטיס', 'סטנדאפ', 'קומדיה', 'הופעה'],
-              suitableFor: ['בילוי זוגי', 'יום הולדת', 'בילוי עם חברים']
-            },
-            {
-              id: 'ticket-4',
-              name: 'כרטיסים למופע מחול',
-              description: 'כרטיסים למופע המחול המרהיב של להקת המחול הישראלית',
-              provider: 'אומנויות הבמה',
-              imageUrl: 'https://picsum.photos/id/83/400/300',
-              price: 150,
-              rating: 4.6,
-              reviewCount: 87,
-              category: 'כרטיסים',
-              subcategory: 'כרטיסים למופעים',
-              tags: ['כרטיס', 'מחול', 'מופע', 'אמנות'],
-              suitableFor: ['תרבות', 'בילוי זוגי', 'ערב מיוחד']
-            },
-            {
-              id: 'ticket-5',
-              name: 'כרטיסים לפסטיבל מוזיקה',
-              description: 'כרטיסים לפסטיבל המוזיקה השנתי עם מיטב האמנים',
-              provider: 'פסטיבל צלילים',
-              imageUrl: 'https://picsum.photos/id/45/400/300',
-              price: 250,
-              rating: 4.8,
-              reviewCount: 321,
-              category: 'כרטיסים',
-              subcategory: 'כרטיסים למופעים',
-              tags: ['כרטיס', 'פסטיבל', 'מוזיקה', 'הופעה'],
-              suitableFor: ['בילוי עם חברים', 'יום הולדת', 'חוויה מוזיקלית']
-            }
-          ];
-          
-          // הוסף את הכרטיסים למופעים הדמה לתוצאות
-          filtered = [...ticketResults, ...dummyTickets];
-        } else {
-          filtered = ticketResults;
-        }
-        
-        // הוספת הודעה למשתמש
-        toast.info("מציג תוצאות לכרטיסים למופעים", {
-          description: `נמצאו ${filtered.length} תוצאות מתאימות`
-        });
-      }
-      
-      // אם זה חיפוש של אמני חושים, וודא שאמני החושים מופיעים בתוצאות
-      else if (isMentalismSearch) {
-        // חפש את אמני החושים הספציפיים שאנחנו יודעים עליהם
-        const specificMentalists = allResults.filter(item => 
-          (item.provider && item.provider.includes('נטע ברסלר')) || 
-          (item.provider && item.provider.includes('קליספרו')) ||
-          (item.provider && item.provider.includes('דורון רוזן')) ||
-          (item.provider && item.provider.includes('מאיה הקוסמת')) ||
-          (item.name && item.name.includes('קריאת מחשבות')) ||
-          (item.category && item.category.includes('אמני חושים')) ||
-          (item.subcategory && item.subcategory.includes('אמני חושים')) ||
-          (item.tags && item.tags.some(tag => tag.includes('אמני חושים')))
-        );
-        
-        // הוסף את אמני החושים לרשימה אם הם לא כבר שם
-        specificMentalists.forEach(mentalist => {
-          if (!filtered.some(item => item.id === mentalist.id)) {
-            filtered.push(mentalist);
-          }
-        });
-        
-        // מיון התוצאות כך שאמני החושים יופיעו ראשונים
-        filtered.sort((a, b) => {
-          const aIsMentalist = 
-            (a.provider && a.provider.includes('נטע ברסלר')) || 
-            (a.provider && a.provider.includes('קליספרו')) ||
-            (a.provider && a.provider.includes('דורון רוזן')) ||
-            (a.provider && a.provider.includes('מאיה הקוסמת')) ||
-            (a.category && a.category.includes('אמני חושים')) || 
-            (a.subcategory && a.subcategory.includes('אמני חושים')) || 
-            (a.tags && a.tags.some(tag => tag.includes('אמני חושים')));
-          
-          const bIsMentalist = 
-            (b.provider && b.provider.includes('נטע ברסלר')) || 
-            (b.provider && b.provider.includes('קליספרו')) ||
-            (b.provider && b.provider.includes('דורון רוזן')) ||
-            (b.provider && b.provider.includes('מאיה הקוסמת')) ||
-            (b.category && b.category.includes('אמני חושים')) || 
-            (b.subcategory && b.subcategory.includes('אמני חושים')) || 
-            (b.tags && b.tags.some(tag => tag.includes('אמני חושים')));
-          
-          if (aIsMentalist && !bIsMentalist) return -1;
-          if (!aIsMentalist && bIsMentalist) return 1;
-          return 0;
-        });
-      }
-      
-      // מציג הודעה אם לא נמצאו תוצאות אך החיפוש היה עבור אמני חושים
-      if (filtered.length === 0 && isMentalismSearch) {
-        toast.info("מחפש אמני חושים נוספים...", {
-          description: "מציג תוצאות רלוונטיות"
-        });
-        
-        // הוסף תוצאות מוגדרות מראש לאמני חושים
-        filtered = allResults.filter(item => 
-          (item.provider && (
-            item.provider.includes('נטע ברסלר') || 
-            item.provider.includes('קליספרו') ||
-            item.provider.includes('דורון רוזן') ||
-            item.provider.includes('מאיה הקוסמת')
-          )) ||
-          (item.category && item.category.includes('אמני חושים')) ||
-          (item.subcategory && item.subcategory.includes('אמני חושים'))
-        );
-      }
-      
-      // מיון לפי דירוג - התוצאות הגבוהות ביותר למעלה
+      // Sort by rating - highest first
       filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       
       setResults(filtered);
@@ -398,8 +80,6 @@ const Search = () => {
   const applyFilters = () => {
     setIsLoading(true);
     
-    // In a real implementation, you would send these filters to the server
-    // For now, we'll filter the mock results client-side
     setTimeout(() => {
       let filtered = [...results];
       
