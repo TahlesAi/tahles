@@ -47,57 +47,106 @@ const ServiceDetails = () => {
       
       try {
         setIsLoading(true);
+        console.log('Loading service details for ID:', id);
         
         // First try to get from unified mock data
         const mockService = getServiceById(id);
-        const mockProvider = mockService ? getProviderById(mockService.providerId) : null;
-        const mockReviews = getReviewsByService(id);
         
-        if (mockService && mockProvider) {
-          console.log("Using unified mock data for service:", mockService.name);
-          setService(mockService);
-          setProvider(mockProvider);
-          setReviews(mockReviews);
+        if (mockService) {
+          console.log("Found service in unified data:", mockService.name);
+          const mockProvider = getProviderById(mockService.providerId);
+          const mockReviews = getReviewsByService(id);
           
-          // Create media gallery
-          const gallery = [];
-          
-          // Add main image first
-          if (mockService.imageUrl) {
-            gallery.push({ type: 'image', url: mockService.imageUrl });
+          if (mockProvider) {
+            console.log("Found provider in unified data:", mockProvider.businessName);
+            
+            // Transform the unified service to match the expected format
+            const transformedService = {
+              id: mockService.id,
+              name: mockService.name,
+              description: mockService.description,
+              price: mockService.price,
+              price_unit: mockService.priceUnit || 'לאירוע',
+              price_range: `₪${mockService.price} ${mockService.priceUnit || 'לאירוע'}`,
+              imageUrl: mockService.imageUrl,
+              image_url: mockService.imageUrl,
+              additional_images: mockService.additionalImages || [],
+              videos: mockService.videos || [],
+              provider_id: mockService.providerId,
+              providerId: mockService.providerId,
+              category: mockService.category,
+              subcategory: mockService.subcategory,
+              location: mockService.location,
+              suitableFor: mockService.suitableFor || [],
+              tags: mockService.tags || [],
+              rating: mockService.rating,
+              reviewCount: mockService.reviewCount,
+              featured: mockService.featured
+            };
+            
+            // Transform the provider to match expected format
+            const transformedProvider = {
+              id: mockProvider.id,
+              name: mockProvider.businessName,
+              businessName: mockProvider.businessName,
+              description: mockProvider.description,
+              city: mockProvider.city,
+              contact_phone: mockProvider.phone,
+              contact_email: mockProvider.email,
+              website: mockProvider.website,
+              rating: mockProvider.rating,
+              review_count: mockProvider.reviewCount,
+              is_verified: mockProvider.verified,
+              logo_url: mockProvider.logo,
+              gallery: mockProvider.gallery || []
+            };
+            
+            setService(transformedService);
+            setProvider(transformedProvider);
+            setReviews(mockReviews);
+            
+            // Create media gallery
+            const gallery = [];
+            
+            // Add main image first
+            if (mockService.imageUrl) {
+              gallery.push({ type: 'image', url: mockService.imageUrl });
+            }
+            
+            // Add provider gallery images
+            if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
+              mockProvider.gallery.forEach((img: string) => {
+                if (img && img !== mockService.imageUrl) {
+                  gallery.push({ type: 'image', url: img });
+                }
+              });
+            }
+            
+            // Add additional service images
+            if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
+              mockService.additionalImages.forEach((img: string) => {
+                if (img && img !== mockService.imageUrl) {
+                  gallery.push({ type: 'image', url: img });
+                }
+              });
+            }
+            
+            // Add videos
+            if (mockService.videos && Array.isArray(mockService.videos)) {
+              mockService.videos.forEach((video: string) => {
+                if (video) {
+                  gallery.push({ type: 'video', url: video });
+                }
+              });
+            }
+            
+            setMediaGallery(gallery);
+            setIsLoading(false);
+            return;
           }
-          
-          // Add provider gallery images
-          if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
-            mockProvider.gallery.forEach((img: string) => {
-              if (img) {
-                gallery.push({ type: 'image', url: img });
-              }
-            });
-          }
-          
-          // Add additional service images
-          if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
-            mockService.additionalImages.forEach((img: string) => {
-              if (img) {
-                gallery.push({ type: 'image', url: img });
-              }
-            });
-          }
-          
-          // Add videos
-          if (mockService.videos && Array.isArray(mockService.videos)) {
-            mockService.videos.forEach((video: string) => {
-              if (video) {
-                gallery.push({ type: 'video', url: video });
-              }
-            });
-          }
-          
-          setMediaGallery(gallery);
-          setIsLoading(false);
-          return;
         }
+        
+        console.log('Service not found in unified data, trying Supabase...');
         
         // If not found in mock data, try Supabase
         const { data: serviceData, error: serviceError } = await supabase
@@ -110,7 +159,8 @@ const ServiceDetails = () => {
           .single();
         
         if (serviceError) {
-          throw serviceError;
+          console.error('Supabase service error:', serviceError);
+          throw new Error("השירות לא נמצא במערכת");
         }
         
         if (!serviceData) {
@@ -198,7 +248,7 @@ const ServiceDetails = () => {
         id: service.id,
         name: service.name,
         short_description: service.description,
-        price_range: service.price_range || `${service.price} ${service.priceUnit || ''}`,
+        price_range: service.price_range || `${service.price} ${service.price_unit || ''}`,
         provider_id: service.provider_id || service.providerId,
         provider_name: provider?.name || provider?.businessName || "ספק שירות",
         image_url: service.image_url || service.imageUrl,
