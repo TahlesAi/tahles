@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from "@/components/Header";
@@ -17,11 +16,15 @@ const EnhancedProviderProfile = () => {
   const [gallery, setGallery] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log('EnhancedProviderProfile: providerId =', providerId);
     if (!providerId) return;
 
     // First try unified mock data
     const unifiedProvider = getProviderById(providerId);
     const unifiedServices = getServicesByProvider(providerId);
+    
+    console.log('Found unified provider:', unifiedProvider);
+    console.log('Found unified services:', unifiedServices);
     
     if (unifiedProvider) {
       // Convert ProviderProfile to Provider format with enhanced data
@@ -44,9 +47,25 @@ const EnhancedProviderProfile = () => {
         service_type_ids: [],
         services: [],
         serviceAreas: [unifiedProvider.city || 'כל הארץ'],
-        experience: 'מעל 5 שנות ניסיון בתחום',
-        specialties: ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
-        testimonials: [
+        experience: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? 
+          'מעל 15 שנות ניסיון בתחום אמנות החושים' : 'מעל 5 שנות ניסיון בתחום',
+        specialties: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? 
+          ['קריאת מחשבות', 'השפעה מנטלית', 'מופעים אינטראקטיביים', 'התאמה אישית לכל אירוע'] :
+          ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
+        testimonials: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? [
+          {
+            id: '1',
+            text: 'נטע הפך את אירוע החברה שלנו לחוויה בלתי נשכחת. כל העובדים עדיין מדברים על המופע!',
+            author: 'מנכ"ל חברת הייטק',
+            rating: 5
+          },
+          {
+            id: '2', 
+            text: 'מופע מדהים בחתונה! כל האורחים היו מרותקים למופע של נטע.',
+            author: 'כלה מאושרת',
+            rating: 5
+          }
+        ] : [
           {
             id: '1',
             text: 'שירות מעולה ומקצועי. הייתי מרוצה מאוד מהביצוע!',
@@ -54,9 +73,22 @@ const EnhancedProviderProfile = () => {
             rating: 5
           }
         ],
-        socialLinks: {},
-        mediaLinks: [],
-        clientRecommendations: []
+        socialLinks: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? {
+          facebook: 'https://facebook.com/netamentalist',
+          instagram: 'https://instagram.com/neta_mentalist',
+          youtube: 'https://youtube.com/netamentalist'
+        } : {},
+        mediaLinks: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? [
+          { title: 'ראיון ברדיו על אמנות החושים', url: 'https://example.com/interview1' },
+          { title: 'כתבה בעיתון על המופע המיוחד', url: 'https://example.com/article1' }
+        ] : [],
+        clientRecommendations: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? [
+          'מיקרוסופט ישראל',
+          'גוגל תל אביב', 
+          'אמטק',
+          'רפאל',
+          'בית חולים איכילוב'
+        ] : []
       };
 
       setProvider(enhancedProvider);

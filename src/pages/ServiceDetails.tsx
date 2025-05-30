@@ -33,6 +33,8 @@ const ServiceDetails = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
+    console.log('ServiceDetails useEffect triggered with id:', id);
+    
     // Check if service is saved
     if (id) {
       setIsSaved(isServiceSaved(id));
@@ -40,6 +42,7 @@ const ServiceDetails = () => {
     
     const fetchServiceDetails = async () => {
       if (!id) {
+        console.error('No service ID provided');
         setError("מזהה שירות חסר");
         setIsLoading(false);
         return;
@@ -47,15 +50,18 @@ const ServiceDetails = () => {
       
       try {
         setIsLoading(true);
-        console.log('Loading service details for ID:', id);
+        console.log('Starting to fetch service details for ID:', id);
         
         // First try to get from unified mock data
         const mockService = getServiceById(id);
+        console.log('Mock service found:', mockService);
         
         if (mockService) {
           console.log("Found service in unified data:", mockService.name);
           const mockProvider = getProviderById(mockService.providerId);
+          console.log("Mock provider found:", mockProvider);
           const mockReviews = getReviewsByService(id);
+          console.log("Mock reviews found:", mockReviews.length);
           
           if (mockProvider) {
             console.log("Found provider in unified data:", mockProvider.businessName);
@@ -101,6 +107,9 @@ const ServiceDetails = () => {
               gallery: mockProvider.gallery || []
             };
             
+            console.log('Setting transformed service:', transformedService);
+            console.log('Setting transformed provider:', transformedProvider);
+            
             setService(transformedService);
             setProvider(transformedProvider);
             setReviews(mockReviews);
@@ -140,6 +149,7 @@ const ServiceDetails = () => {
               });
             }
             
+            console.log('Setting media gallery:', gallery);
             setMediaGallery(gallery);
             setIsLoading(false);
             return;
@@ -265,6 +275,8 @@ const ServiceDetails = () => {
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
     : (service?.rating || 0);
+  
+  console.log('Current state - isLoading:', isLoading, 'service:', service, 'provider:', provider, 'error:', error);
   
   if (isLoading) {
     return (

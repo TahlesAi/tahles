@@ -1,4 +1,3 @@
-
 import { SearchResultService, ProviderProfile, Review } from '@/lib/types';
 
 // Unified service data - combining all mock services with consistent structure
@@ -9,7 +8,7 @@ export const unifiedServices: SearchResultService[] = [
     name: 'נטע ברסלר - אמן החשיבה',
     provider: 'נטע ברסלר',
     providerId: 'neta-bresler-provider',
-    description: 'מופע אמן חושים מרתק המשלב קריאת מחשבות, השפעה מנטלית וקסמים מדהימים. מתאים לכל סוגי האירועים.',
+    description: 'מופע אמן חושים מרתק המשלב קריאת מחשבות, השפעה מנטלית וקסמים מדהימים. נטע ברסלר הוא אמן חושים מוביל בישראל עם מעל 15 שנות ניסיון במופעים לכל סוגי האירועים - מאירועי חברה ועד חתונות פרטיות. המופע כולל קריאת מחשבות אמיתית, השפעה מנטלית מרהיבה, קסמי נפש מדהימים ואינטראקציה מלאה עם הקהל.',
     price: 3500,
     priceUnit: 'לאירוע',
     rating: 4.9,
@@ -18,18 +17,22 @@ export const unifiedServices: SearchResultService[] = [
     category: 'אמני חושים',
     subcategory: 'מנטליסטים',
     location: 'תל אביב והמרכז',
-    suitableFor: ['אירועי חברה', 'חתונות', 'בר/בת מצווה', 'אירועים פרטיים'],
+    suitableFor: ['אירועי חברה', 'חתונות', 'בר/בת מצווה', 'אירועים פרטיים', 'ערבי גיבוש'],
     featured: true,
-    tags: ['קריאת מחשבות', 'השפעה מנטלית', 'אינטראקטיבי'],
-    imageCount: 8,
-    videoCount: 3,
+    tags: ['קריאת מחשבות', 'השפעה מנטלית', 'אינטראקטיבי', 'מרתק', 'מקצועי'],
+    imageCount: 12,
+    videoCount: 5,
     videos: [
-      'https://www.youtube.com/watch?v=example1',
-      'https://www.youtube.com/watch?v=example2'
+      'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      'https://www.youtube.com/embed/ScMzIvxBSi4',
+      'https://www.youtube.com/embed/oHg5SJYRHA0'
     ],
     additionalImages: [
       'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop'
     ]
   },
   {
@@ -99,11 +102,11 @@ export const unifiedProviders: ProviderProfile[] = [
     id: 'neta-bresler-provider',
     userId: 'neta-bresler-user',
     businessName: 'נטע ברסלר - אמן החשיבה',
-    description: 'אמן חושים מוביל בישראל עם מעל 15 שנות ניסיון. מתמחה במופעי קריאת מחשבות והשפעה מנטלית ברמה הגבוהה ביותר.',
+    description: 'אמן חושים מוביל בישראל עם מעל 15 שנות ניסיון. מתמחה במופעי קריאת מחשבות והשפעה מנטלית ברמה הגבוהה ביותר. נטע הופיע באירועי ענק של חברות הייטק מובילות, חתונות יוקרתיות ואירועים פרטיים לאליטה הישראלית. המופעים שלו מותאמים אישית לכל קהל ואירוע, עם דגש על חוויה בלתי נשכחת שמשאירה את הקהל המום ומתרגש.',
     contactPerson: 'נטע ברסלר',
     email: 'neta@mentalist.co.il',
     phone: '052-1234567',
-    address: 'רחוב הרצל 25',
+    address: 'רחוב הרצל 25, תל אביב',
     city: 'תל אביב',
     website: 'https://neta-mentalist.co.il',
     categories: ['אמני חושים'],
@@ -112,7 +115,10 @@ export const unifiedProviders: ProviderProfile[] = [
     gallery: [
       'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=800&h=600&fit=crop'
     ],
     rating: 4.9,
     reviewCount: 127,
@@ -201,9 +207,20 @@ export const unifiedReviews: Review[] = [
   },
   {
     id: 'review-3',
+    serviceId: 'neta-bresler-mentalist',
+    providerId: 'neta-bresler-provider',
+    userId: 'user-3',
+    userName: 'מיכל אברהם',
+    rating: 5,
+    comment: 'השתתפנו במופע של נטע בחתונה - פשוט מדהים! כל האורחים דיברו על זה שבועות',
+    date: '2024-01-05',
+    verified: true
+  },
+  {
+    id: 'review-4',
     serviceId: 'magic-show-professional',
     providerId: 'danny-magician-provider',
-    userId: 'user-3',
+    userId: 'user-4',
     userName: 'רחל אברהם',
     rating: 5,
     comment: 'דני הקוסם הפך את יום ההולדת של הילדה שלי לבלתי נשכח. כל הילדים היו מרותקים!',
@@ -214,11 +231,17 @@ export const unifiedReviews: Review[] = [
 
 // Helper functions for data access
 export const getServiceById = (id: string): SearchResultService | undefined => {
-  return unifiedServices.find(service => service.id === id);
+  console.log('getServiceById called with id:', id);
+  const service = unifiedServices.find(service => service.id === id);
+  console.log('Found service:', service);
+  return service;
 };
 
 export const getProviderById = (id: string): ProviderProfile | undefined => {
-  return unifiedProviders.find(provider => provider.id === id);
+  console.log('getProviderById called with id:', id);
+  const provider = unifiedProviders.find(provider => provider.id === id);
+  console.log('Found provider:', provider);
+  return provider;
 };
 
 export const getServicesByProvider = (providerId: string): SearchResultService[] => {
