@@ -1,6 +1,6 @@
 
 import React from "react";
-import { format } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { Star } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -10,6 +10,18 @@ interface ServiceReviewsTabProps {
 }
 
 const ServiceReviewsTab = ({ reviews, averageRating }: ServiceReviewsTabProps) => {
+  const formatDate = (dateString: string) => {
+    try {
+      const date = parseISO(dateString);
+      if (isValid(date)) {
+        return format(date, 'dd/MM/yyyy');
+      }
+      return dateString; // Return original if parsing fails
+    } catch {
+      return dateString; // Return original if parsing fails
+    }
+  };
+
   return (
     <div className="pt-4">
       <div className="mb-6">
@@ -40,13 +52,17 @@ const ServiceReviewsTab = ({ reviews, averageRating }: ServiceReviewsTabProps) =
             <div key={review.id} className="border-b pb-4">
               <div className="flex items-start">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback>{review.customer_name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>
+                    {(review.customer_name || review.userName || 'א').charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="mr-3 flex-1">
                   <div className="flex justify-between items-center mb-1">
-                    <div className="font-medium">{review.customer_name}</div>
+                    <div className="font-medium">
+                      {review.customer_name || review.userName || 'משתמש אנונימי'}
+                    </div>
                     <div className="text-sm text-gray-500">
-                      {format(new Date(review.created_at), 'dd/MM/yyyy')}
+                      {formatDate(review.created_at || review.date || new Date().toISOString())}
                     </div>
                   </div>
                   <div className="flex mb-2">

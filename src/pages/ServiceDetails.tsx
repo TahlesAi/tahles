@@ -33,7 +33,7 @@ const ServiceDetails = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    console.log('ServiceDetails useEffect triggered with id:', id);
+    console.log('ServiceDetails: Starting with ID:', id);
     
     // Check if service is saved
     if (id) {
@@ -50,23 +50,21 @@ const ServiceDetails = () => {
       
       try {
         setIsLoading(true);
-        console.log('Starting to fetch service details for ID:', id);
+        console.log('Fetching service details for ID:', id);
         
-        // First try to get from unified mock data
+        // Try unified mock data first
         const mockService = getServiceById(id);
-        console.log('Mock service found:', mockService);
+        console.log('Found mock service:', mockService?.name || 'Not found');
         
         if (mockService) {
-          console.log("Found service in unified data:", mockService.name);
           const mockProvider = getProviderById(mockService.providerId);
-          console.log("Mock provider found:", mockProvider);
-          const mockReviews = getReviewsByService(id);
-          console.log("Mock reviews found:", mockReviews.length);
+          console.log('Found mock provider:', mockProvider?.businessName || 'Not found');
           
           if (mockProvider) {
-            console.log("Found provider in unified data:", mockProvider.businessName);
+            const mockReviews = getReviewsByService(id);
+            console.log('Found mock reviews:', mockReviews.length);
             
-            // Transform the unified service to match the expected format
+            // Transform unified service to expected format
             const transformedService = {
               id: mockService.id,
               name: mockService.name,
@@ -87,10 +85,17 @@ const ServiceDetails = () => {
               tags: mockService.tags || [],
               rating: mockService.rating,
               reviewCount: mockService.reviewCount,
-              featured: mockService.featured
+              featured: mockService.featured,
+              features: [
+                'ביצוע מקצועי ברמה הגבוהה ביותר',
+                'התאמה מלאה לקהל הלקוחות',
+                'ציוד מקצועי כלול במחיר',
+                'גמישות בתאריכים ושעות',
+                'אחריות מלאה על הביצוע'
+              ]
             };
             
-            // Transform the provider to match expected format
+            // Transform provider to expected format
             const transformedProvider = {
               id: mockProvider.id,
               name: mockProvider.businessName,
@@ -107,33 +112,31 @@ const ServiceDetails = () => {
               gallery: mockProvider.gallery || []
             };
             
-            console.log('Setting transformed service:', transformedService);
-            console.log('Setting transformed provider:', transformedProvider);
-            
+            console.log('Setting service and provider data');
             setService(transformedService);
             setProvider(transformedProvider);
             setReviews(mockReviews);
             
-            // Create media gallery
+            // Create comprehensive media gallery
             const gallery = [];
             
-            // Add main image first
+            // Add main service image
             if (mockService.imageUrl) {
               gallery.push({ type: 'image', url: mockService.imageUrl });
             }
             
-            // Add provider gallery images
-            if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
-              mockProvider.gallery.forEach((img: string) => {
+            // Add additional service images
+            if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
+              mockService.additionalImages.forEach((img: string) => {
                 if (img && img !== mockService.imageUrl) {
                   gallery.push({ type: 'image', url: img });
                 }
               });
             }
             
-            // Add additional service images
-            if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
-              mockService.additionalImages.forEach((img: string) => {
+            // Add provider gallery images
+            if (mockProvider.gallery && Array.isArray(mockProvider.gallery)) {
+              mockProvider.gallery.forEach((img: string) => {
                 if (img && img !== mockService.imageUrl) {
                   gallery.push({ type: 'image', url: img });
                 }
@@ -149,7 +152,7 @@ const ServiceDetails = () => {
               });
             }
             
-            console.log('Setting media gallery:', gallery);
+            console.log('Created media gallery with', gallery.length, 'items');
             setMediaGallery(gallery);
             setIsLoading(false);
             return;
@@ -158,7 +161,7 @@ const ServiceDetails = () => {
         
         console.log('Service not found in unified data, trying Supabase...');
         
-        // If not found in mock data, try Supabase
+        // Fallback to Supabase if mock data not found
         const { data: serviceData, error: serviceError } = await supabase
           .from('services')
           .select(`
@@ -276,7 +279,7 @@ const ServiceDetails = () => {
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
     : (service?.rating || 0);
   
-  console.log('Current state - isLoading:', isLoading, 'service:', service, 'provider:', provider, 'error:', error);
+  console.log('Render state - isLoading:', isLoading, 'service:', !!service, 'provider:', !!provider, 'error:', error);
   
   if (isLoading) {
     return (
@@ -295,7 +298,7 @@ const ServiceDetails = () => {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">
-          <ServiceErrorState error={error} />
+          <ServiceErrorState error={error || "השירות לא נמצא"} />
         </main>
         <Footer />
       </div>
