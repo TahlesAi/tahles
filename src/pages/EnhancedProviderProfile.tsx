@@ -6,8 +6,7 @@ import Footer from "@/components/Footer";
 import ProviderBusinessProfile from "@/components/provider/ProviderBusinessProfile";
 import ProductGrid from "@/components/provider/ProductGrid";
 import { useEventContext } from "@/context/EventContext";
-import { mockProviders } from '@/lib/mockData';
-import { expandedMockProviders } from '@/lib/mockDataExpanded';
+import { getProviderById, getServicesByProvider } from '@/lib/unifiedMockData';
 import { Provider } from '@/lib/types/hierarchy';
 
 const EnhancedProviderProfile = () => {
@@ -20,40 +19,121 @@ const EnhancedProviderProfile = () => {
   useEffect(() => {
     if (!providerId) return;
 
-    // Try to find provider in context first
-    let foundProvider = providers.find(p => p.id === providerId);
+    // First try unified mock data
+    const unifiedProvider = getProviderById(providerId);
+    const unifiedServices = getServicesByProvider(providerId);
     
-    // If not found in context, try mock data
-    if (!foundProvider) {
-      const combinedMockProviders = [...expandedMockProviders, ...mockProviders];
-      const mockProvider = combinedMockProviders.find(p => p.id === providerId) as any;
+    if (unifiedProvider) {
+      // Convert ProviderProfile to Provider format with enhanced data
+      const enhancedProvider: Provider = {
+        id: unifiedProvider.id,
+        name: unifiedProvider.businessName || '',
+        description: unifiedProvider.description || 'ספק מקצועי עם ניסיון רב בתחום',
+        city: unifiedProvider.city || '',
+        contact_phone: unifiedProvider.phone || '',
+        contact_email: unifiedProvider.email || '',
+        contact_person: unifiedProvider.contactPerson || '',
+        address: unifiedProvider.address || '',
+        website: unifiedProvider.website || '',
+        rating: unifiedProvider.rating || 0,
+        review_count: unifiedProvider.reviewCount || 0,
+        is_verified: unifiedProvider.verified || false,
+        logo_url: unifiedProvider.logo || '',
+        subcategory_ids: [],
+        category_ids: unifiedProvider.categories || [],
+        service_type_ids: [],
+        services: [],
+        serviceAreas: [unifiedProvider.city || 'כל הארץ'],
+        experience: 'מעל 5 שנות ניסיון בתחום',
+        specialties: ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
+        testimonials: [
+          {
+            id: '1',
+            text: 'שירות מעולה ומקצועי. הייתי מרוצה מאוד מהביצוע!',
+            author: 'לקוח מרוצה',
+            rating: 5
+          }
+        ],
+        socialLinks: {},
+        mediaLinks: [],
+        clientRecommendations: []
+      };
+
+      setProvider(enhancedProvider);
+
+      // Format services for display
+      const formattedServices = unifiedServices.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        price_unit: service.priceUnit || 'לאירוע',
+        imageUrl: service.imageUrl,
+        location: service.location || unifiedProvider.city || 'כל הארץ',
+        rating: service.rating,
+        review_count: service.reviewCount,
+        tags: service.tags || [],
+        is_featured: service.featured,
+        suitableFor: service.suitableFor || [],
+        technicalRequirements: []
+      }));
+
+      setProviderServices(formattedServices);
+
+      // Create gallery
+      const galleryItems = [];
       
-      if (mockProvider) {
-        // Convert ProviderProfile to Provider format with all required fields
-        foundProvider = {
-          id: mockProvider.id,
-          name: mockProvider.name || mockProvider.businessName || '',
-          description: mockProvider.description || 'ספק מקצועי עם ניסיון רב בתחום',
-          city: mockProvider.city || '',
-          contact_phone: mockProvider.contact_phone || mockProvider.phone || '',
-          contact_email: mockProvider.contact_email || mockProvider.email || '',
-          contact_person: mockProvider.contact_person || mockProvider.contactPerson || '',
-          address: mockProvider.address || '',
-          website: mockProvider.website || '',
-          rating: mockProvider.rating || 0,
-          review_count: mockProvider.review_count || mockProvider.reviewCount || 0,
-          is_verified: mockProvider.is_verified || mockProvider.verified || false,
-          logo_url: mockProvider.logo_url || mockProvider.logo || '',
-          subcategory_ids: mockProvider.subcategory_ids || [],
-          category_ids: mockProvider.category_ids || mockProvider.categories || [],
-          service_type_ids: mockProvider.service_type_ids || [],
-          services: mockProvider.services || []
-        };
+      if (unifiedProvider.logo) {
+        galleryItems.push({
+          type: 'image',
+          url: unifiedProvider.logo
+        });
       }
+
+      if (unifiedProvider.gallery) {
+        unifiedProvider.gallery.forEach((img: string) => {
+          galleryItems.push({
+            type: 'image',
+            url: img
+          });
+        });
+      }
+
+      unifiedServices.forEach(service => {
+        if (service.imageUrl) {
+          galleryItems.push({
+            type: 'image',
+            url: service.imageUrl
+          });
+        }
+        
+        if (service.additionalImages) {
+          service.additionalImages.forEach((img: string) => {
+            galleryItems.push({
+              type: 'image',
+              url: img
+            });
+          });
+        }
+
+        if (service.videos) {
+          service.videos.forEach((video: string) => {
+            galleryItems.push({
+              type: 'video',
+              url: video
+            });
+          });
+        }
+      });
+
+      setGallery(galleryItems);
+      return;
     }
 
+    // Fallback to context data if unified data not found
+    let foundProvider = providers.find(p => p.id === providerId);
+    
     if (foundProvider) {
-      // Ensure provider has all required Provider type properties with defaults
       const enhancedProvider: Provider = {
         id: foundProvider.id,
         name: foundProvider.name || '',
@@ -75,14 +155,7 @@ const EnhancedProviderProfile = () => {
         serviceAreas: foundProvider.serviceAreas || [foundProvider.city || 'כל הארץ'],
         experience: foundProvider.experience || 'מעל 5 שנות ניסיון בתחום',
         specialties: foundProvider.specialties || ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
-        testimonials: foundProvider.testimonials || [
-          {
-            id: '1',
-            text: 'שירות מעולה ומקצועי. הייתי מרוצה מאוד מהביצוע!',
-            author: 'לקוח מרוצה',
-            rating: 5
-          }
-        ],
+        testimonials: foundProvider.testimonials || [],
         socialLinks: foundProvider.socialLinks || {},
         mediaLinks: foundProvider.mediaLinks || [],
         clientRecommendations: foundProvider.clientRecommendations || []
@@ -90,12 +163,9 @@ const EnhancedProviderProfile = () => {
 
       setProvider(enhancedProvider);
 
-      // Get services for this provider
-      const relatedServices = services.filter(s => 
-        s.provider_id === providerId
-      );
+      // Get services for this provider from context
+      const relatedServices = services.filter(s => s.provider_id === providerId);
       
-      // Convert services to expected format
       const formattedServices = relatedServices.map(service => ({
         id: service.id,
         name: service.name,
@@ -104,8 +174,6 @@ const EnhancedProviderProfile = () => {
                parseFloat(service.price_range?.replace(/[^\d.-]/g, '') || '0'),
         price_unit: service.price_unit || 'לאירוע',
         imageUrl: service.imageUrl,
-        audienceSize: service.audience_size ? `${service.audience_size}` : undefined,
-        duration: service.duration || 'משך האירוע יתואם',
         location: service.location || foundProvider.city || 'כל הארץ',
         rating: service.rating,
         review_count: service.review_count,
@@ -116,47 +184,6 @@ const EnhancedProviderProfile = () => {
       }));
 
       setProviderServices(formattedServices);
-
-      // Create gallery from provider and services
-      const galleryItems = [];
-      
-      // Add provider logo as first image
-      if (enhancedProvider.logo_url) {
-        galleryItems.push({
-          type: 'image',
-          url: enhancedProvider.logo_url
-        });
-      }
-
-      // Add service images
-      relatedServices.forEach(service => {
-        if (service.imageUrl) {
-          galleryItems.push({
-            type: 'image',
-            url: service.imageUrl
-          });
-        }
-        
-        // Add additional images
-        const additionalImages = service.additional_images || [];
-        additionalImages.forEach((img: string) => {
-          galleryItems.push({
-            type: 'image',
-            url: img
-          });
-        });
-
-        // Add videos
-        const videos = service.videos || [];
-        videos.forEach((video: string) => {
-          galleryItems.push({
-            type: 'video',
-            url: video
-          });
-        });
-      });
-
-      setGallery(galleryItems);
     }
   }, [providerId, providers, services]);
 
@@ -175,7 +202,7 @@ const EnhancedProviderProfile = () => {
     );
   }
 
-  // Create the provider object that matches ProviderBusinessProfile's expected interface
+  // Create the provider object for ProviderBusinessProfile
   const providerForProfile = {
     id: provider.id,
     name: provider.name,
@@ -203,13 +230,11 @@ const EnhancedProviderProfile = () => {
       <main className="flex-grow bg-gray-50">
         <div className="container px-4 py-8">
           <div className="space-y-8">
-            {/* Business Profile */}
             <ProviderBusinessProfile 
               provider={providerForProfile} 
               gallery={gallery}
             />
             
-            {/* Products Grid */}
             <ProductGrid 
               products={providerServices}
               providerId={provider.id}
