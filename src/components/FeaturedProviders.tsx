@@ -1,13 +1,36 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getFeaturedServices } from "@/lib/unifiedMockData";
+import AutoStyledCard from "./provider/AutoStyledCard";
+import { ProviderProfile } from "@/lib/types";
 
 const FeaturedProviders = () => {
   const featuredServices = getFeaturedServices();
+
+  // המרת שירותים מומלצים לספקים מדומים לצורך התצוגה
+  const featuredProviders: ProviderProfile[] = featuredServices.slice(0, 4).map((service, index) => ({
+    id: `featured-provider-${index}`,
+    contactPerson: service.provider,
+    businessName: service.provider,
+    description: service.description,
+    phone: '050-123-4567',
+    email: `contact@${service.provider.toLowerCase().replace(/\s+/g, '')}.co.il`,
+    city: service.location,
+    address: 'כתובת לדוגמה 123',
+    website: `www.${service.provider.toLowerCase().replace(/\s+/g, '')}.co.il`,
+    logo: service.imageUrl,
+    gallery: [service.imageUrl],
+    rating: service.rating,
+    reviewCount: service.reviewCount,
+    verified: Math.random() > 0.5,
+    categories: [service.category],
+    specialties: service.tags || ['מקצועיות', 'איכות', 'מהימנות'],
+    yearsExperience: Math.floor(Math.random() * 10) + 5,
+    insurance: true,
+    testimonials: []
+  }));
 
   return (
     <section className="py-16 bg-white">
@@ -17,59 +40,17 @@ const FeaturedProviders = () => {
             ספקי שירות מומלצים
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            גלה את הספקים המובילים והמקצועיים ביותר לאירוע המושלם שלך
+            גלה את הספקים המובילים והמקצועיים ביותר עם עיצוב מותאם לכל תחום
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredServices.map((service) => (
-            <Link key={service.id} to={`/service/${service.id}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                  <img
-                    src={service.imageUrl}
-                    alt={service.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <Badge className="absolute top-2 right-2 bg-yellow-500">
-                    מומלץ
-                  </Badge>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-1 line-clamp-2">
-                    {service.name}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-600 mb-2">{service.provider}</p>
-                  
-                  <div className="flex items-center gap-1 mb-2">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{service.rating}</span>
-                    <span className="text-sm text-gray-500">({service.reviewCount})</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{service.location}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-lg font-bold text-blue-600">
-                        ₪{service.price.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-gray-500 mr-1">
-                        {service.priceUnit}
-                      </span>
-                    </div>
-                    
-                    <Badge variant="secondary" className="text-xs">
-                      {service.category}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+          {featuredProviders.map((provider) => (
+            <AutoStyledCard
+              key={provider.id}
+              provider={provider}
+              showServices={true}
+            />
           ))}
         </div>
 
