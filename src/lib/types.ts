@@ -81,6 +81,7 @@ export interface ProviderProfile {
   phone: string;
   address?: string;
   city?: string;
+  website?: string;
   categories: string[];
   logo?: string;
   coverImage?: string;
