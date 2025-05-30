@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from "@/components/Header";
@@ -76,18 +77,57 @@ const EnhancedProviderProfile = () => {
         socialLinks: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? {
           facebook: 'https://facebook.com/netamentalist',
           instagram: 'https://instagram.com/neta_mentalist',
-          youtube: 'https://youtube.com/netamentalist'
+          linkedin: 'https://linkedin.com/in/netamentalist'
         } : {},
         mediaLinks: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? [
-          { title: 'ראיון ברדיו על אמנות החושים', url: 'https://example.com/interview1' },
-          { title: 'כתבה בעיתון על המופע המיוחד', url: 'https://example.com/article1' }
+          { 
+            id: '1',
+            title: 'ראיון ברדיו על אמנות החושים', 
+            url: 'https://example.com/interview1',
+            source: 'רדיו תל אביב',
+            date: '2024-01-15'
+          },
+          { 
+            id: '2',
+            title: 'כתבה בעיתון על המופע המיוחד', 
+            url: 'https://example.com/article1',
+            source: 'ידיעות אחרונות',
+            date: '2024-02-10'
+          }
         ] : [],
         clientRecommendations: unifiedProvider.businessName === 'נטע ברסלר - אמן החשיבה' ? [
-          'מיקרוסופט ישראל',
-          'גוגל תל אביב', 
-          'אמטק',
-          'רפאל',
-          'בית חולים איכילוב'
+          {
+            id: '1',
+            clientName: 'מיקרוסופט ישראל',
+            company: 'מיקרוסופט',
+            position: 'מנהל אירועים',
+            recommendation: 'נטע הפך את אירוע החברה שלנו לחוויה בלתי נשכחת'
+          },
+          {
+            id: '2',
+            clientName: 'גוגל תל אביב',
+            company: 'גוגל',
+            position: 'מנהלת משאבי אנוש',
+            recommendation: 'מופע מדהים שכל העובדים עדיין מדברים עליו'
+          },
+          {
+            id: '3',
+            clientName: 'אמטק',
+            company: 'אמטק',
+            recommendation: 'מקצועיות ברמה הגבוהה ביותר'
+          },
+          {
+            id: '4',
+            clientName: 'רפאל',
+            company: 'רפאל',
+            recommendation: 'המופע היה הדבר הכי מרשים באירוע'
+          },
+          {
+            id: '5',
+            clientName: 'בית חולים איכילוב',
+            company: 'איכילוב',
+            recommendation: 'הצליח לשמח את כל הצוות הרפואי'
+          }
         ] : []
       };
 
