@@ -54,7 +54,7 @@ const AutoStyledCard: React.FC<AutoStyledCardProps> = ({
         return `${baseClasses} border-2 border-gradient bg-gradient-to-br from-purple-50 to-violet-100 hover:scale-[1.02]`;
       case 'modern':
         return `${baseClasses} border border-gray-200 bg-white hover:shadow-xl`;
-      case 'classic':
+      case 'elegant':
         return `${baseClasses} border border-gray-300 bg-gray-50 hover:bg-white`;
       default:
         return `${baseClasses} border border-gray-200 bg-white hover:shadow-xl`;
