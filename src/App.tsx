@@ -37,6 +37,9 @@ function App() {
               <Route path="/providers/:providerId" element={<ProviderServices />} />
               <Route path="/enhanced-providers/:providerId" element={<EnhancedProviderProfile />} />
               
+              {/* נתיבים נוספים לשירותים */}
+              <Route path="/enhanced-services/:serviceId" element={<ServiceDetails />} />
+              
               {/* דף מחולל ספקים */}
               <Route path="/admin/provider-generator" element={<ProviderGenerator />} />
             </Routes>

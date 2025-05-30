@@ -225,7 +225,7 @@ const AutoStyledCard: React.FC<AutoStyledCardProps> = ({
             </div>
           )}
 
-          {/* Actions */}
+          {/* Actions - תיקון הקישורים */}
           <div className="flex gap-2 pt-2">
             <Link to={`/enhanced-providers/${provider.id}`} className="flex-1">
               <Button 

@@ -1,8 +1,9 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { Star, MapPin, Clock, CheckCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Star, MapPin, Clock, CheckCircle, ArrowRight } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 interface ServiceHeaderProps {
   service: any;
@@ -12,8 +13,22 @@ interface ServiceHeaderProps {
 }
 
 const ServiceHeader = ({ service, provider, averageRating, reviewCount }: ServiceHeaderProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="mb-8">
+      {/* כפתור חזרה */}
+      <div className="mb-4">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          חזרה
+        </Button>
+      </div>
+
       <h1 className="text-3xl font-bold mb-2">{service.name}</h1>
       
       <div className="flex flex-wrap gap-y-2 items-center text-sm text-gray-600 mb-4">
