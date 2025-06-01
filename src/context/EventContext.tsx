@@ -62,13 +62,35 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setError(null);
     
     try {
-      console.log('Loading data from Supabase and unified sources...');
+      console.log('Loading data from unified Hebrew hierarchy...');
 
-      // Start with unified data as primary source
+      // המרת הקטגוריות העבריות לפורמט Category
+      const hebrewCategoriesConverted: Category[] = hebrewHierarchy.categories.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        description: cat.description || '',
+        icon: cat.icon || 'MapPin',
+        image_url: `/assets/categories/${cat.id}.jpg`
+      }));
+
+      // המרת תתי הקטגוריות לפורמט Subcategory
+      const hebrewSubcategoriesConverted: Subcategory[] = hebrewHierarchy.categories
+        .flatMap(cat => cat.subcategories?.map(sub => ({
+          id: sub.id,
+          name: sub.name,
+          description: sub.name,
+          icon: 'Tag',
+          category_id: cat.id
+        })) || []);
+
+      setCategories(hebrewCategoriesConverted);
+      setSubcategories(hebrewSubcategoriesConverted);
+
+      // שימוש בנתונים המאוחדים של שירותים וספקים
       console.log('Using unified services:', unifiedServices.length);
       console.log('Using unified providers:', unifiedProviders.length);
 
-      // Convert unified services to match Service type
+      // המרת שירותים מאוחדים
       const typedServices: Service[] = unifiedServices.map((service: any) => {
         const provider = unifiedProviders.find(p => p.id === service.providerId);
         
@@ -95,7 +117,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         };
       });
 
-      // Convert unified providers to match Provider type
+      // המרת ספקים מאוחדים
       const typedProviders: Provider[] = unifiedProviders.map((provider: any) => {
         return {
           id: provider.id,
@@ -111,7 +133,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           review_count: provider.reviewCount || 0,
           is_verified: provider.verified || false,
           logo_url: provider.logo || '',
-          subcategory_ids: [], // Will be mapped based on categories
+          subcategory_ids: [], // יימפה לפי הקטגוריות
           category_ids: provider.categories || [],
           service_type_ids: [],
           services: [],
@@ -128,137 +150,21 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setServices(typedServices);
       setProviders(typedProviders);
 
-      // Try to fetch additional data from Supabase
-      try {
-        // Fetch categories
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('name');
-          
-        if (!categoriesError && categoriesData) {
-          console.log('Categories fetched from Supabase:', categoriesData.length);
-          setCategories(categoriesData);
-        }
-
-        // Fetch subcategories
-        const { data: subcategoriesData, error: subcategoriesError } = await supabase
-          .from('subcategories')
-          .select('*')
-          .order('name');
-          
-        if (!subcategoriesError && subcategoriesData) {
-          console.log('Subcategories fetched from Supabase:', subcategoriesData.length);
-          setSubcategories(subcategoriesData);
-        }
-
-        // Fetch additional services from Supabase
-        const { data: servicesData, error: servicesError } = await supabase
-          .from('services')
-          .select('*')
-          .order('name');
-          
-        if (!servicesError && servicesData) {
-          console.log('Additional services fetched from Supabase:', servicesData.length);
-          
-          // Merge with unified services, avoiding duplicates
-          const additionalServices = servicesData
-            .filter((dbService: any) => !typedServices.some(us => us.id === dbService.id))
-            .map((service: any) => ({
-              id: service.id,
-              name: service.name,
-              description: service.description || '',
-              price: parseFloat(service.price_range?.replace(/[^\d.-]/g, '') || '0'),
-              price_unit: service.price_unit || 'לאירוע',
-              imageUrl: service.image_url || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819',
-              additional_images: service.additional_images || [],
-              provider_id: service.provider_id,
-              category_id: service.category_id || '',
-              subcategory_id: service.subcategory_id || '',
-              service_type_id: '',
-              rating: 4.5 + Math.random() * 0.5,
-              review_count: Math.floor(Math.random() * 50) + 10,
-              tags: service.features || [],
-              is_featured: Math.random() > 0.7,
-              suitableFor: service.event_types || ['אירועים פרטיים'],
-              audience_size: service.audience_size ? `${service.audience_size}` as any : "31-50",
-              location: 'כל הארץ',
-              videos: service.videos || []
-            }));
-
-          setServices([...typedServices, ...additionalServices]);
-        }
-
-        // Fetch additional providers from Supabase
-        const { data: providersData, error: providersError } = await supabase
-          .from('providers')
-          .select(`
-            *,
-            provider_subcategories(subcategory_id)
-          `)
-          .order('name');
-          
-        if (!providersError && providersData) {
-          console.log('Additional providers fetched from Supabase:', providersData.length);
-          
-          // Merge with unified providers, avoiding duplicates
-          const additionalProviders = providersData
-            .filter((dbProvider: any) => !typedProviders.some(up => up.id === dbProvider.id))
-            .map((provider: any) => {
-              const subcategoryIds = provider.provider_subcategories?.map((ps: any) => ps.subcategory_id) || [];
-              
-              return {
-                id: provider.id,
-                name: provider.name,
-                description: provider.description || '',
-                city: provider.city || '',
-                contact_phone: provider.phone || '',
-                contact_email: provider.email || '',
-                contact_person: provider.contact_person || '',
-                address: provider.address || '',
-                website: provider.website || '',
-                rating: provider.rating || 0,
-                review_count: provider.review_count || 0,
-                is_verified: provider.is_verified || false,
-                logo_url: provider.logo_url || '',
-                subcategory_ids: subcategoryIds,
-                category_ids: [],
-                service_type_ids: [],
-                services: [],
-                serviceAreas: [provider.city || 'כל הארץ'],
-                experience: 'מעל 5 שנות ניסיון בתחום',
-                specialties: ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
-                testimonials: [],
-                socialLinks: {},
-                mediaLinks: [],
-                clientRecommendations: []
-              };
-            });
-
-          setProviders([...typedProviders, ...additionalProviders]);
-        }
-
-      } catch (supabaseError) {
-        console.warn('Supabase fetch failed, using unified data only:', supabaseError);
-      }
-
-      // Set featured services
-      const allServices = services.length > 0 ? services : typedServices;
-      const featured = allServices.filter(service => service.is_featured).slice(0, 12);
+      // הגדרת שירותים מומלצים
+      const featured = typedServices.filter(service => service.is_featured).slice(0, 12);
       setFeaturedServices(featured);
 
-      // Set top providers
-      const allProviders = providers.length > 0 ? providers : typedProviders;
-      const topProvidersList = allProviders
+      // הגדרת ספקים מובילים
+      const topProvidersList = typedProviders
         .filter(provider => provider.rating > 4.0)
         .sort((a: Provider, b: Provider) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 12);
         
       setTopProviders(topProvidersList);
       
-      console.log('Data loading completed successfully');
+      console.log('Unified data loading completed successfully');
     } catch (error: any) {
-      console.error('Error loading data:', error);
+      console.error('Error loading unified data:', error);
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -269,10 +175,19 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     fetchData();
   }, []);
 
+  // פונקציות עזר - משתמשות בנתונים המאוחדים
   const getSubcategoriesByCategory = (categoryId: string) => {
-    return subcategories.filter(
-      (subcategory) => subcategory.category_id === categoryId
-    );
+    const hebrewCategory = hebrewHierarchy.categories.find(cat => cat.id === categoryId);
+    if (hebrewCategory?.subcategories) {
+      return hebrewCategory.subcategories.map(sub => ({
+        id: sub.id,
+        name: sub.name,
+        description: sub.name,
+        icon: 'Tag',
+        category_id: categoryId
+      }));
+    }
+    return [];
   };
 
   const getServiceTypesBySubcategory = (subcategoryId: string) => {

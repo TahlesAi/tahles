@@ -1,11 +1,36 @@
 
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { eventConcepts } from "@/lib/searchSuggestions";
+import { useEventContext } from "@/context/EventContext";
 import useIsMobile from "@/hooks/use-mobile";
+import { 
+  Cake, 
+  PartyPopper, 
+  Users, 
+  Star, 
+  Heart, 
+  Building, 
+  Sparkles, 
+  TentTree, 
+  Gift 
+} from "lucide-react";
+
+// מיפוי אייקונים
+const iconMap: Record<string, React.ReactNode> = {
+  "Cake": <Cake className="h-4 w-4" />,
+  "PartyPopper": <PartyPopper className="h-4 w-4" />,
+  "Users": <Users className="h-4 w-4" />,
+  "Star": <Star className="h-4 w-4" />,
+  "Heart": <Heart className="h-4 w-4" />,
+  "Building": <Building className="h-4 w-4" />,
+  "Sparkles": <Sparkles className="h-4 w-4" />,
+  "TentTree": <TentTree className="h-4 w-4" />,
+  "Gift": <Gift className="h-4 w-4" />
+};
 
 const EventConcepts = () => {
   const isMobile = useIsMobile();
+  const { hebrewConcepts } = useEventContext();
 
   return (
     <section className="py-10 bg-white border-b" dir="rtl">
@@ -17,18 +42,26 @@ const EventConcepts = () => {
         
         <div className={`overflow-x-auto pb-6 ${isMobile ? '-mx-4 px-4' : ''}`}>
           <div className="flex gap-4 min-w-max">
-            {eventConcepts.map((concept, index) => (
-              <Link key={index} to={`/search?concept=${encodeURIComponent(concept.value)}`}>
+            {hebrewConcepts.map((concept) => (
+              <Link key={concept.id} to={`/search?concept=${encodeURIComponent(concept.name)}`}>
                 <div
                   className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
-                    concept.value === "דייט ראשון" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
+                    concept.id === "first-date" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
                   }`}
                 >
-                  {concept.icon}
+                  {concept.icon && iconMap[concept.icon] ? (
+                    <div className={concept.id === "first-date" ? "text-pink-700" : ""}>
+                      {iconMap[concept.icon]}
+                    </div>
+                  ) : (
+                    <div className="h-4 w-4 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
+                      {concept.name.substring(0, 1)}
+                    </div>
+                  )}
                   <span className={`font-medium text-center text-sm ${
-                    concept.value === "דייט ראשון" ? "text-pink-700" : ""
+                    concept.id === "first-date" ? "text-pink-700" : ""
                   }`}>
-                    {concept.value}
+                    {concept.name}
                   </span>
                 </div>
               </Link>
