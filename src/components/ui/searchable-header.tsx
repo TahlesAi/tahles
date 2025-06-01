@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AutocompleteSearch from "@/components/search/AutocompleteSearch";
 import { cn } from "@/lib/utils";
-import { useSearchSuggestions } from "@/lib/searchSuggestions";
+import { useEventContext } from "@/context/EventContext";
 import GuidedSearchModal from "../GuidedSearch/GuidedSearchModal";
 
 interface SearchableHeaderProps {
@@ -34,7 +34,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
   const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
-  const { searchSuggestions, mentalistProviders } = useSearchSuggestions();
+  const { hebrewCategories, hebrewConcepts, providers } = useEventContext();
 
   const handleSearch = (term: string) => {
     if (term && term.trim()) {
@@ -52,23 +52,64 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
     }
   };
 
-  const enhancedSuggestions = React.useMemo(() => {
-    const hasAllMentalists = mentalistProviders.every(mentalist => 
-      searchSuggestions.some(s => s.value === mentalist.value)
-    );
+  // יצירת הצעות חיפוש מהנתונים המאוחדים
+  const searchSuggestions = React.useMemo(() => {
+    const suggestions = [];
     
-    if (!hasAllMentalists) {
-      return [
-        ...searchSuggestions,
-        { id: 'mental-artists-category', value: 'אמני חושים', type: 'תת-קטגוריה' },
-        ...mentalistProviders.filter(mentalist => 
-          !searchSuggestions.some(s => s.value === mentalist.value)
-        )
-      ];
-    }
+    // הוספת קטגוריות
+    hebrewCategories.forEach(category => {
+      suggestions.push({
+        id: `category-${category.id}`,
+        value: category.name,
+        type: 'קטגוריה'
+      });
+      
+      // הוספת תתי קטגוריות
+      if (category.subcategories) {
+        category.subcategories.forEach(subcategory => {
+          suggestions.push({
+            id: `subcategory-${subcategory.id}`,
+            value: subcategory.name,
+            type: 'תת-קטגוריה'
+          });
+        });
+      }
+    });
     
-    return searchSuggestions;
-  }, [searchSuggestions, mentalistProviders]);
+    // הוספת קונספטים
+    hebrewConcepts.forEach(concept => {
+      suggestions.push({
+        id: `concept-${concept.id}`,
+        value: concept.name,
+        type: 'קונספט'
+      });
+      
+      // הוספת תת-קונספטים
+      if (concept.subconcepts) {
+        concept.subconcepts.forEach(subconcept => {
+          suggestions.push({
+            id: `subconcept-${subconcept.id}`,
+            value: subconcept.name,
+            type: 'סוג אירוע'
+          });
+        });
+      }
+    });
+    
+    // הוספת ספקים מובילים (רק אמני חושים לדוגמה)
+    const mentalistProviders = providers
+      .filter(provider => provider.category_ids?.includes('performances-stage'))
+      .slice(0, 5)
+      .map(provider => ({
+        id: `provider-${provider.id}`,
+        value: provider.name,
+        type: 'ספק'
+      }));
+    
+    suggestions.push(...mentalistProviders);
+    
+    return suggestions;
+  }, [hebrewCategories, hebrewConcepts, providers]);
 
   if (useGuidedSearch) {
     return (
@@ -130,7 +171,7 @@ const SearchableHeader: React.FC<SearchableHeaderProps> = ({
         
         {isFocused && searchTerm.trim() && (
           <AutocompleteSearch 
-            suggestions={enhancedSuggestions}
+            suggestions={searchSuggestions}
             onSearch={handleSearch}
             placeholder=""
             className="absolute top-full mt-1 w-full z-50"
