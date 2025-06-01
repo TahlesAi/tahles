@@ -171,6 +171,10 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
 
   const currentPrice = calculatePrice();
 
+  const handleKosherChange = (checked: boolean | 'indeterminate') => {
+    setIsKosher(checked === true);
+  };
+
   return (
     <Card className="border-brand-200">
       <CardHeader>
@@ -302,7 +306,7 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
             <Checkbox
               id="kosher"
               checked={isKosher}
-              onCheckedChange={setIsKosher}
+              onCheckedChange={handleKosherChange}
             />
             <Label htmlFor="kosher" className="text-sm font-medium">
               דרישת כשרות

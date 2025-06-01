@@ -19,6 +19,24 @@ import {
 import ProductGenreFilter from './ProductGenreFilter';
 import EnhancedServicePricing from './EnhancedServicePricing';
 
+interface PricingRule {
+  type: 'audience' | 'distance' | 'duration' | 'kosher' | 'special_requirements' | 'quantity';
+  condition: string;
+  modifier: number;
+  modifierType: 'fixed' | 'percentage' | 'per_unit';
+  description: string;
+}
+
+interface ProductVariant {
+  id: string;
+  name: string;
+  basePrice: number;
+  priceUnit: 'per_event' | 'per_person' | 'per_hour' | 'per_item';
+  inventory?: number;
+  maxQuantity?: number;
+  pricingRules: PricingRule[];
+}
+
 interface AdvancedServiceDetailsProps {
   service: any;
   provider: any;
@@ -34,27 +52,27 @@ const AdvancedServiceDetails: React.FC<AdvancedServiceDetailsProps> = ({
   const [activeVariant, setActiveVariant] = useState(0);
 
   // יצירת וריאנטים לדוגמה בהתבסס על המוצר
-  const createServiceVariants = () => {
+  const createServiceVariants = (): ProductVariant[] => {
     const basePrice = service.price || 5000;
-    const variants = [
+    const variants: ProductVariant[] = [
       {
         id: 'basic',
         name: 'חבילה בסיסית',
         basePrice: basePrice,
-        priceUnit: 'per_event' as const,
+        priceUnit: 'per_event',
         pricingRules: [
           {
-            type: 'audience' as const,
+            type: 'audience',
             condition: '100',
             modifier: 500,
-            modifierType: 'per_unit' as const,
+            modifierType: 'per_unit',
             description: 'תוספת עבור מעל 100 משתתפים - ₪500 לכל 50 נוספים'
           },
           {
-            type: 'distance' as const,
+            type: 'distance',
             condition: '30',
             modifier: 10,
-            modifierType: 'per_unit' as const,
+            modifierType: 'per_unit',
             description: 'תוספת נסיעה מעל 30 ק״מ - ₪10 לק״מ'
           }
         ]
@@ -67,20 +85,20 @@ const AdvancedServiceDetails: React.FC<AdvancedServiceDetailsProps> = ({
         id: 'per_person',
         name: 'מחיר לאדם',
         basePrice: Math.round(basePrice / 50),
-        priceUnit: 'per_person' as const,
+        priceUnit: 'per_person',
         pricingRules: [
           {
-            type: 'kosher' as const,
+            type: 'kosher',
             condition: 'required',
             modifier: 15,
-            modifierType: 'percentage' as const,
+            modifierType: 'percentage',
             description: 'תוספת כשרות - 15%'
           },
           {
-            type: 'quantity' as const,
+            type: 'quantity',
             condition: '100',
             modifier: 10,
-            modifierType: 'percentage' as const,
+            modifierType: 'percentage',
             description: 'הנחת כמות מעל 100 אנשים - 10%'
           }
         ]
@@ -92,13 +110,13 @@ const AdvancedServiceDetails: React.FC<AdvancedServiceDetailsProps> = ({
         id: 'hourly',
         name: 'תמחור שעתי',
         basePrice: Math.round(basePrice / 2),
-        priceUnit: 'per_hour' as const,
+        priceUnit: 'per_hour',
         pricingRules: [
           {
-            type: 'duration' as const,
+            type: 'duration',
             condition: '3',
             modifier: 20,
-            modifierType: 'percentage' as const,
+            modifierType: 'percentage',
             description: 'תוספת למופע מעל 3 שעות - 20%'
           }
         ]
@@ -111,15 +129,15 @@ const AdvancedServiceDetails: React.FC<AdvancedServiceDetailsProps> = ({
         id: 'per_item',
         name: 'מחיר ליחידה',
         basePrice: 50,
-        priceUnit: 'per_item' as const,
+        priceUnit: 'per_item',
         inventory: 100,
         maxQuantity: 50,
         pricingRules: [
           {
-            type: 'quantity' as const,
+            type: 'quantity',
             condition: '20',
             modifier: 15,
-            modifierType: 'percentage' as const,
+            modifierType: 'percentage',
             description: 'הנחת כמות מעל 20 יחידות - 15%'
           }
         ]
