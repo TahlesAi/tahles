@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Dialog,
@@ -18,11 +19,6 @@ import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
 import { useEventContext } from "@/context/EventContext";
 
 export type EventType = 'private' | 'business' | 'mixed' | 'children';
-export type EventConcept = {
-  id: string;
-  name: string;
-  category: EventType | 'all';
-};
 
 export interface GuidedSearchData {
   eventDate?: Date | null;
@@ -62,6 +58,16 @@ const STEPS = {
   RESULTS: 6
 };
 
+const STEP_NAMES = {
+  [STEPS.EVENT_DATE]: 'תאריך ושעה',
+  [STEPS.EVENT_TYPE]: 'סוג אירוע',
+  [STEPS.ATTENDEES]: 'מספר משתתפים',
+  [STEPS.LOCATION]: 'מיקום',
+  [STEPS.CONCEPT]: 'קונספט',
+  [STEPS.BUDGET]: 'תקציב',
+  [STEPS.RESULTS]: 'תוצאות'
+};
+
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   const [currentStep, setCurrentStep] = useState(STEPS.EVENT_DATE);
   const [searchData, setSearchData] = useState<GuidedSearchData>({});
@@ -86,30 +92,70 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   
   const handleSubmitLead = () => {
     console.log("Lead data:", searchData);
-    toast.success("פנייתך התקבלה בהצלחה! נציג שלנו ייצור איתך קשר בקרוב");
+    toast.success("פנייתך התקבלה בהצלחה! נציג שלנו ייצור איתך קשר בקרוב", {
+      duration: 4000,
+      description: "נשלח לך מייל עם סיכום הפרטים תוך כמה דקות"
+    });
     onClose();
-    setCurrentStep(STEPS.EVENT_DATE);
-    setSearchData({});
-  };
-  
-  const handleCloseModal = () => {
-    onClose();
+    // Reset after modal closes
     setTimeout(() => {
       setCurrentStep(STEPS.EVENT_DATE);
       setSearchData({});
     }, 300);
   };
   
+  const handleCloseModal = () => {
+    onClose();
+    // Reset after modal closes
+    setTimeout(() => {
+      setCurrentStep(STEPS.EVENT_DATE);
+      setSearchData({});
+    }, 300);
+  };
+
+  const getProgressPercentage = () => {
+    return Math.round((currentStep / STEPS.RESULTS) * 100);
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseModal}>
       <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-hidden text-right" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
-            {currentStep === STEPS.RESULTS ? "הפתרונות המומלצים עבורך" : "מצא את הפתרון המושלם לאירוע שלך"}
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-center text-2xl flex items-center justify-center gap-2">
+            {currentStep === STEPS.RESULTS ? (
+              <>
+                <span className="text-2xl">🎉</span>
+                <span>הפתרונות המומלצים עבורך</span>
+              </>
+            ) : (
+              <>
+                <span className="text-2xl">✨</span>
+                <span>מצא את הפתרון המושלם לאירוע שלך</span>
+              </>
+            )}
           </DialogTitle>
-          <DialogDescription className="text-center">
-            {currentStep !== STEPS.RESULTS && "ענה על מספר שאלות כדי שנוכל להמליץ לך על השירותים המתאימים ביותר"}
-          </DialogDescription>
+          
+          {currentStep !== STEPS.RESULTS && (
+            <>
+              <DialogDescription className="text-center text-sm text-gray-600">
+                ענה על מספר שאלות כדי שנוכל להמליץ לך על השירותים המתאימים ביותר
+              </DialogDescription>
+              
+              {/* Progress indicator */}
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>שלב {currentStep + 1} מתוך {STEPS.RESULTS + 1}</span>
+                  <span>{STEP_NAMES[currentStep]}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${getProgressPercentage()}%` }}
+                  ></div>
+                </div>
+              </div>
+            </>
+          )}
         </DialogHeader>
         
         <div className="py-4 overflow-hidden">
