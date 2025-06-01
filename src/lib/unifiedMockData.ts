@@ -1,4 +1,7 @@
+
 // src/lib/unifiedMockData.ts
+
+import { expandedMockSearchResults, expandedMockProviders, expandedMockReviews } from './mockDataExpanded';
 
 export const allServices = [
   {
@@ -72,9 +75,68 @@ export const allServices = [
     priceRange: "80-200 ₪ לאדם",
     features: ["כשרות מהדרין", "שירות מלא", "עיצוב שולחנות"],
     technicalRequirements: ["מטבח או נקודת הכנה", "חיבור למים וחשמל"]
-  },
-  // Additional services can be added here with similar structure
+  }
 ];
+
+// Export the expanded data from mockDataExpanded
+export const unifiedServices = expandedMockSearchResults;
+export const unifiedProviders = expandedMockProviders;
+
+// Helper functions for finding services and providers
+export const getServiceById = (id: string) => {
+  return unifiedServices.find(service => service.id === id);
+};
+
+export const getProviderById = (id: string) => {
+  return unifiedProviders.find(provider => provider.id === id);
+};
+
+export const getServicesByProvider = (providerId: string) => {
+  return unifiedServices.filter(service => service.providerId === providerId);
+};
+
+export const getReviewsByService = (serviceId: string) => {
+  return expandedMockReviews.filter(review => review.serviceId === serviceId);
+};
+
+export const getFeaturedServices = () => {
+  return unifiedServices.filter(service => service.featured).slice(0, 12);
+};
+
+export const searchServices = (query: string, filters?: any) => {
+  let results = [...unifiedServices];
+  
+  if (query) {
+    const searchTerm = query.toLowerCase();
+    results = results.filter(service => 
+      service.name.toLowerCase().includes(searchTerm) ||
+      service.description.toLowerCase().includes(searchTerm) ||
+      service.provider.toLowerCase().includes(searchTerm) ||
+      service.category.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  if (filters?.category) {
+    results = results.filter(service => 
+      service.category.toLowerCase() === filters.category.toLowerCase()
+    );
+  }
+  
+  if (filters?.priceRange) {
+    const [min, max] = filters.priceRange;
+    results = results.filter(service => 
+      service.price >= min && service.price <= max
+    );
+  }
+  
+  return results;
+};
+
+export const getServicesByCategory = (category: string) => {
+  return unifiedServices.filter(service => 
+    service.category.toLowerCase() === category.toLowerCase()
+  );
+};
 
 // Updated recommendation algorithm that considers search data
 export const getGuidedSearchRecommendations = (searchData: any) => {
