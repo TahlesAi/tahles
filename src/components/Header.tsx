@@ -1,164 +1,124 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, HelpCircle } from "lucide-react";
-import AuthModal from "./AuthModal";
+import { Menu, Search } from "lucide-react";
+import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
 import SearchableHeader from "@/components/ui/searchable-header";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [userType, setUserType] = useState<'client' | 'provider'>('client');
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
 
-  const handleHowItWorks = () => {
-    // פונקציה להציג הסבר על המערכת
-    console.log("How it works clicked");
-    // TODO: הוסף modal או נווט לעמוד הסבר
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+    }
   };
 
   return (
-    <>
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* לוגו */}
-            <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">ת</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">תכלס</span>
-            </Link>
-
-            {/* סרגל חיפוש - דסקטופ */}
-            <div className="hidden md:flex flex-1 justify-center max-w-md">
-              <SearchableHeader
-                placeholder="חיפוש שירותים..."
-                className="w-full"
-                inputClassName="h-9 text-sm border-gray-300"
-                dir="rtl"
-                useGuidedSearch={false}
-              />
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="container px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="bg-blue-600 text-white p-2 rounded-lg">
+              <span className="text-xl font-bold">ת</span>
             </div>
+            <span className="text-xl font-bold text-gray-900 hidden sm:block">תכל'ס</span>
+          </Link>
 
-            {/* ניווט עיקרי - דסקטופ */}
-            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleHowItWorks}
-                className="text-gray-600 hover:text-blue-600 flex items-center"
-              >
-                <HelpCircle className="h-4 w-4 ml-2" />
-                איך זה עובד?
-              </Button>
-            </nav>
-
-            {/* כפתורי פעולה - דסקטופ */}
-            <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setAuthMode('signin');
-                  setIsAuthModalOpen(true);
-                }}
-              >
-                <User className="h-4 w-4 ml-2" />
-                התחברות
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  setAuthMode('signup');
-                  setIsAuthModalOpen(true);
-                }}
-              >
-                הרשמה
-              </Button>
-            </div>
-
-            {/* כפתור תפריט - מובייל */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
-
-          {/* סרגל חיפוש - מובייל */}
-          <div className="md:hidden pb-3">
-            <SearchableHeader
-              placeholder="חיפוש שירותים..."
-              className="w-full"
-              inputClassName="h-9 text-sm border-gray-300"
-              dir="rtl"
-              useGuidedSearch={false}
+          {/* Search Bar - Center */}
+          <div className="flex-1 max-w-2xl mx-4">
+            <SearchableHeader 
+              onSearch={handleSearch}
+              placeholder="חפש שירותים, ספקים או קטגוריות..."
             />
           </div>
 
-          {/* תפריט מובייל */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t">
-              <nav className="flex flex-col space-y-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    handleHowItWorks();
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-gray-600 hover:text-blue-600 w-fit flex items-center"
-                >
-                  <HelpCircle className="h-4 w-4 ml-2" />
-                  איך זה עובד?
-                </Button>
-                <div className="flex flex-col space-y-2 pt-4 border-t">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setAuthMode('signin');
-                      setIsAuthModalOpen(true);
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-fit"
-                  >
-                    <User className="h-4 w-4 ml-2" />
-                    התחברות
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setAuthMode('signup');
-                      setIsAuthModalOpen(true);
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-fit"
-                  >
-                    הרשמה
-                  </Button>
-                </div>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+          {/* Navigation Menu */}
+          <nav className="hidden lg:flex items-center gap-6 flex-shrink-0">
+            <Link 
+              to="/categories" 
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              קטגוריות
+            </Link>
+            <Link 
+              to="/how-it-works" 
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              איך זה עובד
+            </Link>
+            <Button
+              onClick={() => setGuidedSearchOpen(true)}
+              variant="outline"
+              size="sm"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              <Search className="h-4 w-4 ml-2" />
+              חיפוש מונחה
+            </Button>
+            <Button
+              onClick={() => navigate('/provider-onboarding')}
+              className="bg-green-600 hover:bg-green-700 text-white"
+              size="sm"
+            >
+              הצטרפות ספקים
+            </Button>
+          </nav>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        mode={authMode}
-        setMode={setAuthMode}
-        userType={userType}
-        setUserType={setUserType}
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+            <Link
+              to="/categories"
+              className="block py-2 text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              קטגוריות
+            </Link>
+            <Link
+              to="/how-it-works"
+              className="block py-2 text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              איך זה עובד
+            </Link>
+            <Button
+              onClick={() => setGuidedSearchOpen(true)}
+              variant="outline"
+              size="sm"
+              className="w-full justify-center border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              <Search className="h-4 w-4 ml-2" />
+              חיפוש מונחה
+            </Button>
+            <Button
+              onClick={() => navigate('/provider-onboarding')}
+              className="w-full justify-center bg-green-600 hover:bg-green-700 text-white mt-2"
+              size="sm"
+            >
+              הצטרפות ספקים
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <GuidedSearchModal 
+        isOpen={guidedSearchOpen} 
+        onClose={() => setGuidedSearchOpen(false)} 
       />
-    </>
+    </header>
   );
 };
 
