@@ -7,10 +7,10 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
-import EventTypeStep from "./steps/EventTypeStep";
 import EventDateStep from "./steps/EventDateStep";
+import EventTypeStep from "./steps/EventTypeStep";
 import AttendeesStep from "./steps/AttendeesStep";
-import ConceptStep from "./steps/ConceptStep";
+import LocationStep from "./steps/LocationStep";
 import BudgetStep from "./steps/BudgetStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
@@ -30,6 +30,10 @@ export interface GuidedSearchData {
   eventEndTime?: string;
   eventType?: EventType;
   attendeesCount?: string;
+  eventLocation?: {
+    city: string;
+    address?: string;
+  };
   eventConcept?: string;
   conceptDetails?: string;
   conceptAudience?: 'family' | 'friends' | 'mixed' | null;
@@ -48,16 +52,16 @@ interface GuidedSearchModalProps {
 }
 
 const STEPS = {
-  EVENT_TYPE: 0,
-  EVENT_DATE: 1,
+  EVENT_DATE: 0,
+  EVENT_TYPE: 1,
   ATTENDEES: 2,
-  CONCEPT: 3,
+  LOCATION: 3,
   BUDGET: 4,
   RESULTS: 5
 };
 
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
-  const [currentStep, setCurrentStep] = useState(STEPS.EVENT_TYPE);
+  const [currentStep, setCurrentStep] = useState(STEPS.EVENT_DATE);
   const [searchData, setSearchData] = useState<GuidedSearchData>({});
   const { hebrewCategories, hebrewConcepts } = useEventContext();
   
@@ -68,7 +72,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   };
   
   const handleBack = () => {
-    if (currentStep > STEPS.EVENT_TYPE) {
+    if (currentStep > STEPS.EVENT_DATE) {
       setCurrentStep(prev => prev - 1);
     }
   };
@@ -82,14 +86,14 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
     console.log("Lead data:", searchData);
     toast.success("פנייתך התקבלה בהצלחה! נציג שלנו ייצור איתך קשר בקרוב");
     onClose();
-    setCurrentStep(STEPS.EVENT_TYPE);
+    setCurrentStep(STEPS.EVENT_DATE);
     setSearchData({});
   };
   
   const handleCloseModal = () => {
     onClose();
     setTimeout(() => {
-      setCurrentStep(STEPS.EVENT_TYPE);
+      setCurrentStep(STEPS.EVENT_DATE);
       setSearchData({});
     }, 300);
   };
@@ -107,6 +111,22 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
         </DialogHeader>
         
         <div className="py-6 overflow-y-auto max-h-[60vh]">
+          {currentStep === STEPS.EVENT_DATE && (
+            <EventDateStep 
+              eventDate={searchData.eventDate} 
+              onUpdate={(date, startTime, endTime) => updateSearchData({ 
+                eventDate: date, 
+                eventStartTime: startTime, 
+                eventEndTime: endTime 
+              })}
+              onSkip={() => updateSearchData({ 
+                eventDate: null, 
+                eventStartTime: undefined, 
+                eventEndTime: undefined 
+              })}
+            />
+          )}
+
           {currentStep === STEPS.EVENT_TYPE && (
             <EventTypeStep 
               selectedType={searchData.eventType}
@@ -124,44 +144,17 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
             />
           )}
           
-          {currentStep === STEPS.EVENT_DATE && (
-            <EventDateStep 
-              eventDate={searchData.eventDate} 
-              onUpdate={(date, startTime, endTime) => updateSearchData({ 
-                eventDate: date, 
-                eventStartTime: startTime, 
-                eventEndTime: endTime 
-              })}
-              onSkip={() => updateSearchData({ 
-                eventDate: null, 
-                eventStartTime: undefined, 
-                eventEndTime: undefined 
-              })}
-            />
-          )}
-          
           {currentStep === STEPS.ATTENDEES && (
             <AttendeesStep 
               attendeesCount={searchData.attendeesCount}
               onUpdate={(count) => updateSearchData({ attendeesCount: count })}
             />
           )}
-          
-          {currentStep === STEPS.CONCEPT && (
-            <ConceptStep 
-              eventType={searchData.eventType}
-              selectedConcept={searchData.eventConcept}
-              selectedHebrewConcept={searchData.selectedHebrewConcept}
-              hebrewCategories={hebrewCategories}
-              onUpdate={(concept, details, audience, category, subcategory) => 
-                updateSearchData({ 
-                  eventConcept: concept, 
-                  conceptDetails: details,
-                  conceptAudience: audience,
-                  selectedCategory: category,
-                  selectedSubcategory: subcategory
-                })
-              }
+
+          {currentStep === STEPS.LOCATION && (
+            <LocationStep 
+              location={searchData.eventLocation}
+              onUpdate={(location) => updateSearchData({ eventLocation: location })}
             />
           )}
           
