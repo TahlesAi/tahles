@@ -133,7 +133,7 @@ const EnhancedProviderProfile = () => {
 
       setProvider(enhancedProvider);
 
-      // Format services for display
+      // Format services for display with safe property access
       const formattedServices = unifiedServices.map(service => ({
         id: service.id,
         name: service.name,
@@ -152,7 +152,7 @@ const EnhancedProviderProfile = () => {
 
       setProviderServices(formattedServices);
 
-      // Create gallery
+      // Create gallery with safe property access
       const galleryItems = [];
       
       if (unifiedProvider.logo) {
@@ -162,7 +162,7 @@ const EnhancedProviderProfile = () => {
         });
       }
 
-      if (unifiedProvider.gallery) {
+      if (unifiedProvider.gallery && Array.isArray(unifiedProvider.gallery)) {
         unifiedProvider.gallery.forEach((img: string) => {
           galleryItems.push({
             type: 'image',
@@ -179,7 +179,8 @@ const EnhancedProviderProfile = () => {
           });
         }
         
-        if (service.additionalImages) {
+        // Safe access to additionalImages
+        if (service.additionalImages && Array.isArray(service.additionalImages)) {
           service.additionalImages.forEach((img: string) => {
             galleryItems.push({
               type: 'image',
@@ -188,7 +189,8 @@ const EnhancedProviderProfile = () => {
           });
         }
 
-        if (service.videos) {
+        // Safe access to videos
+        if (service.videos && Array.isArray(service.videos)) {
           service.videos.forEach((video: string) => {
             galleryItems.push({
               type: 'video',

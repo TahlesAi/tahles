@@ -12,15 +12,45 @@ export const unifiedProviders = expandedMockProviders;
 
 // Helper functions for finding services and providers
 export const getServiceById = (id: string) => {
-  return unifiedServices.find(service => service.id === id);
+  const service = unifiedServices.find(service => service.id === id);
+  
+  // Ensure all required properties exist for type safety
+  if (service) {
+    return {
+      ...service,
+      suitableFor: service.suitableFor || [],
+      additionalImages: service.additionalImages || [],
+      videos: service.videos || [],
+      audienceSize: service.audienceSize || { min: 10, max: 200, optimal: 50 },
+      technicalRequirements: service.technicalRequirements || [],
+      setupTime: service.setupTime || 30,
+      tags: service.tags || [],
+      features: service.features || []
+    };
+  }
+  
+  return undefined;
 };
 
 export const getProviderById = (id: string) => {
-  return unifiedProviders.find(provider => provider.id === provider.id);
+  return unifiedProviders.find(provider => provider.id === id);
 };
 
 export const getServicesByProvider = (providerId: string) => {
-  return unifiedServices.filter(service => service.providerId === providerId);
+  const services = unifiedServices.filter(service => service.providerId === providerId);
+  
+  // Ensure all required properties exist for each service
+  return services.map(service => ({
+    ...service,
+    suitableFor: service.suitableFor || [],
+    additionalImages: service.additionalImages || [],
+    videos: service.videos || [],
+    audienceSize: service.audienceSize || { min: 10, max: 200, optimal: 50 },
+    technicalRequirements: service.technicalRequirements || [],
+    setupTime: service.setupTime || 30,
+    tags: service.tags || [],
+    features: service.features || []
+  }));
 };
 
 export const getReviewsByService = (serviceId: string) => {

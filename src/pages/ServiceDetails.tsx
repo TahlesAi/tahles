@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,7 +77,7 @@ const ServiceDetails = () => {
             const mockReviews = getReviewsByService(id);
             console.log('Found mock reviews:', mockReviews.length);
             
-            // Transform unified service to expected format
+            // Transform unified service to expected format with safe property access
             const transformedService = {
               id: mockService.id,
               name: mockService.name,
@@ -98,7 +99,7 @@ const ServiceDetails = () => {
               rating: mockService.rating,
               reviewCount: mockService.reviewCount,
               featured: mockService.featured,
-              // Enhanced features for new system
+              // Enhanced features for new system - safe access
               audienceSize: mockService.audienceSize || { min: 10, max: 200, optimal: 50 },
               duration: mockService.duration || 120, // 2 hours in minutes
               features: [
@@ -152,7 +153,7 @@ const ServiceDetails = () => {
               gallery.push({ type: 'image', url: mockService.imageUrl });
             }
             
-            // Add additional service images
+            // Add additional service images - safe access
             if (mockService.additionalImages && Array.isArray(mockService.additionalImages)) {
               mockService.additionalImages.forEach((img: string) => {
                 if (img && img !== mockService.imageUrl) {
@@ -170,7 +171,7 @@ const ServiceDetails = () => {
               });
             }
             
-            // Add videos
+            // Add videos - safe access
             if (mockService.videos && Array.isArray(mockService.videos)) {
               mockService.videos.forEach((video: string) => {
                 if (video) {
