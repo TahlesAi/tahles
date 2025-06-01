@@ -1,4 +1,3 @@
-
 import { SearchResultService, ProviderProfile, Review } from "@/lib/types";
 
 // Expanded mock search results with 50+ services
@@ -982,6 +981,8 @@ export const expandedMockReviews: Review[] = [
     rating: 5,
     comment: "נטע הופיע באירוע החברה שלנו והדהים את כולם! מומלץ בחום!",
     date: "2023-05-15",
+    created_at: "2023-05-15T10:00:00Z",
+    updated_at: "2023-05-15T10:00:00Z",
     verified: true
   },
   {
@@ -994,6 +995,8 @@ export const expandedMockReviews: Review[] = [
     rating: 5,
     comment: "היה מדהים בבר מצווה של הבן שלנו. המופע היה מותאם מושלם לאירוע ולגיל הילדים.",
     date: "2023-04-02",
+    created_at: "2023-04-02T14:30:00Z",
+    updated_at: "2023-04-02T14:30:00Z",
     verified: true
   },
   {
@@ -1005,6 +1008,8 @@ export const expandedMockReviews: Review[] = [
     rating: 4,
     comment: "מופע מרשים מאוד ומקצועי. היחס היה נהדר וההתאמה לאירוע הייתה טובה מאוד.",
     date: "2023-03-12",
+    created_at: "2023-03-12T16:45:00Z",
+    updated_at: "2023-03-12T16:45:00Z",
     verified: true
   },
   {
@@ -1017,6 +1022,8 @@ export const expandedMockReviews: Review[] = [
     rating: 5,
     comment: "אין מילים לתאר כמה המופע של נטע היה מדהים. הוא קרא מחשבות, ניחש פרטים אישיים והשאיר את כולם בהלם מוחלט. אחד הדברים הכי מרשימים שראיתי!",
     date: "2023-01-25",
+    created_at: "2023-01-25T19:20:00Z",
+    updated_at: "2023-01-25T19:20:00Z",
     verified: true
   },
   // ביקורות לקליספרו
@@ -1030,6 +1037,8 @@ export const expandedMockReviews: Review[] = [
     rating: 5,
     comment: "קליספרו הופיע ביום הולדת 50 של בעלי והפתיע את כולם. מומלץ בחום!",
     date: "2023-06-10",
+    created_at: "2023-06-10T18:00:00Z",
+    updated_at: "2023-06-10T18:00:00Z",
     verified: true
   },
   {
@@ -1042,6 +1051,8 @@ export const expandedMockReviews: Review[] = [
     rating: 5,
     comment: "המופע היה משעשע ומפתיע, הקסמים מרשימים והאווירה מעולה. כל האורחים נהנו.",
     date: "2023-05-22",
+    created_at: "2023-05-22T20:30:00Z",
+    updated_at: "2023-05-22T20:30:00Z",
     verified: true
   }
 ];
