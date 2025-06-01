@@ -23,8 +23,17 @@ export function convertServiceToSearchResult(service: Service, providerName: str
     suitableFor: service.suitableFor || [],
     featured: service.is_featured || false,
     additionalImages: service.additional_images || [],
-    // בדיקה אם המאפיין videos קיים, אם לא מחזירים מערך ריק
-    videos: service.videos || []
+    videos: service.videos || [],
+    // הוספת הפרופרטיז החסרים עם ערכי ברירת מחדל
+    audienceSize: {
+      min: 10,
+      max: 200,
+      optimal: 50
+    },
+    technicalRequirements: [],
+    setupTime: 30,
+    tags: [],
+    features: []
   };
 }
 

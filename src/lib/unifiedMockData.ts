@@ -4,64 +4,115 @@
 import { expandedMockSearchResults, expandedMockProviders, expandedMockReviews } from './mockDataExpanded';
 import { expandedMockProducts, filterProductsForGuidedSearch, getProductsByCategory, getProductsBySubcategory } from './expandedMockData';
 
-export const allServices = expandedMockProducts;
+// יצירת אינטרפייס מאוחד לשירותים
+interface UnifiedService {
+  id: string;
+  name: string;
+  description: string;
+  provider: string;
+  providerId: string;
+  price: number;
+  priceUnit?: string;
+  rating: number;
+  reviewCount: number;
+  imageUrl: string;
+  category: string;
+  subcategory?: string;
+  location?: string;
+  featured?: boolean;
+  // פרופרטיז שהיו חסרים ויוצרים שגיאות
+  suitableFor: string[];
+  additionalImages: string[];
+  videos: string[];
+  audienceSize: {
+    min: number;
+    max: number;
+    optimal?: number;
+  };
+  technicalRequirements: string[];
+  setupTime: number;
+  tags: string[];
+  features: string[];
+  // פרופרטיז נוספים מהמוצרים המורחבים
+  duration?: number;
+  eventTypes?: string[];
+  audienceAges?: string[];
+  targetAudience?: string[];
+  minAudience?: number;
+  maxAudience?: number;
+}
 
-// Export the expanded data from mockDataExpanded
-export const unifiedServices = [...expandedMockSearchResults, ...expandedMockProducts];
+// פונקציית נורמליזציה לוודא שכל השירותים יהיו עם מבנה אחיד
+function normalizeService(service: any): UnifiedService {
+  return {
+    id: service.id || '',
+    name: service.name || '',
+    description: service.description || '',
+    provider: service.provider || '',
+    providerId: service.providerId || service.provider_id || '',
+    price: service.price || 0,
+    priceUnit: service.priceUnit || service.price_unit || 'לאירוע',
+    rating: service.rating || 0,
+    reviewCount: service.reviewCount || service.review_count || 0,
+    imageUrl: service.imageUrl || service.image_url || '',
+    category: service.category || '',
+    subcategory: service.subcategory || '',
+    location: service.location || '',
+    featured: service.featured || false,
+    // ערכי ברירת מחדל לפרופרטיז שחסרים
+    suitableFor: service.suitableFor || [],
+    additionalImages: service.additionalImages || service.additional_images || [],
+    videos: service.videos || service.video_urls || [],
+    audienceSize: service.audienceSize || {
+      min: service.minAudience || 10,
+      max: service.maxAudience || 200,
+      optimal: 50
+    },
+    technicalRequirements: service.technicalRequirements || [],
+    setupTime: service.setupTime || 30,
+    tags: service.tags || [],
+    features: service.features || [],
+    // פרופרטיז נוספים
+    duration: service.duration,
+    eventTypes: service.eventTypes,
+    audienceAges: service.audienceAges,
+    targetAudience: service.targetAudience,
+    minAudience: service.minAudience,
+    maxAudience: service.maxAudience
+  };
+}
+
+// נורמליזציה של כל השירותים
+const normalizedExpandedProducts = expandedMockProducts.map(normalizeService);
+const normalizedSearchResults = expandedMockSearchResults.map(normalizeService);
+
+// איחוד השירותים לאחר נורמליזציה
+export const allServices = normalizedExpandedProducts;
+export const unifiedServices = [...normalizedSearchResults, ...normalizedExpandedProducts];
 export const unifiedProviders = expandedMockProviders;
 
-// Helper functions for finding services and providers
-export const getServiceById = (id: string) => {
-  const service = unifiedServices.find(service => service.id === id);
-  
-  // Ensure all required properties exist for type safety
-  if (service) {
-    return {
-      ...service,
-      suitableFor: service.suitableFor || [],
-      additionalImages: service.additionalImages || [],
-      videos: service.videos || [],
-      audienceSize: service.audienceSize || { min: 10, max: 200, optimal: 50 },
-      technicalRequirements: service.technicalRequirements || [],
-      setupTime: service.setupTime || 30,
-      tags: service.tags || [],
-      features: service.features || []
-    };
-  }
-  
-  return undefined;
+// Helper functions for finding services and providers - עכשיו עם נתונים מנורמלים
+export const getServiceById = (id: string): UnifiedService | undefined => {
+  return unifiedServices.find(service => service.id === id);
 };
 
 export const getProviderById = (id: string) => {
   return unifiedProviders.find(provider => provider.id === id);
 };
 
-export const getServicesByProvider = (providerId: string) => {
-  const services = unifiedServices.filter(service => service.providerId === providerId);
-  
-  // Ensure all required properties exist for each service
-  return services.map(service => ({
-    ...service,
-    suitableFor: service.suitableFor || [],
-    additionalImages: service.additionalImages || [],
-    videos: service.videos || [],
-    audienceSize: service.audienceSize || { min: 10, max: 200, optimal: 50 },
-    technicalRequirements: service.technicalRequirements || [],
-    setupTime: service.setupTime || 30,
-    tags: service.tags || [],
-    features: service.features || []
-  }));
+export const getServicesByProvider = (providerId: string): UnifiedService[] => {
+  return unifiedServices.filter(service => service.providerId === providerId);
 };
 
 export const getReviewsByService = (serviceId: string) => {
   return expandedMockReviews.filter(review => review.serviceId === serviceId);
 };
 
-export const getFeaturedServices = () => {
+export const getFeaturedServices = (): UnifiedService[] => {
   return unifiedServices.filter(service => service.featured).slice(0, 12);
 };
 
-export const searchServices = (query: string, filters?: any) => {
+export const searchServices = (query: string, filters?: any): UnifiedService[] => {
   let results = [...unifiedServices];
   
   if (query) {
@@ -90,19 +141,21 @@ export const searchServices = (query: string, filters?: any) => {
   return results;
 };
 
-export const getServicesByCategory = (category: string) => {
-  return getProductsByCategory(category);
+export const getServicesByCategory = (category: string): UnifiedService[] => {
+  const rawProducts = getProductsByCategory(category);
+  return rawProducts.map(normalizeService);
 };
 
-// Updated recommendation algorithm that uses the new expanded products
-export const getGuidedSearchRecommendations = (searchData: any) => {
+// Updated recommendation algorithm that uses the normalized products
+export const getGuidedSearchRecommendations = (searchData: any): UnifiedService[] => {
   console.log('Search data for recommendations:', searchData);
   
   // Use the enhanced filtering function from expandedMockData
-  const recommendations = filterProductsForGuidedSearch(searchData);
+  const rawRecommendations = filterProductsForGuidedSearch(searchData);
+  const normalizedRecommendations = rawRecommendations.map(normalizeService);
   
-  console.log('Filtered recommendations:', recommendations);
+  console.log('Filtered recommendations:', normalizedRecommendations);
   
   // If no results found, return some featured products as fallback
-  return recommendations.length > 0 ? recommendations : allServices.filter(s => s.featured).slice(0, 6);
+  return normalizedRecommendations.length > 0 ? normalizedRecommendations : allServices.filter(s => s.featured).slice(0, 6);
 };

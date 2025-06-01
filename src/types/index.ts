@@ -238,7 +238,7 @@ export interface SearchResultService {
   features?: string[];
   internalRanking?: number; // דירוג פנימי של המערכת
   isPromoted?: boolean;
-  // הוספת המאפיינים החסרים
+  // הוספת המאפיינים החסרים שגורמים לשגיאות TypeScript
   audienceSize?: {
     min: number;
     max: number;
@@ -247,22 +247,6 @@ export interface SearchResultService {
   duration?: number;
   technicalRequirements?: string[];
   setupTime?: number;
-}
-
-export interface SearchFilters {
-  category?: string;
-  subcategory?: string;
-  location?: string;
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  date?: string;
-  audienceSize?: number;
-  rating?: number;
-  features?: string[];
-  availability?: 'immediate' | 'week' | 'month';
-  sortBy?: 'price' | 'rating' | 'distance' | 'popularity' | 'internal_ranking';
 }
 
 // Booking Types
