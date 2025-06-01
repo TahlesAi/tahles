@@ -27,14 +27,21 @@ const TopProviders = () => {
         ...provider,
         dynamicScore: calculateScore(provider)
       }))
-      .sort((a, b) => b.dynamicScore - a.dynamicScore)
-      .slice(0, 9); // מספיק ל-3 סלידים של 3 ספקים כל אחד
+      .sort((a, b) => b.dynamicScore - a.dynamicScore);
   }, [providers, topProviders]);
 
-  // חלוקה לסלידים של 3 ספקים
+  // חלוקה לסלידים של 3 ספקים - עם הבטחת שורות שלמות
+  const itemsPerSlide = 3;
   const slides = [];
-  for (let i = 0; i < sortedProviders.length; i += 3) {
-    slides.push(sortedProviders.slice(i, i + 3));
+  
+  // יצירת רשימה מתרחבת כדי להבטיח שורות שלמות
+  const extendedProviders = [...sortedProviders];
+  while (extendedProviders.length % itemsPerSlide !== 0) {
+    extendedProviders.push(...sortedProviders.slice(0, itemsPerSlide - (extendedProviders.length % itemsPerSlide)));
+  }
+  
+  for (let i = 0; i < extendedProviders.length; i += itemsPerSlide) {
+    slides.push(extendedProviders.slice(i, i + itemsPerSlide));
   }
 
   if (slides.length === 0) {
@@ -61,8 +68,8 @@ const TopProviders = () => {
                   className="flex-[0_0_100%] min-w-0"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {slideProviders.map((provider) => (
-                      <div key={provider.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                    {slideProviders.map((provider, index) => (
+                      <div key={`${provider.id}-${slideIndex}-${index}`} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                         <Link to={`/providers/${provider.id}`}>
                           <div className="aspect-video bg-gray-100">
                             {provider.logo_url ? (
