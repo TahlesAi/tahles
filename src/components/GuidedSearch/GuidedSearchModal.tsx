@@ -158,10 +158,11 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
 
           {currentStep === STEPS.CONCEPT && (
             <ConceptStep 
-              selectedConcept={searchData.selectedHebrewConcept}
+              selectedConcept={searchData.eventConcept}
+              selectedHebrewConcept={searchData.selectedHebrewConcept}
               selectedSubconcept={searchData.selectedSubconcept}
               eventType={searchData.eventType}
-              hebrewConcepts={hebrewConcepts}
+              hebrewCategories={hebrewCategories}
               onSelectConcept={(concept) => updateSearchData({ selectedHebrewConcept: concept })}
               onSelectSubconcept={(subconcept) => updateSearchData({ selectedSubconcept: subconcept })}
               onNext={handleNext}

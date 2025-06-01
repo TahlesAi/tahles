@@ -12,22 +12,24 @@ interface ConceptStepProps {
   eventType?: EventType;
   selectedConcept?: string;
   selectedHebrewConcept?: HebrewConcept | null;
+  selectedSubconcept?: string;
   hebrewCategories: HebrewCategory[];
-  onUpdate: (
-    concept: string, 
-    details?: string, 
-    audience?: 'family' | 'friends' | 'mixed' | null,
-    category?: string,
-    subcategory?: string
-  ) => void;
+  onSelectConcept: (concept: HebrewConcept) => void;
+  onSelectSubconcept: (subconcept: string) => void;
+  onNext: () => void;
+  onBack: () => void;
 }
 
 const ConceptStep = ({ 
   eventType, 
-  selectedConcept, 
+  selectedConcept,
   selectedHebrewConcept,
+  selectedSubconcept,
   hebrewCategories,
-  onUpdate 
+  onSelectConcept,
+  onSelectSubconcept,
+  onNext,
+  onBack
 }: ConceptStepProps) => {
   const [detailInput, setDetailInput] = useState(selectedConcept || "");
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
@@ -45,6 +47,7 @@ const ConceptStep = ({
     const subconcept = availableSubconcepts.find(s => s.id === subconceptId);
     if (subconcept) {
       setDetailInput(subconcept.id);
+      onSelectSubconcept(subconceptId);
       setShowSubconcepts(false);
       setShowCategories(true);
       // Scroll to top of modal content
@@ -88,7 +91,7 @@ const ConceptStep = ({
     setAudience(selectedAudience);
     setShowAudience(false);
     // Proceed to results immediately
-    onUpdate(detailInput, detailInput, selectedAudience, selectedCategory, selectedSubcategory);
+    onNext();
   };
 
   // Get subcategories for selected category
