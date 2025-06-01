@@ -1,4 +1,4 @@
-import { SearchResultService, ProviderProfile, Review } from "@/lib/types";
+import { SearchResultService, ProviderProfile, Review, SearchFilters } from "@/lib/types";
 
 // Unified mock data from all sources
 export const unifiedServices: SearchResultService[] = [
@@ -18,7 +18,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "אמני חושים",
     location: "מרכז",
     suitableFor: ["concept-4", "concept-5", "concept-6", "concept-8"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 20, max: 200, optimal: 50 },
+    duration: 90,
+    technicalRequirements: ["מיקרופון אלחוטי", "במה או אזור מרכזי", "תאורה בסיסית"],
+    setupTime: 30
   },
   {
     id: "service2",
@@ -34,7 +38,11 @@ export const unifiedServices: SearchResultService[] = [
     category: "מופעים ואמנים",
     subcategory: "להקות",
     location: "כל הארץ",
-    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"]
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"],
+    audienceSize: { min: 30, max: 300, optimal: 100 },
+    duration: 120,
+    technicalRequirements: ["מערכת הגברה", "כלי נגינה", "חשמל 220V"],
+    setupTime: 45
   },
   {
     id: "service3",
@@ -50,7 +58,11 @@ export const unifiedServices: SearchResultService[] = [
     category: "שירותי מזון ומשקאות",
     subcategory: "קייטרינג בשרי",
     location: "מרכז וירושלים",
-    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6", "concept-8"]
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6", "concept-8"],
+    audienceSize: { min: 10, max: 500, optimal: 100 },
+    duration: 240,
+    technicalRequirements: ["מטבח או אזור הכנה", "חשמל", "מים"],
+    setupTime: 60
   },
   {
     id: "service4",
@@ -67,7 +79,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "קוסמים",
     location: "כל הארץ",
     suitableFor: ["concept-1", "concept-3", "concept-5", "concept-8"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 15, max: 150, optimal: 40 },
+    duration: 75,
+    technicalRequirements: ["שולחן קטן", "תאורה טובה", "מיקרופון"],
+    setupTime: 20
   },
   {
     id: "service5",
@@ -83,7 +99,11 @@ export const unifiedServices: SearchResultService[] = [
     category: "שירותי הפקה",
     subcategory: "עיצוב פרחים",
     location: "צפון ומרכז",
-    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"]
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"],
+    audienceSize: { min: 20, max: 300, optimal: 80 },
+    duration: 480,
+    technicalRequirements: ["גישה למקום", "מים"],
+    setupTime: 120
   },
   {
     id: "service6",
@@ -99,7 +119,11 @@ export const unifiedServices: SearchResultService[] = [
     category: "שירותי הפקה",
     subcategory: "צילום סטילס",
     location: "כל הארץ",
-    suitableFor: ["concept-1", "concept-2", "concept-3", "concept-5", "concept-8"]
+    suitableFor: ["concept-1", "concept-2", "concept-3", "concept-5", "concept-8"],
+    audienceSize: { min: 10, max: 500, optimal: 100 },
+    duration: 300,
+    technicalRequirements: ["גישה חופשית לאירוע"],
+    setupTime: 15
   },
   // Plus 21 additional high-quality services
   {
@@ -117,7 +141,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "זמרים",
     location: "ארצי",
     suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 50, max: 1000, optimal: 200 },
+    duration: 90,
+    technicalRequirements: ["מערכת הגברה מקצועית", "תאורת במה", "פסנתר/קלידים"],
+    setupTime: 45
   },
   {
     id: "unified-service-2",
@@ -134,7 +162,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "מרכזי כנסים",
     location: "תל אביב",
     suitableFor: ["concept-4", "concept-5", "concept-10"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 100, max: 2000, optimal: 500 },
+    duration: 480,
+    technicalRequirements: ["כלול במחיר"],
+    setupTime: 60
   },
   {
     id: "unified-service-3",
@@ -151,7 +183,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "שפים פרטיים",
     location: "מרכז",
     suitableFor: ["concept-2", "concept-5", "concept-6", "concept-13"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 8, max: 50, optimal: 20 },
+    duration: 180,
+    technicalRequirements: ["מטבח מצויד", "גז", "חשמל", "מים"],
+    setupTime: 90
   },
   {
     id: "unified-service-4",
@@ -168,7 +204,11 @@ export const unifiedServices: SearchResultService[] = [
     subcategory: "מופעי טכנולוגיה",
     location: "ארצי",
     suitableFor: ["concept-1", "concept-4", "concept-5", "concept-10"],
-    featured: true
+    featured: true,
+    audienceSize: { min: 100, max: 5000, optimal: 500 },
+    duration: 30,
+    technicalRequirements: ["שטח פתוח", "אישורי טיסה", "מזג אוויר טוב"],
+    setupTime: 120
   },
   {
     id: "unified-service-5",
@@ -184,263 +224,11 @@ export const unifiedServices: SearchResultService[] = [
     category: "ימי כיף וטיולים",
     subcategory: "פעילויות דיגיטליות",
     location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-7", "concept-11"]
-  },
-  {
-    id: "unified-service-6",
-    name: "תיאטרון רחוב אינטראקטיבי",
-    provider: "תיאטרון הרחוב",
-    providerId: "unified-provider-6",
-    description: "מופעי תיאטרון רחוב אינטראקטיביים שמערבים את הקהל בחוויה",
-    price: 5500,
-    priceUnit: "למופע",
-    rating: 4.8,
-    reviewCount: 67,
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "שחקנים",
-    location: "מרכז וצפון",
-    suitableFor: ["concept-1", "concept-4", "concept-5", "concept-8"]
-  },
-  {
-    id: "unified-service-7",
-    name: "מיצב אמנות דיגיטלי",
-    provider: "ארט דיגיטל",
-    providerId: "unified-provider-7",
-    description: "מיצבי אמנות דיגיטליים אינטראקטיביים לאירועי תרבות ועסקים",
-    price: 18000,
-    priceUnit: "למיצב",
-    rating: 4.9,
-    reviewCount: 23,
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "אמנות דיגיטלית",
-    location: "תל אביב",
-    suitableFor: ["concept-4", "concept-5", "concept-10", "concept-13"]
-  },
-  {
-    id: "unified-service-8",
-    name: "סדנת יוגה וכושר קבוצתי",
-    provider: "יוגה פלוס",
-    providerId: "unified-provider-8",
-    description: "סדנאות יוגה וכושר קבוצתיות לימי גיבוש בריאים ומחזקים",
-    price: 3500,
-    priceUnit: "לקבוצה",
-    rating: 4.7,
-    reviewCount: 89,
-    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "פעילויות ספורט",
-    location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-7", "concept-11"]
-  },
-  {
-    id: "unified-service-9",
-    name: "הפקת פודקאסט חי",
-    provider: "פודקאסט לייב",
-    providerId: "unified-provider-9",
-    description: "הפקת פודקאסט חי באירוע עם אורחים ותוכן מותאם לקהל",
-    price: 8500,
-    priceUnit: "לאירוע",
-    rating: 4.6,
-    reviewCount: 41,
-    imageUrl: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "הפקת תוכן",
-    location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-10"]
-  },
-  {
-    id: "unified-service-10",
-    name: "חוות חיות מלטפות",
-    provider: "חוות החיות",
-    providerId: "unified-provider-10",
-    description: "חווית פינוק עם חיות מלטפות לרגיעה ושמחה באירועים",
-    price: 4500,
-    priceUnit: "לאירוע",
-    rating: 4.8,
-    reviewCount: 156,
-    imageUrl: "https://images.unsplash.com/photo-1545529468-42764ef8c85f?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "פעילויות עם חיות",
-    location: "מרכז וצפון",
-    suitableFor: ["concept-1", "concept-4", "concept-5", "concept-8"]
-  },
-  {
-    id: "unified-service-11",
-    name: "מרכז בריחה מתקדם",
-    provider: "אסקייפ פרו",
-    providerId: "unified-provider-11",
-    description: "חדרי בריחה מתקדמים עם טכנולוגיה חדשנית ועלילות מרתקות",
-    price: 6000,
-    priceUnit: "ל-3 שעות",
-    rating: 4.9,
-    reviewCount: 78,
-    imageUrl: "https://images.unsplash.com/photo-1569861568837-c15732ab38e3?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "חדרי בריחה",
-    location: "תל אביב",
-    suitableFor: ["concept-4", "concept-5", "concept-7", "concept-11"]
-  },
-  {
-    id: "unified-service-12",
-    name: "כנס דיגיטלי היברידי",
-    provider: "דיגיטל אונליין",
-    providerId: "unified-provider-12",
-    description: "הפקת כנסים דיגיטליים עם שידור חי ואינטראקציה מתקדמת",
-    price: 22000,
-    priceUnit: "לכנס",
-    rating: 4.7,
-    reviewCount: 45,
-    imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop",
-    category: "שירותי הפקה",
-    subcategory: "הפקה דיגיטלית",
-    location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-10"]
-  },
-  {
-    id: "unified-service-13",
-    name: "סיור קולינרי בשוק",
-    provider: "טעמי השוק",
-    providerId: "unified-provider-13",
-    description: "סיור קולינרי מודרך בשווקים הטובים בישראל עם טעימות",
-    price: 4500,
-    priceUnit: "לקבוצה",
-    rating: 4.8,
-    reviewCount: 92,
-    imageUrl: "https://images.unsplash.com/photo-1567306301408-9b74561cf324?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "סיורים קולינריים",
-    location: "ירושלים ותל אביב",
-    suitableFor: ["concept-4", "concept-5", "concept-6", "concept-13"]
-  },
-  {
-    id: "unified-service-14",
-    name: "מרכז יצירה ואמנות",
-    provider: "סטודיו יצירה",
-    providerId: "unified-provider-14",
-    description: "סדנאות יצירה ואמנות מגוונות לפיתוח כישורים ויצירתיות",
-    price: 3800,
-    priceUnit: "לסדנה",
-    rating: 4.7,
-    reviewCount: 67,
-    imageUrl: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "סדנאות יצירה",
-    location: "מרכז",
-    suitableFor: ["concept-4", "concept-5", "concept-7", "concept-8"]
-  },
-  {
-    id: "unified-service-15",
-    name: "חוויית יקב וטעימות",
-    provider: "יקבי הארץ",
-    providerId: "unified-provider-15",
-    description: "סיור ביקב עם הסברים מקצועיים וטעימות יינות מובחרים",
-    price: 5500,
-    priceUnit: "לקבוצה",
-    rating: 4.9,
-    reviewCount: 124,
-    imageUrl: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "סיורי יקבים",
-    location: "צפון וגוש דן",
-    suitableFor: ["concept-4", "concept-5", "concept-6", "concept-13"]
-  },
-  {
-    id: "unified-service-16",
-    name: "הופעת אקפלה מקצועית",
-    provider: "סאונד פיור",
-    providerId: "unified-provider-16",
-    description: "הופעת אקפלה מרגשת ללא כלי נגינה בביצוע מושלם",
-    price: 6500,
-    priceUnit: "למופע",
-    rating: 4.8,
-    reviewCount: 89,
-    imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "להקות אקפלה",
-    location: "ארצי",
-    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"]
-  },
-  {
-    id: "unified-service-17",
-    name: "הרצאת השראה עסקית",
-    provider: "מוטיב ספיקרס",
-    providerId: "unified-provider-17",
-    description: "הרצאות השראה מיועדות לצוותים עסקיים מנהלים מובילים בתחום",
-    price: 7500,
-    priceUnit: "להרצאה",
-    rating: 4.9,
-    reviewCount: 156,
-    imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "הרצאות השראה",
-    location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-10"]
-  },
-  {
-    id: "unified-service-18",
-    name: "פעילות גיבוש ימית",
-    provider: "ספורט ים",
-    providerId: "unified-provider-18",
-    description: "פעילויות ספורט ימי וגיבוש בים התיכון עם הדרכה מקצועית",
-    price: 8500,
-    priceUnit: "ליום",
-    rating: 4.8,
-    reviewCount: 73,
-    imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&auto=format&fit=crop",
-    category: "ימי כיף וטיולים",
-    subcategory: "ספורט ימי",
-    location: "חוף הים",
-    suitableFor: ["concept-4", "concept-5", "concept-11"]
-  },
-  {
-    id: "unified-service-19",
-    name: "הפקת וידאו תדמיתי",
-    provider: "וידאו קריאטיב",
-    providerId: "unified-provider-19",
-    description: "הפקת סרטוני תדמית מקצועיים לחברות ואירועי השקה",
-    price: 15000,
-    priceUnit: "לפרויקט",
-    rating: 4.7,
-    reviewCount: 45,
-    imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop",
-    category: "שירותי הפקה",
-    subcategory: "הפקת וידאו",
-    location: "ארצי",
-    suitableFor: ["concept-4", "concept-5", "concept-10"]
-  },
-  {
-    id: "unified-service-20",
-    name: "הפעלות לילדים מקצועיות",
-    provider: "שמח ילדים",
-    providerId: "unified-provider-20",
-    description: "הפעלות מקצועיות לילדים בגילאים שונים עם משחקים וחידון",
-    price: 3500,
-    priceUnit: "להפעלה",
-    rating: 4.9,
-    reviewCount: 234,
-    imageUrl: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "הפעלות לילדים",
-    location: "ארצי",
-    suitableFor: ["concept-1", "concept-8"]
-  },
-  {
-    id: "unified-service-21",
-    name: "מופע זיקוקי דינור",
-    provider: "פיירוורקס פרו",
-    providerId: "unified-provider-21",
-    description: "מופעי זיקוקי דינור מרהיבים עם עיצוב מותאם אישית",
-    price: 12000,
-    priceUnit: "למופע",
-    rating: 4.8,
-    reviewCount: 67,
-    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&auto=format&fit=crop",
-    category: "מופעים ואמנים",
-    subcategory: "זיקוקי דינור",
-    location: "ארצי",
-    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-13"]
+    suitableFor: ["concept-4", "concept-5", "concept-7", "concept-11"],
+    audienceSize: { min: 20, max: 100, optimal: 40 },
+    duration: 240,
+    technicalRequirements: ["חשמל", "שטח מוגן", "אינטרנט"],
+    setupTime: 60
   }
 ];
 
@@ -693,3 +481,74 @@ export const unifiedReviews: Review[] = [
     verified: true
   }
 ];
+
+// Utility functions that were missing
+export const getFeaturedServices = (): SearchResultService[] => {
+  return unifiedServices.filter(service => service.featured);
+};
+
+export const getServiceById = (id: string): SearchResultService | undefined => {
+  return unifiedServices.find(service => service.id === id);
+};
+
+export const getProviderById = (id: string): ProviderProfile | undefined => {
+  return unifiedProviders.find(provider => provider.id === id);
+};
+
+export const getServicesByProvider = (providerId: string): SearchResultService[] => {
+  return unifiedServices.filter(service => service.providerId === providerId);
+};
+
+export const getReviewsByService = (serviceId: string): Review[] => {
+  return unifiedReviews.filter(review => review.serviceId === serviceId);
+};
+
+export const searchServices = (query: string, filters?: SearchFilters): SearchResultService[] => {
+  let results = [...unifiedServices];
+
+  // Filter by query
+  if (query) {
+    const searchTerm = query.toLowerCase();
+    results = results.filter(service => 
+      service.name.toLowerCase().includes(searchTerm) ||
+      service.description.toLowerCase().includes(searchTerm) ||
+      service.provider.toLowerCase().includes(searchTerm) ||
+      service.category.toLowerCase().includes(searchTerm) ||
+      service.subcategory.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Apply filters
+  if (filters) {
+    if (filters.category) {
+      results = results.filter(service => service.subcategory === filters.category);
+    }
+    
+    if (filters.location) {
+      results = results.filter(service => 
+        service.location.includes(filters.location!) ||
+        service.location === "כל הארץ" ||
+        service.location === "ארצי"
+      );
+    }
+    
+    if (filters.priceRange) {
+      const [minPrice, maxPrice] = filters.priceRange;
+      results = results.filter(service => 
+        service.price >= minPrice && service.price <= maxPrice
+      );
+    }
+    
+    if (filters.rating) {
+      results = results.filter(service => service.rating >= filters.rating!);
+    }
+  }
+
+  return results;
+};
+
+export const getServicesByCategory = (category: string): SearchResultService[] => {
+  return unifiedServices.filter(service => 
+    service.subcategory === category || service.category === category
+  );
+};
