@@ -1,4 +1,3 @@
-
 // Base Types
 export interface BaseEntity {
   id: string;
@@ -300,6 +299,7 @@ export interface Review extends BaseEntity {
   userAvatar?: string;
   rating: number;
   comment?: string;
+  date: string; // הוספנו את השדה החסר
   verified?: boolean;
   isApproved?: boolean;
   helpfulVotes?: number;
@@ -368,6 +368,70 @@ export interface SystemConfig {
   };
   autoApprovalThreshold: number; // rating threshold for auto-approval
   featuredServicePrice: number; // מחיר להדגשת שירות
+}
+
+// Provider Profile Types
+export interface ProviderProfile {
+  id: string;
+  userId?: string;
+  businessName: string;
+  description: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address?: string;
+  city?: string;
+  website?: string;
+  categories: string[];
+  logo?: string;
+  coverImage?: string;
+  gallery: string[];
+  rating?: number;
+  reviewCount?: number;
+  featured?: boolean;
+  verified?: boolean;
+  services?: Service[];
+  specialties?: string[];
+  yearsExperience?: number;
+  insurance?: boolean;
+  testimonials?: any[];
+}
+
+export interface ServiceProfile {
+  id: string;
+  providerId: string;
+  name: string;
+  description: string;
+  price: number;
+  priceUnit?: string;
+  duration?: number;
+  maxAttendees?: number;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  suitableFor: string[];
+  featured?: boolean;
+  setupTime?: number;
+  audienceSize?: number;
+  audienceAges?: string[];
+  technicalRequirements?: string[];
+  eventTypes?: string[];
+  isReceptionService?: boolean;
+  videos?: string[];
+  additionalImages?: string[];
+  additional_images?: string[];
+  video_urls?: string[];
+  features?: string[];
+  additionalOptions?: {
+    id: string;
+    name: string;
+    price: number;
+    description?: string;
+  }[];
+  rating?: number;
+  reviewCount?: number;
+  location?: string;
+  tags?: string[];
 }
 
 // Legacy Types for Compatibility
