@@ -6,19 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEventContext } from "@/context/EventContext";
 import { useNavigate } from "react-router-dom";
+import { SearchSuggestion } from "@/lib/types";
 
 interface AutocompleteSearchProps {
   onSearch?: (query: string) => void;
   placeholder?: string;
   className?: string;
+  suggestions?: SearchSuggestion[];
+  inputClassName?: string;
+  buttonClassName?: string;
+  dir?: "rtl" | "ltr";
+  showButton?: boolean;
+  showCommandBar?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const AutocompleteSearch = ({ 
   onSearch, 
   placeholder = "חפש שירותים, ספקים או קטגוריות...", 
-  className = "" 
+  className = "",
+  suggestions: externalSuggestions,
+  inputClassName,
+  buttonClassName,
+  dir = "rtl",
+  showButton = true,
+  showCommandBar = false,
+  value: externalValue,
+  onChange: externalOnChange
 }: AutocompleteSearchProps) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(externalValue || '');
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,7 +43,26 @@ const AutocompleteSearch = ({
   
   const { categories, providers, services } = useEventContext();
 
+  // Sync with external value
   useEffect(() => {
+    if (externalValue !== undefined) {
+      setQuery(externalValue);
+    }
+  }, [externalValue]);
+
+  // Handle external suggestions or generate internal ones
+  useEffect(() => {
+    if (externalSuggestions) {
+      setSuggestions(externalSuggestions.map(s => ({
+        type: s.type || 'suggestion',
+        id: s.id,
+        name: s.value,
+        description: s.type
+      })));
+      setIsOpen(query.length > 1);
+      return;
+    }
+
     if (query.length > 1) {
       const filteredSuggestions = [];
       
@@ -72,7 +108,14 @@ const AutocompleteSearch = ({
       setSuggestions([]);
       setIsOpen(false);
     }
-  }, [query, categories, providers, services]);
+  }, [query, categories, providers, services, externalSuggestions]);
+
+  const handleInputChange = (newValue: string) => {
+    setQuery(newValue);
+    if (externalOnChange) {
+      externalOnChange(newValue);
+    }
+  };
 
   const handleSearch = () => {
     if (query.trim()) {
@@ -86,7 +129,11 @@ const AutocompleteSearch = ({
   };
 
   const handleSuggestionClick = (suggestion: any) => {
-    setQuery(suggestion.name);
+    const newValue = suggestion.name;
+    setQuery(newValue);
+    if (externalOnChange) {
+      externalOnChange(newValue);
+    }
     setIsOpen(false);
     
     switch (suggestion.type) {
@@ -104,13 +151,50 @@ const AutocompleteSearch = ({
 
   const clearSearch = () => {
     setQuery('');
+    if (externalOnChange) {
+      externalOnChange('');
+    }
     setSuggestions([]);
     setIsOpen(false);
     inputRef.current?.focus();
   };
 
+  // If showCommandBar is true, only show suggestions dropdown
+  if (showCommandBar) {
+    return (
+      <div className={`relative ${className}`} dir={dir}>
+        {isOpen && suggestions.length > 0 && (
+          <Card className="absolute top-0 left-0 right-0 z-50 max-h-80 overflow-y-auto">
+            <CardContent className="p-0">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={`${suggestion.type}-${suggestion.id}`}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
+                >
+                  <div className="font-medium text-gray-900">{suggestion.name}</div>
+                  {suggestion.description && (
+                    <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      {suggestion.description}
+                    </div>
+                  )}
+                  <div className="text-xs text-brand-600 mt-1">
+                    {suggestion.type === 'category' && 'קטגוריה'}
+                    {suggestion.type === 'provider' && 'ספק'}
+                    {suggestion.type === 'service' && 'מוצר'}
+                    {suggestion.type === 'suggestion' && suggestion.description}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className={`relative ${className}`} dir="rtl">
+    <div className={`relative ${className}`} dir={dir}>
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
@@ -118,17 +202,17 @@ const AutocompleteSearch = ({
           type="text"
           placeholder={placeholder}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           onFocus={() => query.length > 1 && setIsOpen(true)}
-          className="pr-10 pl-10 text-right placeholder:text-right"
+          className={`pr-10 pl-10 text-right placeholder:text-right ${inputClassName || ''}`}
         />
         {query && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearSearch}
-            className="absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            className={`absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 ${buttonClassName || ''}`}
           >
             <X className="h-3 w-3" />
           </Button>
@@ -155,6 +239,7 @@ const AutocompleteSearch = ({
                   {suggestion.type === 'category' && 'קטגוריה'}
                   {suggestion.type === 'provider' && 'ספק'}
                   {suggestion.type === 'service' && 'מוצר'}
+                  {suggestion.type === 'suggestion' && suggestion.description}
                 </div>
               </div>
             ))}
