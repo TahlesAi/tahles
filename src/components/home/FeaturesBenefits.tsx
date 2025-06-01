@@ -59,7 +59,7 @@ const FeaturesBenefits = () => {
   return (
     <section className="py-16 bg-gray-50" dir="rtl">
       <div className="container px-4">
-        <h2 className="text-2xl font-bold mb-8 text-center">למה ת'כל'ס?</h2>
+        <h2 className="text-2xl font-bold mb-8 text-center">למה תכלס?</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (

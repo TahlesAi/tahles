@@ -39,7 +39,7 @@ const iconMapping: Record<string, React.ComponentType<any>> = {
 const ServiceCategoriesUnified = () => {
   const { hebrewCategories, isLoading, error } = useEventContext();
   const isMobile = useIsMobile();
-  const { emblaRef } = useAutoCarousel({ delay: 2000 });
+  const { emblaRef } = useAutoCarousel({ delay: 3000 });
 
   if (isLoading) {
     return (
@@ -49,8 +49,8 @@ const ServiceCategoriesUnified = () => {
             <Skeleton className="h-8 w-64 mx-auto mb-4" />
             <Skeleton className="h-6 w-96 mx-auto" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
               <Skeleton key={i} className="h-48" />
             ))}
           </div>
@@ -70,11 +70,18 @@ const ServiceCategoriesUnified = () => {
     );
   }
 
-  // חלוקת הקטגוריות לחבילות לפי גודל המסך
-  const itemsPerSlide = isMobile ? 1 : 4;
+  // חלוקת הקטגוריות לחבילות של 3 בקטגוריה רגילה, 1 במובייל
+  const itemsPerSlide = isMobile ? 1 : 3;
   const slides = [];
-  for (let i = 0; i < hebrewCategories.length; i += itemsPerSlide) {
-    slides.push(hebrewCategories.slice(i, i + itemsPerSlide));
+  
+  // יצירת רשימה מתרחבת כדי להבטיח שורות שלמות
+  const extendedCategories = [...hebrewCategories];
+  while (extendedCategories.length % itemsPerSlide !== 0) {
+    extendedCategories.push(...hebrewCategories.slice(0, itemsPerSlide - (extendedCategories.length % itemsPerSlide)));
+  }
+  
+  for (let i = 0; i < extendedCategories.length; i += itemsPerSlide) {
+    slides.push(extendedCategories.slice(i, i + itemsPerSlide));
   }
 
   return (
@@ -98,15 +105,15 @@ const ServiceCategoriesUnified = () => {
                   <div className={`grid gap-6 ${
                     isMobile 
                       ? 'grid-cols-1' 
-                      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                      : 'grid-cols-3'
                   }`}>
-                    {slideCategories.map((category) => {
+                    {slideCategories.map((category, index) => {
                       const Icon = iconMapping[category.icon || "MapPin"];
                       const subcategoryCount = category.subcategories ? category.subcategories.length : 0;
                       
                       return (
                         <Link
-                          key={category.id}
+                          key={`${category.id}-${slideIndex}-${index}`}
                           to={`/categories/${category.id}`}
                           className="group block"
                         >

@@ -1,6 +1,6 @@
 
 import { useCallback, useEffect, useRef } from 'react';
-import useEmblaCarousel, { EmblaCarouselType } from 'embla-carousel-react';
+import useEmblaCarousel, { UseEmblaCarouselType } from 'embla-carousel-react';
 
 interface UseAutoCarouselOptions {
   delay?: number;
