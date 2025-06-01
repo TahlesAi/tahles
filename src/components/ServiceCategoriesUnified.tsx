@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEventContext } from "@/context/EventContext";
+import { useAutoCarousel } from "@/hooks/useAutoCarousel";
 import {
   Utensils,
   Mic,
@@ -18,6 +19,7 @@ import {
   Building
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import useIsMobile from "@/hooks/use-mobile";
 
 const iconMapping: Record<string, React.ComponentType<any>> = {
   "Utensils": Utensils,
@@ -36,6 +38,8 @@ const iconMapping: Record<string, React.ComponentType<any>> = {
 
 const ServiceCategoriesUnified = () => {
   const { hebrewCategories, isLoading, error } = useEventContext();
+  const isMobile = useIsMobile();
+  const { emblaRef } = useAutoCarousel({ delay: 2000 });
 
   if (isLoading) {
     return (
@@ -66,6 +70,13 @@ const ServiceCategoriesUnified = () => {
     );
   }
 
+  // חלוקת הקטגוריות לחבילות לפי גודל המסך
+  const itemsPerSlide = isMobile ? 1 : 4;
+  const slides = [];
+  for (let i = 0; i < hebrewCategories.length; i += itemsPerSlide) {
+    slides.push(hebrewCategories.slice(i, i + itemsPerSlide));
+  }
+
   return (
     <section className="py-16 bg-gray-50" dir="rtl">
       <div className="container px-4">
@@ -76,40 +87,79 @@ const ServiceCategoriesUnified = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {hebrewCategories.map((category) => {
-            const Icon = iconMapping[category.icon || "MapPin"];
-            const subcategoryCount = category.subcategories ? category.subcategories.length : 0;
-            
-            return (
-              <Link
-                key={category.id}
-                to={`/categories/${category.id}`}
-                className="group block"
-              >
-                <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <CardContent className="p-6 text-center">
-                    <div className="mb-4 flex justify-center">
-                      <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center group-hover:bg-brand-200 transition-colors">
-                        {Icon && <Icon className="h-8 w-8 text-brand-600" />}
-                      </div>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-brand-600 transition-colors">
-                      {category.name}
-                    </h3>
-                    {category.description && (
-                      <p className="text-sm text-gray-500 leading-relaxed mb-4">
-                        {category.description}
-                      </p>
-                    )}
-                    <div className="mt-4 text-sm text-brand-600 font-medium">
-                      {subcategoryCount} תתי קטגוריות
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+        <div className="relative">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {slides.map((slideCategories, slideIndex) => (
+                <div 
+                  key={slideIndex} 
+                  className="flex-[0_0_100%] min-w-0"
+                >
+                  <div className={`grid gap-6 ${
+                    isMobile 
+                      ? 'grid-cols-1' 
+                      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  }`}>
+                    {slideCategories.map((category) => {
+                      const Icon = iconMapping[category.icon || "MapPin"];
+                      const subcategoryCount = category.subcategories ? category.subcategories.length : 0;
+                      
+                      return (
+                        <Link
+                          key={category.id}
+                          to={`/categories/${category.id}`}
+                          className="group block"
+                        >
+                          <Card className={`h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105 ${
+                            isMobile ? 'h-20' : 'h-auto'
+                          }`}>
+                            <CardContent className={`text-center ${
+                              isMobile ? 'p-4 flex items-center' : 'p-6'
+                            }`}>
+                              <div className={`${isMobile ? 'mr-4' : 'mb-4'} flex ${isMobile ? '' : 'justify-center'}`}>
+                                <div className={`bg-brand-100 rounded-full flex items-center justify-center group-hover:bg-brand-200 transition-colors ${
+                                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
+                                }`}>
+                                  {Icon && <Icon className={`text-brand-600 ${isMobile ? 'h-6 w-6' : 'h-8 w-8'}`} />}
+                                </div>
+                              </div>
+                              <div className={isMobile ? 'flex-1' : ''}>
+                                <h3 className={`font-semibold group-hover:text-brand-600 transition-colors ${
+                                  isMobile ? 'text-base mb-1 text-right' : 'text-lg mb-2'
+                                }`}>
+                                  {category.name}
+                                </h3>
+                                {!isMobile && category.description && (
+                                  <p className="text-sm text-gray-500 leading-relaxed mb-4">
+                                    {category.description}
+                                  </p>
+                                )}
+                                <div className={`text-brand-600 font-medium ${
+                                  isMobile ? 'text-sm text-right' : 'text-sm mt-4'
+                                }`}>
+                                  {subcategoryCount} תתי קטגוריות
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* אינדיקטורי קרוסלה */}
+          <div className="flex justify-center mt-6 space-x-2">
+            {slides.map((_, index) => (
+              <div
+                key={index}
+                className="w-2 h-2 rounded-full bg-gray-300 animate-pulse"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
