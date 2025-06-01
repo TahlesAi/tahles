@@ -24,7 +24,7 @@ interface AutocompleteSearchProps {
 
 const AutocompleteSearch = ({ 
   onSearch, 
-  placeholder = "חפש שירותים, ספקים או קטגוריות...", 
+  placeholder = "חפש שירותים...", 
   className = "",
   suggestions: externalSuggestions,
   inputClassName,
@@ -102,7 +102,7 @@ const AutocompleteSearch = ({
         }
       });
       
-      setSuggestions(filteredSuggestions.slice(0, 8));
+      setSuggestions(filteredSuggestions.slice(0, 6));
       setIsOpen(true);
     } else {
       setSuggestions([]);
@@ -164,21 +164,21 @@ const AutocompleteSearch = ({
     return (
       <div className={`relative ${className}`} dir={dir}>
         {isOpen && suggestions.length > 0 && (
-          <Card className="absolute top-0 left-0 right-0 z-50 max-h-80 overflow-y-auto">
+          <Card className="absolute top-0 left-0 right-0 z-50 max-h-64 overflow-y-auto border-gray-200">
             <CardContent className="p-0">
               {suggestions.map((suggestion, index) => (
                 <div
                   key={`${suggestion.type}-${suggestion.id}`}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
+                  className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
                 >
-                  <div className="font-medium text-gray-900">{suggestion.name}</div>
+                  <div className="font-medium text-sm text-gray-900">{suggestion.name}</div>
                   {suggestion.description && (
-                    <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    <div className="text-xs text-gray-500 mt-1 line-clamp-1">
                       {suggestion.description}
                     </div>
                   )}
-                  <div className="text-xs text-brand-600 mt-1">
+                  <div className="text-xs text-blue-600 mt-1">
                     {suggestion.type === 'category' && 'קטגוריה'}
                     {suggestion.type === 'provider' && 'ספק'}
                     {suggestion.type === 'service' && 'מוצר'}
@@ -205,7 +205,7 @@ const AutocompleteSearch = ({
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           onFocus={() => query.length > 1 && setIsOpen(true)}
-          className={`pr-10 pl-10 text-right placeholder:text-right ${inputClassName || ''}`}
+          className={`pr-10 pl-8 text-right placeholder:text-right h-9 text-sm ${inputClassName || ''}`}
         />
         {query && (
           <Button
@@ -219,23 +219,23 @@ const AutocompleteSearch = ({
         )}
       </div>
 
-      {/* רשימת הצעות */}
+      {/* רשימת הצעות - קומפקטית יותר */}
       {isOpen && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-80 overflow-y-auto">
+        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-64 overflow-y-auto border-gray-200">
           <CardContent className="p-0">
             {suggestions.map((suggestion, index) => (
               <div
                 key={`${suggestion.type}-${suggestion.id}`}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
+                className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
               >
-                <div className="font-medium text-gray-900">{suggestion.name}</div>
+                <div className="font-medium text-sm text-gray-900">{suggestion.name}</div>
                 {suggestion.description && (
-                  <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                  <div className="text-xs text-gray-500 mt-1 line-clamp-1">
                     {suggestion.description}
                   </div>
                 )}
-                <div className="text-xs text-brand-600 mt-1">
+                <div className="text-xs text-blue-600 mt-1">
                   {suggestion.type === 'category' && 'קטגוריה'}
                   {suggestion.type === 'provider' && 'ספק'}
                   {suggestion.type === 'service' && 'מוצר'}
