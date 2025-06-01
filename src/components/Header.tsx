@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Search, Calendar } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import AuthModal from "./AuthModal";
+import SearchableHeader from "@/components/ui/searchable-header";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,13 +30,21 @@ const Header = () => {
               <span className="text-xl font-bold text-gray-900">תכלס</span>
             </Link>
 
+            {/* סרגל חיפוש - דסקטופ */}
+            <div className="hidden md:flex flex-1 justify-center max-w-md">
+              <SearchableHeader
+                placeholder="חיפוש שירותים..."
+                className="w-full"
+                inputClassName="h-9 text-sm border-gray-300"
+                dir="rtl"
+                useGuidedSearch={false}
+              />
+            </div>
+
             {/* ניווט עיקרי - דסקטופ */}
             <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
               <Link to="/categories" className="text-gray-600 hover:text-blue-600 transition-colors">
                 קטגוריות
-              </Link>
-              <Link to="/search" className="text-gray-600 hover:text-blue-600 transition-colors">
-                חיפוש מתקדם
               </Link>
               <Button
                 variant="outline"
@@ -82,6 +91,17 @@ const Header = () => {
             </Button>
           </div>
 
+          {/* סרגל חיפוש - מובייל */}
+          <div className="md:hidden pb-3">
+            <SearchableHeader
+              placeholder="חיפוש שירותים..."
+              className="w-full"
+              inputClassName="h-9 text-sm border-gray-300"
+              dir="rtl"
+              useGuidedSearch={false}
+            />
+          </div>
+
           {/* תפריט מובייל */}
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t">
@@ -92,13 +112,6 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   קטגוריות
-                </Link>
-                <Link
-                  to="/search"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  חיפוש מתקדם
                 </Link>
                 <Button
                   variant="outline"

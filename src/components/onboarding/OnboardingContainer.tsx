@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -5,7 +6,6 @@ import Footer from "@/components/Footer";
 import OnboardingStepIndicator from "./OnboardingStepIndicator";
 import OnboardingStepContent from "./OnboardingStepContent";
 import OnboardingChatbot from "./OnboardingChatbot";
-import OnboardingProgressTracker from "./OnboardingProgressTracker";
 import { EventProvider } from "@/context/EventContext";
 
 const ADMIN_MODE = true;
@@ -165,13 +165,6 @@ const OnboardingContainer = () => {
                   </div>
                 )}
               </div>
-              
-              {/* מעקב התקדמות */}
-              <OnboardingProgressTracker
-                currentStep={currentStep}
-                formData={formData}
-                totalSteps={TOTAL_STEPS}
-              />
               
               <OnboardingStepIndicator
                 currentStep={currentStep}
