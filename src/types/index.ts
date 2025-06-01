@@ -239,6 +239,15 @@ export interface SearchResultService {
   features?: string[];
   internalRanking?: number; // דירוג פנימי של המערכת
   isPromoted?: boolean;
+  // הוספת המאפיינים החסרים
+  audienceSize?: {
+    min: number;
+    max: number;
+    optimal?: number;
+  };
+  duration?: number;
+  technicalRequirements?: string[];
+  setupTime?: number;
 }
 
 export interface SearchFilters {
@@ -383,17 +392,3 @@ export interface SearchSuggestion {
   type?: string;
   icon?: React.ReactNode;
 }
-
-// Re-export commonly used types
-export type {
-  User,
-  Provider,
-  Service,
-  Booking,
-  Review,
-  SearchResultService,
-  SearchFilters,
-  BookingRequest,
-  Commission,
-  SystemConfig
-};
