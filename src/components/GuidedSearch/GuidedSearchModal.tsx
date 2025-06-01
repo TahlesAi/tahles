@@ -11,6 +11,7 @@ import EventTypeStep from "./steps/EventTypeStep";
 import EventDateStep from "./steps/EventDateStep";
 import AttendeesStep from "./steps/AttendeesStep";
 import ConceptStep from "./steps/ConceptStep";
+import BudgetStep from "./steps/BudgetStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
 import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
@@ -25,17 +26,20 @@ export type EventConcept = {
 
 export interface GuidedSearchData {
   eventDate?: Date | null;
-  eventStartTime?: string; // Changed from eventTime
-  eventEndTime?: string; // Added end time
+  eventStartTime?: string;
+  eventEndTime?: string;
   eventType?: EventType;
   attendeesCount?: string;
   eventConcept?: string;
-  conceptDetails?: string; // לפרטים נוספים כמו גיל בימי הולדת
-  conceptAudience?: 'family' | 'friends' | 'mixed' | null; // למי מיועד האירוע
-  // שדות נוספים לפי הקונספטים העבריים
+  conceptDetails?: string;
+  conceptAudience?: 'family' | 'friends' | 'mixed' | null;
   selectedCategory?: string;
   selectedSubcategory?: string;
   selectedHebrewConcept?: HebrewConcept | null;
+  budget?: {
+    min: number;
+    max: number;
+  };
 }
 
 interface GuidedSearchModalProps {
@@ -44,15 +48,16 @@ interface GuidedSearchModalProps {
 }
 
 const STEPS = {
-  EVENT_DATE: 0,
-  EVENT_TYPE: 1,
+  EVENT_TYPE: 0,
+  EVENT_DATE: 1,
   ATTENDEES: 2,
   CONCEPT: 3,
-  RESULTS: 4
+  BUDGET: 4,
+  RESULTS: 5
 };
 
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
-  const [currentStep, setCurrentStep] = useState(STEPS.EVENT_DATE);
+  const [currentStep, setCurrentStep] = useState(STEPS.EVENT_TYPE);
   const [searchData, setSearchData] = useState<GuidedSearchData>({});
   const { hebrewCategories, hebrewConcepts } = useEventContext();
   
@@ -63,7 +68,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   };
   
   const handleBack = () => {
-    if (currentStep > STEPS.EVENT_DATE) {
+    if (currentStep > STEPS.EVENT_TYPE) {
       setCurrentStep(prev => prev - 1);
     }
   };
@@ -74,19 +79,17 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   };
   
   const handleSubmitLead = () => {
-    // כאן נשלח את הפרטים של הליד לשרת
     console.log("Lead data:", searchData);
     toast.success("פנייתך התקבלה בהצלחה! נציג שלנו ייצור איתך קשר בקרוב");
     onClose();
-    setCurrentStep(STEPS.EVENT_DATE);
+    setCurrentStep(STEPS.EVENT_TYPE);
     setSearchData({});
   };
   
   const handleCloseModal = () => {
     onClose();
-    // איפוס שלבים ונתונים בעת סגירת החלון
     setTimeout(() => {
-      setCurrentStep(STEPS.EVENT_DATE);
+      setCurrentStep(STEPS.EVENT_TYPE);
       setSearchData({});
     }, 300);
   };
@@ -104,6 +107,23 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
         </DialogHeader>
         
         <div className="py-6 overflow-y-auto max-h-[60vh]">
+          {currentStep === STEPS.EVENT_TYPE && (
+            <EventTypeStep 
+              selectedType={searchData.eventType}
+              onSelect={(type) => updateSearchData({ eventType: type })}
+              hebrewConcepts={hebrewConcepts}
+              onSelectHebrewConcept={(concept) => 
+                updateSearchData({ 
+                  selectedHebrewConcept: concept,
+                  eventType: 
+                    concept.id === 'family-event' ? 'private' : 
+                    concept.id === 'company-event' ? 'business' : 
+                    'mixed'
+                })
+              }
+            />
+          )}
+          
           {currentStep === STEPS.EVENT_DATE && (
             <EventDateStep 
               eventDate={searchData.eventDate} 
@@ -117,24 +137,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                 eventStartTime: undefined, 
                 eventEndTime: undefined 
               })}
-            />
-          )}
-          
-          {currentStep === STEPS.EVENT_TYPE && (
-            <EventTypeStep 
-              selectedType={searchData.eventType}
-              onSelect={(type) => updateSearchData({ eventType: type })}
-              hebrewConcepts={hebrewConcepts}
-              onSelectHebrewConcept={(concept) => 
-                updateSearchData({ 
-                  selectedHebrewConcept: concept,
-                  // מיפוי קונספט עברי לסוג אירוע של המערכת
-                  eventType: 
-                    concept.id === 'family-event' ? 'private' : 
-                    concept.id === 'company-event' ? 'business' : 
-                    'mixed'
-                })
-              }
             />
           )}
           
@@ -160,6 +162,15 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                   selectedSubcategory: subcategory
                 })
               }
+            />
+          )}
+          
+          {currentStep === STEPS.BUDGET && (
+            <BudgetStep
+              budget={searchData.budget || { min: 0, max: 0 }}
+              onBudgetChange={(budget) => updateSearchData({ budget })}
+              onNext={handleNext}
+              onBack={handleBack}
             />
           )}
           

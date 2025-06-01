@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ArrowRight, ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Star, MapPin, DollarSign } from "lucide-react";
 import { GuidedSearchData } from "../GuidedSearchModal";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
@@ -26,7 +26,6 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showNoResultsForm, setShowNoResultsForm] = useState(false);
   
-  // קבלת המלצות דינמיות על בסיס נתוני החיפוש
   const recommendations = getGuidedSearchRecommendations(searchData);
   
   const handleSubmit = () => {
@@ -49,11 +48,26 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   
   const isFormValid = name && phone && email && agreeToTerms;
   
+  const formatPrice = (service: any) => {
+    if (service.priceUnit === 'לאדם' && searchData.attendeesCount) {
+      const totalPrice = service.price * parseInt(searchData.attendeesCount);
+      return `₪${totalPrice.toLocaleString()} (₪${service.price} לאדם)`;
+    }
+    return `₪${service.price.toLocaleString()}`;
+  };
+  
   return (
     <div className="space-y-6 text-right" dir="rtl">
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <h4 className="font-medium mb-2">פרטי האירוע:</h4>
         <ul className="text-sm space-y-1">
+          <li>
+            <strong>סוג אירוע:</strong> {' '}
+            {searchData.eventType === 'private' ? 'פרטי' : 
+             searchData.eventType === 'business' ? 'עסקי' : 
+             searchData.eventType === 'mixed' ? 'מעורב' : 
+             searchData.eventType === 'children' ? 'ילדים' : 'לא צוין'}
+          </li>
           {searchData.eventDate && (
             <li><strong>תאריך:</strong> {format(searchData.eventDate, "dd/MM/yyyy", { locale: he })}</li>
           )}
@@ -63,21 +77,17 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
           {searchData.eventEndTime && (
             <li><strong>שעת סיום:</strong> {searchData.eventEndTime}</li>
           )}
-          <li>
-            <strong>סוג אירוע:</strong> {' '}
-            {searchData.eventType === 'private' ? 'פרטי' : 
-             searchData.eventType === 'business' ? 'עסקי' : 
-             searchData.eventType === 'mixed' ? 'מעורב' : 
-             searchData.eventType === 'children' ? 'ילדים' : 'לא צוין'}
-          </li>
           <li><strong>מספר משתתפים:</strong> {searchData.attendeesCount || 'לא צוין'}</li>
           <li><strong>קונספט:</strong> {searchData.eventConcept || 'לא צוין'}</li>
           {searchData.conceptDetails && <li><strong>פרטים:</strong> {searchData.conceptDetails}</li>}
-          {searchData.conceptAudience && (
+          {searchData.budget && (searchData.budget.min > 0 || searchData.budget.max > 0) && (
             <li>
-              <strong>קהל יעד:</strong> {' '}
-              {searchData.conceptAudience === 'family' ? 'משפחה' : 
-               searchData.conceptAudience === 'friends' ? 'חברים' : 'משולב'}
+              <strong>תקציב:</strong> {' '}
+              {searchData.budget.min > 0 && searchData.budget.max > 0 
+                ? `₪${searchData.budget.min.toLocaleString()} - ₪${searchData.budget.max.toLocaleString()}`
+                : searchData.budget.min > 0 
+                ? `מעל ₪${searchData.budget.min.toLocaleString()}`
+                : `עד ₪${searchData.budget.max.toLocaleString()}`}
             </li>
           )}
         </ul>
@@ -135,8 +145,9 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">
                       <div className="text-left">
-                        <div className="text-2xl font-bold text-brand-600">
-                          ₪{typeof rec.price === 'number' ? rec.price.toLocaleString() : rec.price}
+                        <div className="text-2xl font-bold text-brand-600 flex items-center">
+                          <DollarSign className="h-5 w-5 ml-1" />
+                          {formatPrice(rec)}
                         </div>
                         <div className="text-sm text-gray-500">{rec.priceUnit}</div>
                       </div>
@@ -153,7 +164,7 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
         ))}
       </div>
       
-      {/* מציע חלופה אם לא מצאו את מה שחיפשו */}
+      {/* מציג חלופה אם לא מצאו את מה שחיפשו */}
       <div className="border-t pt-6">
         <Card className="bg-orange-50 border-orange-200">
           <CardContent className="p-4">
