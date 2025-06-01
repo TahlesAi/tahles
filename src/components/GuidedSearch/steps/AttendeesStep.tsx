@@ -36,13 +36,13 @@ const AttendeesStep = ({ attendeesCount, onUpdate }: AttendeesStepProps) => {
   };
   
   return (
-    <div className="space-y-8 text-right" dir="rtl">
+    <div className="space-y-6 text-right" dir="rtl">
       <div className="text-center">
-        <h3 className="text-2xl font-bold mb-2">כמה משתתפים צפויים באירוע?</h3>
-        <p className="text-gray-600">מספר המשתתפים חיוני לבדיקת התאמת השירות ומחיר מדויק</p>
+        <h3 className="text-xl font-bold mb-2">כמה משתתפים צפויים באירוע?</h3>
+        <p className="text-gray-600 text-sm">מספר המשתתפים חיוני לבדיקת התאמת השירות ומחיר מדויק</p>
       </div>
       
-      <div className="flex flex-col items-center space-y-6">
+      <div className="flex flex-col items-center space-y-4">
         <div className="w-full max-w-sm">
           <Select onValueChange={handleSelect} dir="rtl">
             <SelectTrigger className="w-full text-center h-12">
@@ -83,7 +83,7 @@ const AttendeesStep = ({ attendeesCount, onUpdate }: AttendeesStepProps) => {
         )}
       </div>
       
-      <div className="text-center text-sm text-gray-500 bg-blue-50 p-4 rounded-lg">
+      <div className="text-center text-sm text-gray-500 bg-blue-50 p-3 rounded-lg">
         <p><strong>טיפ:</strong> אם אינך בטוח במספר המדויק, בחר טווח קרוב - תמיד ניתן לעדכן בהמשך</p>
       </div>
     </div>

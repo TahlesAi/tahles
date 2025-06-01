@@ -41,13 +41,13 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
   const canProceed = selectedCity.trim() !== "";
 
   return (
-    <div className="space-y-8 text-right" dir="rtl">
+    <div className="space-y-6 text-right" dir="rtl">
       <div className="text-center">
-        <h3 className="text-2xl font-bold mb-2">איפה האירוע יתקיים?</h3>
-        <p className="text-gray-600">המיקום חיוני לחישוב עלויות נסיעה וזמני הגעה של נותני השירות</p>
+        <h3 className="text-xl font-bold mb-2">איפה האירוע יתקיים?</h3>
+        <p className="text-gray-600 text-sm">המיקום חיוני לחישוב זמני הגעה ותיאום השירות</p>
       </div>
       
-      <div className="flex flex-col items-center space-y-6">
+      <div className="flex flex-col items-center space-y-4">
         {/* City Selection */}
         <div className="w-full max-w-sm space-y-3">
           <label className="block text-sm font-medium text-center">
@@ -83,7 +83,7 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
               className="text-center h-12"
             />
             <p className="text-xs text-gray-500 text-center">
-              כתובת ספציפית תסייע לחישוב מדויק יותר של עלויות נסיעה
+              ניתן לעדכן בהמשך לקראת האירוע במידה ועדין לא ידוע
             </p>
           </div>
         )}
@@ -104,26 +104,16 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
           </div>
         )}
       </div>
-
-      {/* Travel Cost Info */}
-      <div className="text-center text-sm text-blue-600 bg-blue-50 p-4 rounded-lg">
-        <p><strong>מידע על עלויות נסיעה:</strong></p>
-        <div className="mt-2 space-y-1 text-xs">
-          <p>• עד 20 ק"מ ממיקום נותן השירות - ללא תוספת</p>
-          <p>• 21-50 ק"מ - תוספת של 100-200 ₪</p>
-          <p>• מעל 50 ק"מ - תוספת של 300-500 ₪ + אפשרות ללינה</p>
-        </div>
-      </div>
       
       {/* Continue Button */}
-      <div className="flex flex-col items-center gap-3 pt-4">
+      <div className="flex justify-center pt-4">
         <Button 
           onClick={handleNext} 
           className="px-8 py-3 text-lg h-12" 
           disabled={!canProceed}
           size="lg"
         >
-          {!selectedCity ? 'יש לבחור מיקום' : 'המשך לקביעת תקציב'}
+          {!selectedCity ? 'יש לבחור מיקום' : 'המשך לבחירת קונספט האירוע'}
         </Button>
       </div>
     </div>

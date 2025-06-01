@@ -8,7 +8,6 @@ import { EventType } from "../GuidedSearchModal";
 import { Check, Users, Building, Heart } from "lucide-react";
 import { HebrewConcept } from "@/lib/types/hierarchy";
 
-// Props type definition
 export interface EventTypeStepProps {
   selectedType: EventType | undefined;
   onSelect: (type: EventType) => void;
@@ -48,13 +47,13 @@ const EventTypeStep = ({
   ];
 
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-4 text-right" dir="rtl">
       <div className="text-center">
-        <h3 className="text-2xl font-bold mb-2">איזה סוג אירוע אתם מתכננים?</h3>
-        <p className="text-gray-600">בחירת סוג האירוע תעזור לנו להתאים לכם את השירותים המתאימים ביותר</p>
+        <h3 className="text-xl font-bold mb-2">איזה סוג אירוע אתם מתכננים?</h3>
+        <p className="text-gray-600 text-sm">בחירת סוג האירוע תעזור לנו להתאים לכם את השירותים המתאימים ביותר</p>
       </div>
       
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3 max-w-lg mx-auto">
         {eventTypes.map((eventType) => (
           <Card 
             key={eventType.id} 
@@ -63,20 +62,20 @@ const EventTypeStep = ({
             }`}
             onClick={() => onSelect(eventType.id)}
           >
-            <CardContent className="flex justify-between items-center p-6">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-full bg-gray-100 ${eventType.color}`}>
-                  <eventType.icon className="h-6 w-6" />
+            <CardContent className="flex justify-between items-center p-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full bg-gray-100 ${eventType.color}`}>
+                  <eventType.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-medium text-lg">{eventType.name}</p>
-                  <p className="text-sm text-gray-500">{eventType.description}</p>
+                  <p className="font-medium text-base">{eventType.name}</p>
+                  <p className="text-xs text-gray-500">{eventType.description}</p>
                 </div>
               </div>
               
               {selectedType === eventType.id && (
-                <div className="bg-primary rounded-full p-2 text-white">
-                  <Check className="h-5 w-5" />
+                <div className="bg-primary rounded-full p-1 text-white">
+                  <Check className="h-4 w-4" />
                 </div>
               )}
             </CardContent>

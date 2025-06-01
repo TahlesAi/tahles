@@ -11,6 +11,7 @@ import EventDateStep from "./steps/EventDateStep";
 import EventTypeStep from "./steps/EventTypeStep";
 import AttendeesStep from "./steps/AttendeesStep";
 import LocationStep from "./steps/LocationStep";
+import ConceptStep from "./steps/ConceptStep";
 import BudgetStep from "./steps/BudgetStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ export interface GuidedSearchData {
   selectedCategory?: string;
   selectedSubcategory?: string;
   selectedHebrewConcept?: HebrewConcept | null;
+  selectedSubconcept?: string;
   budget?: {
     min: number;
     max: number;
@@ -56,8 +58,9 @@ const STEPS = {
   EVENT_TYPE: 1,
   ATTENDEES: 2,
   LOCATION: 3,
-  BUDGET: 4,
-  RESULTS: 5
+  CONCEPT: 4,
+  BUDGET: 5,
+  RESULTS: 6
 };
 
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
@@ -119,11 +122,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                 eventStartTime: startTime, 
                 eventEndTime: endTime 
               })}
-              onSkip={() => updateSearchData({ 
-                eventDate: null, 
-                eventStartTime: undefined, 
-                eventEndTime: undefined 
-              })}
             />
           )}
 
@@ -155,6 +153,19 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
             <LocationStep 
               location={searchData.eventLocation}
               onUpdate={(location) => updateSearchData({ eventLocation: location })}
+            />
+          )}
+
+          {currentStep === STEPS.CONCEPT && (
+            <ConceptStep 
+              selectedConcept={searchData.selectedHebrewConcept}
+              selectedSubconcept={searchData.selectedSubconcept}
+              eventType={searchData.eventType}
+              hebrewConcepts={hebrewConcepts}
+              onSelectConcept={(concept) => updateSearchData({ selectedHebrewConcept: concept })}
+              onSelectSubconcept={(subconcept) => updateSearchData({ selectedSubconcept: subconcept })}
+              onNext={handleNext}
+              onBack={handleBack}
             />
           )}
           
