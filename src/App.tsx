@@ -17,6 +17,7 @@ import EnhancedProviderProfile from './pages/EnhancedProviderProfile';
 import Categories from './pages/Categories';
 import ProviderGenerator from './pages/ProviderGenerator';
 import BookingPage from './pages/BookingPage';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -48,6 +49,9 @@ function App() {
               
               {/* נתיב הזמנה */}
               <Route path="/booking/:serviceId" element={<BookingPage />} />
+              
+              {/* נתיב הרשמת ספקים - חדש */}
+              <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
               
               {/* דף מחולל ספקים */}
               <Route path="/admin/provider-generator" element={<ProviderGenerator />} />

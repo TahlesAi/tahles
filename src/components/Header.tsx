@@ -1,189 +1,154 @@
 
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserPlus } from "lucide-react";
-import AuthModal from "@/components/AuthModal";
-import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
-import SearchableHeader from "./ui/searchable-header";
+import { Menu, X, User, Search, Calendar } from "lucide-react";
+import AuthModal from "./AuthModal";
 
 const Header = () => {
-  const { user, signOut } = useAuth();
-  const [openAuthModal, setOpenAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  const [userType, setUserType] = useState<"client" | "provider">("client");
-  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const navigate = useNavigate();
 
-  const userMeta = user?.user_metadata || {};
-  const userName = userMeta.name || user?.email?.split('@')[0] || 'משתמש';
-  const userAvatar = userMeta.avatar_url || '';
+  const handleProviderRegister = () => {
+    navigate('/provider-onboarding');
+  };
 
   return (
-    <header className="bg-white border-b sticky top-0 z-40">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16 px-4 md:px-6">
-          {/* לוגו */}
-          <div className="order-2 md:order-1">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-brand-600">תכלס</span>
+    <>
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* לוגו */}
+            <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">ת</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">תכלס</span>
             </Link>
-          </div>
-          
-          {/* כפתור לספק חדש */}
-          <div className="order-3 md:order-2 mx-2 md:mx-4">
-            <Link 
-              to="/provider-onboarding" 
-              className="hidden md:flex items-center px-4 py-2 rounded-lg text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors"
-            >
-              <UserPlus className="h-4 w-4 ml-2" />
-              ספק חדש
-            </Link>
-          </div>
-          
-          {/* סרגל חיפוש */}
-          <div className="hidden md:block flex-1 mx-4 max-w-md order-4 md:order-3">
-            <SearchableHeader 
-              placeholder="חיפוש שירותים, ספקים, קטגוריות..."
-              useGuidedSearch={false}
-              className="w-full"
-              inputClassName="border rounded-r-full py-2 focus:ring-2 focus:ring-brand-300"
-              buttonClassName="bg-brand-600 hover:bg-brand-700"
-            />
-          </div>
-          
-          {/* תפריט ניווט */}
-          <nav className="hidden md:flex items-center space-x-4 md:space-x-6 order-5 md:order-4">
-            <Link 
-              to="/how-it-works" 
-              className={`text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium ${
-                location.pathname === '/how-it-works' ? 'bg-gray-100 text-gray-800' : ''
-              }`}
-            >
-              איך זה עובד
-            </Link>
-            
-            <Link 
-              to="/contact" 
-              className={`text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium ${
-                location.pathname === '/contact' ? 'bg-gray-100 text-gray-800' : ''
-              }`}
-            >
-              צור קשר
-            </Link>
-            
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-10 w-10 p-0 rounded-full">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={userAvatar} alt={userName} />
-                      <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>{userName}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => window.location.href = '/dashboard'}>
-                    לוח ניהול
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => signOut()}>
-                    התנתקות
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button 
-                onClick={() => setOpenAuthModal(true)}
-                className="bg-brand-600 hover:bg-brand-700 text-white px-4"
+
+            {/* ניווט עיקרי - דסקטופ */}
+            <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
+              <Link to="/categories" className="text-gray-600 hover:text-blue-600 transition-colors">
+                קטגוריות
+              </Link>
+              <Link to="/search" className="text-gray-600 hover:text-blue-600 transition-colors">
+                חיפוש מתקדם
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleProviderRegister}
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
               >
-                התחברות | הרשמה
+                הצטרפות כספק
               </Button>
-            )}
-          </nav>
-          
-          {/* תפריט למובייל */}
-          {isMobile && (
-            <div className="flex items-center order-1 md:order-5">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-5 w-5" />
+            </nav>
+
+            {/* כפתורי פעולה - דסקטופ */}
+            <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAuthMode('login');
+                  setIsAuthModalOpen(true);
+                }}
+              >
+                <User className="h-4 w-4 ml-2" />
+                התחברות
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setAuthMode('register');
+                  setIsAuthModalOpen(true);
+                }}
+              >
+                הרשמה
+              </Button>
+            </div>
+
+            {/* כפתור תפריט - מובייל */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+
+          {/* תפריט מובייל */}
+          {isMenuOpen && (
+            <div className="md:hidden py-4 border-t">
+              <nav className="flex flex-col space-y-4">
+                <Link
+                  to="/categories"
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  קטגוריות
+                </Link>
+                <Link
+                  to="/search"
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  חיפוש מתקדם
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    handleProviderRegister();
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-blue-600 border-blue-600 hover:bg-blue-50 w-fit"
+                >
+                  הצטרפות כספק
+                </Button>
+                <div className="flex flex-col space-y-2 pt-4 border-t">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setAuthMode('login');
+                      setIsAuthModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit"
+                  >
+                    <User className="h-4 w-4 ml-2" />
+                    התחברות
                   </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:w-1/2 bg-white" dir="rtl">
-                  <SheetHeader>
-                    <SheetTitle>תפריט</SheetTitle>
-                    <SheetDescription>
-                      גלו את כל האפשרויות שלנו.
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="flex flex-col space-y-4 mt-4">
-                    <Link 
-                      to="/provider-onboarding" 
-                      className="py-3 px-4 rounded-md text-white font-medium bg-accent1-500 hover:bg-accent1-600 transition-colors text-center"
-                    >
-                      <UserPlus className="h-4 w-4 ml-2 inline-block" />
-                      ספק חדש
-                    </Link>
-                    <Link to="/how-it-works" className="text-gray-600 hover:text-gray-800 py-2">איך זה עובד</Link>
-                    <Link to="/contact" className="text-gray-600 hover:text-gray-800 py-2">צור קשר</Link>
-                    {user ? (
-                      <>
-                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-800 py-2">לוח ניהול</Link>
-                        <Button variant="ghost" className="justify-start" onClick={() => signOut()}>התנתקות</Button>
-                      </>
-                    ) : (
-                      <Button variant="ghost" className="justify-start" onClick={() => setOpenAuthModal(true)}>התחברות | הרשמה</Button>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setAuthMode('register');
+                      setIsAuthModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit"
+                  >
+                    הרשמה
+                  </Button>
+                </div>
+              </nav>
             </div>
           )}
         </div>
-      </div>
-      
-      {/* חיפוש מובייל */}
-      {isMobile && (
-        <div className="border-t p-2">
-          <SearchableHeader 
-            placeholder="חיפוש שירותים, ספקים, קטגוריות..."
-            useGuidedSearch={false}
-            inputClassName="border rounded-r-full py-2"
-            buttonClassName="bg-brand-600 hover:bg-brand-700"
-          />
-        </div>
-      )}
-      
-      <AuthModal 
-        isOpen={openAuthModal} 
-        onClose={() => setOpenAuthModal(false)} 
-        mode={authMode}
-        setMode={setAuthMode}
-        userType={userType}
-        setUserType={setUserType}
-      />
+      </header>
 
-      <GuidedSearchModal 
-        isOpen={isGuidedSearchOpen} 
-        onClose={() => setIsGuidedSearchOpen(false)} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        mode={authMode}
+        onModeChange={setAuthMode}
       />
-    </header>
+    </>
   );
 };
 
