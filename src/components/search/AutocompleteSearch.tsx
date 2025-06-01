@@ -1,414 +1,166 @@
 
-import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
-import { 
-  Command, 
-  CommandInput, 
-  CommandEmpty, 
-  CommandGroup, 
-  CommandItem, 
-  CommandList 
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-
-// Define the suggestion type
-interface Suggestion {
-  id: string;
-  value: string;
-  type?: string;
-  icon?: React.ReactNode;
-}
+import { Card, CardContent } from "@/components/ui/card";
+import { useEventContext } from "@/context/EventContext";
+import { useNavigate } from "react-router-dom";
 
 interface AutocompleteSearchProps {
-  suggestions: Suggestion[];
-  onSearch: (term: string) => void;
+  onSearch?: (query: string) => void;
   placeholder?: string;
   className?: string;
-  buttonText?: string;
-  buttonClassName?: string;
-  inputClassName?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  onSuggestionSelect?: (suggestion: Suggestion) => void;
-  onButtonClick?: () => void; // הוספת התכונה החסרה
-  showButton?: boolean;
-  showCommandBar?: boolean;
-  autoFocus?: boolean;
-  dir?: "rtl" | "ltr";
 }
 
-const AutocompleteSearch = ({
-  suggestions,
-  onSearch,
-  placeholder = "חיפוש...",
-  className,
-  buttonText = "חיפוש",
-  buttonClassName,
-  inputClassName,
-  value: externalValue,
-  onChange: externalOnChange,
-  onSuggestionSelect,
-  onButtonClick,
-  showButton = true,
-  showCommandBar = true,
-  autoFocus = false,
-  dir = "rtl"
+const AutocompleteSearch = ({ 
+  onSearch, 
+  placeholder = "חפש שירותים, ספקים או קטגוריות...", 
+  className = "" 
 }: AutocompleteSearchProps) => {
+  const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState("");
-  const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const commandRef = useRef<HTMLDivElement>(null);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const itemsRefs = useRef<Record<string, HTMLElement>>({});
-
-  // Control the value based on external or internal state
-  const value = externalValue !== undefined ? externalValue : internalValue;
+  const navigate = useNavigate();
   
-  // Filter suggestions based on input value
+  const { categories, providers, services } = useEventContext();
+
   useEffect(() => {
-    if (value.trim() === "") {
-      // מציג קטגוריות ראשיות כשהשדה ריק, אבל לא יסמן אף אחת אוטומטית
-      const categories = suggestions.filter(s => s.type === "קטגוריה").slice(0, 8);
-      setFilteredSuggestions(categories);
-      setActiveIndex(-1); // לא לבחור שום דבר אוטומטית
-      return;
-    }
-    
-    // שיפור הפילטור כדי לאפשר חיפוש חלקי וחיפוש משופר בעברית
-    const searchTerm = value.toLowerCase().trim();
-    
-    // רשימת מילות מפתח לאמני חושים להגדיל את הדיוק בחיפוש
-    const mentalismKeywords = [
-      'אמני חושים', 
-      'אמן חושים', 
-      'קריאת מחשבות', 
-      'קורא מחשבות',
-      'מנטליסט',
-      'מנטליזם',
-      'טלפתיה',
-      'נטע ברסלר',
-      'קליספרו',
-      'דורון רוזן',
-      'מאיה הקוסמת'
-    ];
-    
-    // בודק אם החיפוש קשור לאמני חושים
-    const isMentalismSearch = mentalismKeywords.some(keyword => 
-      keyword.includes(searchTerm) || searchTerm.includes(keyword)
-    );
-    
-    const filtered = suggestions.filter(suggestion => {
-      const suggestionValue = suggestion.value.toLowerCase();
+    if (query.length > 1) {
+      const filteredSuggestions = [];
       
-      // תגבור תוצאות לאמני חושים אם החיפוש קשור לתחום זה
-      if (isMentalismSearch && (
-          suggestion.value.includes('אמני חושים') || 
-          suggestion.value.includes('נטע ברסלר') ||
-          suggestion.value.includes('קליספרו') ||
-          suggestion.value.includes('דורון רוזן') ||
-          suggestion.value.includes('מאיה הקוסמת'))
-      ) {
-        return true;
-      }
-      
-      return suggestionValue.includes(searchTerm);
-    });
-    
-    // מיון התוצאות - קודם קטגוריות ראשיות, אח"כ תת קטגוריות, אח"כ ספקים
-    const sortedResults = [...filtered].sort((a, b) => {
-      // נותן עדיפות לתוצאות שמתחילות עם מונח החיפוש
-      const aStartsWith = a.value.toLowerCase().startsWith(searchTerm);
-      const bStartsWith = b.value.toLowerCase().startsWith(searchTerm);
-      
-      if (aStartsWith && !bStartsWith) return -1;
-      if (!aStartsWith && bStartsWith) return 1;
-      
-      // אם יש חיפוש של אמני חושים, הקפץ למעלה תוצאות רלוונטיות
-      if (isMentalismSearch) {
-        const aIsMentalism = a.value.includes('אמני חושים') || 
-                            a.value.includes('נטע ברסלר') || 
-                            a.value.includes('קליספרו') || 
-                            a.value.includes('דורון רוזן') || 
-                            a.value.includes('מאיה הקוסמת');
-                            
-        const bIsMentalism = b.value.includes('אמני חושים') || 
-                            b.value.includes('נטע ברסלר') || 
-                            b.value.includes('קליספרו') || 
-                            b.value.includes('דורון רוזן') || 
-                            b.value.includes('מאיה הקוסמת');
-        
-        if (aIsMentalism && !bIsMentalism) return -1;
-        if (!aIsMentalism && bIsMentalism) return 1;
-      }
-      
-      // מיון לפי סוג
-      if (a.type !== b.type) {
-        // סדר העדיפויות: קטגוריה, תת-קטגוריה, קונספט, ספק
-        const typeOrder: Record<string, number> = {
-          "קטגוריה": 0,
-          "תת-קטגוריה": 1,
-          "קונספט": 2,
-          "ספק": 3
-        };
-        
-        return (typeOrder[a.type || ""] || 9) - (typeOrder[b.type || ""] || 9);
-      }
-      
-      // אם הסוג זהה, מיון לפי אלף-בית
-      return a.value.localeCompare(b.value, "he");
-    });
-    
-    setFilteredSuggestions(sortedResults);
-    setActiveIndex(-1); // חשוב: לא לבחור שום פריט באופן אוטומטי
-  }, [value, suggestions]);
-
-  // Scroll to active item when using keyboard navigation
-  useEffect(() => {
-    if (activeIndex >= 0 && activeIndex < filteredSuggestions.length && listRef.current) {
-      const activeItemId = filteredSuggestions[activeIndex].id;
-      const activeElement = itemsRefs.current[activeItemId];
-      
-      if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest' });
-      }
-    }
-  }, [activeIndex, filteredSuggestions]);
-
-  // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    
-    if (externalOnChange) {
-      externalOnChange(newValue);
-    } else {
-      setInternalValue(newValue);
-    }
-    
-    // פתיחת תיבת ההצעות רק אם יש תוכן בשדה החיפוש
-    setIsOpen(true);
-  };
-
-  // Handle input focus
-  const handleFocus = () => {
-    // פתיחת תיבת ההצעות בעת קבלת פוקוס
-    setIsOpen(true);
-  };
-
-  // Handle keyboard navigation
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // No suggestions or dropdown not open, use default behavior
-    if (!isOpen || filteredSuggestions.length === 0) return;
-    
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setActiveIndex(prevIndex => {
-          const newIndex = prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : 0;
-          return newIndex;
-        });
-        break;
-        
-      case "ArrowUp":
-        e.preventDefault();
-        setActiveIndex(prevIndex => {
-          const newIndex = prevIndex > 0 ? prevIndex - 1 : filteredSuggestions.length - 1;
-          return newIndex;
-        });
-        break;
-        
-      case "Enter":
-        e.preventDefault();
-        if (activeIndex >= 0 && activeIndex < filteredSuggestions.length) {
-          handleSelectSuggestion(filteredSuggestions[activeIndex]);
-        } else {
-          handleSubmit(e);
+      // חיפוש בקטגוריות
+      categories.forEach(category => {
+        if (category.name.includes(query)) {
+          filteredSuggestions.push({
+            type: 'category',
+            id: category.id,
+            name: category.name,
+            description: category.description
+          });
         }
-        break;
-        
-      case "Escape":
-        e.preventDefault();
-        setIsOpen(false);
-        break;
-        
-      default:
-        break;
+      });
+      
+      // חיפוש בספקים
+      providers.forEach(provider => {
+        if (provider.name.includes(query) || provider.description?.includes(query)) {
+          filteredSuggestions.push({
+            type: 'provider',
+            id: provider.id,
+            name: provider.name,
+            description: provider.description
+          });
+        }
+      });
+      
+      // חיפוש בשירותים
+      services.forEach(service => {
+        if (service.name.includes(query) || service.description?.includes(query)) {
+          filteredSuggestions.push({
+            type: 'service',
+            id: service.id,
+            name: service.name,
+            description: service.description
+          });
+        }
+      });
+      
+      setSuggestions(filteredSuggestions.slice(0, 8));
+      setIsOpen(true);
+    } else {
+      setSuggestions([]);
+      setIsOpen(false);
     }
-  };
+  }, [query, categories, providers, services]);
 
-  // Handle outside click to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (commandRef.current && !commandRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+  const handleSearch = () => {
+    if (query.trim()) {
+      if (onSearch) {
+        onSearch(query);
+      } else {
+        navigate(`/search?q=${encodeURIComponent(query)}`);
       }
-    };
-    
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Store refs to suggestion items
-  const setItemRef = (id: string, element: HTMLElement | null) => {
-    if (element) {
-      itemsRefs.current[id] = element;
+      setIsOpen(false);
     }
   };
 
-  // Handle suggestion selection
-  const handleSelectSuggestion = (suggestion: Suggestion) => {
-    if (externalOnChange) {
-      externalOnChange(suggestion.value);
-    } else {
-      setInternalValue(suggestion.value);
-    }
+  const handleSuggestionClick = (suggestion: any) => {
+    setQuery(suggestion.name);
+    setIsOpen(false);
     
-    if (onSuggestionSelect) {
-      onSuggestionSelect(suggestion);
-    } else {
-      onSearch(suggestion.value);
+    switch (suggestion.type) {
+      case 'category':
+        navigate(`/categories/${suggestion.id}`);
+        break;
+      case 'provider':
+        navigate(`/provider/${suggestion.id}`);
+        break;
+      case 'service':
+        navigate(`/product/${suggestion.id}`);
+        break;
     }
-    
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setSuggestions([]);
     setIsOpen(false);
     inputRef.current?.focus();
   };
 
-  // Handle search submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(value);
-    setIsOpen(false);
-  };
-
-  // Focus input on load if autoFocus is true
-  useEffect(() => {
-    if (autoFocus && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [autoFocus]);
-
-  // קבוצות של סוגי הצעות
-  const groupedSuggestions = () => {
-    if (filteredSuggestions.length === 0) return {};
-    
-    return filteredSuggestions.reduce<Record<string, Suggestion[]>>((groups, item) => {
-      const type = item.type || "אחר";
-      if (!groups[type]) {
-        groups[type] = [];
-      }
-      groups[type].push(item);
-      return groups;
-    }, {});
-  };
-
-  const groups = groupedSuggestions();
-
-  // מגדיר שמות מותאמים לקבוצות בעברית
-  const getGroupHeading = (type: string): string => {
-    const headings: Record<string, string> = {
-      "קטגוריה": "קטגוריות ראשיות",
-      "תת-קטגוריה": "תתי קטגוריות",
-      "קונספט": "סוגי אירועים",
-      "ספק": "ספקים פופולריים",
-      "מיקום": "מיקומים",
-      "שירות": "שירותים"
-    };
-    
-    return headings[type] || type;
-  };
-
   return (
-    <div className={cn("relative w-full", className)}>
-      <form onSubmit={handleSubmit} className="flex w-full">
-        <div className="relative flex-grow">
-          <Input
-            ref={inputRef}
-            type="text"
-            placeholder={placeholder}
-            value={value}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-            className={cn(
-              "w-full",
-              showButton ? "rounded-r-none" : "",
-              dir === "rtl" ? "rounded-r-full" : "rounded-l-full",
-              inputClassName
-            )}
-            dir={dir}
-            role="combobox"
-            aria-expanded={isOpen}
-            aria-controls="search-suggestions"
-            aria-activedescendant={activeIndex >= 0 ? `suggestion-${filteredSuggestions[activeIndex].id}` : undefined}
-          />
-          
-          {isOpen && showCommandBar && filteredSuggestions.length > 0 && (
-            <div 
-              ref={commandRef}
-              className="absolute top-full left-0 right-0 mt-1 z-50"
-              id="search-suggestions"
-              role="listbox"
-            >
-              <Command className="border rounded-md shadow-md bg-white">
-                <CommandList ref={listRef}>
-                  {Object.keys(groups).length === 0 ? (
-                    <CommandEmpty>לא נמצאו תוצאות</CommandEmpty>
-                  ) : (
-                    Object.entries(groups).map(([type, items]) => (
-                      <CommandGroup key={type} heading={getGroupHeading(type)}>
-                        {items.map((suggestion) => (
-                          <CommandItem
-                            key={suggestion.id}
-                            ref={(el) => setItemRef(suggestion.id, el)}
-                            onSelect={() => handleSelectSuggestion(suggestion)}
-                            className={cn(
-                              "flex items-center gap-2 cursor-pointer",
-                              activeIndex === items.findIndex(item => item.id === suggestion.id) ? "bg-accent text-accent-foreground" : ""
-                            )}
-                            value={suggestion.value}
-                            dir={dir}
-                            id={`suggestion-${suggestion.id}`}
-                            role="option"
-                            aria-selected={activeIndex === items.findIndex(item => item.id === suggestion.id)}
-                          >
-                            {suggestion.icon}
-                            <span>{suggestion.value}</span>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    ))
-                  )}
-                </CommandList>
-              </Command>
-            </div>
-          )}
-        </div>
-
-        {showButton && (
-          <Button 
-            type="submit" 
-            className={cn(
-              dir === "rtl" ? "rounded-l-full" : "rounded-r-full",
-              buttonClassName
-            )}
-            onClick={(e) => {
-              if (onButtonClick) {
-                e.preventDefault();
-                onButtonClick();
-              }
-            }}
+    <div className={`relative ${className}`} dir="rtl">
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          ref={inputRef}
+          type="text"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onFocus={() => query.length > 1 && setIsOpen(true)}
+          className="pr-10 pl-10 text-right placeholder:text-right"
+        />
+        {query && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSearch}
+            className="absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
           >
-            {dir === "rtl" && <Search className="h-4 w-4 ml-2" />}
-            {buttonText}
-            {dir !== "rtl" && <Search className="h-4 w-4 mr-2" />}
+            <X className="h-3 w-3" />
           </Button>
         )}
-      </form>
+      </div>
+
+      {/* רשימת הצעות */}
+      {isOpen && suggestions.length > 0 && (
+        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-80 overflow-y-auto">
+          <CardContent className="p-0">
+            {suggestions.map((suggestion, index) => (
+              <div
+                key={`${suggestion.type}-${suggestion.id}`}
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
+              >
+                <div className="font-medium text-gray-900">{suggestion.name}</div>
+                {suggestion.description && (
+                  <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    {suggestion.description}
+                  </div>
+                )}
+                <div className="text-xs text-brand-600 mt-1">
+                  {suggestion.type === 'category' && 'קטגוריה'}
+                  {suggestion.type === 'provider' && 'ספק'}
+                  {suggestion.type === 'service' && 'מוצר'}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

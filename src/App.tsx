@@ -16,6 +16,8 @@ import ProviderServices from './pages/ProviderServices';
 import EnhancedProviderProfile from './pages/EnhancedProviderProfile';
 import Categories from './pages/Categories';
 import ProviderGenerator from './pages/ProviderGenerator';
+import BookingPage from './pages/BookingPage';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 
@@ -30,18 +32,28 @@ function App() {
               {/* עמודים קיימים */}
               <Route path="/" element={<Index />} />
               <Route path="/search" element={<Search />} />
-              <Route path="/service/:id" element={<ServiceDetails />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
               <Route path="/subcategories/:subcategoryId" element={<SubcategoryServiceTypes />} />
+              
+              {/* נתיבי ספקים - נתיבים חדשים וקיימים */}
+              <Route path="/provider/:providerId" element={<EnhancedProviderProfile />} />
               <Route path="/providers/:providerId" element={<ProviderServices />} />
               <Route path="/enhanced-providers/:providerId" element={<EnhancedProviderProfile />} />
               
-              {/* נתיבים נוספים לשירותים */}
+              {/* נתיבי מוצרים ושירותים */}
+              <Route path="/product/:productId" element={<ServiceDetails />} />
+              <Route path="/service/:id" element={<ServiceDetails />} />
               <Route path="/enhanced-services/:serviceId" element={<ServiceDetails />} />
+              
+              {/* נתיב הזמנה */}
+              <Route path="/booking/:serviceId" element={<BookingPage />} />
               
               {/* דף מחולל ספקים */}
               <Route path="/admin/provider-generator" element={<ProviderGenerator />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

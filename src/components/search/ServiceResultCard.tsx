@@ -3,7 +3,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Image, Video } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Star, MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
 import { SearchResultService } from "@/lib/types";
 
 interface ServiceResultCardProps {
@@ -11,93 +12,144 @@ interface ServiceResultCardProps {
 }
 
 const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
-  // Check for media presence
-  const hasMedia = 
-    (service.videoCount !== undefined && service.videoCount > 0) || 
-    (service.imageCount !== undefined && service.imageCount > 1);
-  
+  const hasMedia = (service.videos && service.videos.length > 0) || 
+                   (service.video_urls && service.video_urls.length > 0) ||
+                   (service.additionalImages && service.additionalImages.length > 0) ||
+                   (service.additional_images && service.additional_images.length > 0);
+
+  const videoCount = (service.videos?.length || 0) + (service.video_urls?.length || 0);
+  const imageCount = (service.additionalImages?.length || 0) + (service.additional_images?.length || 0) + (service.imageUrl ? 1 : 0);
+
   return (
-    <Link to={`/services/${service.id}`} className="block h-full">
-      <Card className="overflow-hidden border hover:border-brand-300 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col cursor-pointer group">
-        <div className="relative aspect-video overflow-hidden">
-          <img 
-            src={service.imageUrl} 
-            alt={service.name} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
+      <div className="relative h-48 overflow-hidden">
+        {/* תמונה או placeholder */}
+        {service.imageUrl ? (
+          <img
+            src={service.imageUrl}
+            alt={service.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                parent.innerHTML = `
+                  <div class="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-4xl text-brand-600 mb-2">🎪</div>
+                      <div class="text-sm text-brand-600 font-medium">${service.name}</div>
+                    </div>
+                  </div>
+                `;
+              }
+            }}
           />
-          
-          {/* קטגוריה */}
-          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700 shadow-sm">
-            {service.category}
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-4xl text-brand-600 mb-2">🎪</div>
+              <div className="text-sm text-brand-600 font-medium">{service.name}</div>
+            </div>
           </div>
-          
-          {/* דירוג - הבלטה טובה יותר */}
-          <div className="absolute bottom-3 right-3 bg-brand-600/95 backdrop-blur-sm text-white px-3 py-1 rounded-full flex items-center shadow-sm">
-            <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-            <span className="font-bold">{service.rating}</span>
-            <span className="text-xs ml-1">({service.reviewCount})</span>
+        )}
+
+        {/* תגיות מדיה */}
+        {hasMedia && (
+          <div className="absolute top-2 left-2 flex gap-1">
+            {videoCount > 0 && (
+              <Badge variant="secondary" className="text-xs bg-black/70 text-white hover:bg-black/80">
+                <Play className="h-3 w-3 ml-1" />
+                {videoCount}
+              </Badge>
+            )}
+            {imageCount > 1 && (
+              <Badge variant="secondary" className="text-xs bg-black/70 text-white hover:bg-black/80">
+                <ImageIcon className="h-3 w-3 ml-1" />
+                {imageCount}
+              </Badge>
+            )}
           </div>
-          
-          {/* תג מקודם/מומלץ */}
+        )}
+
+        {/* תגיות נוספות */}
+        <div className="absolute top-2 right-2 flex gap-1">
           {service.featured && (
-            <div className="absolute top-3 left-3 bg-accent1-500 px-3 py-1 rounded-full text-sm font-medium text-white shadow-sm">
+            <Badge className="text-xs bg-amber-500 hover:bg-amber-600">
               מומלץ
+            </Badge>
+          )}
+        </div>
+
+        {/* מחיר */}
+        <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm rounded px-2 py-1">
+          <span className="font-bold text-brand-600">
+            ₪{typeof service.price === 'number' ? service.price.toLocaleString() : service.price}
+          </span>
+          {service.priceUnit && (
+            <span className="text-xs text-gray-600 mr-1">
+              {service.priceUnit}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <CardContent className="p-4">
+        {/* כותרת וספק */}
+        <div className="mb-3">
+          <h3 className="font-bold text-lg mb-1 line-clamp-2">{service.name}</h3>
+          <p className="text-sm text-brand-600 font-medium">{service.provider}</p>
+        </div>
+
+        {/* תיאור */}
+        <p className="text-gray-600 text-sm mb-3 line-clamp-3">{service.description}</p>
+
+        {/* מידע נוסף */}
+        <div className="space-y-2 mb-4">
+          {/* דירוג */}
+          {service.rating > 0 && (
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+              <span className="text-sm font-medium">{service.rating.toFixed(1)}</span>
+              {service.reviewCount > 0 && (
+                <span className="text-sm text-gray-500">({service.reviewCount} ביקורות)</span>
+              )}
             </div>
           )}
-          
-          {/* מדיה נוספת */}
-          {hasMedia && (
-            <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white p-2 rounded-full text-xs font-medium flex items-center shadow-sm">
-              {service.videoCount !== undefined && service.videoCount > 0 && <Video className="w-4 h-4 ml-1" />}
-              {service.imageCount !== undefined && service.imageCount > 1 && <Image className="w-4 h-4 ml-1" />}
-              <span>מדיה נוספת</span>
+
+          {/* מיקום */}
+          {service.location && (
+            <div className="flex items-center gap-1">
+              <MapPin className="h-4 w-4 text-gray-400" />
+              <span className="text-sm text-gray-600">{service.location}</span>
+            </div>
+          )}
+
+          {/* תגיות */}
+          {service.tags && service.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {service.tags.slice(0, 3).map((tag, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {service.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{service.tags.length - 3}
+                </Badge>
+              )}
             </div>
           )}
         </div>
-        
-        <CardContent className="p-4 flex-grow flex flex-col">
-          <div className="flex-grow">
-            {/* שם השירות */}
-            <h3 className="font-bold text-lg mb-1 line-clamp-1 group-hover:text-brand-600 transition-colors">{service.name}</h3>
-            
-            {/* שם הספק */}
-            <p className="text-gray-500 text-sm mb-2 font-medium">{service.provider}</p>
-            
-            {/* תיאור */}
-            <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">{service.description}</p>
-            
-            {/* תגיות */}
-            {service.tags && service.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {service.tags.slice(0, 3).map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs px-2 py-1 h-auto border-gray-200">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* מיקום */}
-          {service.location && (
-            <div className="text-sm text-gray-500 flex items-center mb-3">
-              <MapPin className="h-4 w-4 ml-1" />
-              <span>{service.location}</span>
-            </div>
-          )}
-          
-          {/* מחיר */}
-          <div className="mt-auto pt-3 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="text-brand-600 font-bold text-xl">₪{service.price}</div>
-              <div className="text-sm text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded">
-                לחצו לפרטים
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+
+        {/* כפתור פעולה */}
+        <Link to={`/product/${service.id}`} className="block">
+          <Button className="w-full">
+            צפה בפרטים
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
   );
 };
 
