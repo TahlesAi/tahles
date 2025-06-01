@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,8 +18,8 @@ import ServiceAvailabilityTab from "@/components/service/ServiceAvailabilityTab"
 import ServiceLocationTab from "@/components/service/ServiceLocationTab";
 import ServiceLoadingState from "@/components/service/ServiceLoadingState";
 import ServiceErrorState from "@/components/service/ServiceErrorState";
-import ServicePricing from "@/components/service/ServicePricing";
 import ServiceAvailabilityCalendar from "@/components/service/ServiceAvailabilityCalendar";
+import AdvancedServiceDetails from "@/components/service/AdvancedServiceDetails";
 
 import { saveServiceForLater, isServiceSaved, removeSavedService } from "@/components/provider/ServiceCard";
 import { getServiceById, getProviderById, getReviewsByService } from "@/lib/unifiedMockData";
@@ -339,14 +340,17 @@ const ServiceDetails = () => {
               
               <ServiceDetailInfo service={service} showMedia={false} />
               
-              {/* מחיר דינמי וזמינות */}
-              <div className="mb-8 space-y-6">
-                <ServicePricing 
+              {/* Advanced Service Details with Enhanced Pricing */}
+              <div className="mb-8">
+                <AdvancedServiceDetails
                   service={service}
-                  basePrice={service.price || 5000}
+                  provider={provider}
                   onPriceUpdate={handlePriceUpdate}
                 />
-                
+              </div>
+              
+              {/* Availability Calendar */}
+              <div className="mb-8">
                 <ServiceAvailabilityCalendar 
                   serviceId={service.id}
                   onDateSelect={handleDateTimeSelect}
@@ -359,7 +363,7 @@ const ServiceDetails = () => {
                   <TabsTrigger value="reviews" className="flex-1">ביקורות</TabsTrigger>
                   <TabsTrigger value="availability" className="flex-1">זמינות</TabsTrigger>
                   <TabsTrigger value="location" className="flex-1">מיקום</TabsTrigger>
-                  <TabsTrigger value="technical" className="flex-1">דרישות טכניות</TabsTrigger>
+                  <TabsTrigger value="technical" className="flex-1">מידע טכני</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="reviews">
