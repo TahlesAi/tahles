@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Dialog,
@@ -103,7 +102,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseModal}>
-      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
+      <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-hidden text-right" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             {currentStep === STEPS.RESULTS ? "הפתרונות המומלצים עבורך" : "מצא את הפתרון המושלם לאירוע שלך"}
@@ -113,7 +112,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-6 overflow-y-auto max-h-[60vh]">
+        <div className="py-4 overflow-hidden">
           {currentStep === STEPS.EVENT_DATE && (
             <EventDateStep 
               eventDate={searchData.eventDate} 
@@ -135,7 +134,8 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                   selectedHebrewConcept: concept,
                   eventType: 
                     concept.id === 'family-event' ? 'private' : 
-                    concept.id === 'company-event' ? 'business' : 
+                    concept.id === 'company-event' ? 'business' :
+                    concept.id === 'children-event' ? 'children' :
                     'mixed'
                 })
               }
