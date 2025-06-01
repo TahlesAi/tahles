@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Music, 
@@ -151,7 +152,7 @@ export const mainCategories: SearchSuggestion[] = [
   { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: createIcon(Plane) }
 ];
 
-// קונספטים לחיפוש - מעודכן עם דייט ראשון
+// קונספטים לחיפוש - כולל דייט ראשון
 export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: createIcon(PartyPopper) },
   { id: "concept-2", value: "חתונה", type: "קונספט", icon: createIcon(Heart) },
@@ -246,7 +247,7 @@ export const getAllSearchSuggestions = (): SearchSuggestion[] => {
     ...performanceSubcategories,
     ...giftsSubcategories,
     ...tripsSubcategories,
-    ...firstDateSubcategories, // הוספת תת-קטגוריות דייט ראשון
+    ...firstDateSubcategories,
     ...popularProviders,
     ...mentalistProviders
   ];
@@ -254,10 +255,8 @@ export const getAllSearchSuggestions = (): SearchSuggestion[] => {
 
 // הוק לשיתוף הצעות החיפוש בין כל הקומפוננטים
 export const useSearchSuggestions = () => {
-  // הרחבת הצעות החיפוש
   const searchSuggestions = getAllSearchSuggestions();
   
-  // הוספת 20 ספקים נוספים מתחומים שונים
   const additionalProviders = [
     { id: 'provider-extra-1', value: 'ניצוצות - מופע אש', type: 'ספק' },
     { id: 'provider-extra-2', value: 'משה כהן - זמר חתונות', type: 'ספק' },
@@ -283,7 +282,6 @@ export const useSearchSuggestions = () => {
     { id: 'provider-extra-22', value: 'חדר הבריחה המסתורי - חידות ומשחקים', type: 'ספק' }
   ];
   
-  // הוסף את הספקים הנוספים
   additionalProviders.forEach(provider => {
     if (!searchSuggestions.some(s => s.value === provider.value)) {
       searchSuggestions.push(provider);
@@ -300,52 +298,8 @@ export const useSearchSuggestions = () => {
     performanceSubcategories,
     giftsSubcategories,
     tripsSubcategories,
+    firstDateSubcategories,
     popularProviders,
     mentalistProviders
   };
 };
-```
-
-```typescript
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { eventConcepts } from "@/lib/searchSuggestions";
-import useIsMobile from "@/hooks/use-mobile";
-
-const EventConcepts = () => {
-  const isMobile = useIsMobile();
-
-  return (
-    <section className="py-10 bg-white border-b" dir="rtl">
-      <div className="container px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">קונספטים פופולריים</h2>
-          <Badge variant="outline" className="cursor-pointer">ראה הכל</Badge>
-        </div>
-        
-        <div className={`overflow-x-auto pb-6 ${isMobile ? '-mx-4 px-4' : ''}`}>
-          <div className="flex gap-4 min-w-max">
-            {eventConcepts.map((concept, index) => (
-              <Link key={index} to={`/search?concept=${encodeURIComponent(concept.value)}`}>
-                <div
-                  className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
-                    concept.value === "דייט ראשון" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
-                  }`}
-                >
-                  {concept.icon}
-                  <span className={`font-medium text-center text-sm ${
-                    concept.value === "דייט ראשון" ? "text-pink-700" : ""
-                  }`}>
-                    {concept.value}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default EventConcepts;
