@@ -7,36 +7,21 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, MapPin, Clock, Calculator, Package, ShoppingCart } from "lucide-react";
-
-interface PricingRule {
-  type: 'audience' | 'distance' | 'duration' | 'kosher' | 'special_requirements' | 'quantity';
-  condition: string;
-  modifier: number;
-  modifierType: 'fixed' | 'percentage' | 'per_unit';
-  description: string;
-}
-
-interface ProductVariant {
-  id: string;
-  name: string;
-  basePrice: number;
-  priceUnit: 'per_event' | 'per_person' | 'per_hour' | 'per_item';
-  inventory?: number;
-  maxQuantity?: number;
-  pricingRules: PricingRule[];
-}
+import { Users, MapPin, Clock, Calculator, Package, ShoppingCart, AlertCircle } from "lucide-react";
+import { PricingRule, ProductVariant, Commission } from "@/types";
 
 interface ServicePricingProps {
   service: any;
   variants: ProductVariant[];
   onPriceUpdate: (totalPrice: number, details: any) => void;
+  commission?: Commission;
 }
 
 const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
   service,
   variants,
-  onPriceUpdate
+  onPriceUpdate,
+  commission = { rate: 0.05, type: 'percentage', includesProcessingFees: true }
 }) => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(variants[0] || {
     id: 'default',
@@ -54,8 +39,11 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
   const [specialRequirements, setSpecialRequirements] = useState<string[]>([]);
 
   const getMaxQuantity = () => {
-    if (selectedVariant.inventory) {
-      return Math.min(selectedVariant.maxQuantity || selectedVariant.inventory, selectedVariant.inventory);
+    if (selectedVariant.inventory?.currentStock) {
+      return Math.min(
+        selectedVariant.maxQuantity || selectedVariant.inventory.currentStock, 
+        selectedVariant.inventory.currentStock
+      );
     }
     return selectedVariant.maxQuantity || 10;
   };
@@ -75,6 +63,9 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
       case 'per_item':
         totalPrice = basePrice * quantity;
         break;
+      case 'per_day':
+        totalPrice = basePrice * Math.ceil(duration / 8); // 8 hours per day
+        break;
       default:
         totalPrice = basePrice;
     }
@@ -82,7 +73,9 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
     const appliedRules: any[] = [];
 
     // החלת כללי תמחור
-    selectedVariant.pricingRules.forEach(rule => {
+    selectedVariant.pricingRules?.forEach(rule => {
+      if (!rule.isActive) return;
+      
       let shouldApply = false;
       let ruleValue = 0;
 
@@ -92,7 +85,7 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
           shouldApply = audienceSize > audienceThreshold;
           if (shouldApply) {
             if (rule.modifierType === 'per_unit') {
-              ruleValue = (audienceSize - audienceThreshold) * rule.modifier;
+              ruleValue = Math.ceil((audienceSize - audienceThreshold) / 50) * rule.modifier;
             }
           }
           break;
@@ -131,6 +124,16 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
             ruleValue = -totalPrice * (rule.modifier / 100); // הנחה לכמות
           }
           break;
+
+        case 'setup_time':
+          if (selectedVariant.setupRequirements) {
+            const setupHours = selectedVariant.setupRequirements.setupTimeMinutes / 60;
+            shouldApply = setupHours > parseFloat(rule.condition);
+            if (shouldApply) {
+              ruleValue = rule.modifierType === 'fixed' ? rule.modifier : totalPrice * (rule.modifier / 100);
+            }
+          }
+          break;
       }
 
       if (shouldApply) {
@@ -147,6 +150,13 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
       }
     });
 
+    // חישוב עמלה
+    const commissionAmount = commission.type === 'percentage' 
+      ? totalPrice * commission.rate 
+      : commission.rate;
+
+    const finalPrice = totalPrice + (commission.includesProcessingFees ? commissionAmount : 0);
+
     const details = {
       selectedVariant: selectedVariant.name,
       basePrice,
@@ -158,10 +168,16 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
       specialRequirements,
       appliedRules,
       priceUnit: selectedVariant.priceUnit,
-      inventory: selectedVariant.inventory
+      inventory: selectedVariant.inventory,
+      commission: {
+        amount: commissionAmount,
+        rate: commission.rate,
+        included: commission.includesProcessingFees
+      },
+      setupRequirements: selectedVariant.setupRequirements
     };
 
-    onPriceUpdate(Math.max(0, totalPrice), details);
+    onPriceUpdate(Math.max(0, finalPrice), details);
     return Math.max(0, totalPrice);
   };
 
@@ -170,6 +186,9 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
   }, [selectedVariant, audienceSize, travelDistance, duration, quantity, isKosher, specialRequirements]);
 
   const currentPrice = calculatePrice();
+  const commissionAmount = commission.type === 'percentage' 
+    ? currentPrice * commission.rate 
+    : commission.rate;
 
   const handleKosherChange = (checked: boolean | 'indeterminate') => {
     setIsKosher(checked === true);
@@ -208,7 +227,8 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
                         ₪{variant.basePrice.toLocaleString()} / {
                           variant.priceUnit === 'per_event' ? 'אירוע' :
                           variant.priceUnit === 'per_person' ? 'אדם' :
-                          variant.priceUnit === 'per_hour' ? 'שעה' : 'יחידה'
+                          variant.priceUnit === 'per_hour' ? 'שעה' : 
+                          variant.priceUnit === 'per_day' ? 'יום' : 'יחידה'
                         }
                       </div>
                     </div>
@@ -218,13 +238,31 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
             </Select>
             
             {selectedVariant.inventory && (
-              <div className="mt-2">
+              <div className="mt-2 space-y-1">
                 <Badge variant="secondary" className="text-xs">
                   <Package className="h-3 w-3 ml-1" />
-                  {selectedVariant.inventory} במלאי
+                  {selectedVariant.inventory.currentStock || 'זמין'} במלאי
                 </Badge>
+                {selectedVariant.inventory.type === 'time_based' && selectedVariant.inventory.cooldownPeriod && (
+                  <Badge variant="outline" className="text-xs">
+                    <Clock className="h-3 w-3 ml-1" />
+                    זמן המתנה: {selectedVariant.inventory.cooldownPeriod} דקות בין הופעות
+                  </Badge>
+                )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* אזהרת מלאי */}
+        {selectedVariant.inventory?.type === 'limited' && 
+         selectedVariant.inventory.currentStock && 
+         selectedVariant.inventory.currentStock <= (selectedVariant.inventory.reorderLevel || 5) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-orange-800">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm">מלאי מועט - רק {selectedVariant.inventory.currentStock} יחידות נותרו</span>
+            </div>
           </div>
         )}
 
@@ -249,7 +287,7 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
           </div>
         )}
 
-        {/* גודל קהל (רק אם רלוונטי) */}
+        {/* גודל קהל */}
         {selectedVariant.priceUnit !== 'per_person' && (
           <div>
             <Label htmlFor="audience-size" className="flex items-center gap-2 mb-2">
@@ -295,12 +333,12 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
             value={duration}
             onChange={(e) => setDuration(parseFloat(e.target.value) || 0)}
             min="0.5"
-            max="12"
+            max="24"
             step="0.5"
           />
         </div>
 
-        {/* דרישות כשרות (רק למוצרי מזון) */}
+        {/* דרישות כשרות */}
         {(service.category === 'מזון ומשקאות' || service.subcategory?.includes('קייטרינג')) && (
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -314,27 +352,44 @@ const EnhancedServicePricing: React.FC<ServicePricingProps> = ({
           </div>
         )}
 
-        {/* תוספות שהוחלו */}
-        {calculatePrice() > selectedVariant.basePrice && (
-          <div className="border-t pt-4">
-            <h4 className="font-medium mb-3">תוספות מחיר:</h4>
-            <div className="space-y-2 text-sm">
-              {/* הצגת התוספות כאן */}
+        {/* דרישות הקמה */}
+        {selectedVariant.setupRequirements && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <h4 className="font-medium text-blue-900 mb-2">דרישות הקמה ופירוק</h4>
+            <div className="text-sm text-blue-800 space-y-1">
+              <p>• זמן הקמה: {selectedVariant.setupRequirements.setupTimeMinutes} דקות</p>
+              <p>• זמן פירוק: {selectedVariant.setupRequirements.teardownTimeMinutes} דקות</p>
+              {selectedVariant.setupRequirements.requiresTechnicalCrew && (
+                <p>• נדרש צוות טכני מקצועי</p>
+              )}
+              {selectedVariant.setupRequirements.requiredSpace && (
+                <p>• דרישות מקום: {selectedVariant.setupRequirements.requiredSpace}</p>
+              )}
             </div>
           </div>
         )}
 
         {/* סיכום מחיר */}
         <div className="border-t pt-4">
-          <div className="text-right">
-            <div className="text-sm text-gray-600 mb-2">
+          <div className="text-right space-y-2">
+            <div className="text-sm text-gray-600">
               מחיר בסיס: ₪{selectedVariant.basePrice.toLocaleString()}
               {selectedVariant.priceUnit === 'per_person' && ` × ${audienceSize} אנשים`}
               {selectedVariant.priceUnit === 'per_hour' && ` × ${duration} שעות`}
               {selectedVariant.priceUnit === 'per_item' && ` × ${quantity} יחידות`}
+              {selectedVariant.priceUnit === 'per_day' && ` × ${Math.ceil(duration / 8)} ימים`}
             </div>
-            <div className="text-2xl font-bold text-brand-600">
-              סה"כ: ₪{currentPrice.toLocaleString()}
+            
+            <div className="text-lg font-semibold">
+              מחיר שירות: ₪{currentPrice.toLocaleString()}
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              עמלת פלטפורמה ({(commission.rate * 100).toFixed(1)}%): ₪{commissionAmount.toLocaleString()}
+            </div>
+            
+            <div className="text-2xl font-bold text-brand-600 border-t pt-2">
+              סה"כ לתשלום: ₪{(currentPrice + (commission.includesProcessingFees ? commissionAmount : 0)).toLocaleString()}
             </div>
           </div>
         </div>

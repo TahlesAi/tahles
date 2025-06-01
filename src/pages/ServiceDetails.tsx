@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +22,7 @@ import AdvancedServiceDetails from "@/components/service/AdvancedServiceDetails"
 
 import { saveServiceForLater, isServiceSaved, removeSavedService } from "@/components/provider/ServiceCard";
 import { getServiceById, getProviderById, getReviewsByService } from "@/lib/unifiedMockData";
+import { Commission } from "@/types";
 
 const ServiceDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +36,13 @@ const ServiceDetails = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [pricingDetails, setPricingDetails] = useState<any>({});
   const [selectedDateTime, setSelectedDateTime] = useState<{date: string, time: string}>({date: '', time: ''});
+  
+  // הגדרת עמלה דיפולטיבית - 5% כפי שציינת
+  const commission: Commission = {
+    rate: 0.05, // 5%
+    type: 'percentage',
+    includesProcessingFees: true
+  };
   
   useEffect(() => {
     console.log('ServiceDetails: Starting with ID:', id);
@@ -91,16 +98,21 @@ const ServiceDetails = () => {
               rating: mockService.rating,
               reviewCount: mockService.reviewCount,
               featured: mockService.featured,
+              // Enhanced features for new system
+              audienceSize: mockService.audienceSize || { min: 10, max: 200, optimal: 50 },
+              duration: mockService.duration || 120, // 2 hours in minutes
               features: [
                 'ביצוע מקצועי ברמה הגבוהה ביותר',
                 'התאמה מלאה לקהל הלקוחות',
                 'ציוד מקצועי כלול במחיר',
                 'גמישות בתאריכים ושעות',
                 'אחריות מלאה על הביצוע'
-              ]
+              ],
+              technicalRequirements: mockService.technicalRequirements || [],
+              setupTime: mockService.setupTime || 30
             };
             
-            // Transform provider to expected format
+            // Transform provider to expected format with calendar info
             const transformedProvider = {
               id: mockProvider.id,
               name: mockProvider.businessName,
@@ -114,10 +126,20 @@ const ServiceDetails = () => {
               review_count: mockProvider.reviewCount,
               is_verified: mockProvider.verified,
               logo_url: mockProvider.logo,
-              gallery: mockProvider.gallery || []
+              gallery: mockProvider.gallery || [],
+              // Calendar information
+              workingHours: {
+                sunday: { start: '09:00', end: '22:00', available: true },
+                monday: { start: '09:00', end: '22:00', available: true },
+                tuesday: { start: '09:00', end: '22:00', available: true },
+                wednesday: { start: '09:00', end: '22:00', available: true },
+                thursday: { start: '09:00', end: '22:00', available: true },
+                friday: { start: '09:00', end: '15:00', available: true },
+                saturday: { start: '20:00', end: '23:00', available: true }
+              }
             };
             
-            console.log('Setting service and provider data');
+            console.log('Setting service and provider data with enhanced features');
             setService(transformedService);
             setProvider(transformedProvider);
             setReviews(mockReviews);
@@ -257,6 +279,7 @@ const ServiceDetails = () => {
   const handlePriceUpdate = (newPrice: number, details: any) => {
     setTotalPrice(newPrice);
     setPricingDetails(details);
+    console.log('Price updated:', newPrice, 'Commission:', details.commission);
   };
 
   const handleDateTimeSelect = (date: string, timeSlot: string) => {
@@ -340,12 +363,13 @@ const ServiceDetails = () => {
               
               <ServiceDetailInfo service={service} showMedia={false} />
               
-              {/* Advanced Service Details with Enhanced Pricing */}
+              {/* Advanced Service Details with Enhanced Pricing and Commission */}
               <div className="mb-8">
                 <AdvancedServiceDetails
                   service={service}
                   provider={provider}
                   onPriceUpdate={handlePriceUpdate}
+                  commission={commission}
                 />
               </div>
               
@@ -401,9 +425,10 @@ const ServiceDetails = () => {
                       <div className="mt-4 p-4 bg-white rounded border">
                         <h4 className="font-medium mb-2">הערות נוספות:</h4>
                         <p className="text-sm text-gray-600">
-                          • הגעה לאתר 30 דקות לפני תחילת המופע
+                          • הגעה לאתר {service.setupTime || 30} דקות לפני תחילת המופע
                           • במקרה של שינויים דחופים, יש ליצור קשר 24 שעות מראש
                           • במקרה של אירוע חיצוני, יש לספק מזג אוויר מתאים או הגנה
+                          • עמלת פלטפורמה: {(commission.rate * 100).toFixed(1)}% כלולה במחיר הסופי
                         </p>
                       </div>
                     </div>
@@ -419,7 +444,12 @@ const ServiceDetails = () => {
                   ...service,
                   calculatedPrice: totalPrice || service.price,
                   pricingDetails,
-                  selectedDateTime
+                  selectedDateTime,
+                  commission: {
+                    amount: totalPrice * commission.rate,
+                    rate: commission.rate,
+                    included: commission.includesProcessingFees
+                  }
                 }}
                 provider={provider}
                 averageRating={averageRating}
