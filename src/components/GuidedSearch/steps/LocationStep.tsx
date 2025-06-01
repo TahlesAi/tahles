@@ -9,7 +9,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface LocationStepProps {
   location: { city: string; address?: string } | undefined;
@@ -41,79 +41,59 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
   const canProceed = selectedCity.trim() !== "";
 
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-4 text-right" dir="rtl">
       <div className="text-center">
-        <h3 className="text-xl font-bold mb-2">איפה האירוע יתקיים?</h3>
-        <p className="text-gray-600 text-sm">המיקום חיוני לחישוב זמני הגעה ותיאום השירות</p>
+        <h3 className="text-lg font-bold mb-1">איפה האירוע יתקיים?</h3>
+        <p className="text-gray-600 text-sm">המיקום לתיאום השירות</p>
       </div>
       
-      <div className="flex flex-col items-center space-y-4">
-        {/* City Selection */}
-        <div className="w-full max-w-sm space-y-3">
-          <label className="block text-sm font-medium text-center">
-            <MapPin className="inline ml-2 h-4 w-4" />
-            עיר או יישוב *
-          </label>
-          <Select value={selectedCity} onValueChange={setSelectedCity} dir="rtl">
-            <SelectTrigger className="w-full text-center h-12">
-              <SelectValue placeholder="בחר עיר או יישוב" />
-            </SelectTrigger>
-            <SelectContent className="max-h-48 overflow-y-auto">
-              {israeliCities.map((city) => (
-                <SelectItem key={city} value={city} className="text-center">
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col items-center space-y-3">
+        {/* City and Address in same row */}
+        <div className="w-full max-w-lg">
+          <div className="grid grid-cols-2 gap-3">
+            {/* City Selection */}
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-center">
+                <MapPin className="inline ml-1 h-3 w-3" />
+                עיר *
+              </label>
+              <Select value={selectedCity} onValueChange={setSelectedCity} dir="rtl">
+                <SelectTrigger className="w-full text-center h-9 text-sm">
+                  <SelectValue placeholder="בחר עיר" />
+                </SelectTrigger>
+                <SelectContent className="max-h-32 overflow-y-auto">
+                  {israeliCities.map((city) => (
+                    <SelectItem key={city} value={city} className="text-center text-sm">
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Specific Address */}
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-center">כתובת (אופציונלי)</label>
+              <Input
+                type="text"
+                placeholder={selectedCity === "אחר" ? "שם העיר" : "רחוב ומספר"}
+                value={specificAddress}
+                onChange={(e) => setSpecificAddress(e.target.value)}
+                className="text-center h-9 text-sm"
+              />
+            </div>
+          </div>
         </div>
-
-        {/* Specific Address (Optional) */}
-        {selectedCity && selectedCity !== "אחר" && (
-          <div className="w-full max-w-sm space-y-3">
-            <label className="block text-sm font-medium text-center">
-              <Navigation className="inline ml-2 h-4 w-4" />
-              כתובת ספציפית (אופציונלי)
-            </label>
-            <Input
-              type="text"
-              placeholder="רחוב ומספר בית"
-              value={specificAddress}
-              onChange={(e) => setSpecificAddress(e.target.value)}
-              className="text-center h-12"
-            />
-            <p className="text-xs text-gray-500 text-center">
-              ניתן לעדכן בהמשך לקראת האירוע במידה ועדין לא ידוע
-            </p>
-          </div>
-        )}
-
-        {/* Custom City Input */}
-        {selectedCity === "אחר" && (
-          <div className="w-full max-w-sm space-y-3">
-            <label className="block text-sm font-medium text-center">
-              שם העיר או היישוב
-            </label>
-            <Input
-              type="text"
-              placeholder="הזן שם העיר או היישוב"
-              value={specificAddress}
-              onChange={(e) => setSpecificAddress(e.target.value)}
-              className="text-center h-12"
-            />
-          </div>
-        )}
       </div>
       
       {/* Continue Button */}
-      <div className="flex justify-center pt-4">
+      <div className="flex justify-center pt-3">
         <Button 
           onClick={handleNext} 
-          className="px-8 py-3 text-lg h-12" 
+          className="px-6 py-2 text-base h-10" 
           disabled={!canProceed}
-          size="lg"
         >
-          {!selectedCity ? 'יש לבחור מיקום' : 'המשך לבחירת קונספט האירוע'}
+          {!selectedCity ? 'בחר מיקום' : 'המשך לקונספט האירוע'}
         </Button>
       </div>
     </div>

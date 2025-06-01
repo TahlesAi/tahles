@@ -1,9 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
 import { EventType } from "../GuidedSearchModal";
@@ -31,14 +28,10 @@ const ConceptStep = ({
   onNext,
   onBack
 }: ConceptStepProps) => {
-  const [detailInput, setDetailInput] = useState(selectedConcept || "");
+  const [currentStage, setCurrentStage] = useState<'subconcept' | 'category' | 'subcategory' | 'audience'>('subconcept');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>(undefined);
   const [audience, setAudience] = useState<'family' | 'friends' | 'mixed' | undefined>(undefined);
-  const [showSubconcepts, setShowSubconcepts] = useState(true);
-  const [showCategories, setShowCategories] = useState(false);
-  const [showSubcategories, setShowSubcategories] = useState(false);
-  const [showAudience, setShowAudience] = useState(false);
 
   // Available subconcepts based on selected Hebrew concept
   const availableSubconcepts = selectedHebrewConcept?.subconcepts || [];
@@ -46,51 +39,23 @@ const ConceptStep = ({
   const handleSubconceptSelect = (subconceptId: string) => {
     const subconcept = availableSubconcepts.find(s => s.id === subconceptId);
     if (subconcept) {
-      setDetailInput(subconcept.id);
       onSelectSubconcept(subconceptId);
-      setShowSubconcepts(false);
-      setShowCategories(true);
-      // Scroll to top of modal content
-      setTimeout(() => {
-        const modalContent = document.querySelector('[role="dialog"] .overflow-y-auto');
-        if (modalContent) {
-          modalContent.scrollTop = 0;
-        }
-      }, 100);
+      setCurrentStage('category');
     }
   };
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    setSelectedSubcategory(undefined);
-    setShowCategories(false);
-    setShowSubcategories(true);
-    // Scroll to top
-    setTimeout(() => {
-      const modalContent = document.querySelector('[role="dialog"] .overflow-y-auto');
-      if (modalContent) {
-        modalContent.scrollTop = 0;
-      }
-    }, 100);
+    setCurrentStage('subcategory');
   };
 
   const handleSubcategorySelect = (subcategoryId: string) => {
     setSelectedSubcategory(subcategoryId);
-    setShowSubcategories(false);
-    setShowAudience(true);
-    // Scroll to top
-    setTimeout(() => {
-      const modalContent = document.querySelector('[role="dialog"] .overflow-y-auto');
-      if (modalContent) {
-        modalContent.scrollTop = 0;
-      }
-    }, 100);
+    setCurrentStage('audience');
   };
 
   const handleAudienceSelect = (selectedAudience: 'family' | 'friends' | 'mixed') => {
     setAudience(selectedAudience);
-    setShowAudience(false);
-    // Proceed to results immediately
     onNext();
   };
 
@@ -99,33 +64,57 @@ const ConceptStep = ({
     ? hebrewCategories.find(cat => cat.id === selectedCategory)?.subcategories || []
     : [];
 
-  // Check if user can proceed
-  const canProceed = detailInput && selectedCategory && selectedSubcategory && audience;
+  const resetToStage = (stage: 'subconcept' | 'category' | 'subcategory' | 'audience') => {
+    setCurrentStage(stage);
+    if (stage === 'subconcept') {
+      setSelectedCategory(undefined);
+      setSelectedSubcategory(undefined);
+      setAudience(undefined);
+    } else if (stage === 'category') {
+      setSelectedSubcategory(undefined);
+      setAudience(undefined);
+    } else if (stage === 'subcategory') {
+      setAudience(undefined);
+    }
+  };
 
   return (
-    <div className="space-y-6 text-right min-h-[500px] overflow-y-auto" dir="rtl">
+    <div className="space-y-4 text-right min-h-[400px]" dir="rtl">
       <h3 className="text-lg font-medium text-center">פרטי האירוע</h3>
       
-      <div className="space-y-6">
-        {/* Event Details - Subconcepts */}
-        {showSubconcepts && availableSubconcepts.length > 0 && (
+      <div className="space-y-4">
+        {/* Progress indicators */}
+        <div className="flex justify-center gap-2 mb-4">
+          {['subconcept', 'category', 'subcategory', 'audience'].map((stage, index) => (
+            <div
+              key={stage}
+              className={`w-3 h-3 rounded-full ${
+                stage === currentStage ? 'bg-primary' :
+                ['subconcept', 'category', 'subcategory', 'audience'].indexOf(currentStage) > index ? 'bg-green-500' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Stage 1: Subconcept Selection */}
+        {currentStage === 'subconcept' && availableSubconcepts.length > 0 && (
           <Card>
             <CardContent className="p-4">
-              <Label className="text-base font-medium mb-3 block text-right">
+              <div className="text-base font-medium mb-3 text-center">
                 איזה סוג של {selectedHebrewConcept?.name}?
-              </Label>
+              </div>
               <div className="grid grid-cols-1 gap-2">
                 {availableSubconcepts.map((subconcept) => (
                   <Button
                     key={subconcept.id}
-                    variant={detailInput === subconcept.id ? "default" : "outline"}
-                    className="text-right justify-start h-auto py-3 px-4"
+                    variant="outline"
+                    className="text-right justify-start h-auto py-2 px-3"
                     onClick={() => handleSubconceptSelect(subconcept.id)}
                   >
                     <div className="text-right">
-                      <div className="font-medium">{subconcept.name}</div>
+                      <div className="font-medium text-sm">{subconcept.name}</div>
                       {subconcept.description && (
-                        <div className="text-sm text-gray-600 mt-1">{subconcept.description}</div>
+                        <div className="text-xs text-gray-600 mt-1">{subconcept.description}</div>
                       )}
                     </div>
                   </Button>
@@ -135,24 +124,19 @@ const ConceptStep = ({
           </Card>
         )}
 
-        {/* Selected subconcept summary */}
-        {!showSubconcepts && detailInput && (
+        {/* Progress Summary */}
+        {currentStage !== 'subconcept' && selectedSubconcept && (
           <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-3">
+            <CardContent className="p-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-green-700">
-                  נבחר: {availableSubconcepts.find(s => s.id === detailInput)?.name}
+                <span className="text-xs text-green-700">
+                  נבחר: {availableSubconcepts.find(s => s.id === selectedSubconcept)?.name}
                 </span>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => {
-                    setShowSubconcepts(true);
-                    setShowCategories(false);
-                    setShowSubcategories(false);
-                    setShowAudience(false);
-                  }}
-                  className="text-xs"
+                  onClick={() => resetToStage('subconcept')}
+                  className="text-xs h-6"
                 >
                   שנה
                 </Button>
@@ -161,22 +145,22 @@ const ConceptStep = ({
           </Card>
         )}
 
-        {/* Category Selection */}
-        {showCategories && (
+        {/* Stage 2: Category Selection */}
+        {currentStage === 'category' && (
           <div className="space-y-3">
-            <Label className="text-base font-medium text-right">איזה סוג שירות אתם מחפשים?</Label>
+            <div className="text-base font-medium text-center">איזה סוג שירות?</div>
             <div className="grid grid-cols-1 gap-2">
-              {hebrewCategories.map((category) => (
+              {hebrewCategories.slice(0, 8).map((category) => (
                 <Button
                   key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
-                  className="text-right justify-start h-auto py-3 px-4"
+                  variant="outline"
+                  className="text-right justify-start h-auto py-2 px-3"
                   onClick={() => handleCategorySelect(category.id)}
                 >
                   <div className="text-right">
-                    <div className="font-medium">{category.name}</div>
+                    <div className="font-medium text-sm">{category.name}</div>
                     {category.description && (
-                      <div className="text-sm text-gray-600 mt-1">{category.description}</div>
+                      <div className="text-xs text-gray-600 mt-1">{category.description}</div>
                     )}
                   </div>
                 </Button>
@@ -185,23 +169,19 @@ const ConceptStep = ({
           </div>
         )}
 
-        {/* Selected category summary */}
-        {!showCategories && selectedCategory && (
+        {/* Progress Summary for Category */}
+        {currentStage !== 'category' && currentStage !== 'subconcept' && selectedCategory && (
           <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-3">
+            <CardContent className="p-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-700">
+                <span className="text-xs text-blue-700">
                   קטגוריה: {hebrewCategories.find(c => c.id === selectedCategory)?.name}
                 </span>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => {
-                    setShowCategories(true);
-                    setShowSubcategories(false);
-                    setShowAudience(false);
-                  }}
-                  className="text-xs"
+                  onClick={() => resetToStage('category')}
+                  className="text-xs h-6"
                 >
                   שנה
                 </Button>
@@ -210,22 +190,22 @@ const ConceptStep = ({
           </Card>
         )}
 
-        {/* Subcategory Selection */}
-        {showSubcategories && selectedCategory && availableSubcategories.length > 0 && (
+        {/* Stage 3: Subcategory Selection */}
+        {currentStage === 'subcategory' && availableSubcategories.length > 0 && (
           <div className="space-y-3">
-            <Label className="text-base font-medium text-right">איזה סוג מוצר ספציפי?</Label>
+            <div className="text-base font-medium text-center">איזה מוצר ספציפי?</div>
             <div className="grid grid-cols-1 gap-2">
               {availableSubcategories.map((subcategory) => (
                 <Button
                   key={subcategory.id}
-                  variant={selectedSubcategory === subcategory.id ? "default" : "outline"}
-                  className="text-right justify-start h-auto py-3 px-4"
+                  variant="outline"
+                  className="text-right justify-start h-auto py-2 px-3"
                   onClick={() => handleSubcategorySelect(subcategory.id)}
                 >
                   <div className="text-right">
-                    <div className="font-medium">{subcategory.name}</div>
+                    <div className="font-medium text-sm">{subcategory.name}</div>
                     {subcategory.description && (
-                      <div className="text-sm text-gray-600 mt-1">{subcategory.description}</div>
+                      <div className="text-xs text-gray-600 mt-1">{subcategory.description}</div>
                     )}
                   </div>
                 </Button>
@@ -234,22 +214,19 @@ const ConceptStep = ({
           </div>
         )}
 
-        {/* Selected subcategory summary */}
-        {!showSubcategories && selectedSubcategory && (
+        {/* Progress Summary for Subcategory */}
+        {currentStage === 'audience' && selectedSubcategory && (
           <Card className="bg-purple-50 border-purple-200">
-            <CardContent className="p-3">
+            <CardContent className="p-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-purple-700">
+                <span className="text-xs text-purple-700">
                   תת-קטגוריה: {availableSubcategories.find(s => s.id === selectedSubcategory)?.name}
                 </span>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => {
-                    setShowSubcategories(true);
-                    setShowAudience(false);
-                  }}
-                  className="text-xs"
+                  onClick={() => resetToStage('subcategory')}
+                  className="text-xs h-6"
                 >
                   שנה
                 </Button>
@@ -258,39 +235,39 @@ const ConceptStep = ({
           </Card>
         )}
 
-        {/* Audience Selection */}
-        {showAudience && (
+        {/* Stage 4: Audience Selection */}
+        {currentStage === 'audience' && (
           <div className="space-y-3">
-            <Label className="text-base font-medium text-right">איזה קהל משתתף באירוע?</Label>
+            <div className="text-base font-medium text-center">איזה קהל משתתף?</div>
             <div className="grid grid-cols-1 gap-2">
               <Button
-                variant={audience === "family" ? "default" : "outline"}
-                className="text-right justify-start h-auto py-3 px-4"
+                variant="outline"
+                className="text-right justify-start h-auto py-2 px-3"
                 onClick={() => handleAudienceSelect("family")}
               >
                 <div className="text-right">
-                  <div className="font-medium">משפחתי</div>
-                  <div className="text-sm text-gray-600 mt-1">אירוע משפחתי עם קרובים</div>
+                  <div className="font-medium text-sm">משפחתי</div>
+                  <div className="text-xs text-gray-600">אירוע עם קרובים</div>
                 </div>
               </Button>
               <Button
-                variant={audience === "friends" ? "default" : "outline"}
-                className="text-right justify-start h-auto py-3 px-4"
+                variant="outline"
+                className="text-right justify-start h-auto py-2 px-3"
                 onClick={() => handleAudienceSelect("friends")}
               >
                 <div className="text-right">
-                  <div className="font-medium">חברים</div>
-                  <div className="text-sm text-gray-600 mt-1">אירוע עם חברים וחברות</div>
+                  <div className="font-medium text-sm">חברים</div>
+                  <div className="text-xs text-gray-600">אירוע עם חברות</div>
                 </div>
               </Button>
               <Button
-                variant={audience === "mixed" ? "default" : "outline"}
-                className="text-right justify-start h-auto py-3 px-4"
+                variant="outline"
+                className="text-right justify-start h-auto py-2 px-3"
                 onClick={() => handleAudienceSelect("mixed")}
               >
                 <div className="text-right">
-                  <div className="font-medium">מעורב</div>
-                  <div className="text-sm text-gray-600 mt-1">משפחה וחברים יחד</div>
+                  <div className="font-medium text-sm">מעורב</div>
+                  <div className="text-xs text-gray-600">משפחה וחברים</div>
                 </div>
               </Button>
             </div>
