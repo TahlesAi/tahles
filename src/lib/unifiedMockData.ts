@@ -1,4 +1,3 @@
-
 import { SearchResultService, ProviderProfile, Review, SearchFilters } from "@/lib/types";
 
 // Unified mock data from all sources
@@ -24,6 +23,71 @@ export const unifiedServices: SearchResultService[] = [
     duration: 90,
     technicalRequirements: ["מיקרופון אלחוטי", "במה או אזור מרכזי", "תאורה בסיסית"],
     setupTime: 30
+  },
+  // השירותים המתאימים לדף התוצאות - עם ה-IDs הנכונים
+  {
+    id: "enhanced-mentalist-1",
+    name: "נטע ברסלר - אמן החושים",
+    provider: "נטע ברסלר",
+    providerId: "provider1",
+    description: "חוויה בלתי נשכחת של מנטליזם וקסמים המתאימה לכל סוגי האירועים",
+    price: 2500,
+    priceUnit: "לאירוע",
+    rating: 4.9,
+    reviewCount: 127,
+    imageUrl: "https://i.ibb.co/WxDqgWM/mentalist.jpg",
+    category: "מופעים ואמנים",
+    subcategory: "אמני חושים",
+    location: "תל אביב והמרכז",
+    suitableFor: ["concept-4", "concept-5", "concept-6", "concept-8"],
+    featured: true,
+    audienceSize: { min: 20, max: 200, optimal: 50 },
+    duration: 60,
+    technicalRequirements: ["מיקרופון אלחוטי", "במה או אזור מרכזי", "תאורה בסיסית"],
+    setupTime: 30,
+    tags: ["מנטליזם", "קסמים", "אינטראקטיבי"]
+  },
+  {
+    id: "enhanced-band-1", 
+    name: "להקת אנרג'י",
+    provider: "אנרג'י מיוזיק",
+    providerId: "provider2",
+    description: "להקה מקצועית המתמחה באירועי חברה ואירועים פרטיים",
+    price: 4000,
+    priceUnit: "לאירוע",
+    rating: 4.7,
+    reviewCount: 89,
+    imageUrl: "https://i.ibb.co/wQDXD7y/band.jpg",
+    category: "מופעים ואמנים",
+    subcategory: "להקות",
+    location: "כל הארץ",
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"],
+    audienceSize: { min: 30, max: 300, optimal: 100 },
+    duration: 90,
+    technicalRequirements: ["מערכת הגברה", "כלי נגינה", "חשמל 220V"],
+    setupTime: 45,
+    tags: ["להקה", "מוזיקה חיה", "רחבה"]
+  },
+  {
+    id: "enhanced-catering-1",
+    name: "קייטרינג גורמה",
+    provider: "גורמה קייטרינג",
+    providerId: "provider3",
+    description: "אוכל איכותי ושירות מעולה לאירועים עד 200 איש",
+    price: 150,
+    priceUnit: "למנה",
+    rating: 4.8,
+    reviewCount: 203,
+    imageUrl: "https://i.ibb.co/mH4n6Yn/catering.jpg",
+    category: "שירותי מזון ומשקאות",
+    subcategory: "קייטרינג בשרי",
+    location: "ירושלים והסביבה",
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6", "concept-8"],
+    audienceSize: { min: 10, max: 500, optimal: 100 },
+    duration: 240,
+    technicalRequirements: ["מטבח או אזור הכנה", "חשמל", "מים"],
+    setupTime: 60,
+    tags: ["קייטרינג", "כשר", "איכותי"]
   },
   {
     id: "service2",
@@ -232,6 +296,99 @@ export const unifiedServices: SearchResultService[] = [
     setupTime: 60
   }
 ];
+
+// עדכון פונקציית החיפוש המותאמת לנתוני החיפוש המונחה
+export const getGuidedSearchRecommendations = (searchData: any): SearchResultService[] => {
+  let results = [...unifiedServices];
+  
+  // סינון לפי סוג אירוע
+  if (searchData.eventType) {
+    if (searchData.eventType === 'business') {
+      results = results.filter(service => 
+        service.category === "מופעים ואמנים" || 
+        service.category === "לוקיישנים ומתחמי אירוח" ||
+        service.subcategory === "מרכזי כנסים"
+      );
+    } else if (searchData.eventType === 'private') {
+      results = results.filter(service => 
+        service.category === "מופעים ואמנים" || 
+        service.category === "שירותי מזון ומשקאות"
+      );
+    }
+  }
+  
+  // סינון לפי מספר משתתפים
+  if (searchData.attendeesCount) {
+    const attendees = parseInt(searchData.attendeesCount);
+    if (attendees) {
+      results = results.filter(service => 
+        !service.audienceSize || 
+        (attendees >= service.audienceSize.min && attendees <= service.audienceSize.max)
+      );
+    }
+  }
+  
+  // סינון לפי קונספט
+  if (searchData.eventConcept) {
+    if (searchData.eventConcept.includes('מנטליזם') || searchData.eventConcept.includes('מנטליסט')) {
+      results = results.filter(service => 
+        service.subcategory === "אמני חושים" || service.id === "enhanced-mentalist-1"
+      );
+    } else if (searchData.eventConcept.includes('מוזיקה') || searchData.eventConcept.includes('להקה')) {
+      results = results.filter(service => 
+        service.subcategory === "להקות" || service.subcategory === "זמרים"
+      );
+    } else if (searchData.eventConcept.includes('אוכל') || searchData.eventConcept.includes('קייטרינג')) {
+      results = results.filter(service => 
+        service.category === "שירותי מזון ומשקאות"
+      );
+    }
+  }
+  
+  // דירוג לפי התאמה + איכות
+  results = results
+    .map(service => ({
+      ...service,
+      matchScore: calculateMatchScore(service, searchData)
+    }))
+    .sort((a, b) => {
+      // קודם לפי התאמה, אז לפי דירוג
+      if (b.matchScore !== a.matchScore) {
+        return b.matchScore - a.matchScore;
+      }
+      return (b.rating || 0) - (a.rating || 0);
+    });
+  
+  // החזרת 3 התוצאות הטובות ביותר
+  return results.slice(0, 3);
+};
+
+// פונקציה לחישוב ציון התאמה
+const calculateMatchScore = (service: SearchResultService, searchData: any): number => {
+  let score = 0;
+  
+  // נקודות בסיס לפי דירוג
+  score += (service.rating || 0) * 2;
+  
+  // נקודות עבור מופעים מומלצים
+  if (service.featured) score += 5;
+  
+  // נקודות עבור התאמה לסוג אירוע
+  if (searchData.eventType === 'business' && 
+      (service.category === "לוקיישנים ומתחמי אירוח" || service.subcategory === "מרכזי כנסים")) {
+    score += 10;
+  }
+  
+  if (searchData.eventType === 'private' && 
+      service.category === "מופעים ואמנים") {
+    score += 8;
+  }
+  
+  // נקודות עבור מספר ביקורות (פופולריות)
+  score += Math.min((service.reviewCount || 0) / 20, 5);
+  
+  return score;
+};
 
 export const unifiedProviders: ProviderProfile[] = [
   // Original mock providers  

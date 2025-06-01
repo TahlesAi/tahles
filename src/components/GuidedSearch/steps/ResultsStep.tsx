@@ -10,60 +10,13 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
+import { getGuidedSearchRecommendations } from "@/lib/unifiedMockData";
 
 interface ResultsStepProps {
   searchData: GuidedSearchData;
   onBack: () => void;
   onSubmit: () => void;
 }
-
-const mockRecommendations = [
-  {
-    id: "enhanced-mentalist-1",
-    name: "נטע ברסלר - אמן החושים",
-    image: "https://i.ibb.co/WxDqgWM/mentalist.jpg",
-    category: "אמני חושים",
-    description: "חוויה בלתי נשכחת של מנטליזם וקסמים המתאימה לכל סוגי האירועים",
-    price: "₪2,500",
-    priceUnit: "לאירוע",
-    provider: "נטע ברסלר",
-    rating: 4.9,
-    reviewCount: 127,
-    location: "תל אביב והמרכז",
-    duration: "45-60 דקות",
-    tags: ["מנטליזם", "קסמים", "אינטראקטיבי"]
-  },
-  {
-    id: "enhanced-band-1", 
-    name: "להקת אנרג'י",
-    image: "https://i.ibb.co/wQDXD7y/band.jpg",
-    category: "מופעים מוזיקליים",
-    description: "להקה מקצועית המתמחה באירועי חברה ואירועים פרטיים",
-    price: "₪4,000",
-    priceUnit: "לאירוע",
-    provider: "אנרג'י מיוזיק",
-    rating: 4.7,
-    reviewCount: 89,
-    location: "כל הארץ",
-    duration: "60-90 דקות",
-    tags: ["להקה", "מוזיקה חיה", "רחבה"]
-  },
-  {
-    id: "enhanced-catering-1",
-    name: "קייטרינג גורמה",
-    image: "https://i.ibb.co/mH4n6Yn/catering.jpg", 
-    category: "קייטרינג",
-    description: "אוכל איכותי ושירות מעולה לאירועים עד 200 איש",
-    price: "₪150",
-    priceUnit: "למנה",
-    provider: "גורמה קייטרינג",
-    rating: 4.8,
-    reviewCount: 203,
-    location: "ירושלים והסביבה",
-    duration: "שירות מלא",
-    tags: ["קייטרינג", "כשר", "איכותי"]
-  }
-];
 
 const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   const [name, setName] = useState("");
@@ -72,6 +25,9 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showNoResultsForm, setShowNoResultsForm] = useState(false);
+  
+  // קבלת המלצות דינמיות על בסיס נתוני החיפוש
+  const recommendations = getGuidedSearchRecommendations(searchData);
   
   const handleSubmit = () => {
     setIsLoading(true);
@@ -130,16 +86,16 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
       <h3 className="text-lg font-medium">המלצות מותאמות עבורך:</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockRecommendations.map(rec => (
+        {recommendations.map(rec => (
           <Link 
             key={rec.id} 
-            to={`/enhanced-services/${rec.id}`}
+            to={`/product/${rec.id}`}
             className="block transition-transform hover:scale-105"
           >
             <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
               <div className="relative aspect-video overflow-hidden">
                 <img 
-                  src={rec.image} 
+                  src={rec.imageUrl} 
                   alt={rec.name} 
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
@@ -166,23 +122,27 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
                     <span>{rec.location}</span>
                   </div>
                   
-                  <div className="flex flex-wrap gap-1">
-                    {rec.tags.map((tag, index) => (
-                      <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {rec.tags && (
+                    <div className="flex flex-wrap gap-1">
+                      {rec.tags.map((tag, index) => (
+                        <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">
                       <div className="text-left">
-                        <div className="text-2xl font-bold text-brand-600">{rec.price}</div>
+                        <div className="text-2xl font-bold text-brand-600">
+                          ₪{typeof rec.price === 'number' ? rec.price.toLocaleString() : rec.price}
+                        </div>
                         <div className="text-sm text-gray-500">{rec.priceUnit}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-sm text-gray-500">משך:</div>
-                        <div className="text-sm font-medium">{rec.duration}</div>
+                        <div className="text-sm font-medium">{rec.duration} דקות</div>
                       </div>
                     </div>
                   </div>

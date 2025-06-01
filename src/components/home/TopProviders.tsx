@@ -127,12 +127,6 @@ const TopProviders = () => {
             ))}
           </div>
         </div>
-        
-        <div className="text-center mt-10">
-          <Button variant="outline" asChild>
-            <Link to="/providers">לכל הספקים</Link>
-          </Button>
-        </div>
       </div>
     </section>
   );
