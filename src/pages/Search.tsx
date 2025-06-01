@@ -57,14 +57,14 @@ const Search = () => {
     setIsLoading(true);
     
     const filters = {
-      category: selectedCategory || undefined,
-      location: selectedLocation || undefined,
+      category: selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined,
+      location: selectedLocation && selectedLocation !== "all" ? selectedLocation : undefined,
       priceRange: { min: priceRange[0], max: priceRange[1] },
       rating: minRating || undefined
     };
 
     let searchResults;
-    if (selectedCategory && !searchQuery) {
+    if (selectedCategory && selectedCategory !== "all" && !searchQuery) {
       searchResults = getServicesByCategory(selectedCategory);
     } else {
       searchResults = searchServices(searchQuery, filters);
@@ -78,7 +78,7 @@ const Search = () => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
-    if (selectedCategory) params.set("category", selectedCategory);
+    if (selectedCategory && selectedCategory !== "all") params.set("category", selectedCategory);
     setSearchParams(params);
     performSearch();
   };
@@ -118,7 +118,7 @@ const Search = () => {
                   <SelectValue placeholder="בחר קטגוריה" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">כל הקטגוריות</SelectItem>
+                  <SelectItem value="all">כל הקטגוריות</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -162,7 +162,7 @@ const Search = () => {
                         <SelectValue placeholder="בחר מיקום" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">כל המיקומים</SelectItem>
+                        <SelectItem value="all">כל המיקומים</SelectItem>
                         {locations.map((location) => (
                           <SelectItem key={location} value={location}>
                             {location}
