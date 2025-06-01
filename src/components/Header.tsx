@@ -8,7 +8,8 @@ import AuthModal from "./AuthModal";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [userType, setUserType] = useState<'client' | 'provider'>('client');
   const navigate = useNavigate();
 
   const handleProviderRegister = () => {
@@ -52,7 +53,7 @@ const Header = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setAuthMode('login');
+                  setAuthMode('signin');
                   setIsAuthModalOpen(true);
                 }}
               >
@@ -62,7 +63,7 @@ const Header = () => {
               <Button
                 size="sm"
                 onClick={() => {
-                  setAuthMode('register');
+                  setAuthMode('signup');
                   setIsAuthModalOpen(true);
                 }}
               >
@@ -115,7 +116,7 @@ const Header = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setAuthMode('login');
+                      setAuthMode('signin');
                       setIsAuthModalOpen(true);
                       setIsMenuOpen(false);
                     }}
@@ -127,7 +128,7 @@ const Header = () => {
                   <Button
                     size="sm"
                     onClick={() => {
-                      setAuthMode('register');
+                      setAuthMode('signup');
                       setIsAuthModalOpen(true);
                       setIsMenuOpen(false);
                     }}
@@ -146,7 +147,9 @@ const Header = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         mode={authMode}
-        onModeChange={setAuthMode}
+        setMode={setAuthMode}
+        userType={userType}
+        setUserType={setUserType}
       />
     </>
   );
