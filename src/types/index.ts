@@ -1,3 +1,4 @@
+
 // Base Types
 export interface BaseEntity {
   id: string;
@@ -12,6 +13,27 @@ export interface User extends BaseEntity {
   avatar?: string;
   role: 'client' | 'provider' | 'admin';
   phone?: string;
+}
+
+// Search and Filter Types
+export interface SearchFilters {
+  category?: string;
+  subcategory?: string;
+  location?: string;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  rating?: number;
+  audienceSize?: {
+    min?: number;
+    max?: number;
+  };
+  eventType?: string;
+  date?: string;
+  featured?: boolean;
+  kosher?: boolean;
+  tags?: string[];
 }
 
 // Provider Types
