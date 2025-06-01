@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -10,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Layers, ChevronLeft, AlertCircle } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
 import { validateCategoryId, mapCategoryId } from "@/lib/hebrewHierarchyMapping";
+import { designSystem } from "@/lib/designSystem";
 
 const CategorySubcategories = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -77,30 +77,27 @@ const CategorySubcategories = () => {
     }
   }, [categoryId, hebrewCategories, providers, services, getProvidersBySubcategory, getServicesBySubcategory]);
 
-  // Loading state
+  // Loading state - קומפקטי
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">
-          <div className="container px-4 py-8">
-            <nav className="flex items-center space-x-2 mb-8" dir="rtl">
-              <Skeleton className="h-4 w-16" />
-              <ChevronLeft className="h-4 w-4 text-gray-400" />
-              <Skeleton className="h-4 w-20" />
-              <ChevronLeft className="h-4 w-4 text-gray-400" />
-              <Skeleton className="h-4 w-24" />
+          <div className="container px-4 py-4">
+            <nav className="flex items-center space-x-2 mb-4" dir="rtl">
+              <Skeleton className="h-3 w-12" />
+              <ChevronLeft className="h-3 w-3 text-gray-400" />
+              <Skeleton className="h-3 w-16" />
             </nav>
             
-            <div className="mb-12 text-center">
-              <Skeleton className="h-10 w-64 mx-auto mb-4" />
-              <Skeleton className="h-6 w-96 mx-auto mb-6" />
-              <Skeleton className="h-8 w-32 mx-auto" />
+            <div className="mb-6">
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-64 mb-2" />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="h-48" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+              {[...Array(12)].map((_, i) => (
+                <Skeleton key={i} className="h-20" />
               ))}
             </div>
           </div>
@@ -166,82 +163,73 @@ const CategorySubcategories = () => {
     <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
       <main className="flex-grow">
-        <div className="container px-4 py-8">
-          {/* ניווט נתיב */}
-          <nav className="flex items-center space-x-2 mb-8" dir="rtl">
-            <Link to="/" className="text-gray-500 hover:text-brand-600 transition-colors">
+        <div className="container px-4 py-4">
+          {/* ניווט נתיב - קומפקטי */}
+          <nav className="flex items-center space-x-2 mb-4" dir="rtl">
+            <Link to="/" className="text-gray-500 hover:text-brand-600 transition-colors text-xs">
               דף הבית
             </Link>
-            <ChevronLeft className="h-4 w-4 text-gray-400" />
-            <Link to="/categories" className="text-gray-500 hover:text-brand-600 transition-colors">
+            <ChevronLeft className="h-3 w-3 text-gray-400" />
+            <Link to="/categories" className="text-gray-500 hover:text-brand-600 transition-colors text-xs">
               קטגוריות
             </Link>
-            <ChevronLeft className="h-4 w-4 text-gray-400" />
-            <span className="text-brand-600 font-medium">{category.name}</span>
+            <ChevronLeft className="h-3 w-3 text-gray-400" />
+            <span className="text-brand-600 font-medium text-xs">{category.name}</span>
           </nav>
 
-          {/* כותרת הקטגוריה */}
-          <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold mb-4">{category.name}</h1>
+          {/* כותרת הקטגוריה - קומפקטית */}
+          <div className="mb-6">
+            <h1 className={`${designSystem.typography.title} mb-1`}>{category.name}</h1>
             {category.description && (
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-sm text-gray-600 mb-2">
                 {category.description}
               </p>
             )}
-            <div className="mt-6">
-              <Badge variant="outline" className="text-base px-4 py-2">
-                {categorySubcategories.length} תתי קטגוריות זמינות
-              </Badge>
-            </div>
+            <Badge variant="outline" className="text-xs px-2 py-0.5">
+              {categorySubcategories.length} תתי קטגוריות
+            </Badge>
           </div>
 
-          {/* רשימת תתי קטגוריות */}
+          {/* רשימת תתי קטגוריות - צפופה מאוד */}
           {categorySubcategories.length === 0 ? (
-            <div className="text-center py-16">
-              <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            <div className="text-center py-8">
+              <Layers className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+              <h3 className="text-sm font-medium text-gray-600 mb-1">
                 אין תתי קטגוריות זמינות
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-xs text-gray-500 mb-3">
                 לא נמצאו תתי קטגוריות עבור קטגוריה זו כרגע.
               </p>
-              <Button onClick={() => navigate(-1)} variant="outline">
-                <ArrowRight className="h-4 w-4 ml-2" />
-                חזרה לקטגוריות
+              <Button onClick={() => navigate(-1)} variant="outline" size="sm">
+                <ArrowRight className="h-3 w-3 ml-1" />
+                חזרה
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
               {categorySubcategories.map((subcategory) => (
                 <Link
                   key={subcategory.id}
                   to={`/subcategories/${subcategory.id}`}
                   className="group block"
                 >
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                    <CardContent className="p-6">
-                      <div className="mb-4">
-                        <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center group-hover:bg-brand-200 transition-colors mb-3">
-                          <Layers className="h-6 w-6 text-brand-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold mb-2 group-hover:text-brand-600 transition-colors">
-                          {subcategory.name}
-                        </h3>
-                        {subcategory.description && (
-                          <p className="text-sm text-gray-600 line-clamp-3">
-                            {subcategory.description}
-                          </p>
-                        )}
+                  <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
+                    <CardContent className="p-2.5">
+                      <div className="w-8 h-8 bg-brand-100 rounded-md flex items-center justify-center group-hover:bg-brand-200 transition-colors mb-2 mx-auto">
+                        <Layers className="h-4 w-4 text-brand-600" />
+                      </div>
+                      <h3 className="text-xs font-medium mb-1 text-center line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors">
+                        {subcategory.name}
+                      </h3>
+                      
+                      <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                        <span>{subcategory.providersCount}</span>
+                        <span>{subcategory.servicesCount}</span>
                       </div>
                       
-                      <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
-                        <span>{subcategory.providersCount} ספקים</span>
-                        <span>{subcategory.servicesCount} שירותים</span>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <span className="text-brand-600 font-medium text-sm group-hover:underline">
-                          צפה בספקים ←
+                      <div className="text-center">
+                        <span className="text-brand-600 font-medium text-xs group-hover:underline">
+                          צפה ←
                         </span>
                       </div>
                     </CardContent>

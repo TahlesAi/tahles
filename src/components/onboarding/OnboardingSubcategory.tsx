@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEventContext } from "@/context/EventContext";
 import { Label } from "@/components/ui/label";
 import { Subcategory } from "@/lib/types/hierarchy";
+import { designSystem } from "@/lib/designSystem";
 import { 
   Music, 
   Camera, 
@@ -63,14 +64,14 @@ const OnboardingSubcategory = ({
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8 text-center">
-          <Skeleton className="h-8 w-3/4 mx-auto mb-2" />
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 text-center">
+          <Skeleton className="h-6 w-3/4 mx-auto mb-2" />
           <Skeleton className="h-4 w-1/2 mx-auto" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-          {Array(6).fill(null).map((_, i) => (
-            <Skeleton key={i} className="h-40" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-6">
+          {Array(10).fill(null).map((_, i) => (
+            <Skeleton key={i} className="h-20" />
           ))}
         </div>
       </div>
@@ -78,18 +79,18 @@ const OnboardingSubcategory = ({
   }
 
   return (
-    <div className="max-w-3xl mx-auto" dir="rtl">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold mb-2">
+    <div className="max-w-4xl mx-auto" dir="rtl">
+      <div className="mb-6 text-center">
+        <h2 className={`${designSystem.typography.title} mb-2`}>
           {category ? `בחירת תת-קטגוריה ב${category.name}` : 'בחירת תת-קטגוריה'}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-sm text-gray-600">
           בחרו את תת-הקטגוריה שמתאימה לשירות שלכם
         </p>
       </div>
       
       {subcategories.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-6">
           {subcategories.map((subcategory) => (
             <Card
               key={subcategory.id}
@@ -100,24 +101,19 @@ const OnboardingSubcategory = ({
               }`}
               onClick={() => onSelectSubcategory(subcategory.id)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center">
-                  <div className="ml-3 p-2 bg-gray-100 rounded-md">
-                    {subcategory.icon && typeof subcategory.icon === 'string' && iconMap[subcategory.icon] ? (
-                      <div className="text-gray-600">
-                        {iconMap[subcategory.icon]}
-                      </div>
-                    ) : (
-                      <div className="h-5 w-5 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
-                        {subcategory.name.substring(0, 1)}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="font-medium">{subcategory.name}</Label>
-                    <p className="text-sm text-gray-500 mt-1">{subcategory.description}</p>
-                  </div>
+              <CardContent className="p-2.5 text-center">
+                <div className="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center mb-2 mx-auto">
+                  {subcategory.icon && typeof subcategory.icon === 'string' && iconMap[subcategory.icon] ? (
+                    <div className="text-gray-600 scale-75">
+                      {iconMap[subcategory.icon]}
+                    </div>
+                  ) : (
+                    <div className="h-4 w-4 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
+                      {subcategory.name.substring(0, 1)}
+                    </div>
+                  )}
                 </div>
+                <Label className="text-xs font-medium line-clamp-2 leading-tight">{subcategory.name}</Label>
               </CardContent>
             </Card>
           ))}
@@ -130,35 +126,30 @@ const OnboardingSubcategory = ({
             }`}
             onClick={() => onSelectSubcategory('other')}
           >
-            <CardContent className="p-4">
-              <div className="flex items-center">
-                <div className="ml-3 p-2 bg-gray-100 rounded-md">
-                  <div className="text-gray-600 h-5 w-5 flex items-center justify-center">
-                    🔍
-                  </div>
-                </div>
-                <div>
-                  <Label className="font-medium">אחר</Label>
-                  <p className="text-sm text-gray-500 mt-1">השירות שלי לא מתאים לתת-הקטגוריות הקיימות</p>
+            <CardContent className="p-2.5 text-center">
+              <div className="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center mb-2 mx-auto">
+                <div className="text-gray-600 text-sm">
+                  🔍
                 </div>
               </div>
+              <Label className="text-xs font-medium">אחר</Label>
             </CardContent>
           </Card>
         </div>
       ) : (
-        <div className="text-center py-8 bg-gray-50 rounded-lg mb-8">
-          <p className="text-gray-500">לא נמצאו תת-קטגוריות בקטגוריה זו</p>
-          <Button variant="link" className="mt-2" onClick={onBack}>
+        <div className="text-center py-6 bg-gray-50 rounded-lg mb-6">
+          <p className="text-sm text-gray-500 mb-2">לא נמצאו תת-קטגוריות</p>
+          <Button variant="link" size="sm" onClick={onBack}>
             בחירת קטגוריה אחרת
           </Button>
         </div>
       )}
 
       <div className="flex justify-between">
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="ghost" size="sm" onClick={onBack}>
           חזרה
         </Button>
-        <Button onClick={handleNext} disabled={!selectedSubcategory}>
+        <Button size="sm" onClick={handleNext} disabled={!selectedSubcategory}>
           המשך
         </Button>
       </div>
