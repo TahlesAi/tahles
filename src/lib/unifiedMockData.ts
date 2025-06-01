@@ -1,3 +1,4 @@
+
 import { SearchResultService, ProviderProfile, Review, SearchFilters } from "@/lib/types";
 
 // Unified mock data from all sources
@@ -514,7 +515,7 @@ export const searchServices = (query: string, filters?: SearchFilters): SearchRe
       service.description.toLowerCase().includes(searchTerm) ||
       service.provider.toLowerCase().includes(searchTerm) ||
       service.category.toLowerCase().includes(searchTerm) ||
-      service.subcategory.toLowerCase().includes(searchTerm)
+      service.subcategory?.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -526,14 +527,14 @@ export const searchServices = (query: string, filters?: SearchFilters): SearchRe
     
     if (filters.location) {
       results = results.filter(service => 
-        service.location.includes(filters.location!) ||
+        service.location?.includes(filters.location!) ||
         service.location === "כל הארץ" ||
         service.location === "ארצי"
       );
     }
     
     if (filters.priceRange) {
-      const [minPrice, maxPrice] = filters.priceRange;
+      const { min: minPrice, max: maxPrice } = filters.priceRange;
       results = results.filter(service => 
         service.price >= minPrice && service.price <= maxPrice
       );

@@ -59,7 +59,7 @@ const Search = () => {
     const filters = {
       category: selectedCategory || undefined,
       location: selectedLocation || undefined,
-      priceRange: priceRange as [number, number],
+      priceRange: { min: priceRange[0], max: priceRange[1] },
       rating: minRating || undefined
     };
 
