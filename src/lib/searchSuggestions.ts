@@ -151,7 +151,7 @@ export const mainCategories: SearchSuggestion[] = [
   { id: "cat-6", value: "ימי כיף וטיולים", type: "קטגוריה", icon: createIcon(Plane) }
 ];
 
-// קונספטים לחיפוש - מעודכן לפי בקשת המשתמש
+// קונספטים לחיפוש - מעודכן עם דייט ראשון
 export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-1", value: "בר/בת מצווה", type: "קונספט", icon: createIcon(PartyPopper) },
   { id: "concept-2", value: "חתונה", type: "קונספט", icon: createIcon(Heart) },
@@ -165,7 +165,24 @@ export const eventConcepts: SearchSuggestion[] = [
   { id: "concept-10", value: "אירוע השקה", type: "קונספט", icon: createIcon(Award) },
   { id: "concept-11", value: "עובדים מצטיינים", type: "קונספט", icon: createIcon(Trophy) },
   { id: "concept-12", value: "חתונת זהב", type: "קונספט", icon: createIcon(Star) },
-  { id: "concept-13", value: "מסיבת רווקות/ים", type: "קונספט", icon: createIcon(Wine) }
+  { id: "concept-13", value: "מסיבת רווקות/ים", type: "קונספט", icon: createIcon(Wine) },
+  { id: "concept-14", value: "דייט ראשון", type: "קונספט", icon: createIcon(Heart) }
+];
+
+// תתי קטגוריות עבור דייטים ראשונים
+export const firstDateSubcategories: SearchSuggestion[] = [
+  { id: "first-date-1", value: "ספא זוגי", type: "תת-קטגוריה" },
+  { id: "first-date-2", value: "טיול רומנטי על סוסים", type: "תת-קטגוריה" },
+  { id: "first-date-3", value: "חדרי אירוח יוקרתיים", type: "תת-קטגוריה" },
+  { id: "first-date-4", value: "סדנאות זוגיות", type: "תת-קטגוריה" },
+  { id: "first-date-5", value: "ארוחות רומנטיות", type: "תת-קטגוריה" },
+  { id: "first-date-6", value: "טיולי יאכטה", type: "תת-קטגוריה" },
+  { id: "first-date-7", value: "חוויות קולינריות", type: "תת-קטגוריה" },
+  { id: "first-date-8", value: "אטרקציות זוגיות", type: "תת-קטגוריה" },
+  { id: "first-date-9", value: "חדרי בריחה רומנטיים", type: "תת-קטגוריה" },
+  { id: "first-date-10", value: "סיורים מיוחדים", type: "תת-קטגוריה" },
+  { id: "first-date-11", value: "חווית יין וטעימות", type: "תת-קטגוריה" },
+  { id: "first-date-12", value: "פעילויות אומנות", type: "תת-קטגוריה" }
 ];
 
 // ספקים פופולריים
@@ -229,6 +246,7 @@ export const getAllSearchSuggestions = (): SearchSuggestion[] => {
     ...performanceSubcategories,
     ...giftsSubcategories,
     ...tripsSubcategories,
+    ...firstDateSubcategories, // הוספת תת-קטגוריות דייט ראשון
     ...popularProviders,
     ...mentalistProviders
   ];
@@ -286,3 +304,48 @@ export const useSearchSuggestions = () => {
     mentalistProviders
   };
 };
+```
+
+```typescript
+import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { eventConcepts } from "@/lib/searchSuggestions";
+import useIsMobile from "@/hooks/use-mobile";
+
+const EventConcepts = () => {
+  const isMobile = useIsMobile();
+
+  return (
+    <section className="py-10 bg-white border-b" dir="rtl">
+      <div className="container px-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">קונספטים פופולריים</h2>
+          <Badge variant="outline" className="cursor-pointer">ראה הכל</Badge>
+        </div>
+        
+        <div className={`overflow-x-auto pb-6 ${isMobile ? '-mx-4 px-4' : ''}`}>
+          <div className="flex gap-4 min-w-max">
+            {eventConcepts.map((concept, index) => (
+              <Link key={index} to={`/search?concept=${encodeURIComponent(concept.value)}`}>
+                <div
+                  className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
+                    concept.value === "דייט ראשון" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
+                  }`}
+                >
+                  {concept.icon}
+                  <span className={`font-medium text-center text-sm ${
+                    concept.value === "דייט ראשון" ? "text-pink-700" : ""
+                  }`}>
+                    {concept.value}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default EventConcepts;

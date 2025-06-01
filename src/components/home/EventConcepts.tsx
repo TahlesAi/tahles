@@ -20,10 +20,16 @@ const EventConcepts = () => {
             {eventConcepts.map((concept, index) => (
               <Link key={index} to={`/search?concept=${encodeURIComponent(concept.value)}`}>
                 <div
-                  className="bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2"
+                  className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
+                    concept.value === "דייט ראשון" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
+                  }`}
                 >
                   {concept.icon}
-                  <span className="font-medium text-center text-sm">{concept.value}</span>
+                  <span className={`font-medium text-center text-sm ${
+                    concept.value === "דייט ראשון" ? "text-pink-700" : ""
+                  }`}>
+                    {concept.value}
+                  </span>
                 </div>
               </Link>
             ))}
