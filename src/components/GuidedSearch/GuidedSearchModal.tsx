@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import EventDateStep from "./steps/EventDateStep";
 import EventTypeStep from "./steps/EventTypeStep";
-import AttendeesStep from "./steps/AttendeesStep";
 import LocationStep from "./steps/LocationStep";
 import ConceptStep from "./steps/ConceptStep";
 import BudgetStep from "./steps/BudgetStep";
@@ -51,17 +50,15 @@ interface GuidedSearchModalProps {
 const STEPS = {
   EVENT_DATE: 0,
   EVENT_TYPE: 1,
-  ATTENDEES: 2,
-  LOCATION: 3,
-  CONCEPT: 4,
-  BUDGET: 5,
-  RESULTS: 6
+  LOCATION: 2,
+  CONCEPT: 3,
+  BUDGET: 4,
+  RESULTS: 5
 };
 
 const STEP_NAMES = {
   [STEPS.EVENT_DATE]: 'תאריך ושעה',
   [STEPS.EVENT_TYPE]: 'סוג אירוע',
-  [STEPS.ATTENDEES]: 'מספר משתתפים',
   [STEPS.LOCATION]: 'מיקום',
   [STEPS.CONCEPT]: 'קונספט',
   [STEPS.BUDGET]: 'תקציב',
@@ -97,7 +94,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
       description: "נשלח לך מייל עם סיכום הפרטים תוך כמה דקות"
     });
     onClose();
-    // Reset after modal closes
     setTimeout(() => {
       setCurrentStep(STEPS.EVENT_DATE);
       setSearchData({});
@@ -106,7 +102,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   
   const handleCloseModal = () => {
     onClose();
-    // Reset after modal closes
     setTimeout(() => {
       setCurrentStep(STEPS.EVENT_DATE);
       setSearchData({});
@@ -141,7 +136,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                 ענה על מספר שאלות כדי שנוכל להמליץ לך על השירותים המתאימים ביותר
               </DialogDescription>
               
-              {/* Progress indicator */}
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>שלב {currentStep + 1} מתוך {STEPS.RESULTS + 1}</span>
@@ -185,13 +179,6 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                     'mixed'
                 })
               }
-            />
-          )}
-          
-          {currentStep === STEPS.ATTENDEES && (
-            <AttendeesStep 
-              attendeesCount={searchData.attendeesCount}
-              onUpdate={(count) => updateSearchData({ attendeesCount: count })}
             />
           )}
 

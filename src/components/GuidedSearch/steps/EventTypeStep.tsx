@@ -26,41 +26,37 @@ const EventTypeStep = ({
     {
       id: 'private' as EventType,
       name: 'אירוע פרטי',
-      description: 'ימי הולדת, חגיגות משפחתיות, מסיבות חברים',
+      description: 'ימי הולדת, חגיגות משפחתיות',
       icon: Heart,
-      color: 'text-pink-600',
-      examples: ['יום הולדת', 'חגיגת יובל', 'מסיבת חברים']
+      color: 'text-pink-600'
     },
     {
       id: 'business' as EventType,
       name: 'אירוע עסקי',
-      description: 'אירועי חברה, כנסים, ימי גיבוש, השקות',
+      description: 'אירועי חברה, כנסים, ימי גיבוש',
       icon: Building,
-      color: 'text-blue-600',
-      examples: ['יום גיבוש', 'כנס חברה', 'אירוע השקה']
+      color: 'text-blue-600'
     },
     {
       id: 'children' as EventType,
       name: 'אירוע ילדים',
-      description: 'ימי הולדת לילדים, אירועי גן וחינוך',
+      description: 'ימי הולדת לילדים, אירועי גן',
       icon: Baby,
-      color: 'text-green-600',
-      examples: ['יום הולדת ילדים', 'אירוע גן', 'חגיגת סיום שנה']
+      color: 'text-green-600'
     },
     {
       id: 'mixed' as EventType,
       name: 'אירוע מעורב',
-      description: 'בר/בת מצווה, חתונות, אירועים קהילתיים',
+      description: 'בר/בת מצווה, חתונות',
       icon: Users,
-      color: 'text-purple-600',
-      examples: ['בר/בת מצווה', 'חגיגת חתונה', 'אירוע קהילתי']
+      color: 'text-purple-600'
     }
   ];
 
   const handleTypeSelect = (typeId: EventType) => {
     onSelect(typeId);
     
-    // חיבור לקונספטים עבריים - מפתח את הקונספט הרלוונטי
+    // חיבור לקונספטים עבריים
     const relevantConcept = hebrewConcepts.find(concept => {
       if (typeId === 'private' && concept.id === 'family-event') return true;
       if (typeId === 'business' && concept.id === 'company-event') return true;
@@ -75,13 +71,13 @@ const EventTypeStep = ({
   };
 
   return (
-    <div className="space-y-4 text-right max-h-[500px] overflow-y-auto" dir="rtl">
-      <div className="text-center sticky top-0 bg-white z-10 pb-4">
+    <div className="space-y-6 text-right" dir="rtl">
+      <div className="text-center">
         <h3 className="text-xl font-bold mb-2">איזה סוג אירוע אתם מתכננים?</h3>
-        <p className="text-gray-600 text-sm">בחרו את הסוג המתאים ביותר כדי שנוכל להציע לכם פתרונות מותאמים</p>
+        <p className="text-gray-600 text-sm">בחרו את הסוג המתאים ביותר</p>
       </div>
       
-      <div className="space-y-3 px-2">
+      <div className="space-y-3">
         {eventTypes.map((eventType) => (
           <Card 
             key={eventType.id} 
@@ -91,27 +87,14 @@ const EventTypeStep = ({
             onClick={() => handleTypeSelect(eventType.id)}
           >
             <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`p-2 rounded-full bg-gray-100 ${eventType.color}`}>
-                      <eventType.icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-lg">{eventType.name}</h4>
-                      <p className="text-sm text-gray-600">{eventType.description}</p>
-                    </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className={`p-2 rounded-full bg-gray-100 ${eventType.color}`}>
+                    <eventType.icon className="h-5 w-5" />
                   </div>
-                  
-                  <div className="flex flex-wrap gap-2 mr-10">
-                    {eventType.examples.map((example, index) => (
-                      <span 
-                        key={index}
-                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
-                      >
-                        {example}
-                      </span>
-                    ))}
+                  <div>
+                    <h4 className="font-semibold text-lg">{eventType.name}</h4>
+                    <p className="text-sm text-gray-600">{eventType.description}</p>
                   </div>
                 </div>
                 
