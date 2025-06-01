@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { Upload, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-// Define a separate interface for the data object
 interface DocumentsData {
   idImage: string;
   businessLicense: string;
@@ -25,7 +24,7 @@ interface OnboardingDocumentsProps {
   onUpdate: (data: Partial<DocumentsData>) => void;
   onNext: () => void;
   onBack: () => void;
-  adminMode?: boolean; // Support admin mode to skip validation
+  adminMode?: boolean;
 }
 
 const DocumentUploader: React.FC<{

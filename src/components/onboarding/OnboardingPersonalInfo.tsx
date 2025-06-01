@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-// Define a separate interface for the data object
 interface PersonalInfoData {
   businessName: string;
   fullName: string;
@@ -28,7 +27,7 @@ interface OnboardingPersonalInfoProps {
   data: PersonalInfoData;
   onUpdate: (data: Partial<PersonalInfoData>) => void;
   onNext: () => void;
-  adminMode?: boolean; // Opt-in for admin mode to skip validation
+  adminMode?: boolean;
 }
 
 const OnboardingPersonalInfo: React.FC<OnboardingPersonalInfoProps> = ({
