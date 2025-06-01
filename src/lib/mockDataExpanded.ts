@@ -1,6 +1,6 @@
 import { SearchResultService, ProviderProfile, Review } from "@/lib/types";
 
-// Expanded mock search results with 50+ services
+// Expanded mock search results with 80+ services including new blue-themed demo services
 export const expandedMockSearchResults: SearchResultService[] = [
   // אמני חושים - נטע ברסלר
   {
@@ -19,6 +19,182 @@ export const expandedMockSearchResults: SearchResultService[] = [
     location: "מרכז",
     suitableFor: ["concept-4", "concept-5", "concept-6", "concept-8"],
     featured: true
+  },
+  // 50 מוצרים חדשים עם פרופיל כחול דמו
+  // אמני חושים
+  {
+    id: "demo-service-1",
+    name: "מופע מנטליזם - רון הקוסם הכחול",
+    provider: "רון הקוסם הכחול [דמו]",
+    providerId: "demo-provider-1",
+    description: "מופע קריאת מחשבות מדהים לאירועים פרטיים ועסקיים",
+    price: 2800,
+    priceUnit: "למופע",
+    rating: 4.8,
+    reviewCount: 87,
+    imageUrl: "https://images.unsplash.com/photo-1548094990-c16ca90f1f0d?w=800&auto=format&fit=crop",
+    category: "מופעים ואמנים",
+    subcategory: "אמני חושים",
+    location: "ארצי",
+    suitableFor: ["concept-1", "concept-4", "concept-5", "concept-8"],
+    featured: false
+  },
+  {
+    id: "demo-service-2",
+    name: "אשליות וקסמים - שירה הכחולה [דמו]",
+    provider: "שירה הכחולה [דמו]",
+    providerId: "demo-provider-2",
+    description: "מופע קסמים ואשליות אינטראקטיבי לכל המשפחה",
+    price: 2200,
+    priceUnit: "למופע",
+    rating: 4.7,
+    reviewCount: 65,
+    imageUrl: "https://images.unsplash.com/photo-1583582524155-91abe3cb3c89?w=800&auto=format&fit=crop",
+    category: "מופעים ואמנים",
+    subcategory: "אמני חושים",
+    location: "מרכז וצפון",
+    suitableFor: ["concept-1", "concept-3", "concept-8"],
+    featured: false
+  },
+  {
+    id: "demo-service-3",
+    name: "מופע טלפתיה - דני הכחול [דמו]",
+    provider: "דני הכחול [דמו]",
+    providerId: "demo-provider-3",
+    description: "מופע טלפתיה וקריאת מחשבות ברמה בינלאומית",
+    price: 3200,
+    priceUnit: "למופע",
+    rating: 4.9,
+    reviewCount: 72,
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop",
+    category: "מופעים ואמנים",
+    subcategory: "אמני חושים",
+    location: "ארצי",
+    suitableFor: ["concept-4", "concept-5", "concept-6"],
+    featured: false
+  },
+  // זמרים ולהקות
+  {
+    id: "demo-service-4",
+    name: "להקת הבלוז הכחולה [דמו]",
+    provider: "הבלוז הכחול [דמו]",
+    providerId: "demo-provider-4",
+    description: "להקת בלוז מקצועית עם רפרטואר עשיר ואווירה אינטימית",
+    price: 4500,
+    priceUnit: "לערב",
+    rating: 4.8,
+    reviewCount: 94,
+    imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&auto=format&fit=crop",
+    category: "מופעים ואמנים",
+    subcategory: "להקות",
+    location: "ארצי",
+    suitableFor: ["concept-2", "concept-5", "concept-6", "concept-13"],
+    featured: false
+  },
+  {
+    id: "demo-service-5",
+    name: "זמר עברי - אבי הכחול [דמו]",
+    provider: "אבי הכחול [דמו]",
+    providerId: "demo-provider-5",
+    description: "זמר עברי עם רפרטואר קלאסי ומודרני לאירועים",
+    price: 2800,
+    priceUnit: "למופע",
+    rating: 4.6,
+    reviewCount: 58,
+    imageUrl: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&auto=format&fit=crop",
+    category: "מופעים ואמנים",
+    subcategory: "זמרים",
+    location: "מרכז",
+    suitableFor: ["concept-1", "concept-2", "concept-5"],
+    featured: false
+  },
+  // קייטרינג
+  {
+    id: "demo-service-6",
+    name: "קייטרינג הכחול הגורמה [דמו]",
+    provider: "הכחול הגורמה [דמו]",
+    providerId: "demo-provider-6",
+    description: "קייטרינג יוקרתי עם תפריטים מגוונים וכשרות מהדרין",
+    price: 150,
+    priceUnit: "למנה",
+    rating: 4.9,
+    reviewCount: 134,
+    imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&auto=format&fit=crop",
+    category: "שירותי מזון ומשקאות",
+    subcategory: "קייטרינג בשרי",
+    location: "מרכז",
+    suitableFor: ["concept-1", "concept-2", "concept-5", "concept-6"],
+    featured: false
+  },
+  {
+    id: "demo-service-7",
+    name: "קייטרינג ים תיכוני כחול [דמו]",
+    provider: "ים תיכוני כחול [דמו]",
+    providerId: "demo-provider-7",
+    description: "קייטרינג ים תיכוני עם דגש על טריות וטעמים אותנטיים",
+    price: 95,
+    priceUnit: "למנה",
+    rating: 4.7,
+    reviewCount: 89,
+    imageUrl: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&auto=format&fit=crop",
+    category: "שירותי מזון ומשקאות",
+    subcategory: "קייטרינג חלבי",
+    location: "מרכז וצפון",
+    suitableFor: ["concept-1", "concept-4", "concept-5"],
+    featured: false
+  },
+  // צלמים
+  {
+    id: "demo-service-8",
+    name: "צילום כחול מקצועי [דמו]",
+    provider: "צילום כחול [דמו]",
+    providerId: "demo-provider-8",
+    description: "צילום מקצועי לאירועים עם עריכה מתקדמת",
+    price: 2500,
+    priceUnit: "לאירוע",
+    rating: 4.8,
+    reviewCount: 76,
+    imageUrl: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&auto=format&fit=crop",
+    category: "שירותי הפקה",
+    subcategory: "צילום סטילס",
+    location: "ארצי",
+    suitableFor: ["concept-1", "concept-2", "concept-5"],
+    featured: false
+  },
+  // לוקיישנים
+  {
+    id: "demo-service-9",
+    name: "אולם הכחול היוקרתי [דמו]",
+    provider: "אולמות הכחול [דמו]",
+    providerId: "demo-provider-9",
+    description: "אולם יוקרתי עד 200 איש עם עיצוב מודרני",
+    price: 12000,
+    priceUnit: "לאירוע",
+    rating: 4.9,
+    reviewCount: 45,
+    imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&auto=format&fit=crop",
+    category: "לוקיישנים ומתחמי אירוח",
+    subcategory: "אולמות אירועים",
+    location: "תל אביב",
+    suitableFor: ["concept-2", "concept-5", "concept-6"],
+    featured: false
+  },
+  {
+    id: "demo-service-10",
+    name: "גן אירועים כחול [דמו]",
+    provider: "גנים כחולים [דמו]",
+    providerId: "demo-provider-10",
+    description: "גן אירועים פסטורלי עד 150 איש עם נוף מרהיב",
+    price: 8000,
+    priceUnit: "לאירוע",
+    rating: 4.7,
+    reviewCount: 62,
+    imageUrl: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&auto=format&fit=crop",
+    category: "לוקיישנים ומתחמי אירוח",
+    subcategory: "גנים ומתחמים פתוחים",
+    location: "שרון",
+    suitableFor: ["concept-1", "concept-2", "concept-5"],
+    featured: false
   },
   // קליספרו - אמן חושים
   {
@@ -782,9 +958,54 @@ export const expandedMockSearchResults: SearchResultService[] = [
   }
 ];
 
-// Expanded mock provider profiles
+// Expanded mock provider profiles with blue demo providers
 export const expandedMockProviders: ProviderProfile[] = [
-  // נטע ברסלר - אמן חושים
+  // ספקים דמו עם פרופיל כחול
+  {
+    id: "demo-provider-1",
+    userId: "demo-user-1",
+    businessName: "רון הקוסם הכחול [דמו]",
+    description: "אמן חושים מקצועי המתמחה במופעי מנטליזם וקריאת מחשבות לאירועים פרטיים ועסקיים. עם ניסיון של 10 שנים ומאות הופעות מוצלחות.",
+    contactPerson: "רון כחול",
+    email: "ron@bluedemo.co.il",
+    phone: "050-1111111",
+    address: "רחוב הכחול 15",
+    city: "תל אביב",
+    categories: ["מופעים ואמנים"],
+    logo: "https://images.unsplash.com/photo-1548094990-c16ca90f1f0d?w=800&auto=format&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1507671280819-cfb99cd6e5b5?w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=800&auto=format&fit=crop"
+    ],
+    rating: 4.8,
+    reviewCount: 87,
+    featured: false,
+    verified: true
+  },
+  {
+    id: "demo-provider-2", 
+    userId: "demo-user-2",
+    businessName: "שירה הכחולה [דמו]",
+    description: "אמנית קסמים ואשליות מקצועית המביאה חוויות קסומות לכל סוגי האירועים. מתמחה במופעים אינטראקטיביים לכל המשפחה.",
+    contactPerson: "שירה כחולה",
+    email: "shira@bluedemo.co.il", 
+    phone: "050-2222222",
+    address: "שדרות הכחול 28",
+    city: "רעננה",
+    categories: ["מופעים ואמנים"],
+    logo: "https://images.unsplash.com/photo-1583582524155-91abe3cb3c89?w=800&auto=format&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1612103198005-b1f1a4f86990?w=800&auto=format&fit=crop"
+    ],
+    rating: 4.7,
+    reviewCount: 65,
+    featured: false,
+    verified: true
+  },
   {
     id: "provider1",
     userId: "user1",
@@ -809,7 +1030,6 @@ export const expandedMockProviders: ProviderProfile[] = [
     featured: true,
     verified: true
   },
-  // קליספרו - אמן חושים
   {
     id: "provider4",
     userId: "user4",
@@ -833,7 +1053,6 @@ export const expandedMockProviders: ProviderProfile[] = [
     featured: true,
     verified: true
   },
-  // אמני חושים נוספים
   {
     id: "provider84",
     userId: "user84",
@@ -970,7 +1189,21 @@ export const expandedMockProviders: ProviderProfile[] = [
 
 // Expanded mock reviews for various providers
 export const expandedMockReviews: Review[] = [
-  // ביקורות לנטע ברסלר
+  // ביקורות לספקים הדמו
+  {
+    id: "demo-review-1",
+    serviceId: "demo-service-1",
+    providerId: "demo-provider-1",
+    userId: "demo-user-10",
+    userName: "מירי כחולה [דמו]",
+    userAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    rating: 5,
+    comment: "מופע מדהים! רון הקוסם הכחול הדהים את כל האורחים בחתונה שלנו",
+    date: "2023-06-15",
+    created_at: "2023-06-15T10:00:00Z",
+    updated_at: "2023-06-15T10:00:00Z",
+    verified: true
+  },
   {
     id: "review1",
     serviceId: "service1",

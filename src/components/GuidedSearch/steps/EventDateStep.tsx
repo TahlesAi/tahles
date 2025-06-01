@@ -61,7 +61,7 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
   }, [selectedDate, selectedStartTime, selectedEndTime, canProceed]);
 
   return (
-    <div className="space-y-6 text-right min-h-[500px] overflow-y-auto" dir="rtl">
+    <div className="space-y-6 text-right" dir="rtl">
       <h3 className="text-lg font-medium text-center">מתי האירוע אמור להתקיים?</h3>
       
       <div className="flex flex-col items-center space-y-4">
@@ -92,50 +92,51 @@ const EventDateStep = ({ eventDate, onUpdate, onSkip }: EventDateStepProps) => {
           </Popover>
         </div>
 
-        {/* Start Time Selection */}
+        {/* Time Selection - Both in same row */}
         {selectedDate && (
-          <div className="w-full max-w-xs">
-            <label className="block text-sm font-medium mb-2 text-right">שעת התחלה *</label>
-            <Select value={selectedStartTime} onValueChange={handleStartTimeSelect}>
-              <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחר שעת התחלה" />
-                <Clock className="ml-2 h-4 w-4" />
-              </SelectTrigger>
-              <SelectContent className="max-h-48 overflow-y-auto">
-                {timeOptions.map((time) => (
-                  <SelectItem key={time.value} value={time.value} className="text-right">
-                    {time.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-gray-500 mt-1 text-right">
-              שעת התחלה חיונית לבדיקת זמינות נותן השירות
-            </p>
-          </div>
-        )}
+          <div className="w-full max-w-md">
+            <label className="block text-sm font-medium mb-2 text-right">שעות האירוע *</label>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Start Time */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1 text-right">שעת התחלה</label>
+                <Select value={selectedStartTime} onValueChange={handleStartTimeSelect}>
+                  <SelectTrigger className="w-full text-right">
+                    <SelectValue placeholder="התחלה" />
+                    <Clock className="ml-2 h-4 w-4" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-48 overflow-y-auto">
+                    {timeOptions.map((time) => (
+                      <SelectItem key={time.value} value={time.value} className="text-right">
+                        {time.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* End Time Selection - Now Required */}
-        {selectedDate && selectedStartTime && (
-          <div className="w-full max-w-xs">
-            <label className="block text-sm font-medium mb-2 text-right">שעת סיום *</label>
-            <Select value={selectedEndTime} onValueChange={handleEndTimeSelect}>
-              <SelectTrigger className="w-full text-right">
-                <SelectValue placeholder="בחר שעת סיום" />
-                <Clock className="ml-2 h-4 w-4" />
-              </SelectTrigger>
-              <SelectContent className="max-h-48 overflow-y-auto">
-                {timeOptions
-                  .filter(time => time.value > selectedStartTime)
-                  .map((time) => (
-                  <SelectItem key={time.value} value={time.value} className="text-right">
-                    {time.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-red-500 mt-1 text-right">
-              שעת סיום חובה לחישוב מחיר מדויק והזמנת השירות
+              {/* End Time */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1 text-right">שעת סיום</label>
+                <Select value={selectedEndTime} onValueChange={handleEndTimeSelect}>
+                  <SelectTrigger className="w-full text-right">
+                    <SelectValue placeholder="סיום" />
+                    <Clock className="ml-2 h-4 w-4" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-48 overflow-y-auto">
+                    {timeOptions
+                      .filter(time => !selectedStartTime || time.value > selectedStartTime)
+                      .map((time) => (
+                      <SelectItem key={time.value} value={time.value} className="text-right">
+                        {time.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2 text-right">
+              שעות האירוע חיוניות לבדיקת זמינות נותן השירות וחישוב מחיר מדויק
             </p>
           </div>
         )}

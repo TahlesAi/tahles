@@ -5,7 +5,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { EventType } from "../GuidedSearchModal";
-import { Check } from "lucide-react";
+import { Check, Users, Building, Heart } from "lucide-react";
 import { HebrewConcept } from "@/lib/types/hierarchy";
 
 // Props type definition
@@ -22,124 +22,66 @@ const EventTypeStep = ({
   hebrewConcepts,
   onSelectHebrewConcept
 }: EventTypeStepProps) => {
+  
+  const eventTypes = [
+    {
+      id: 'private' as EventType,
+      name: 'אירוע משפחתי/חברתי',
+      description: 'חגיגות משפחתיות, ימי הולדת, מסיבות חברים',
+      icon: Heart,
+      color: 'text-pink-600'
+    },
+    {
+      id: 'business' as EventType,
+      name: 'אירוע עסקי/ארגוני',
+      description: 'אירועי חברה, כנסים, ימי גיבוש, פעילויות צוות',
+      icon: Building,
+      color: 'text-blue-600'
+    },
+    {
+      id: 'mixed' as EventType,
+      name: 'אירוע מעורב',
+      description: 'שילוב של אלמנטים פרטיים ועסקיים',
+      icon: Users,
+      color: 'text-purple-600'
+    }
+  ];
+
   return (
-    <div>
-      <h3 className="text-lg font-medium mb-4">איזה סוג אירוע אתם מתכננים?</h3>
+    <div className="space-y-6 text-right" dir="rtl">
+      <div className="text-center">
+        <h3 className="text-2xl font-bold mb-2">איזה סוג אירוע אתם מתכננים?</h3>
+        <p className="text-gray-600">בחירת סוג האירוע תעזור לנו להתאים לכם את השירותים המתאימים ביותר</p>
+      </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Using Hebrew hierarchy concepts */}
-        {hebrewConcepts && hebrewConcepts.map((concept) => (
+      <div className="grid grid-cols-1 gap-4">
+        {eventTypes.map((eventType) => (
           <Card 
-            key={concept.id} 
-            className={`cursor-pointer transition-all hover:border-primary ${
-              (concept.id === "family-event" && selectedType === "private") ||
-              (concept.id === "company-event" && selectedType === "business") ? 
-              'border-2 border-primary' : 'border'
+            key={eventType.id} 
+            className={`cursor-pointer transition-all hover:border-primary hover:shadow-md ${
+              selectedType === eventType.id ? 'border-2 border-primary bg-primary/5' : 'border'
             }`}
-            onClick={() => onSelectHebrewConcept(concept)}
+            onClick={() => onSelect(eventType.id)}
           >
-            <CardContent className="flex justify-between items-center p-4">
-              <div>
-                <p className="font-medium">{concept.name}</p>
-                <p className="text-sm text-gray-500">
-                  {concept.id === "family-event" && "אירועים פרטיים, חגיגות משפחתיות וימי הולדת"}
-                  {concept.id === "company-event" && "אירועים עסקיים, כנסים וימי גיבוש"}
-                  {concept.id === "personal-development" && "סדנאות, הרצאות והכשרות"}
-                  {concept.id === "outdoor-team-building" && "פעילויות חוץ וימי כיף"}
-                  {concept.id === "gifts-and-tickets" && "מתנות, כרטיסים ותווי קנייה"}
-                </p>
+            <CardContent className="flex justify-between items-center p-6">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full bg-gray-100 ${eventType.color}`}>
+                  <eventType.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-medium text-lg">{eventType.name}</p>
+                  <p className="text-sm text-gray-500">{eventType.description}</p>
+                </div>
               </div>
               
-              {((concept.id === "family-event" && selectedType === "private") ||
-                (concept.id === "company-event" && selectedType === "business")) && (
-                <div className="bg-primary rounded-full p-1 text-white">
-                  <Check className="h-4 w-4" />
+              {selectedType === eventType.id && (
+                <div className="bg-primary rounded-full p-2 text-white">
+                  <Check className="h-5 w-5" />
                 </div>
               )}
             </CardContent>
           </Card>
         ))}
-
-        {/* Fallback for older event types if Hebrew concepts aren't available */}
-        {(!hebrewConcepts || hebrewConcepts.length === 0) && (
-          <>
-            <Card 
-              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "private" ? 'border-2 border-primary' : 'border'}`}
-              onClick={() => onSelect("private")}
-            >
-              <CardContent className="flex justify-between items-center p-4">
-                <div>
-                  <p className="font-medium">אירוע פרטי</p>
-                  <p className="text-sm text-gray-500">אירועים פרטיים, חגיגות משפחתיות וימי הולדת</p>
-                </div>
-                
-                {selectedType === "private" && (
-                  <div className="bg-primary rounded-full p-1 text-white">
-                    <Check className="h-4 w-4" />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card 
-              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "business" ? 'border-2 border-primary' : 'border'}`}
-              onClick={() => onSelect("business")}
-            >
-              <CardContent className="flex justify-between items-center p-4">
-                <div>
-                  <p className="font-medium">אירוע עסקי</p>
-                  <p className="text-sm text-gray-500">אירועים עסקיים, כנסים וימי גיבוש</p>
-                </div>
-                
-                {selectedType === "business" && (
-                  <div className="bg-primary rounded-full p-1 text-white">
-                    <Check className="h-4 w-4" />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card 
-              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "mixed" ? 'border-2 border-primary' : 'border'}`}
-              onClick={() => onSelect("mixed")}
-            >
-              <CardContent className="flex justify-between items-center p-4">
-                <div>
-                  <p className="font-medium">אירוע מעורב</p>
-                  <p className="text-sm text-gray-500">שילוב של אירוע פרטי ועסקי</p>
-                </div>
-                
-                {selectedType === "mixed" && (
-                  <div className="bg-primary rounded-full p-1 text-white">
-                    <Check className="h-4 w-4" />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card 
-              className={`cursor-pointer transition-all hover:border-primary ${selectedType === "children" ? 'border-2 border-primary' : 'border'}`}
-              onClick={() => onSelect("children")}
-            >
-              <CardContent className="flex justify-between items-center p-4">
-                <div>
-                  <p className="font-medium">אירוע ילדים</p>
-                  <p className="text-sm text-gray-500">אירועים וחגיגות לילדים ונוער</p>
-                </div>
-                
-                {selectedType === "children" && (
-                  <div className="bg-primary rounded-full p-1 text-white">
-                    <Check className="h-4 w-4" />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </>
-        )}
-      </div>
-      
-      <div className="mt-6 text-center text-sm text-gray-500">
-        בחירת סוג האירוע תעזור לנו להתאים לכם את השירותים המתאימים ביותר
       </div>
     </div>
   );

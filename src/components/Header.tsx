@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, HelpCircle } from "lucide-react";
 import AuthModal from "./AuthModal";
 import SearchableHeader from "@/components/ui/searchable-header";
 
@@ -13,8 +13,10 @@ const Header = () => {
   const [userType, setUserType] = useState<'client' | 'provider'>('client');
   const navigate = useNavigate();
 
-  const handleProviderRegister = () => {
-    navigate('/provider-onboarding');
+  const handleHowItWorks = () => {
+    // פונקציה להציג הסבר על המערכת
+    console.log("How it works clicked");
+    // TODO: הוסף modal או נווט לעמוד הסבר
   };
 
   return (
@@ -42,17 +44,15 @@ const Header = () => {
             </div>
 
             {/* ניווט עיקרי - דסקטופ */}
-            <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
-              <Link to="/categories" className="text-gray-600 hover:text-blue-600 transition-colors">
-                קטגוריות
-              </Link>
+            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={handleProviderRegister}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                onClick={handleHowItWorks}
+                className="text-gray-600 hover:text-blue-600 flex items-center"
               >
-                הצטרפות כספק
+                <HelpCircle className="h-4 w-4 ml-2" />
+                איך זה עובד?
               </Button>
             </nav>
 
@@ -106,23 +106,17 @@ const Header = () => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t">
               <nav className="flex flex-col space-y-4">
-                <Link
-                  to="/categories"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  קטגוריות
-                </Link>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => {
-                    handleProviderRegister();
+                    handleHowItWorks();
                     setIsMenuOpen(false);
                   }}
-                  className="text-blue-600 border-blue-600 hover:bg-blue-50 w-fit"
+                  className="text-gray-600 hover:text-blue-600 w-fit flex items-center"
                 >
-                  הצטרפות כספק
+                  <HelpCircle className="h-4 w-4 ml-2" />
+                  איך זה עובד?
                 </Button>
                 <div className="flex flex-col space-y-2 pt-4 border-t">
                   <Button

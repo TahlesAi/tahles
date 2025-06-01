@@ -1,4 +1,3 @@
-
 // src/lib/unifiedMockData.ts
 
 import { expandedMockSearchResults, expandedMockProviders, expandedMockReviews } from './mockDataExpanded';
