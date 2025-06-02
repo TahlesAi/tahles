@@ -260,6 +260,30 @@ const ServiceResultCard = ({
               </div>
             )}
 
+            {/* *** הצגת קונספטים כתוויות *** */}
+            {service.conceptTags && service.conceptTags.length > 0 && (
+              <div className="space-y-1">
+                <div className="text-xs text-gray-500 font-medium">מתאים לאירועים:</div>
+                <div className="flex flex-wrap gap-1">
+                  {service.conceptTags.slice(0, 3).map((conceptTag, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="secondary" 
+                      className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    >
+                      {conceptTag}
+                    </Badge>
+                  ))}
+                  {service.conceptTags.length > 3 && (
+                    <Badge variant="outline" className="text-xs text-gray-500">
+                      +{service.conceptTags.length - 3} נוספים
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* תגיות רגילות */}
             {service.tags && service.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {service.tags.slice(0, 3).map((tag: string, index: number) => (

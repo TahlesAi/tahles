@@ -39,13 +39,15 @@ const Search = () => {
     const subcategory = urlParams.get('subcategory') || '';
     const date = urlParams.get('date') || '';
     const time = urlParams.get('time') || '';
+    const concepts = urlParams.get('concepts')?.split(',').filter(c => c.trim()) || [];
     
     setSearchTerm(query);
     setSelectedDate(date);
     setSelectedTime(time);
     setFilters({
       category: category || undefined,
-      subcategory: subcategory || undefined
+      subcategory: subcategory || undefined,
+      conceptTags: concepts // *** הוספת קונספטים מה-URL ***
     });
     
     setTimeout(() => {
@@ -53,8 +55,14 @@ const Search = () => {
     }, 500);
   }, [location.search]);
 
-  // חיפוש עם בדיקת זמינות
-  const searchResults = searchServices(searchTerm, filters, selectedDate, selectedTime);
+  // *** חיפוש עם בדיקת זמינות וקונספטים ***
+  const searchResults = searchServices(searchTerm, {
+    ...filters,
+    date: selectedDate,
+    time: selectedTime,
+    conceptTags: filters.conceptTags // העברת קונספטים לחיפוש
+  });
+  
   const featuredServices = searchResults.filter(s => s.featured);
   const regularServices = searchResults.filter(s => !s.featured);
 
@@ -64,6 +72,35 @@ const Search = () => {
     } else if (selectedServices.length < 3) {
       setSelectedServices(prev => [...prev, service]);
     }
+  };
+
+  // *** עדכון URL עם קונספטים ***
+  const handleFiltersChange = (newFilters: any) => {
+    setFilters(newFilters);
+    
+    const urlParams = new URLSearchParams(location.search);
+    
+    // עדכון קונספטים ב-URL
+    if (newFilters.conceptTags && newFilters.conceptTags.length > 0) {
+      urlParams.set('concepts', newFilters.conceptTags.join(','));
+    } else {
+      urlParams.delete('concepts');
+    }
+    
+    // עדכון שאר הפרמטרים
+    if (newFilters.category) {
+      urlParams.set('category', newFilters.category);
+    } else {
+      urlParams.delete('category');
+    }
+    
+    if (newFilters.subcategory) {
+      urlParams.set('subcategory', newFilters.subcategory);
+    } else {
+      urlParams.delete('subcategory');
+    }
+    
+    navigate(`${location.pathname}?${urlParams.toString()}`, { replace: true });
   };
 
   const breadcrumbItems = [
@@ -107,6 +144,13 @@ const Search = () => {
                 </h1>
                 <div className="flex items-center gap-4 text-gray-600">
                   <span>נמצאו {searchResults.length} תוצאות</span>
+                  {/* *** הצגת קונספטים פעילים *** */}
+                  {filters.conceptTags && filters.conceptTags.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Tag className="h-4 w-4" />
+                      <span>קונספטים: {filters.conceptTags.join(', ')}</span>
+                    </div>
+                  )}
                   {selectedDate && (
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
@@ -174,7 +218,7 @@ const Search = () => {
               {showFilters && (
                 <div className="lg:col-span-1">
                   <OptimizedSearchFilters 
-                    onFiltersChange={setFilters}
+                    onFiltersChange={handleFiltersChange} // *** שימוש בפונקציה המעודכנת ***
                     resultsCount={searchResults.length}
                   />
                 </div>
@@ -191,6 +235,17 @@ const Search = () => {
                         <AlertDescription>
                           מוצגים רק שירותים זמינים ב-{selectedDate} בשעה {selectedTime}.
                           לתוצאות נוספות, נסו תאריכים או שעות אחרות.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {/* *** אזהרה על סינון לפי קונספטים *** */}
+                    {filters.conceptTags && filters.conceptTags.length > 0 && (
+                      <Alert className="mb-6">
+                        <Tag className="h-4 w-4" />
+                        <AlertDescription>
+                          מוצגים רק שירותים המתאימים לקונספטים: {filters.conceptTags.join(', ')}.
+                          לתוצאות נוספות, נסו להסיר חלק מהקונספטים.
                         </AlertDescription>
                       </Alert>
                     )}

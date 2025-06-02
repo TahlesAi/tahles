@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, X, Filter } from 'lucide-react';
 import { debounce } from 'lodash';
 import { DateRange } from 'react-day-picker';
+import ConceptFilter from './ConceptFilter';
 
 interface FilterState {
   dateRange: DateRange | undefined;
@@ -21,6 +22,7 @@ interface FilterState {
   attendees: number;
   categories: string[];
   rating: number;
+  conceptTags: string[]; // *** שדה חדש לקונספטים ***
 }
 
 interface OptimizedSearchFiltersProps {
@@ -39,7 +41,8 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
     location: '',
     attendees: 50,
     categories: [],
-    rating: 0
+    rating: 0,
+    conceptTags: [] // *** ברירת מחדל לקונספטים ***
   });
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -68,7 +71,8 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
       location: '',
       attendees: 50,
       categories: [],
-      rating: 0
+      rating: 0,
+      conceptTags: [] // *** איפוס קונספטים ***
     });
   };
 
@@ -78,6 +82,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
       filters.timeSlot ||
       filters.location ||
       filters.categories.length > 0 ||
+      filters.conceptTags.length > 0 || // *** בדיקת קונספטים פעילים ***
       filters.rating > 0 ||
       filters.budget[0] > 500 ||
       filters.budget[1] < 10000
@@ -128,6 +133,12 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
 
       {!isCollapsed && (
         <CardContent className="space-y-4">
+          {/* *** סינון קונספטים - מקום בולט ראשון *** */}
+          <ConceptFilter
+            selectedConcepts={filters.conceptTags}
+            onConceptsChange={(concepts) => updateFilter('conceptTags', concepts)}
+          />
+
           {/* תאריך */}
           <div>
             <Label className="text-sm font-medium">תאריך האירוע</Label>

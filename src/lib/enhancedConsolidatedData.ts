@@ -1,4 +1,3 @@
-
 // נתונים מאוחדים ומורחבים עם היררכיה מלאה
 import { 
   CategoryHierarchy, 
@@ -45,7 +44,7 @@ export const allEnhancedServices: ExtendedService[] = allEnhancedProviders.reduc
   return [...allServices, ...provider.services];
 }, [] as ExtendedService[]);
 
-// פונקציות חיפוש מתקדמות עם בדיקת זמינות
+// פונקציות חיפוש מתקדמות עם בדיקת זמינות וקונספטים
 export const searchServicesWithAvailability = (
   query: string,
   filters: {
@@ -56,6 +55,7 @@ export const searchServicesWithAvailability = (
     location?: string;
     priceRange?: [number, number];
     onlyAvailable?: boolean;
+    conceptTags?: string[]; // *** תמיכה בסינון לפי קונספטים ***
   } = {}
 ): ExtendedService[] => {
   let results = [...allEnhancedServices];
@@ -78,13 +78,28 @@ export const searchServicesWithAvailability = (
     });
   }
   
+  // *** סינון לפי קונספטים - חיפוש חפיפה ***
+  if (filters.conceptTags && filters.conceptTags.length > 0) {
+    results = results.filter(service => {
+      if (!service.conceptTags || service.conceptTags.length === 0) return false;
+      
+      // בדיקת חפיפה - אם יש לפחות קונספט אחד משותף
+      return service.conceptTags.some(conceptTag => 
+        filters.conceptTags!.includes(conceptTag)
+      );
+    });
+  }
+  
   // סינון לפי חיפוש טקסט
   if (query && query.trim()) {
     const searchTerm = query.toLowerCase().trim();
     results = results.filter(service =>
       service.name.toLowerCase().includes(searchTerm) ||
       service.description.toLowerCase().includes(searchTerm) ||
-      service.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+      service.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+      (service.conceptTags && service.conceptTags.some(conceptTag => 
+        conceptTag.toLowerCase().includes(searchTerm)
+      ))
     );
   }
   
@@ -256,6 +271,7 @@ export const consolidatedProducts = allEnhancedServices.map(service => ({
   audienceSize: service.audienceSize,
   isReceptionService: service.isReceptionService,
   tags: service.tags,
+  conceptTags: service.conceptTags || [], // *** הוספת conceptTags עם ברירת מחדל ***
   suitableFor: service.suitableFor,
   additionalImages: service.additionalImages,
   videos: service.videos,

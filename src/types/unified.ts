@@ -1,4 +1,3 @@
-
 // Base Types
 export interface BaseEntity {
   id: string;
@@ -275,6 +274,7 @@ export interface Service {
   reviewCount?: number;
   review_count?: number;
   tags?: string[];
+  conceptTags?: string[]; // *** שדה חדש לתמיכה ב-multi-tagging של קונספטים ***
   features?: string[];
   availabilityRules?: AvailabilityRule[];
   additionalOptions?: AdditionalOption[];
@@ -327,6 +327,7 @@ export interface SearchResultService {
   suitableFor: string[];
   featured?: boolean;
   tags?: string[];
+  conceptTags?: string[]; // *** שדה חדש לתמיכה ב-multi-tagging של קונספטים ***
   imageCount?: number;
   videoCount?: number;
   availability?: {
@@ -374,6 +375,7 @@ export interface SearchFilters {
   featured?: boolean;
   kosher?: boolean;
   tags?: string[];
+  conceptTags?: string[]; // *** שדה חדש לסינון לפי קונספטים ***
 }
 
 // Booking Types
