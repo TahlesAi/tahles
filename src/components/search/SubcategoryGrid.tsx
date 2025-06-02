@@ -17,7 +17,7 @@ interface SubcategoryGridProps {
 
 const SubcategoryGrid: React.FC<SubcategoryGridProps> = ({ categories }) => {
   const handleSubcategoryClick = (subcategory: any) => {
-    console.log('Navigating to subcategory:', subcategory.id, 'from parent:', subcategory.parentCategoryId);
+    console.log('Navigating to subcategory providers:', subcategory.id, 'from parent:', subcategory.parentCategoryId);
   };
 
   return (
@@ -25,7 +25,7 @@ const SubcategoryGrid: React.FC<SubcategoryGridProps> = ({ categories }) => {
       {categories.map((subcategory) => (
         <Link
           key={subcategory.id}
-          to={`/search?subcategory=${subcategory.id}&category=${subcategory.parentCategoryId}`}
+          to={`/subcategory/${subcategory.id}/providers`}
           className="group block"
           onClick={() => handleSubcategoryClick(subcategory)}
         >
@@ -46,7 +46,7 @@ const SubcategoryGrid: React.FC<SubcategoryGridProps> = ({ categories }) => {
               )}
               
               <Badge variant="secondary" className="text-xs">
-                תת קטגוריה
+                צפה בספקים
               </Badge>
             </CardContent>
           </Card>

@@ -69,6 +69,13 @@ const SearchSubcategories = React.lazy(() => {
   });
 });
 
+const SubcategoryProviders = React.lazy(() => {
+  performanceMonitor.start('SubcategoryProviders-ComponentLoad');
+  return import('./pages/SubcategoryProviders').finally(() => {
+    performanceMonitor.end('SubcategoryProviders-ComponentLoad');
+  });
+});
+
 // קומפוננט טעינה מתקדם
 const SuspenseFallback = () => (
   <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -113,6 +120,7 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/search/subcategories" element={<SearchSubcategories />} />
+                <Route path="/subcategory/:subcategoryId/providers" element={<SubcategoryProviders />} />
                 <Route path="/service/:id" element={<ServiceDetails />} />
                 <Route path="/provider/:id" element={<EnhancedProviderProfile />} />
                 <Route path="/booking/:id" element={<BookingPage />} />

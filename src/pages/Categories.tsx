@@ -5,21 +5,19 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEventContext } from "@/context/EventContext";
+import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
 import CategoryNavigationGrid from "@/components/search/CategoryNavigationGrid";
 
 const Categories = () => {
   const { 
     isLoading, 
     error, 
-    setSelectedCategory,
     hebrewCategories,
-  } = useEventContext();
+  } = useUnifiedEventContext();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    setSelectedCategory(null);
-  }, [setSelectedCategory]);
+  }, []);
 
   // מצב של טעינה
   if (isLoading) {
@@ -67,7 +65,7 @@ const Categories = () => {
           {/* כותרת */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-4">קטגוריות שירותים</h1>
-            <p className="text-gray-600">בחר קטגוריה למציאת השירות המתאים</p>
+            <p className="text-gray-600">בחר קטגוריה לצפייה בתתי הקטגוריות</p>
           </div>
 
           {/* קטגוריות עיקריות */}
