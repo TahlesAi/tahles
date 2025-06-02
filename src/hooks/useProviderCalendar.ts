@@ -32,7 +32,7 @@ export const useProviderCalendar = (providerId?: string) => {
         .eq('provider_id', providerId)
         .eq('date', date)
         .eq('is_available', true)
-        .lt('current_bookings', supabase.from('provider_calendar').select('max_bookings'));
+        .lt('current_bookings', supabase.rpc('get_max_bookings', { calendar_id: 'id' }));
 
       if (serviceArea) {
         query = query.eq('service_area', serviceArea);
@@ -52,16 +52,29 @@ export const useProviderCalendar = (providerId?: string) => {
 
   const bookSlot = async (slotId: string) => {
     try {
-      // עדכון מספר ההזמנות הנוכחיות
-      const { error } = await supabase
+      // תחילה נשלוף את המידע הנוכחי
+      const { data: currentSlot, error: fetchError } = await supabase
         .from('provider_calendar')
-        .update({ 
-          current_bookings: supabase.from('provider_calendar').select('current_bookings + 1') 
-        })
-        .eq('id', slotId);
+        .select('current_bookings, max_bookings')
+        .eq('id', slotId)
+        .single();
       
-      if (error) throw error;
-      return true;
+      if (fetchError) throw fetchError;
+      
+      if (currentSlot && currentSlot.current_bookings < currentSlot.max_bookings) {
+        // עדכון מספר ההזמנות הנוכחיות
+        const { error } = await supabase
+          .from('provider_calendar')
+          .update({ 
+            current_bookings: currentSlot.current_bookings + 1 
+          })
+          .eq('id', slotId);
+        
+        if (error) throw error;
+        return true;
+      }
+      
+      return false;
     } catch (error) {
       console.error('Error booking slot:', error);
       return false;

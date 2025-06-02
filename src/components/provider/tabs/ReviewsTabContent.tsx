@@ -37,7 +37,7 @@ const ReviewsTabContent: React.FC<ReviewsTabContentProps> = ({ providerId }) => 
 
   return (
     <TabsContent value="reviews" className="p-6 text-right" dir="rtl">
-      {/* כרטיס הגרלה */}
+      {/* כרטיס הגרלה עם פרס מעודכן */}
       <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -47,7 +47,7 @@ const ReviewsTabContent: React.FC<ReviewsTabContentProps> = ({ providerId }) => 
               </div>
               <div>
                 <h3 className="font-bold text-purple-800">הגרלה מיוחדת!</h3>
-                <p className="text-sm text-purple-600">הביקורת ה-500 זוכה ב-₪100</p>
+                <p className="text-sm text-purple-600">הביקורת ה-500 זוכה ב-₪500</p>
               </div>
             </div>
             <Trophy className="h-8 w-8 text-yellow-500" />

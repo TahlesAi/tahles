@@ -157,7 +157,7 @@ const DetailedReviewForm: React.FC<DetailedReviewFormProps> = ({
 
           <div className="bg-blue-50 p-4 rounded-lg text-center">
             <p className="text-sm text-blue-800 font-medium">
-              🎉 הביקורת ה-500 זוכה בפרס של ₪100!
+              🎉 הביקורת ה-500 זוכה בפרס של ₪500!
             </p>
             <p className="text-xs text-blue-600 mt-1">
               ההגרלה מתקיימת אוטומטית עם כל ביקורת
