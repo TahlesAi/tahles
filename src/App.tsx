@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { UnifiedEventProvider } from './context/UnifiedEventContext';
@@ -63,6 +62,13 @@ const AdminDashboardPage = React.lazy(() => {
   });
 });
 
+const SearchSubcategories = React.lazy(() => {
+  performanceMonitor.start('SearchSubcategories-ComponentLoad');
+  return import('./pages/SearchSubcategories').finally(() => {
+    performanceMonitor.end('SearchSubcategories-ComponentLoad');
+  });
+});
+
 // קומפוננט טעינה מתקדם
 const SuspenseFallback = () => (
   <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -106,6 +112,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/search" element={<Search />} />
+                <Route path="/search/subcategories" element={<SearchSubcategories />} />
                 <Route path="/service/:id" element={<ServiceDetails />} />
                 <Route path="/provider/:id" element={<EnhancedProviderProfile />} />
                 <Route path="/booking/:id" element={<BookingPage />} />
