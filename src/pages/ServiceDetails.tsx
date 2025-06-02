@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -51,7 +50,7 @@ const ServiceDetails = () => {
         setService(serviceData);
         
         // נטען את הספק - תיקון השדה providerId
-        const providerId = serviceData.providerId || serviceData.provider_id;
+        const providerId = serviceData.providerId;
         if (providerId) {
           const providerData = getProviderById(providerId);
           setProvider(providerData);
