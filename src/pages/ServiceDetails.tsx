@@ -50,7 +50,7 @@ const ServiceDetails = () => {
       if (serviceData) {
         setService(serviceData);
         
-        // נטען את הספק
+        // נטען את הספק - תיקון השדה providerId
         const providerId = serviceData.providerId || serviceData.provider_id;
         if (providerId) {
           const providerData = getProviderById(providerId);
@@ -113,6 +113,39 @@ const ServiceDetails = () => {
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
     : service.rating || 0;
 
+  // יצירת מבנה הגלריה
+  const mediaGallery = [];
+  
+  // הוספת התמונה הראשית
+  if (service.imageUrl || service.image_url) {
+    mediaGallery.push({
+      type: 'image' as const,
+      url: service.imageUrl || service.image_url
+    });
+  }
+  
+  // הוספת תמונות נוספות
+  if (service.additionalImages || service.additional_images) {
+    const additionalImages = service.additionalImages || service.additional_images;
+    additionalImages.forEach((url: string) => {
+      mediaGallery.push({
+        type: 'image' as const,
+        url
+      });
+    });
+  }
+  
+  // הוספת סרטונים
+  if (service.videos || service.video_urls) {
+    const videos = service.videos || service.video_urls;
+    videos.forEach((url: string) => {
+      mediaGallery.push({
+        type: 'video' as const,
+        url
+      });
+    });
+  }
+
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
@@ -140,8 +173,11 @@ const ServiceDetails = () => {
                 />
               )}
 
-              {/* Gallery */}
-              <ServiceGallery service={service} />
+              {/* Gallery - תיקון ה-props */}
+              <ServiceGallery 
+                mediaGallery={mediaGallery}
+                serviceName={service.name}
+              />
 
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
@@ -272,8 +308,12 @@ const ServiceDetails = () => {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              {/* Pricing Card */}
-              <ServicePricing service={service} />
+              {/* Pricing Card - תיקון ה-props */}
+              <ServicePricing 
+                service={service}
+                basePrice={service.price || service.basePrice || 0}
+                onPriceUpdate={() => {}}
+              />
               
               {/* Provider Card */}
               {provider && (
