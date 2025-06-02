@@ -1,12 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useEventContext } from "@/context/EventContext";
 import { useNavigate } from "react-router-dom";
 import { SearchSuggestion } from "@/types";
+import AutocompleteSearchInput from './AutocompleteSearchInput';
+import SearchSuggestionsList from './SearchSuggestionsList';
 
 interface AutocompleteSearchProps {
   onSearch?: (query: string) => void;
@@ -159,93 +157,52 @@ const AutocompleteSearch = ({
     inputRef.current?.focus();
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleFocus = () => {
+    if (query.length > 1) {
+      setIsOpen(true);
+    }
+  };
+
   // If showCommandBar is true, only show suggestions dropdown
   if (showCommandBar) {
     return (
       <div className={`relative ${className}`} dir={dir}>
-        {isOpen && suggestions.length > 0 && (
-          <Card className="absolute top-0 left-0 right-0 z-50 max-h-64 overflow-y-auto border-gray-200">
-            <CardContent className="p-0">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={`${suggestion.type}-${suggestion.id}`}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
-                >
-                  <div className="font-medium text-sm text-gray-900">{suggestion.name}</div>
-                  {suggestion.description && (
-                    <div className="text-xs text-gray-500 mt-1 line-clamp-1">
-                      {suggestion.description}
-                    </div>
-                  )}
-                  <div className="text-xs text-blue-600 mt-1">
-                    {suggestion.type === 'category' && 'קטגוריה'}
-                    {suggestion.type === 'provider' && 'ספק'}
-                    {suggestion.type === 'service' && 'מוצר'}
-                    {suggestion.type === 'suggestion' && suggestion.description}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+        <SearchSuggestionsList
+          suggestions={suggestions}
+          isOpen={isOpen}
+          onSuggestionClick={handleSuggestionClick}
+        />
       </div>
     );
   }
 
   return (
     <div className={`relative ${className}`} dir={dir}>
-      <div className="relative">
-        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          onFocus={() => query.length > 1 && setIsOpen(true)}
-          className={`pr-10 pl-8 text-right placeholder:text-right h-9 text-sm ${inputClassName || ''}`}
-        />
-        {query && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearSearch}
-            className={`absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 ${buttonClassName || ''}`}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
-      </div>
+      <AutocompleteSearchInput
+        ref={inputRef}
+        query={query}
+        placeholder={placeholder}
+        inputClassName={inputClassName}
+        buttonClassName={buttonClassName}
+        dir={dir}
+        onChange={handleInputChange}
+        onSearch={handleSearch}
+        onClear={clearSearch}
+        onFocus={handleFocus}
+        onKeyPress={handleKeyPress}
+      />
 
-      {/* רשימת הצעות - קומפקטית יותר */}
-      {isOpen && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-64 overflow-y-auto border-gray-200">
-          <CardContent className="p-0">
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={`${suggestion.type}-${suggestion.id}`}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 text-right"
-              >
-                <div className="font-medium text-sm text-gray-900">{suggestion.name}</div>
-                {suggestion.description && (
-                  <div className="text-xs text-gray-500 mt-1 line-clamp-1">
-                    {suggestion.description}
-                  </div>
-                )}
-                <div className="text-xs text-blue-600 mt-1">
-                  {suggestion.type === 'category' && 'קטגוריה'}
-                  {suggestion.type === 'provider' && 'ספק'}
-                  {suggestion.type === 'service' && 'מוצר'}
-                  {suggestion.type === 'suggestion' && suggestion.description}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <SearchSuggestionsList
+        suggestions={suggestions}
+        isOpen={isOpen}
+        onSuggestionClick={handleSuggestionClick}
+      />
     </div>
   );
 };
