@@ -46,7 +46,7 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
     }
   };
 
-  const quickViewData = {
+  const serviceQuickViewData = {
     id: serviceId,
     type: 'service' as const,
     name: service.name,
@@ -61,7 +61,7 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
     tags: service.tags
   };
 
-  const longPressHandler = handleLongPress(quickViewData);
+  const longPressHandler = handleLongPress(serviceQuickViewData);
 
   return (
     <>
@@ -247,7 +247,7 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
       </Card>
 
       <QuickViewBottomSheet
-        data={quickViewData}
+        data={serviceQuickViewData}
         isOpen={isQuickViewOpen}
         onClose={closeQuickView}
       />
