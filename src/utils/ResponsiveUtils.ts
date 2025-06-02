@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 // כלי עזר לרספונסיביות אחידה במערכת
 export const breakpoints = {
   sm: '640px',

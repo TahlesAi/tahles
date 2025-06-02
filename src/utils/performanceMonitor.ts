@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 // מערכת ניטור ביצועים
 export interface PerformanceMetric {
   name: string;
