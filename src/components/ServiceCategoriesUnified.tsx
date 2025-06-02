@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, List } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
 import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
 
@@ -63,9 +63,15 @@ const ServiceCategoriesUnified = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
+  // ניווט ישיר לתתי קטגוריות
   const handleCategoryClick = (category: any) => {
-    console.log('Category clicked:', category.id, category.name);
+    console.log('Navigating directly to subcategories for category:', category.id, category.name);
     navigate(`/search/subcategories?categoryId=${category.id}`);
+  };
+
+  // ניווט לדף כל הקטגוריות
+  const handleShowAllCategories = () => {
+    navigate('/categories');
   };
 
   return (
@@ -79,12 +85,24 @@ const ServiceCategoriesUnified = () => {
             אלפי ספקים מוכשרים ומאומתים ממתינים לך
           </p>
           
-          <GuidedSearchButton 
-            isOpen={guidedSearchOpen}
-            onOpenChange={setGuidedSearchOpen}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 mb-12"
-          />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <GuidedSearchButton 
+              isOpen={guidedSearchOpen}
+              onOpenChange={setGuidedSearchOpen}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4"
+            />
+            
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleShowAllCategories}
+              className="px-6 py-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              <List className="h-5 w-5 ml-2" />
+              כל הקטגוריות
+            </Button>
+          </div>
         </div>
 
         <div className="relative">

@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUnifiedEventContext } from '@/context/UnifiedEventContext';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,6 +29,8 @@ const AdvancedBreadcrumbs: React.FC<AdvancedBreadcrumbsProps> = ({
   className 
 }) => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const { hebrewCategories } = useUnifiedEventContext();
   
   // יצירת breadcrumbs אוטומטיים מהנתיב אם לא סופקו items
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
@@ -44,17 +47,54 @@ const AdvancedBreadcrumbs: React.FC<AdvancedBreadcrumbsProps> = ({
       const isLast = index === pathnames.length - 1;
       
       // מיפוי שמות ידידותיים לנתיבים
-      const friendlyNames: Record<string, string> = {
-        'search': 'תוצאות חיפוש',
-        'service': 'פרטי שירות',
-        'provider': 'פרופיל ספק',
-        'categories': 'קטגוריות',
-        'booking': 'הזמנה',
-        'dashboard': 'לוח בקרה'
-      };
+      let friendlyName = segment;
+      
+      switch (segment) {
+        case 'search':
+          friendlyName = 'חיפוש';
+          break;
+        case 'subcategories':
+          // אם יש categoryId בפרמטרים, נוסיף את שם הקטגוריה
+          const categoryId = searchParams.get('categoryId');
+          if (categoryId) {
+            const category = hebrewCategories.find(cat => cat.id === categoryId);
+            if (category) {
+              friendlyName = category.name;
+            }
+          } else {
+            friendlyName = 'תתי קטגוריות';
+          }
+          break;
+        case 'subcategory':
+          friendlyName = 'תת קטגוריה';
+          break;
+        case 'providers':
+          friendlyName = 'ספקים';
+          break;
+        case 'provider':
+          friendlyName = 'פרופיל ספק';
+          break;
+        case 'service':
+          friendlyName = 'פרטי שירות';
+          break;
+        case 'categories':
+          friendlyName = 'קטגוריות';
+          break;
+        case 'booking':
+          friendlyName = 'הזמנה';
+          break;
+        case 'dashboard':
+          friendlyName = 'לוח בקרה';
+          break;
+        default:
+          // אם זה ID, ננסה למצוא את השם המתאים
+          if (segment.length > 10) { // כנראה UUID
+            friendlyName = 'פרטים';
+          }
+      }
       
       breadcrumbs.push({
-        label: friendlyNames[segment] || segment,
+        label: friendlyName,
         href: isLast ? undefined : currentPath,
         isActive: isLast
       });
@@ -70,7 +110,7 @@ const AdvancedBreadcrumbs: React.FC<AdvancedBreadcrumbsProps> = ({
   return (
     <div className={cn("py-2 px-4 bg-gray-50 border-b", className)}>
       <Breadcrumb>
-        <BreadcrumbList className="flex items-center gap-1 text-sm">
+        <BreadcrumbList className="flex items-center gap-1 text-sm" dir="rtl">
           {breadcrumbItems.map((item, index) => (
             <React.Fragment key={index}>
               <BreadcrumbItem>
@@ -78,7 +118,7 @@ const AdvancedBreadcrumbs: React.FC<AdvancedBreadcrumbsProps> = ({
                   <BreadcrumbLink asChild>
                     <Link 
                       to={item.href}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-blue-600 hover:text-blue-800 transition-colors flex items-center"
                     >
                       {index === 0 && <Home className="h-4 w-4 ml-1" />}
                       {item.label}

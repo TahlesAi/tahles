@@ -6,8 +6,9 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, User, Star, MapPin, ChevronLeft, CheckCircle } from "lucide-react";
+import { ArrowRight, User, Star, MapPin, CheckCircle } from "lucide-react";
 import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
+import AdvancedBreadcrumbs from "@/components/navigation/AdvancedBreadcrumbs";
 
 const SubcategoryProviders = () => {
   const { subcategoryId } = useParams<{ subcategoryId: string }>();
@@ -72,6 +73,7 @@ const SubcategoryProviders = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-600 mx-auto"></div>
@@ -87,6 +89,7 @@ const SubcategoryProviders = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center" dir="rtl">
             <h2 className="text-2xl font-bold mb-4">שגיאה בטעינת הספקים</h2>
@@ -96,8 +99,8 @@ const SubcategoryProviders = () => {
                 <ArrowRight className="h-4 w-4 ml-2" />
                 חזרה
               </Button>
-              <Button onClick={() => navigate("/categories")}>
-                חזרה לקטגוריות
+              <Button onClick={() => navigate("/")}>
+                חזרה לדף הבית
               </Button>
             </div>
           </div>
@@ -110,30 +113,9 @@ const SubcategoryProviders = () => {
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
+      <AdvancedBreadcrumbs />
       <main className="flex-grow">
         <div className="container px-4 py-6">
-          {/* ניווט נתיב */}
-          <nav className="flex items-center space-x-2 mb-6" dir="rtl">
-            <Link to="/categories" className="text-gray-500 hover:text-brand-600 transition-colors">
-              קטגוריות
-            </Link>
-            <ChevronLeft className="h-4 w-4 text-gray-400" />
-            {category && (
-              <>
-                <Link 
-                  to={`/search/subcategories?categoryId=${category.id}`} 
-                  className="text-gray-500 hover:text-brand-600 transition-colors"
-                >
-                  {category.name}
-                </Link>
-                <ChevronLeft className="h-4 w-4 text-gray-400" />
-              </>
-            )}
-            <span className="text-brand-600 font-medium">
-              {subcategory?.name || 'ספקים'}
-            </span>
-          </nav>
-
           {/* כותרת תת הקטגוריה */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">
@@ -144,9 +126,19 @@ const SubcategoryProviders = () => {
                 {subcategory.description}
               </p>
             )}
-            <Badge variant="outline">
-              {subcategoryProviders.length} ספקים זמינים
-            </Badge>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline">
+                {subcategoryProviders.length} ספקים זמינים
+              </Badge>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(-1)}
+              >
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה לתתי הקטגוריות
+              </Button>
+            </div>
           </div>
 
           {/* רשימת ספקים */}

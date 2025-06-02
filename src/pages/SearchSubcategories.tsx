@@ -4,12 +4,11 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, Layers, ChevronLeft, AlertCircle } from "lucide-react";
+import { ArrowRight, Layers, AlertCircle } from "lucide-react";
 import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
 import SubcategoryGrid from "@/components/search/SubcategoryGrid";
+import AdvancedBreadcrumbs from "@/components/navigation/AdvancedBreadcrumbs";
 
 const SearchSubcategories = () => {
   const [searchParams] = useSearchParams();
@@ -56,6 +55,7 @@ const SearchSubcategories = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs />
         <main className="flex-grow">
           <div className="container px-4 py-6">
             <Skeleton className="h-8 w-48 mb-6" />
@@ -75,6 +75,7 @@ const SearchSubcategories = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center" dir="rtl">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -85,8 +86,8 @@ const SearchSubcategories = () => {
                 <ArrowRight className="h-4 w-4 ml-2" />
                 חזרה
               </Button>
-              <Button onClick={() => navigate("/search")}>
-                חזרה לחיפוש
+              <Button onClick={() => navigate("/")}>
+                חזרה לדף הבית
               </Button>
             </div>
           </div>
@@ -100,13 +101,14 @@ const SearchSubcategories = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center" dir="rtl">
             <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">הקטגוריה לא נמצאה</h2>
             <p className="mb-6">לא הצלחנו למצוא את הקטגוריה המבוקשת.</p>
-            <Button onClick={() => navigate("/search")}>
-              חזרה לחיפוש
+            <Button onClick={() => navigate("/")}>
+              חזרה לדף הבית
             </Button>
           </div>
         </main>
@@ -118,22 +120,9 @@ const SearchSubcategories = () => {
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
+      <AdvancedBreadcrumbs />
       <main className="flex-grow">
         <div className="container px-4 py-6">
-          {/* ניווט נתיב */}
-          <nav className="flex items-center space-x-2 mb-6" dir="rtl">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/search")}
-              className="text-gray-500 hover:text-brand-600"
-            >
-              חיפוש
-            </Button>
-            <ChevronLeft className="h-4 w-4 text-gray-400" />
-            <span className="text-brand-600 font-medium">{category.name}</span>
-          </nav>
-
           {/* כותרת הקטגוריה */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
@@ -142,9 +131,19 @@ const SearchSubcategories = () => {
                 {category.description}
               </p>
             )}
-            <Badge variant="outline">
-              {subcategories.length} תתי קטגוריות
-            </Badge>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                {subcategories.length} תתי קטגוריות זמינות
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/')}
+              >
+                <ArrowRight className="h-4 w-4 ml-2" />
+                חזרה לדף הבית
+              </Button>
+            </div>
           </div>
 
           {/* תתי קטגוריות */}
