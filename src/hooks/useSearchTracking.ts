@@ -10,6 +10,7 @@ export interface SearchCriteria {
   date?: string;
   budget?: { min: number; max: number };
   attendees?: number;
+  [key: string]: any;
 }
 
 export const useSearchTracking = () => {
@@ -24,13 +25,13 @@ export const useSearchTracking = () => {
 
   const trackSearch = async (criteria: SearchCriteria, resultsCount: number) => {
     try {
-      await supabase.from('search_tracking').insert([{
+      await supabase.from('search_tracking').insert({
         session_id: sessionId,
-        search_criteria: criteria,
+        search_criteria: criteria as any,
         results_found: resultsCount,
         user_ip: await getUserIP(),
         user_agent: navigator.userAgent
-      }]);
+      });
 
       // בדיקה אם צריך להציג פופ-אפ סיוע
       await checkForAssistancePopup();

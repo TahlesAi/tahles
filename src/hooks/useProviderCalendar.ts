@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface CalendarSlot {
@@ -32,7 +32,7 @@ export const useProviderCalendar = (providerId?: string) => {
         .eq('provider_id', providerId)
         .eq('date', date)
         .eq('is_available', true)
-        .lt('current_bookings', supabase.raw('max_bookings'));
+        .lt('current_bookings', supabase.from('provider_calendar').select('max_bookings'));
 
       if (serviceArea) {
         query = query.eq('service_area', serviceArea);
@@ -52,9 +52,13 @@ export const useProviderCalendar = (providerId?: string) => {
 
   const bookSlot = async (slotId: string) => {
     try {
-      const { error } = await supabase.rpc('book_calendar_slot', {
-        slot_id: slotId
-      });
+      // עדכון מספר ההזמנות הנוכחיות
+      const { error } = await supabase
+        .from('provider_calendar')
+        .update({ 
+          current_bookings: supabase.from('provider_calendar').select('current_bookings + 1') 
+        })
+        .eq('id', slotId);
       
       if (error) throw error;
       return true;
