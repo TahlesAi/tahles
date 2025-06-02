@@ -1,4 +1,3 @@
-
 // Base Types
 export interface BaseEntity {
   id: string;
@@ -257,6 +256,7 @@ export interface Service extends BaseEntity {
   setupTime?: number;
   location?: string;
   isReceptionService?: boolean;
+  is_reception_service?: boolean;
   featured?: boolean;
   is_featured?: boolean;
   rating?: number;
@@ -326,6 +326,8 @@ export interface SearchResultService {
   duration?: number;
   technicalRequirements?: string[];
   setupTime?: number;
+  isReceptionService?: boolean;
+  is_reception_service?: boolean;
 }
 
 // Search and Filter Types
@@ -514,3 +516,6 @@ export interface CateringLead {
 }
 
 export type AudienceSize = '0-30' | '31-50' | '51-100' | '101-200' | '201-500' | '500+';
+
+// Legacy support and backwards compatibility
+export type UnifiedService = SearchResultService;

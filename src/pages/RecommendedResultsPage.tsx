@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -55,7 +56,7 @@ const RecommendedResultsPage = () => {
     if (service.suitableFor?.includes(searchCriteria.ageGroup)) score += 3;
     
     // דירוג לפי התאמה לסוג מופע
-    if (searchCriteria.isReception && service.isReceptionService) score += 5;
+    if (searchCriteria.isReception && (service.isReceptionService || service.is_reception_service)) score += 5;
     if (searchCriteria.isMainShow) score += 3;
     
     // דירוג לפי מיקום (סימולציה)
@@ -155,7 +156,7 @@ const RecommendedResultsPage = () => {
                 </Button>
               </div>
 
-              {showMoreResults && (
+              {showMoreMoreResults && (
                 <RecommendedResults
                   services={additionalResults}
                   selectedServices={selectedServices}

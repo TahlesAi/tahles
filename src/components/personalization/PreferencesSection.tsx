@@ -3,7 +3,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { Handshake, Stage, Combine, Palette } from "lucide-react";
+import { Handshake, Monitor, Combine, Palette } from "lucide-react";
 
 interface PersonalizationData {
   eventType: 'business' | 'private';
@@ -67,7 +67,7 @@ const PreferencesSection: React.FC<PreferencesSectionProps> = ({ data, onUpdate 
                 onCheckedChange={(checked) => onUpdate({ isMainShow: !!checked })}
               />
               <div className="flex items-center flex-1">
-                <Stage className="h-5 w-5 ml-2 text-brand-600" />
+                <Monitor className="h-5 w-5 ml-2 text-brand-600" />
                 <div>
                   <Label htmlFor="main-show" className="font-medium cursor-pointer">
                     מופע מרכזי

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquare, Wheelchair, UtensilsCrossed, Car } from "lucide-react";
+import { MessageSquare, User, UtensilsCrossed, Car } from "lucide-react";
 
 interface SpecialRequestsProps {
   bookingData: any;
@@ -38,7 +38,7 @@ const SpecialRequests: React.FC<SpecialRequestsProps> = ({
       {/* נגישות */}
       <div>
         <Label className="flex items-center mb-3 text-base font-medium">
-          <Wheelchair className="h-4 w-4 ml-2" />
+          <User className="h-4 w-4 ml-2" />
           צרכי נגישות
         </Label>
         <Textarea

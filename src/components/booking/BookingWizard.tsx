@@ -41,6 +41,29 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
   const CurrentComponent = currentStepData.component;
   const progress = (currentStep / steps.length) * 100;
 
+  const getComponentProps = () => {
+    const baseProps = {
+      bookingData,
+      onUpdate,
+      onNext: () => {
+        if (currentStep < steps.length) {
+          onStepChange(currentStep + 1);
+        } else {
+          onComplete();
+        }
+      },
+      onBack: () => onStepChange(Math.max(1, currentStep - 1)),
+      isLastStep: currentStep === steps.length
+    };
+
+    // הוספת props נוספים לפי הצורך של כל קומפוננטה
+    if (currentStep === 2 || currentStep === 4 || currentStep === 5 || currentStep === 6) {
+      return { ...baseProps, service, provider };
+    }
+
+    return baseProps;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -56,21 +79,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
       </CardHeader>
       
       <CardContent>
-        <CurrentComponent
-          bookingData={bookingData}
-          service={service}
-          provider={provider}
-          onUpdate={onUpdate}
-          onNext={() => {
-            if (currentStep < steps.length) {
-              onStepChange(currentStep + 1);
-            } else {
-              onComplete();
-            }
-          }}
-          onBack={() => onStepChange(Math.max(1, currentStep - 1))}
-          isLastStep={currentStep === steps.length}
-        />
+        <CurrentComponent {...getComponentProps()} />
       </CardContent>
     </Card>
   );
