@@ -1,180 +1,287 @@
-
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import RecommendedResults from "@/components/results/RecommendedResults";
-import SearchCriteriaSummary from "@/components/results/SearchCriteriaSummary";
-import ComparisonSelector from "@/components/results/ComparisonSelector";
+import ServiceResultCard from "@/components/search/ServiceResultCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Filter } from "lucide-react";
-import { searchServices } from "@/lib/unifiedMockData";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Filter, MapPin, Calendar, Users, DollarSign } from "lucide-react";
+import { getGuidedSearchRecommendations } from "@/lib/unifiedMockData";
 
-const RecommendedResultsPage = () => {
+interface RecommendationFilters {
+  priceRange?: [number, number];
+  location?: string;
+  rating?: number;
+  isReceptionService?: boolean;
+}
+
+const RecommendedResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedServices, setSelectedServices] = useState<any[]>([]);
-  const [showMoreResults, setShowMoreResults] = useState(false);
+  const searchData = location.state?.searchData;
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [filteredRecommendations, setFilteredRecommendations] = useState<any[]>([]);
+  const [filters, setFilters] = useState<RecommendationFilters>({});
+  const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const searchParams = new URLSearchParams(location.search);
-  const searchCriteria = {
-    category: searchParams.get('category') || '',
-    subcategory: searchParams.get('subcategory') || '',
-    eventType: searchParams.get('eventType') || '',
-    audienceType: searchParams.get('audienceType') || '',
-    language: searchParams.get('language') || '',
-    ageGroup: searchParams.get('ageGroup') || '',
-    attendeesCount: parseInt(searchParams.get('attendeesCount') || '50'),
-    eventDate: searchParams.get('eventDate') || '',
-    eventTime: searchParams.get('eventTime') || '',
-    location: searchParams.get('location') || '',
-    isReception: searchParams.get('isReception') === 'true',
-    isMainShow: searchParams.get('isMainShow') === 'true',
-    isCombined: searchParams.get('isCombined') === 'true',
-    needsCustomization: searchParams.get('needsCustomization') === 'true',
-    needsAmplification: searchParams.get('needsAmplification') === 'true',
-    budgetLimit: searchParams.get('budgetLimit') ? parseInt(searchParams.get('budgetLimit')!) : undefined
-  };
-
-  // חיפוש שירותים מתאימים
-  const allResults = searchServices('', {
-    category: searchCriteria.category,
-    subcategory: searchCriteria.subcategory
-  });
-
-  // אלגוריתם דירוג חכם
-  const rankedResults = allResults.map(service => {
-    let score = 0;
-    
-    // דירוג לפי rating בסיסי
-    score += (service.rating || 0) * 2;
-    
-    // דירוג לפי מספר ביקורות
-    score += Math.min((service.reviewCount || 0) / 10, 5);
-    
-    // דירוג לפי התאמה לקהל יעד
-    if (service.suitableFor?.includes(searchCriteria.ageGroup)) score += 3;
-    
-    // דירוג לפי התאמה לסוג מופע
-    if (searchCriteria.isReception && (service.isReceptionService || service.is_reception_service)) score += 5;
-    if (searchCriteria.isMainShow) score += 3;
-    
-    // דירוג לפי מיקום (סימולציה)
-    score += Math.random() * 2;
-    
-    // דירוג לפי תקציב
-    if (searchCriteria.budgetLimit && service.price <= searchCriteria.budgetLimit) {
-      score += 4;
+  useEffect(() => {
+    if (!searchData) {
+      navigate('/');
+      return;
     }
-    
-    // בונוס לשירותים מומלצים
-    if (service.featured) score += 3;
-    
-    return {
-      ...service,
-      dynamicScore: Math.round(score * 10) / 10,
-      matchPercentage: Math.min(Math.round((score / 20) * 100), 100)
+
+    const loadRecommendations = async () => {
+      try {
+        setIsLoading(true);
+        const results = getGuidedSearchRecommendations(searchData);
+        setRecommendations(results);
+        setFilteredRecommendations(results);
+      } catch (error) {
+        console.error('Error loading recommendations:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }).sort((a, b) => b.dynamicScore - a.dynamicScore);
 
-  const topResults = rankedResults.slice(0, 5);
-  const additionalResults = rankedResults.slice(5, 15);
+    loadRecommendations();
+  }, [searchData, navigate]);
 
-  const handleServiceSelection = (service: any) => {
-    if (selectedServices.find(s => s.id === service.id)) {
-      setSelectedServices(prev => prev.filter(s => s.id !== service.id));
-    } else if (selectedServices.length < 3) {
-      setSelectedServices(prev => [...prev, service]);
+  useEffect(() => {
+    let filtered = [...recommendations];
+
+    if (filters.priceRange) {
+      const [min, max] = filters.priceRange;
+      filtered = filtered.filter(item => item.price >= min && item.price <= max);
     }
-  };
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
-  const handleCompareServices = () => {
-    if (selectedServices.length >= 2) {
-      const serviceIds = selectedServices.map(s => s.id).join(',');
-      navigate(`/compare?services=${serviceIds}`);
+    if (filters.location) {
+      filtered = filtered.filter(item => 
+        item.location && item.location.toLowerCase().includes(filters.location!.toLowerCase())
+      );
     }
-  };
 
+    if (filters.rating) {
+      filtered = filtered.filter(item => item.rating >= filters.rating!);
+    }
+
+    if (filters.isReceptionService !== undefined) {
+      // תיקון השדה - השתמש ב-isReceptionService במקום is_reception_service
+      filtered = filtered.filter(item => item.isReceptionService === filters.isReceptionService);
+    }
+
+    setFilteredRecommendations(filtered);
+  }, [filters, recommendations]);
+
+  if (!searchData) {
+    return null;
+  }
+
+  
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
-      <main className="flex-grow py-8" dir="rtl">
-        <div className="container px-4 max-w-7xl mx-auto">
-          {/* כותרת וסיכום חיפוש */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                className="flex items-center"
-              >
-                <ArrowLeft className="h-4 w-4 ml-2" />
-                חזור לחיפוש
-              </Button>
-              
-              <h1 className="text-3xl font-bold text-gray-900">תוצאות מומלצות</h1>
-              
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 ml-2" />
-                סנן תוצאות
-              </Button>
-            </div>
+      <main className="flex-grow bg-gray-50">
+        <div className="container px-4 py-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+            <Link to="/" className="hover:text-primary">דף הבית</Link>
+            <ArrowRight className="h-4 w-4" />
+            <span>תוצאות מומלצות</span>
+          </nav>
 
-            <SearchCriteriaSummary criteria={searchCriteria} />
-          </div>
-
-          {/* TOP 5 תוצאות */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">TOP 5 מומלצים עבורך</h2>
-              <span className="text-sm text-gray-500">
-                {topResults.length} מתוך {rankedResults.length} תוצאות
-              </span>
-            </div>
-
-            <RecommendedResults
-              services={topResults}
-              selectedServices={selectedServices}
-              onServiceSelect={handleServiceSelection}
-            />
-          </div>
-
-          {/* תוצאות נוספות */}
-          {additionalResults.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">תוצאות נוספות</h3>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowMoreResults(!showMoreResults)}
-                >
-                  {showMoreResults ? 'הסתר' : 'הצג עוד'}
-                </Button>
+          {/* Search Summary */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h1 className="text-2xl font-bold mb-4">התוצאות המומלצות עבורכם</h1>
+              <div className="flex flex-wrap gap-4 text-sm">
+                {searchData.eventType && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <span>סוג אירוע: {searchData.eventType}</span>
+                  </div>
+                )}
+                {searchData.attendeesCount && (
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-gray-400" />
+                    <span>מספר משתתפים: {searchData.attendeesCount}</span>
+                  </div>
+                )}
+                {searchData.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>מיקום: {searchData.location}</span>
+                  </div>
+                )}
+                {searchData.budget && (
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-gray-400" />
+                    <span>תקציב: {searchData.budget}</span>
+                  </div>
+                )}
               </div>
+            </CardContent>
+          </Card>
 
-              {showMoreResults && (
-                <RecommendedResults
-                  services={additionalResults}
-                  selectedServices={selectedServices}
-                  onServiceSelect={handleServiceSelection}
-                  showRanking={false}
-                />
+          {/* Filters Toggle */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold">
+                נמצאו {filteredRecommendations.length} המלצות
+              </h2>
+              {Object.keys(filters).length > 0 && (
+                <Badge variant="secondary">
+                  {Object.keys(filters).length} פילטרים פעילים
+                </Badge>
               )}
             </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              פילטרים
+            </Button>
+          </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Price Range Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">טווח מחירים</label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === 'all') {
+                          setFilters(prev => ({ ...prev, priceRange: undefined }));
+                        } else {
+                          const [min, max] = value.split('-').map(Number);
+                          setFilters(prev => ({ ...prev, priceRange: [min, max] }));
+                        }
+                      }}
+                    >
+                      <option value="all">כל המחירים</option>
+                      <option value="0-1000">עד 1,000 ₪</option>
+                      <option value="1000-3000">1,000 - 3,000 ₪</option>
+                      <option value="3000-5000">3,000 - 5,000 ₪</option>
+                      <option value="5000-10000">5,000 - 10,000 ₪</option>
+                      <option value="10000-999999">מעל 10,000 ₪</option>
+                    </select>
+                  </div>
+
+                  {/* Rating Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">דירוג מינימלי</label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFilters(prev => ({ 
+                          ...prev, 
+                          rating: value === 'all' ? undefined : Number(value)
+                        }));
+                      }}
+                    >
+                      <option value="all">כל הדירוגים</option>
+                      <option value="4">4+ כוכבים</option>
+                      <option value="4.5">4.5+ כוכבים</option>
+                      <option value="5">5 כוכבים</option>
+                    </select>
+                  </div>
+
+                  {/* Reception Service Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">סוג שירות</label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === 'all') {
+                          setFilters(prev => ({ ...prev, isReceptionService: undefined }));
+                        } else {
+                          setFilters(prev => ({ 
+                            ...prev, 
+                            isReceptionService: value === 'reception'
+                          }));
+                        }
+                      }}
+                    >
+                      <option value="all">כל השירותים</option>
+                      <option value="reception">שירותי קבלת פנים</option>
+                      <option value="main">מופעים מרכזיים</option>
+                    </select>
+                  </div>
+
+                  {/* Clear Filters */}
+                  <div className="flex items-end">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setFilters({})}
+                      className="w-full"
+                    >
+                      נקה פילטרים
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* בר השוואה */}
-          <ComparisonSelector
-            selectedServices={selectedServices}
-            onCompare={handleCompareServices}
-            onRemove={(serviceId) => 
-              setSelectedServices(prev => prev.filter(s => s.id !== serviceId))
-            }
-          />
+          {/* Results Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, idx) => (
+                <div key={idx} className="bg-white rounded-lg shadow-sm border p-6 animate-pulse">
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                  <div className="space-y-2">
+                    <div className="bg-gray-200 h-4 rounded w-3/4"></div>
+                    <div className="bg-gray-200 h-4 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredRecommendations.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRecommendations.map((recommendation) => (
+                <ServiceResultCard
+                  key={recommendation.id}
+                  service={recommendation}
+                  searchData={searchData}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <h3 className="text-xl font-semibold mb-4">לא נמצאו תוצאות מתאימות</h3>
+                <p className="text-gray-600 mb-6">
+                  נסו לשנות את הפילטרים או לחזור לחיפוש חדש
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Button onClick={() => setFilters({})}>
+                    נקה פילטרים
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/')}>
+                    חיפוש חדש
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Back to Search */}
+          <div className="mt-8 text-center">
+            <Button variant="outline" onClick={() => navigate('/')}>
+              <ArrowRight className="h-4 w-4 ml-2" />
+              חזרה לחיפוש
+            </Button>
+          </div>
         </div>
       </main>
       <Footer />
@@ -182,4 +289,4 @@ const RecommendedResultsPage = () => {
   );
 };
 
-export default RecommendedResultsPage;
+export default RecommendedResults;

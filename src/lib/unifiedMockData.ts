@@ -62,6 +62,40 @@ export const unifiedProviders = allEnhancedProviders.map(provider => ({
   gallery: []
 }));
 
+// נתונים מדומים לביקורות
+const mockReviews = [
+  {
+    id: 'review-1',
+    serviceId: 'service-1',
+    providerId: 'provider-1',
+    customerName: 'יעל כהן',
+    rating: 5,
+    comment: 'שירות מעולה! המופע היה מרהיב והילדים נהנו מאוד',
+    createdAt: '2024-01-15T10:00:00Z',
+    created_at: '2024-01-15T10:00:00Z'
+  },
+  {
+    id: 'review-2',
+    serviceId: 'service-1',
+    providerId: 'provider-1',
+    customerName: 'דוד לוי',
+    rating: 4,
+    comment: 'מופע טוב, ההגעה הייתה בזמן והאמן היה מקצועי',
+    createdAt: '2024-01-10T14:30:00Z',
+    created_at: '2024-01-10T14:30:00Z'
+  },
+  {
+    id: 'review-3',
+    serviceId: 'service-2',
+    providerId: 'provider-2',
+    customerName: 'שרה אברהם',
+    rating: 5,
+    comment: 'האירוע היה מושלם! תודה רבה על השירות המעולה',
+    createdAt: '2024-01-08T16:45:00Z',
+    created_at: '2024-01-08T16:45:00Z'
+  }
+];
+
 // פונקציות עזר מעודכנות
 export const getServiceById = (id: string) => {
   const service = getEnhancedServiceById(id);
@@ -165,7 +199,17 @@ export const getServicesWithAvailability = (date: string, time: string) => {
   );
 };
 
+// פונקציה חדשה לקבלת ביקורות לפי שירות
+export const getReviewsByService = (serviceId: string) => {
+  return mockReviews.filter(review => review.serviceId === serviceId);
+};
+
+// פונקציה לקבלת ביקורות לפי ספק
+export const getReviewsByProvider = (providerId: string) => {
+  return mockReviews.filter(review => review.providerId === providerId);
+};
+
 // פונקציות תואמות לאחור
 export const expandedMockSearchResults = allServices;
 export const expandedMockProviders = unifiedProviders;
-export const expandedMockReviews: any[] = [];
+export const expandedMockReviews = mockReviews;
