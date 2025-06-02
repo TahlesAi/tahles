@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import ServiceResultCard from "@/components/search/ServiceResultCard";
 import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
 import ServiceComparisonModal from "@/components/comparison/ServiceComparisonModal";
 import { useServiceComparison } from "@/hooks/useServiceComparison";
+import { useSearchTracking } from "@/hooks/useSearchTracking";
 import { unifiedServices } from "@/lib/unifiedMockData";
 import { toast } from "sonner";
 
@@ -15,6 +17,7 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [currentFilters, setCurrentFilters] = useState<any>({});
+  const { sessionId, trackSearch } = useSearchTracking();
   
   const {
     selectedServices,
@@ -77,11 +80,22 @@ const Search = () => {
         );
       }
 
-      return filteredServices.sort((a, b) => {
+      const results = filteredServices.sort((a, b) => {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
         return b.rating - a.rating;
       });
+
+      // מעקב אחר החיפוש
+      await trackSearch({
+        category,
+        subcategory,
+        location: locationFilter,
+        searchTerm,
+        filters: currentFilters
+      }, results.length);
+
+      return results;
     },
   });
 
@@ -143,7 +157,6 @@ const Search = () => {
 
           <AdvancedSearchFilters
             onFiltersChange={setCurrentFilters}
-            initialFilters={currentFilters}
           />
         </div>
 
