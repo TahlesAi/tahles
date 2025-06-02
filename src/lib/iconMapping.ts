@@ -20,6 +20,7 @@ import {
   Cake,
   Flower
 } from 'lucide-react';
+import React from 'react';
 
 export const categoryIcons = {
   // קטגוריות ראשיות
@@ -82,5 +83,5 @@ export const getIconForCategory = (categoryName: string) => {
 
 export const getIconComponent = (categoryName: string, className: string = "h-6 w-6") => {
   const IconComponent = getIconForCategory(categoryName);
-  return <IconComponent className={className} />;
+  return React.createElement(IconComponent, { className });
 };
