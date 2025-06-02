@@ -1,90 +1,107 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectGroup, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, ChevronRight } from "lucide-react";
 
 interface AttendeesStepProps {
-  attendeesCount: string | undefined;
-  onUpdate: (count: string) => void;
+  attendeesCount?: string;
+  onSelect: (count: string) => void;
+  onNext: () => void;
+  onBack: () => void;
 }
 
-const AttendeesStep = ({ attendeesCount, onUpdate }: AttendeesStepProps) => {
-  const [customCount, setCustomCount] = useState(attendeesCount || "");
-  const [selectedRange, setSelectedRange] = useState<string | undefined>(undefined);
-  
-  const handleSelect = (value: string) => {
-    setSelectedRange(value);
-    if (value === "custom") {
-      return;
-    } else {
-      onUpdate(value);
+const AttendeesStep = ({ attendeesCount, onSelect, onNext, onBack }: AttendeesStepProps) => {
+  const [selectedRange, setSelectedRange] = useState(attendeesCount || "");
+
+  const attendeeRanges = [
+    { id: "1-10", label: "1-10 אנשים", subtitle: "אירוע אינטימי" },
+    { id: "11-20", label: "11-20 אנשים", subtitle: "קבוצה קטנה" },
+    { id: "21-50", label: "21-50 אנשים", subtitle: "אירוע בינוני" },
+    { id: "51-100", label: "51-100 אנשים", subtitle: "אירוע גדול" },
+    { id: "101-200", label: "101-200 אנשים", subtitle: "אירוע מרכזי" },
+    { id: "201-500", label: "201-500 אנשים", subtitle: "כנס גדול" },
+    { id: "501+", label: "מעל 500 אנשים", subtitle: "אירוע ענק" }
+  ];
+
+  const handleRangeSelect = (rangeId: string) => {
+    setSelectedRange(rangeId);
+    onSelect(rangeId);
+  };
+
+  const handleNext = () => {
+    if (selectedRange) {
+      onNext();
     }
   };
-  
-  const handleCustomCount = () => {
-    if (customCount && parseInt(customCount) > 0) {
-      onUpdate(customCount);
-    }
-  };
-  
+
   return (
     <div className="space-y-6 text-right" dir="rtl">
       <div className="text-center">
-        <h3 className="text-xl font-bold mb-2">כמה משתתפים צפויים באירוע?</h3>
-        <p className="text-gray-600 text-sm">מספר המשתתפים חיוני לבדיקת התאמת השירות ומחיר מדויק</p>
-      </div>
-      
-      <div className="flex flex-col items-center space-y-4">
-        <div className="w-full max-w-sm">
-          <Select onValueChange={handleSelect} dir="rtl">
-            <SelectTrigger className="w-full text-center h-12">
-              <SelectValue placeholder="בחר טווח משתתפים" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="1-10">1-10 משתתפים</SelectItem>
-                <SelectItem value="11-30">11-30 משתתפים</SelectItem>
-                <SelectItem value="31-60">31-60 משתתפים</SelectItem>
-                <SelectItem value="61-100">61-100 משתתפים</SelectItem>
-                <SelectItem value="101-250">101-250 משתתפים</SelectItem>
-                <SelectItem value="251+">251+ משתתפים</SelectItem>
-                <SelectItem value="custom">מספר מדויק</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Users className="h-6 w-6 text-purple-600" />
+          <h3 className="text-xl font-bold">כמה אנשים ישתתפו?</h3>
         </div>
-        
-        {selectedRange === "custom" && (
-          <div className="w-full max-w-sm space-y-4">
-            <Input
-              type="number"
-              placeholder="הזן מספר משתתפים מדויק"
-              value={customCount}
-              onChange={(e) => setCustomCount(e.target.value)}
-              min={1}
-              className="text-center h-12"
-            />
-            <Button 
-              onClick={handleCustomCount} 
-              className="w-full h-12" 
-              disabled={!customCount || parseInt(customCount) <= 0}
-            >
-              המשך עם {customCount} משתתפים
-            </Button>
-          </div>
-        )}
+        <p className="text-gray-600 text-sm">בחרו את טווח המשתתפים המשוער</p>
       </div>
       
-      <div className="text-center text-sm text-gray-500 bg-blue-50 p-3 rounded-lg">
-        <p><strong>טיפ:</strong> אם אינך בטוח במספר המדויק, בחר טווח קרוב - תמיד ניתן לעדכן בהמשך</p>
+      <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+        {attendeeRanges.map((range) => (
+          <Card
+            key={range.id}
+            className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+              selectedRange === range.id 
+                ? 'border-purple-500 bg-purple-50 shadow-md' 
+                : 'border-gray-200 hover:border-purple-300'
+            }`}
+            onClick={() => handleRangeSelect(range.id)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-right">
+                  <div className={`font-semibold text-base ${
+                    selectedRange === range.id ? 'text-purple-700' : 'text-gray-900'
+                  }`}>
+                    {range.label}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">{range.subtitle}</div>
+                </div>
+                <div className={`rounded-full w-6 h-6 border-2 flex items-center justify-center ${
+                  selectedRange === range.id 
+                    ? 'border-purple-500 bg-purple-500' 
+                    : 'border-gray-300'
+                }`}>
+                  {selectedRange === range.id && (
+                    <div className="w-3 h-3 bg-white rounded-full" />
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {selectedRange && (
+        <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-center">
+          <p className="text-sm text-purple-700">
+            ✅ נבחר: {attendeeRanges.find(r => r.id === selectedRange)?.label}
+          </p>
+        </div>
+      )}
+
+      <div className="flex justify-between pt-4">
+        <Button variant="outline" onClick={onBack} className="flex items-center px-6 py-3 h-12">
+          <ChevronRight className="ml-2 h-4 w-4" />
+          חזרה
+        </Button>
+        
+        <Button 
+          onClick={handleNext}
+          disabled={!selectedRange}
+          className="px-6 py-3 h-12"
+        >
+          המשך
+        </Button>
       </div>
     </div>
   );

@@ -3,9 +3,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Clock, Users, ArrowLeft, Phone } from "lucide-react";
+import { Star, MapPin, Clock, Users, ArrowLeft, Phone, Trophy, Crown } from "lucide-react";
 import { getGuidedSearchRecommendations } from "@/lib/unifiedMockData";
 import { GuidedSearchData } from "../GuidedSearchModal";
+import { Link } from "react-router-dom";
 
 interface ResultsStepProps {
   searchData: GuidedSearchData;
@@ -15,87 +16,148 @@ interface ResultsStepProps {
 
 const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
   const recommendations = getGuidedSearchRecommendations(searchData);
+  
+  // נחלק לTop 10 ספקים ו-Top 10 מוצרים
+  const topServices = recommendations.slice(0, 10);
+  const topProviders = [...new Map(recommendations.map(service => [service.providerId, service])).values()].slice(0, 10);
 
   const formatPrice = (price: number, priceUnit: string, attendeesCount?: string) => {
-    if (priceUnit === "לאדם" && attendeesCount) {
-      const total = price * parseInt(attendeesCount);
+    if (priceUnit === "לאדם" && attendeesCount && attendeesCount.includes('-')) {
+      const avgAttendees = attendeesCount.split('-').map(n => parseInt(n.replace('+', ''))).reduce((a, b) => a + b) / 2;
+      const total = price * avgAttendees;
       return `₪${total.toLocaleString()} (₪${price} לאדם)`;
     }
     return `₪${price.toLocaleString()} ${priceUnit}`;
   };
 
   return (
-    <div className="space-y-4 text-right" dir="rtl">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-bold">המוצרים המומלצים עבורך</h3>
-        <p className="text-sm text-gray-600">מצאנו {recommendations.length} מוצרים התואמים לצרכים שלך</p>
+    <div className="space-y-6 text-right max-h-[60vh] overflow-y-auto" dir="rtl">
+      <div className="text-center mb-4 sticky top-0 bg-white z-10 pb-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Trophy className="h-6 w-6 text-gold-500" />
+          <h3 className="text-xl font-bold">התוצאות המובילות עבורך</h3>
+        </div>
+        <p className="text-sm text-gray-600">מצאנו {recommendations.length} פתרונות מתאימים לאירוע שלך</p>
       </div>
 
-      <div className="space-y-3 max-h-96 overflow-y-auto">
-        {recommendations.map((product: any) => (
-          <Card key={product.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex gap-3">
-                {/* Product Image */}
-                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+      {/* Top 10 Services */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Crown className="h-5 w-5 text-purple-600" />
+          <h4 className="font-bold text-lg">Top 10 שירותים מומלצים</h4>
+        </div>
+        
+        <div className="space-y-3">
+          {topServices.map((service: any, index: number) => (
+            <Card key={service.id} className="hover:shadow-md transition-shadow border-r-4 border-r-purple-500">
+              <CardContent className="p-4">
+                <div className="flex gap-3">
+                  {/* מספר דירוג */}
+                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-bold text-purple-600">#{index + 1}</span>
+                  </div>
+
+                  {/* Product Image */}
+                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                    <img
+                      src={service.imageUrl}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm line-clamp-1">{service.name}</h4>
+                        <p className="text-xs text-gray-600 mb-1">{service.provider}</p>
+                      </div>
+                      <div className="text-left ml-2">
+                        <div className="font-bold text-sm text-purple-600">
+                          {formatPrice(service.price, service.priceUnit, searchData.attendeesCount)}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{service.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-700 mb-2 line-clamp-1">{service.description}</p>
+
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{service.location}</span>
+                        </div>
+                        {service.duration && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{service.duration} דק'</span>
+                          </div>
+                        )}
+                      </div>
+                      <Link to={`/service/${service.id}`}>
+                        <Button size="sm" variant="outline" className="h-6 px-2 text-xs">
+                          להרחבה
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-                {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-sm line-clamp-1">{product.name}</h4>
-                      <p className="text-xs text-gray-600 mb-1">{product.provider}</p>
-                    </div>
-                    <div className="text-left ml-2">
-                      <div className="font-bold text-sm text-primary">
-                        {formatPrice(product.price, product.priceUnit, searchData.attendeesCount)}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span>{product.rating}</span>
-                        <span className="text-gray-500">({product.reviewCount})</span>
-                      </div>
-                    </div>
+      {/* Top 10 Providers */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Crown className="h-5 w-5 text-blue-600" />
+          <h4 className="font-bold text-lg">Top 10 ספקים מומלצים</h4>
+        </div>
+        
+        <div className="space-y-3">
+          {topProviders.map((service: any, index: number) => (
+            <Card key={service.providerId} className="hover:shadow-md transition-shadow border-r-4 border-r-blue-500">
+              <CardContent className="p-4">
+                <div className="flex gap-3">
+                  {/* מספר דירוג */}
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-bold text-blue-600">#{index + 1}</span>
                   </div>
 
-                  <p className="text-xs text-gray-700 mb-2 line-clamp-2">{product.description}</p>
+                  {/* Provider Info */}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm">{service.provider}</h4>
+                        <div className="flex items-center gap-1 text-xs">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{service.rating}</span>
+                          <span className="text-gray-500">({service.reviewCount})</span>
+                        </div>
+                      </div>
+                      <Link to={`/provider/${service.providerId}`}>
+                        <Button size="sm" variant="outline" className="h-6 px-2 text-xs">
+                          צפה בספק
+                        </Button>
+                      </Link>
+                    </div>
 
-                  {/* Tags and Details */}
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {product.tags?.slice(0, 2).map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="text-xs px-1 py-0">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs text-gray-500">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        <span>{product.location}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{product.duration} דק'</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{product.minAudience}-{product.maxAudience}</span>
-                      </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <MapPin className="h-3 w-3" />
+                      <span>{service.location}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {recommendations.length === 0 && (
@@ -106,8 +168,8 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
       )}
 
       {/* Search Summary */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="p-3">
+      <Card className="bg-blue-50 border-blue-200 sticky bottom-0">
+        <CardContent className="p-4">
           <div className="text-sm">
             <div className="font-medium mb-2">סיכום החיפוש:</div>
             <div className="space-y-1 text-xs">
@@ -115,7 +177,11 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
                 <div>תאריך: {searchData.eventDate.toLocaleDateString('he-IL')}</div>
               )}
               {searchData.eventType && (
-                <div>סוג אירוע: {searchData.eventType === 'private' ? 'פרטי' : searchData.eventType === 'business' ? 'עסקי' : 'מעורב'}</div>
+                <div>סוג אירוע: {
+                  searchData.eventType === 'private' ? 'פרטי' : 
+                  searchData.eventType === 'business' ? 'עסקי' : 
+                  searchData.eventType === 'children' ? 'ילדים' : 'מעורב'
+                }</div>
               )}
               {searchData.attendeesCount && (
                 <div>משתתפים: {searchData.attendeesCount}</div>
@@ -129,7 +195,7 @@ const ResultsStep = ({ searchData, onBack, onSubmit }: ResultsStepProps) => {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 pt-4">
+      <div className="flex gap-2 pt-4 sticky bottom-0 bg-white">
         <Button
           onClick={onBack}
           variant="outline"

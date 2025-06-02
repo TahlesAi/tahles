@@ -5,13 +5,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
-import { SearchResultService } from "@/lib/types";
 
 interface ServiceResultCardProps {
-  service: SearchResultService;
+  service: any;
 }
 
 const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
+  // נבדוק אם יש ID תקין לשירות
+  const serviceId = service.id || service.serviceId || service.service_id;
+  const providerId = service.providerId || service.provider_id;
+  
+  if (!serviceId) {
+    console.warn('Service card missing ID:', service);
+    return null;
+  }
+
   const hasMedia = (service.videos && service.videos.length > 0) || 
                    (service.video_urls && service.video_urls.length > 0) ||
                    (service.additionalImages && service.additionalImages.length > 0) ||
@@ -24,9 +32,9 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
       <div className="relative h-48 overflow-hidden">
         {/* תמונה או placeholder */}
-        {service.imageUrl ? (
+        {(service.imageUrl || service.image_url) ? (
           <img
-            src={service.imageUrl}
+            src={service.imageUrl || service.image_url}
             alt={service.name}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -35,10 +43,10 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
               const parent = target.parentElement;
               if (parent) {
                 parent.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center">
+                  <div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                     <div class="text-center">
-                      <div class="text-4xl text-brand-600 mb-2">🎪</div>
-                      <div class="text-sm text-brand-600 font-medium">${service.name}</div>
+                      <div class="text-4xl text-blue-600 mb-2">🎪</div>
+                      <div class="text-sm text-blue-600 font-medium">${service.name}</div>
                     </div>
                   </div>
                 `;
@@ -46,10 +54,10 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-4xl text-brand-600 mb-2">🎪</div>
-              <div className="text-sm text-brand-600 font-medium">{service.name}</div>
+              <div className="text-4xl text-blue-600 mb-2">🎪</div>
+              <div className="text-sm text-blue-600 font-medium">{service.name}</div>
             </div>
           </div>
         )}
@@ -83,12 +91,12 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
 
         {/* מחיר */}
         <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm rounded px-2 py-1">
-          <span className="font-bold text-brand-600">
+          <span className="font-bold text-blue-600">
             ₪{typeof service.price === 'number' ? service.price.toLocaleString() : service.price}
           </span>
-          {service.priceUnit && (
+          {(service.priceUnit || service.price_unit) && (
             <span className="text-xs text-gray-600 mr-1">
-              {service.priceUnit}
+              {service.priceUnit || service.price_unit}
             </span>
           )}
         </div>
@@ -98,7 +106,14 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
         {/* כותרת וספק */}
         <div className="mb-3">
           <h3 className="font-bold text-lg mb-1 line-clamp-2">{service.name}</h3>
-          <p className="text-sm text-brand-600 font-medium">{service.provider}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-blue-600 font-medium">{service.provider}</p>
+            {providerId && (
+              <Link to={`/provider/${providerId}`} className="text-xs text-gray-500 hover:text-blue-600">
+                (צפה בספק)
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* תיאור */}
@@ -110,9 +125,9 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           {service.rating > 0 && (
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium">{service.rating.toFixed(1)}</span>
-              {service.reviewCount > 0 && (
-                <span className="text-sm text-gray-500">({service.reviewCount} ביקורות)</span>
+              <span className="text-sm font-medium">{Number(service.rating).toFixed(1)}</span>
+              {(service.reviewCount || service.review_count) > 0 && (
+                <span className="text-sm text-gray-500">({service.reviewCount || service.review_count} ביקורות)</span>
               )}
             </div>
           )}
@@ -128,7 +143,7 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           {/* תגיות */}
           {service.tags && service.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {service.tags.slice(0, 3).map((tag, index) => (
+              {service.tags.slice(0, 3).map((tag: string, index: number) => (
                 <Badge key={index} variant="outline" className="text-xs">
                   {tag}
                 </Badge>
@@ -143,7 +158,7 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
         </div>
 
         {/* כפתור פעולה */}
-        <Link to={`/product/${service.id}`} className="block">
+        <Link to={`/service/${serviceId}`} className="block">
           <Button className="w-full">
             צפה בפרטים
           </Button>

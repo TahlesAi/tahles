@@ -1,14 +1,9 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 interface LocationStepProps {
   location: { city: string; address?: string } | undefined;
@@ -17,8 +12,9 @@ interface LocationStepProps {
 
 const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
   const [selectedCity, setSelectedCity] = useState(location?.city || "");
+  const [inputValue, setInputValue] = useState(location?.city || "");
   
-  // רשימת ערים מרכזיות בישראל
+  // רשימת ערים מרכזיות בישראל עם השלמה אוטומטית
   const israeliCities = [
     "תל אביב", "ירושלים", "חיפה", "באר שבע", 
     "ראשון לציון", "פתח תקווה", "אשדוד", "נתניה",
@@ -27,12 +23,40 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
     "חדרה", "מודיעין", "נהריה", "לוד",
     "רעננה", "טבריה", "הוד השרון", "גבעתיים",
     "קריית גת", "עפולה", "נס ציונה", "אילת",
-    "צפת", "אריאל", "כרמיאל", "עכו"
+    "צפת", "אריאל", "כרמיאל", "עכו",
+    "רמלה", "קריית מוצקין", "קריית ביאליק", "קריית ים",
+    "דימונה", "מעלה אדומים", "קריית אתא", "בית שמש"
   ];
+
+  // סינון ערים לפי הטקסט שהוזן
+  const filteredCities = israeliCities.filter(city => 
+    city.includes(inputValue) || inputValue === ""
+  ).slice(0, 8); // מגביל ל-8 תוצאות
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    // אם יש התאמה מדויקת, נבחר אותה אוטומטית
+    const exactMatch = israeliCities.find(city => city === value);
+    if (exactMatch) {
+      setSelectedCity(value);
+      onUpdate({ city: value });
+    }
+  };
 
   const handleCitySelect = (city: string) => {
     setSelectedCity(city);
+    setInputValue(city);
     onUpdate({ city });
+    toast.success(`נבחר אזור: ${city}`);
+  };
+
+  const handleNext = () => {
+    if (inputValue.trim()) {
+      // אם הוזן טקסט, נשתמש בו כעיר
+      const finalCity = selectedCity || inputValue.trim();
+      onUpdate({ city: finalCity });
+      toast.success(`נבחר אזור: ${finalCity}`);
+    }
   };
 
   return (
@@ -40,29 +64,45 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
       <div className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <MapPin className="h-6 w-6 text-blue-600" />
-          <h3 className="text-xl font-bold">באיזה אזור האירוע?</h3>
+          <h3 className="text-xl font-bold">איפה יתקיים האירוע?</h3>
         </div>
-        <p className="text-gray-600 text-sm">בחרו עיר או אזור כללי</p>
+        <p className="text-gray-600 text-sm">הזינו ישוב או עיר בישראל</p>
       </div>
       
       <div className="space-y-4">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-right">
-            עיר או אזור *
+            ישוב / עיר *
           </label>
-          <Select value={selectedCity} onValueChange={handleCitySelect} dir="rtl">
-            <SelectTrigger className="w-full text-right h-12 text-base border-2 focus:border-blue-500">
-              <SelectValue placeholder="בחרו עיר או אזור" />
-            </SelectTrigger>
-            <SelectContent className="max-h-60 overflow-y-auto z-50 bg-white border-2">
-              {israeliCities.map((city) => (
-                <SelectItem key={city} value={city} className="text-right text-base py-3">
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input
+            type="text"
+            value={inputValue}
+            onChange={(e) => handleInputChange(e.target.value)}
+            placeholder="התחילו להקליד שם העיר..."
+            className="w-full text-right h-12 text-base border-2 focus:border-blue-500"
+            dir="rtl"
+          />
         </div>
+
+        {/* רשימת הצעות */}
+        {inputValue && filteredCities.length > 0 && (
+          <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto bg-white shadow-lg">
+            {filteredCities.map((city) => (
+              <button
+                key={city}
+                onClick={() => handleCitySelect(city)}
+                className={`w-full text-right px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 transition-colors ${
+                  selectedCity === city ? 'bg-blue-100 font-medium' : ''
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                  <span>{city}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       
       {selectedCity && (
@@ -72,6 +112,22 @@ const LocationStep = ({ location, onUpdate }: LocationStepProps) => {
           </p>
         </div>
       )}
+
+      {/* כפתור המשך - תמיד זמין */}
+      <div className="pt-4">
+        <Button 
+          onClick={handleNext}
+          className="w-full h-12 text-base"
+          disabled={!inputValue.trim()}
+        >
+          המשך
+        </Button>
+        {!inputValue.trim() && (
+          <p className="text-xs text-gray-500 text-center mt-2">
+            יש להזין שם עיר כדי להמשיך
+          </p>
+        )}
+      </div>
     </div>
   );
 };

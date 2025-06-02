@@ -11,6 +11,7 @@ import EventDateStep from "./steps/EventDateStep";
 import EventTypeStep from "./steps/EventTypeStep";
 import LocationStep from "./steps/LocationStep";
 import ConceptStep from "./steps/ConceptStep";
+import AttendeesStep from "./steps/AttendeesStep";
 import BudgetStep from "./steps/BudgetStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
@@ -52,8 +53,9 @@ const STEPS = {
   EVENT_TYPE: 1,
   LOCATION: 2,
   CONCEPT: 3,
-  BUDGET: 4,
-  RESULTS: 5
+  ATTENDEES: 4,
+  BUDGET: 5,
+  RESULTS: 6
 };
 
 const STEP_NAMES = {
@@ -61,6 +63,7 @@ const STEP_NAMES = {
   [STEPS.EVENT_TYPE]: 'סוג אירוע',
   [STEPS.LOCATION]: 'מיקום',
   [STEPS.CONCEPT]: 'קונספט',
+  [STEPS.ATTENDEES]: 'מספר משתתפים',
   [STEPS.BUDGET]: 'תקציב',
   [STEPS.RESULTS]: 'תוצאות'
 };
@@ -84,6 +87,12 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   
   const updateSearchData = (data: Partial<GuidedSearchData>) => {
     setSearchData(prev => ({ ...prev, ...data }));
+  };
+
+  const handleStepNext = (data?: Partial<GuidedSearchData>) => {
+    if (data) {
+      updateSearchData(data);
+    }
     handleNext();
   };
   
@@ -156,7 +165,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.EVENT_DATE && (
             <EventDateStep 
               eventDate={searchData.eventDate} 
-              onUpdate={(date, startTime, endTime) => updateSearchData({ 
+              onUpdate={(date, startTime, endTime) => handleStepNext({ 
                 eventDate: date, 
                 eventStartTime: startTime, 
                 eventEndTime: endTime 
@@ -167,10 +176,10 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.EVENT_TYPE && (
             <EventTypeStep 
               selectedType={searchData.eventType}
-              onSelect={(type) => updateSearchData({ eventType: type })}
+              onSelect={(type) => handleStepNext({ eventType: type })}
               hebrewConcepts={hebrewConcepts}
               onSelectHebrewConcept={(concept) => 
-                updateSearchData({ 
+                handleStepNext({ 
                   selectedHebrewConcept: concept,
                   eventType: 
                     concept.id === 'family-event' ? 'private' : 
@@ -185,7 +194,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.LOCATION && (
             <LocationStep 
               location={searchData.eventLocation}
-              onUpdate={(location) => updateSearchData({ eventLocation: location })}
+              onUpdate={(location) => handleStepNext({ eventLocation: location })}
             />
           )}
 
@@ -198,6 +207,15 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
               hebrewCategories={hebrewCategories}
               onSelectConcept={(concept) => updateSearchData({ selectedHebrewConcept: concept })}
               onSelectSubconcept={(subconcept) => updateSearchData({ selectedSubconcept: subconcept })}
+              onNext={handleNext}
+              onBack={handleBack}
+            />
+          )}
+
+          {currentStep === STEPS.ATTENDEES && (
+            <AttendeesStep
+              attendeesCount={searchData.attendeesCount}
+              onSelect={(count) => updateSearchData({ attendeesCount: count })}
               onNext={handleNext}
               onBack={handleBack}
             />
