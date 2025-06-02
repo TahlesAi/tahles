@@ -14,7 +14,7 @@ const TopProviders = () => {
   const sortedProviders = useMemo(() => {
     const calculateScore = (provider: any) => {
       const rating = provider.rating || 0;
-      const reviewCount = provider.review_count || 0;
+      const reviewCount = provider.reviewCount || provider.review_count || 0;
       const popularityScore = Math.min(reviewCount / 10, 10); // מנרמל לטווח 0-10
       const recentActivity = Math.random() * 3; // זמני - יוחלף בנתונים אמיתיים
       
@@ -22,7 +22,7 @@ const TopProviders = () => {
     };
 
     return (providers || topProviders || [])
-      .filter(provider => provider.rating > 3.5)
+      .filter(provider => provider && provider.rating > 3.5)
       .map(provider => ({
         ...provider,
         dynamicScore: calculateScore(provider)
@@ -68,49 +68,58 @@ const TopProviders = () => {
                   className="flex-[0_0_100%] min-w-0"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {slideProviders.map((provider, index) => (
-                      <div key={`${provider.id}-${slideIndex}-${index}`} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                        <Link to={`/providers/${provider.id}`}>
-                          <div className="aspect-video bg-gray-100">
-                            {provider.logo_url ? (
-                              <img src={provider.logo_url} alt={provider.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center text-gray-400">
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-brand-600 mb-1">
-                                    {provider.name.charAt(0)}
+                    {slideProviders.map((provider, index) => {
+                      // הוספת בדיקות בטיחות
+                      const providerName = provider?.businessName || provider?.name || 'ספק ללא שם';
+                      const providerDescription = provider?.description || 'ספק שירותים מקצועי';
+                      const providerLogo = provider?.logo || provider?.logo_url;
+                      const providerRating = provider?.rating || 0;
+                      const providerReviewCount = provider?.reviewCount || provider?.review_count || 0;
+                      
+                      return (
+                        <div key={`${provider.id}-${slideIndex}-${index}`} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                          <Link to={`/providers/${provider.id}`}>
+                            <div className="aspect-video bg-gray-100">
+                              {providerLogo ? (
+                                <img src={providerLogo} alt={providerName} className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center text-gray-400">
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-brand-600 mb-1">
+                                      {providerName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="text-xs">אין תמונה</div>
                                   </div>
-                                  <div className="text-xs">אין תמונה</div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4">
-                            <h3 className="font-semibold mb-1 line-clamp-1">{provider.name}</h3>
-                            <p className="text-sm text-gray-500 line-clamp-2 mb-2 min-h-[2.5rem]">
-                              {provider.description || 'ספק שירותים מקצועי'}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              {provider.rating && (
-                                <div className="flex items-center">
-                                  <div className="flex text-yellow-400">
-                                    {[...Array(5)].map((_, i) => (
-                                      <span key={i} className="text-sm">
-                                        {i < Math.round(provider.rating) ? "★" : "☆"}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  <span className="text-xs text-gray-500 ml-2">({provider.review_count || 0})</span>
                                 </div>
                               )}
-                              <div className="text-xs text-brand-600 font-medium">
-                                דירוג: {provider.dynamicScore?.toFixed(1)}
+                            </div>
+                            <div className="p-4">
+                              <h3 className="font-semibold mb-1 line-clamp-1">{providerName}</h3>
+                              <p className="text-sm text-gray-500 line-clamp-2 mb-2 min-h-[2.5rem]">
+                                {providerDescription}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                {providerRating > 0 && (
+                                  <div className="flex items-center">
+                                    <div className="flex text-yellow-400">
+                                      {[...Array(5)].map((_, i) => (
+                                        <span key={i} className="text-sm">
+                                          {i < Math.round(providerRating) ? "★" : "☆"}
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <span className="text-xs text-gray-500 ml-2">({providerReviewCount})</span>
+                                  </div>
+                                )}
+                                <div className="text-xs text-brand-600 font-medium">
+                                  דירוג: {provider.dynamicScore?.toFixed(1)}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </Link>
-                      </div>
-                    ))}
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

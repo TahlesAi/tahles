@@ -5,15 +5,17 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
+interface NewSlotData {
+  startTime: string;
+  endTime: string;
+  maxBookings: number;
+  serviceArea: string;
+  isAvailable: boolean;
+}
+
 interface CalendarSlotFormProps {
-  newSlot: {
-    startTime: string;
-    endTime: string;
-    maxBookings: number;
-    serviceArea: string;
-    isAvailable: boolean;
-  };
-  onSlotChange: (updates: Partial<typeof newSlot>) => void;
+  newSlot: NewSlotData;
+  onSlotChange: (updates: Partial<NewSlotData>) => void;
   onAddSlot: () => void;
   loading: boolean;
 }
