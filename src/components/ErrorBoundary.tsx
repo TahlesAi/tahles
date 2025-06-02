@@ -14,6 +14,13 @@ interface State {
   errorInfo?: ErrorInfo;
 }
 
+// הגדרת טיפוס עבור gtag
+declare global {
+  interface Window {
+    gtag?: (command: string, action: string, options: any) => void;
+  }
+}
+
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false

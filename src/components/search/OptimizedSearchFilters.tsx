@@ -57,6 +57,11 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
 
   useEffect(() => {
     debouncedUpdate(filters);
+    
+    // Cleanup function
+    return () => {
+      debouncedUpdate.cancel();
+    };
   }, [filters, debouncedUpdate]);
 
   const updateFilter = (key: keyof FilterState, value: any) => {

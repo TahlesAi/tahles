@@ -1,3 +1,4 @@
+
 // נתונים מאוחדים ומורחבים עם היררכיה מלאה
 import { 
   CategoryHierarchy, 
