@@ -1,19 +1,18 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
 import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
-import CategoryGuidedSearchModal from "./GuidedSearch/CategoryGuidedSearchModal";
 
 const ServiceCategoriesUnified = () => {
   const { hebrewCategories, isLoading } = useEventContext();
   const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
-  const [categoryGuidedSearchOpen, setCategoryGuidedSearchOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
   
   // טיפול במצב טעינה
   if (isLoading) {
@@ -64,9 +63,9 @@ const ServiceCategoriesUnified = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
-    setCategoryGuidedSearchOpen(true);
+  const handleCategoryClick = (category: any) => {
+    console.log('Category clicked:', category.id, category.name);
+    navigate(`/search/subcategories?categoryId=${category.id}`);
   };
 
   return (
@@ -115,7 +114,7 @@ const ServiceCategoriesUnified = () => {
             {currentCategories.map((category) => (
               <div
                 key={category.id}
-                onClick={() => handleCategoryClick(category.id)}
+                onClick={() => handleCategoryClick(category)}
                 className="group block cursor-pointer"
               >
                 <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-2 border-transparent hover:border-blue-200 bg-white/80 backdrop-blur-sm">
@@ -155,12 +154,6 @@ const ServiceCategoriesUnified = () => {
           )}
         </div>
       </div>
-
-      <CategoryGuidedSearchModal
-        isOpen={categoryGuidedSearchOpen}
-        onClose={() => setCategoryGuidedSearchOpen(false)}
-        categoryId={selectedCategoryId}
-      />
     </section>
   );
 };

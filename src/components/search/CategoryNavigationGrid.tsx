@@ -18,7 +18,7 @@ const CategoryNavigationGrid: React.FC<CategoryNavigationGridProps> = ({ categor
   const navigate = useNavigate();
 
   const handleCategoryClick = (category: any) => {
-    console.log('Navigating to category:', category.id);
+    console.log('Navigating to category:', category.id, category.name);
     navigate(`/search/subcategories?categoryId=${category.id}`);
   };
 

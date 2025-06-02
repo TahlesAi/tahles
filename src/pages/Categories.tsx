@@ -14,7 +14,6 @@ const Categories = () => {
     error, 
     setSelectedCategory,
     hebrewCategories,
-    hebrewConcepts
   } = useEventContext();
 
   useEffect(() => {
