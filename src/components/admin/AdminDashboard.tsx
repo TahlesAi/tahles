@@ -1,4 +1,5 @@
 
+// עדכון דשבורד האדמין לשימוש בנתונים המורחבים
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,47 +15,49 @@ import {
   Package, 
   TrendingUp,
   Database,
-  MapPin
+  MapPin,
+  Settings
 } from "lucide-react";
 import { 
-  consolidatedProviders, 
-  consolidatedProducts, 
-  consolidatedCalendars,
-  validateDataIntegrity 
-} from "@/lib/consolidatedMockData";
-import { hebrewHierarchy } from "@/lib/hebrewHierarchyData";
+  enhancedCategoryHierarchy,
+  allEnhancedProviders,
+  allEnhancedServices,
+  diagnoseDataIntegrity 
+} from '@/lib/enhancedConsolidatedData';
+import DataIntegrityMonitor from './DataIntegrityMonitor';
 
 const AdminDashboard = () => {
-  const [validationResults, setValidationResults] = useState<any>(null);
+  const [diagnostics, setDiagnostics] = useState<any>(null);
   const [stats, setStats] = useState<any>({});
 
   useEffect(() => {
     // בצע בדיקת תקינות נתונים
-    const results = validateDataIntegrity();
-    setValidationResults(results);
+    const results = diagnoseDataIntegrity();
+    setDiagnostics(results);
 
-    // חישוב סטטיסטיקות
-    const providersWithCalendar = consolidatedProviders.filter(p => 
-      p.calendarActive && consolidatedCalendars.some(c => c.providerId === p.id)
-    ).length;
-
-    const availableProducts = consolidatedProducts.filter(p => p.available).length;
-    const featuredProducts = consolidatedProducts.filter(p => p.featured && p.available).length;
+    // חישוב סטטיסטיקות מורחבות
+    const providersWithCalendar = allEnhancedProviders.filter(p => p.hasAvailableCalendar).length;
+    const availableServices = allEnhancedServices.filter(s => s.available).length;
+    const featuredServices = allEnhancedServices.filter(s => s.featured && s.available).length;
+    const simulatedProviders = allEnhancedProviders.filter(p => p.isSimulated).length;
+    const simulatedServices = allEnhancedServices.filter(s => s.isSimulated).length;
 
     setStats({
-      totalProviders: consolidatedProviders.length,
-      activeProviders: consolidatedProviders.filter(p => p.calendarActive).length,
+      totalCategories: enhancedCategoryHierarchy.length,
+      totalSubcategories: enhancedCategoryHierarchy.reduce((sum, cat) => sum + cat.subcategories.length, 0),
+      totalProviders: allEnhancedProviders.length,
+      activeProviders: allEnhancedProviders.filter(p => p.calendarActive).length,
       providersWithCalendar,
-      totalProducts: consolidatedProducts.length,
-      availableProducts,
-      featuredProducts,
-      categories: hebrewHierarchy.categories.length,
-      subcategories: hebrewHierarchy.categories.reduce((sum, cat) => sum + (cat.subcategories?.length || 0), 0)
+      simulatedProviders,
+      totalServices: allEnhancedServices.length,
+      availableServices,
+      featuredServices,
+      simulatedServices
     });
   }, []);
 
   const ProvidersOverview = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">סה"כ ספקים</CardTitle>
@@ -63,7 +66,7 @@ const AdminDashboard = () => {
         <CardContent>
           <div className="text-2xl font-bold">{stats.totalProviders}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.activeProviders} פעילים
+            {stats.simulatedProviders} מדומים
           </p>
         </CardContent>
       </Card>
@@ -76,20 +79,33 @@ const AdminDashboard = () => {
         <CardContent>
           <div className="text-2xl font-bold">{stats.providersWithCalendar}</div>
           <p className="text-xs text-muted-foreground">
-            מתוך {stats.activeProviders} פעילים
+            מתוך {stats.totalProviders} ספקים
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">מוצרים זמינים</CardTitle>
+          <CardTitle className="text-sm font-medium">שירותים זמינים</CardTitle>
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.availableProducts}</div>
+          <div className="text-2xl font-bold">{stats.availableServices}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.featuredProducts} מומלצים
+            {stats.featuredServices} מומלצים
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">קטגוריות פעילות</CardTitle>
+          <MapPin className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.totalCategories}</div>
+          <p className="text-xs text-muted-foreground">
+            {stats.totalSubcategories} תתי קטגוריות
           </p>
         </CardContent>
       </Card>
@@ -98,41 +114,50 @@ const AdminDashboard = () => {
 
   const CategoryHierarchy = () => (
     <div className="space-y-4">
-      {hebrewHierarchy.categories.map(category => (
+      {enhancedCategoryHierarchy.map(category => (
         <Card key={category.id}>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <MapPin className="h-5 w-5 ml-2" />
-              {category.name}
-              <Badge variant="secondary" className="mr-2">
-                {category.subcategories?.length || 0} תתי קטגוריות
-              </Badge>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-2xl ml-2">{category.icon}</span>
+                <div>
+                  <div>{category.name}</div>
+                  <div className="text-sm text-gray-500">{category.description}</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Badge variant="secondary">
+                  {category.subcategories.length} תתי קטגוריות
+                </Badge>
+                <Badge variant="outline">
+                  {category.subcategories.reduce((sum, sub) => sum + sub.providersCount, 0)} ספקים
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {category.subcategories?.map(subcategory => {
-                const productsCount = consolidatedProducts.filter(p => 
-                  p.subcategoryId === subcategory.id && p.available
-                ).length;
-                const providersCount = consolidatedProviders.filter(p => 
-                  p.categories.includes(subcategory.id)
-                ).length;
-                
-                return (
-                  <div key={subcategory.id} className="p-3 border rounded-lg">
-                    <div className="font-medium text-sm">{subcategory.name}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {providersCount} ספקים, {productsCount} מוצרים
-                    </div>
-                    {productsCount === 0 && (
-                      <Badge variant="destructive" className="mt-1">
-                        אין מוצרים
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {category.subcategories.slice(0, 12).map(subcategory => (
+                <div key={subcategory.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                  <div className="font-medium text-sm">{subcategory.name}</div>
+                  <div className="text-xs text-gray-500 mt-1 space-y-1">
+                    <div>{subcategory.providersCount} ספקים</div>
+                    <div>{subcategory.servicesCount} שירותים</div>
+                    {subcategory.isSimulated && (
+                      <Badge variant="outline" className="text-xs">
+                        מדומה
                       </Badge>
                     )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
+              {category.subcategories.length > 12 && (
+                <div className="p-3 border-2 border-dashed rounded-lg flex items-center justify-center">
+                  <span className="text-sm text-gray-500">
+                    +{category.subcategories.length - 12} נוספים
+                  </span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -140,121 +165,97 @@ const AdminDashboard = () => {
     </div>
   );
 
-  const DataIntegrityReport = () => (
-    <div className="space-y-4">
-      {validationResults && (
-        <Alert variant={validationResults.isValid ? "default" : "destructive"}>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {validationResults.isValid 
-              ? "כל הנתונים תקינים ומשויכים כראוי"
-              : `נמצאו ${validationResults.issues.length} בעיות בתקינות הנתונים`
-            }
-          </AlertDescription>
-        </Alert>
-      )}
+  const SimulatedDataOverview = () => (
+    <div className="space-y-6">
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          המערכת כוללת נתונים מדומים לצורך הדגמה. נתונים אלו מסומנים בתג "מדומה".
+        </AlertDescription>
+      </Alert>
 
-      {validationResults?.issues.length > 0 && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center text-red-600">
-              <XCircle className="h-5 w-5 ml-2" />
-              בעיות שנמצאו
-            </CardTitle>
+            <CardTitle>ספקים מדומים</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {validationResults.issues.map((issue: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 ml-2" />
-                  <span className="text-sm">{issue}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span>סה"כ ספקים מדומים:</span>
+                <Badge variant="secondary">{stats.simulatedProviders}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>אחוז מהסך הכולל:</span>
+                <Badge variant="outline">
+                  {stats.totalProviders > 0 ? Math.round((stats.simulatedProviders / stats.totalProviders) * 100) : 0}%
+                </Badge>
+              </div>
+              <div className="bg-blue-50 p-3 rounded">
+                <p className="text-sm text-blue-800">
+                  כל ספק מדומה כולל יומן זמינות פעיל ושירות אחד לפחות
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>סטטיסטיקות מערכת</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 border rounded">
-              <div className="text-2xl font-bold">{stats.categories}</div>
-              <div className="text-sm text-gray-500">קטגוריות ראשיות</div>
+        <Card>
+          <CardHeader>
+            <CardTitle>שירותים מדומים</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span>סה"כ שירותים מדומים:</span>
+                <Badge variant="secondary">{stats.simulatedServices}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>אחוז מהסך הכולל:</span>
+                <Badge variant="outline">
+                  {stats.totalServices > 0 ? Math.round((stats.simulatedServices / stats.totalServices) * 100) : 0}%
+                </Badge>
+              </div>
+              <div className="bg-green-50 p-3 rounded">
+                <p className="text-sm text-green-800">
+                  כל שירות מדומה כולל מחיר, תיאור וזמינות מלאה
+                </p>
+              </div>
             </div>
-            <div className="text-center p-4 border rounded">
-              <div className="text-2xl font-bold">{stats.subcategories}</div>
-              <div className="text-sm text-gray-500">תתי קטגוריות</div>
-            </div>
-            <div className="text-center p-4 border rounded">
-              <div className="text-2xl font-bold">{stats.totalProviders}</div>
-              <div className="text-sm text-gray-500">סה"כ ספקים</div>
-            </div>
-            <div className="text-center p-4 border rounded">
-              <div className="text-2xl font-bold">{stats.totalProducts}</div>
-              <div className="text-sm text-gray-500">סה"כ מוצרים</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-
-  const ProvidersWithoutCalendar = () => {
-    const providersWithoutCalendar = consolidatedProviders.filter(provider => 
-      provider.calendarActive && !consolidatedCalendars.some(c => c.providerId === provider.id)
-    );
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <AlertTriangle className="h-5 w-5 ml-2 text-amber-500" />
-            ספקים פעילים ללא יומן זמינות
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {providersWithoutCalendar.length === 0 ? (
-            <div className="flex items-center text-green-600">
-              <CheckCircle className="h-4 w-4 ml-2" />
-              כל הספקים הפעילים יש להם יומן זמינות
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {providersWithoutCalendar.map(provider => (
-                <div key={provider.id} className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <div className="font-medium">{provider.name}</div>
-                    <div className="text-sm text-gray-500">{provider.email}</div>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    צור יומן
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto" dir="rtl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">דשבורד אדמין - ניהול היררכיה</h1>
-        <p className="text-gray-600">מעקב ובקרה על תקינות המבנה והנתונים במערכת</p>
+        <h1 className="text-3xl font-bold mb-2">דשבורד אדמין - ניהול היררכיה מורחב</h1>
+        <p className="text-gray-600">מעקב ובקרה על המבנה המורחב והנתונים במערכת תכל'ס</p>
+        
+        {diagnostics && (
+          <div className="mt-4">
+            <Alert variant={diagnostics.isHealthy ? "default" : "destructive"}>
+              <Database className="h-4 w-4" />
+              <AlertDescription>
+                {diagnostics.isHealthy 
+                  ? "המערכת תקינה - כל הנתונים מאורגנים ומקושרים כראוי"
+                  : `נמצאו ${diagnostics.stats.orphanedData.totalOrphaned} בעיות בתקינות הנתונים`
+                }
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">סקירה כללית</TabsTrigger>
           <TabsTrigger value="hierarchy">היררכיית קטגוריות</TabsTrigger>
+          <TabsTrigger value="simulated">נתונים מדומים</TabsTrigger>
           <TabsTrigger value="integrity">תקינות נתונים</TabsTrigger>
-          <TabsTrigger value="calendars">ניהול יומנים</TabsTrigger>
+          <TabsTrigger value="monitoring">מוניטורינג</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -265,12 +266,42 @@ const AdminDashboard = () => {
           <CategoryHierarchy />
         </TabsContent>
 
-        <TabsContent value="integrity">
-          <DataIntegrityReport />
+        <TabsContent value="simulated">
+          <SimulatedDataOverview />
         </TabsContent>
 
-        <TabsContent value="calendars">
-          <ProvidersWithoutCalendar />
+        <TabsContent value="integrity">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  בדיקת תקינות מתקדמת
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {diagnostics?.recommendations.length > 0 ? (
+                  <div className="space-y-3">
+                    {diagnostics.recommendations.map((recommendation: string, index: number) => (
+                      <div key={index} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span className="text-sm">{recommendation}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>כל הנתונים תקינים ומאורגנים כראוי</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="monitoring">
+          <DataIntegrityMonitor />
         </TabsContent>
       </Tabs>
     </div>

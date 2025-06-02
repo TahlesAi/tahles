@@ -1,6 +1,11 @@
 
+// עדכון לשימוש בנתונים המורחבים
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import { consolidatedProducts, consolidatedProviders } from '@/lib/consolidatedMockData';
+import { 
+  enhancedCategoryHierarchy,
+  allEnhancedProviders,
+  allEnhancedServices 
+} from '@/lib/enhancedConsolidatedData';
 import { ProviderProfile, UnifiedService } from '@/types';
 
 interface EventContextProps {
@@ -20,23 +25,47 @@ export const useEventDataFetcher = () => {
       setIsLoading(true);
       setError(null);
       
-      // המר את הנתונים לפורמט הנדרש
-      const services = consolidatedProducts.map(product => ({
-        ...product,
-        provider: consolidatedProviders.find(p => p.id === product.providerId)?.name || 'לא ידוע',
-        category: product.categoryId,
-        subcategory: product.subcategoryId,
-        location: consolidatedProviders.find(p => p.id === product.providerId)?.city || 'לא צוין'
+      // המרת נתונים מורחבים לפורמט הנדרש
+      const services = allEnhancedServices.map(service => ({
+        ...service,
+        provider: allEnhancedProviders.find(p => p.id === service.providerId)?.name || 'לא ידוע',
+        category: service.categoryId,
+        subcategory: service.subcategoryId,
+        location: allEnhancedProviders.find(p => p.id === service.providerId)?.city || 'לא צוין'
       }));
 
-      const providers = consolidatedProviders.map(provider => ({
+      const providers = allEnhancedProviders.map(provider => ({
         ...provider,
-        gallery: provider.gallery || []
+        gallery: [],
+        categories: provider.subcategoryIds
       }));
+
+      const categories = enhancedCategoryHierarchy.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        description: cat.description,
+        icon: cat.icon,
+        subcategories: cat.subcategories.map(sub => ({
+          id: sub.id,
+          name: sub.name,
+          categoryId: sub.categoryId,
+          description: sub.description
+        }))
+      }));
+
+      const subcategories = enhancedCategoryHierarchy.reduce((all, cat) => [
+        ...all, 
+        ...cat.subcategories.map(sub => ({
+          id: sub.id,
+          name: sub.name,
+          category_id: sub.categoryId,
+          description: sub.description
+        }))
+      ], [] as any[]);
 
       return {
-        categories: [],
-        subcategories: [],
+        categories,
+        subcategories,
         services,
         providers,
         featuredServices: services.filter(s => s.featured),
@@ -63,12 +92,12 @@ export const EventContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const fetchServices = useCallback(async () => {
     try {
       setLoading(true);
-      const mappedServices = consolidatedProducts.map(product => ({
-        ...product,
-        provider: consolidatedProviders.find(p => p.id === product.providerId)?.name || 'לא ידוע',
-        category: product.categoryId,
-        subcategory: product.subcategoryId,
-        location: consolidatedProviders.find(p => p.id === product.providerId)?.city || 'לא צוין'
+      const mappedServices = allEnhancedServices.map(service => ({
+        ...service,
+        provider: allEnhancedProviders.find(p => p.id === service.providerId)?.name || 'לא ידוע',
+        category: service.categoryId,
+        subcategory: service.subcategoryId,
+        location: allEnhancedProviders.find(p => p.id === service.providerId)?.city || 'לא צוין'
       }));
       setServices(mappedServices);
     } catch (error) {
@@ -82,17 +111,18 @@ export const EventContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       setLoading(true);
       
-      const providers = consolidatedProviders.map(provider => ({
+      const providers = allEnhancedProviders.map(provider => ({
         ...provider,
         businessName: provider.businessName || provider.name,
-        city: provider.city || provider.address?.split(',')[0] || 'לא צוין',
-        logo: provider.logo || provider.logo_url,
-        contact_person: provider.contact_person || provider.contactPerson,
-        contact_email: provider.contact_email || provider.email,
-        contact_phone: provider.contact_phone || provider.phone,
-        review_count: provider.review_count || provider.reviewCount,
-        is_verified: provider.is_verified || provider.verified,
-        gallery: provider.gallery || []
+        city: provider.city || 'לא צוין',
+        logo: provider.name,
+        contact_person: provider.contactPerson,
+        contact_email: provider.email,
+        contact_phone: provider.phone,
+        review_count: provider.reviewCount,
+        is_verified: provider.verified,
+        gallery: [],
+        categories: provider.subcategoryIds
       }));
       
       setProviders(providers);
