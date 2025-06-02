@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,9 +24,13 @@ import HowItWorks from "./pages/HowItWorks";
 import Contact from "./pages/Contact";
 import CateringSearch from "./pages/CateringSearch";
 import ProviderGenerator from "./pages/ProviderGenerator";
-import HowItWorksAlternative from "./pages/HowItWorksAlternative";
+import HowItWorksAlternative from "./pages/HowItWorks";
 import NotFound from "./pages/NotFound";
 import Chatbot from "@/components/chat/Chatbot";
+import PersonalizationSearch from "./pages/PersonalizationSearch";
+import RecommendedResultsPage from "./pages/RecommendedResults";
+import AdvancedBookingPage from "./pages/AdvancedBookingPage";
+import BookingConfirmationPage from "./pages/BookingConfirmationPage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,10 @@ function App() {
                 <Route path="/provider-calendar" element={<ProviderCalendar />} />
                 <Route path="/provider-services" element={<ProviderServices />} />
                 <Route path="/booking/:serviceId" element={<BookingPage />} />
+                <Route path="/advanced-booking/:serviceId" element={<AdvancedBookingPage />} />
+                <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmationPage />} />
+                <Route path="/personalization-search" element={<PersonalizationSearch />} />
+                <Route path="/recommended-results" element={<RecommendedResultsPage />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/category/:category" element={<CategorySubcategories />} />
                 <Route path="/category/:category/:subcategory" element={<SubcategoryServiceTypes />} />
