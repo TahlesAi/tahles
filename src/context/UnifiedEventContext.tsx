@@ -4,6 +4,9 @@ import { ExtendedProviderProfile, ExtendedServiceProfile } from '@/types/extende
 import { Category, Subcategory } from '@/types/unified';
 import { dataSystem, getExtendedProviders, getExtendedServices } from '@/lib/extendedDataSystem';
 import { hebrewHierarchy } from '@/lib/hebrewHierarchyData';
+import { hierarchyValidator } from '@/lib/hierarchyValidator';
+import { availabilityManager } from '@/lib/availabilityManager';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 
 interface UnifiedEventContextProps {
   // נתונים בסיסיים
@@ -16,7 +19,7 @@ interface UnifiedEventContextProps {
   isLoading: boolean;
   error: string | null;
   
-  // פונקציות חיפוש וסינון
+  // פונקציות חיפוש וסינון מתקדמות
   searchServices: (query: string, filters?: any) => ExtendedServiceProfile[];
   getServiceById: (id: string) => ExtendedServiceProfile | undefined;
   getProviderById: (id: string) => ExtendedProviderProfile | undefined;
@@ -34,6 +37,13 @@ interface UnifiedEventContextProps {
   
   // פונקציות רענון
   refreshData: () => Promise<void>;
+  
+  // פונקציות זמינות
+  createSoftHold: (serviceId: string, providerId: string, holderId: string) => string | null;
+  releaseSoftHold: (holdId: string) => boolean;
+  
+  // ספקים מובילים
+  topRatedProviders: ExtendedProviderProfile[];
 }
 
 const UnifiedEventContext = createContext<UnifiedEventContextProps | undefined>(undefined);
@@ -104,6 +114,23 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
     );
   }, []);
 
+  // ספקים מובילים (ממוקש)
+  const topRatedProviders = useMemo(() => {
+    performanceMonitor.start('TopRatedProviders-Calculation');
+    
+    const sorted = allProviders
+      .filter(provider => provider.rating && provider.reviewCount > 0)
+      .sort((a, b) => {
+        const scoreA = a.rating * Math.log(a.reviewCount + 1) + (a.featured ? 1 : 0);
+        const scoreB = b.rating * Math.log(b.reviewCount + 1) + (b.featured ? 1 : 0);
+        return scoreB - scoreA;
+      })
+      .slice(0, 10);
+      
+    performanceMonitor.end('TopRatedProviders-Calculation');
+    return sorted;
+  }, [allProviders]);
+
   // טעינת נתונים ראשונית
   const loadInitialData = useCallback(async () => {
     // ביטול בקשה קודמת אם קיימת
@@ -115,6 +142,7 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setAbortController(newAbortController);
 
     try {
+      performanceMonitor.start('InitialDataLoad');
       setIsLoading(true);
       setError(null);
 
@@ -126,9 +154,23 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const cachedServices = sessionStorage.getItem('cachedServices');
       
       if (cachedProviders && cachedServices) {
-        setAllProviders(JSON.parse(cachedProviders));
-        setAllServices(JSON.parse(cachedServices));
+        const providers = JSON.parse(cachedProviders);
+        const services = JSON.parse(cachedServices);
+        
+        setAllProviders(providers);
+        setAllServices(services);
+        
+        // רישום שירותים במנהל הזמינות
+        services.forEach((service: ExtendedServiceProfile) => {
+          availabilityManager.registerService(service.id, service.providerId, {
+            isAvailable: service.available,
+            hasCalendar: true, // נניח שיש יומן
+            maxConcurrentBookings: service.maxConcurrentBookings || 1
+          });
+        });
+        
         setIsLoading(false);
+        performanceMonitor.end('InitialDataLoad');
         return;
       }
 
@@ -138,12 +180,25 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (newAbortController.signal.aborted) return;
 
-      setAllProviders(providers);
-      setAllServices(services);
+      // תיקון היררכיה אוטומטי
+      const { providers: fixedProviders, services: fixedServices } = 
+        hierarchyValidator.validateAndFixAll(providers, services);
+
+      setAllProviders(fixedProviders);
+      setAllServices(fixedServices);
+
+      // רישום שירותים במנהל הזמינות
+      fixedServices.forEach((service: ExtendedServiceProfile) => {
+        availabilityManager.registerService(service.id, service.providerId, {
+          isAvailable: service.available,
+          hasCalendar: true,
+          maxConcurrentBookings: service.maxConcurrentBookings || 1
+        });
+      });
 
       // שמירה ב-Cache
-      sessionStorage.setItem('cachedProviders', JSON.stringify(providers));
-      sessionStorage.setItem('cachedServices', JSON.stringify(services));
+      sessionStorage.setItem('cachedProviders', JSON.stringify(fixedProviders));
+      sessionStorage.setItem('cachedServices', JSON.stringify(fixedServices));
 
     } catch (err) {
       if (!newAbortController.signal.aborted) {
@@ -153,6 +208,7 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } finally {
       if (!newAbortController.signal.aborted) {
         setIsLoading(false);
+        performanceMonitor.end('InitialDataLoad');
       }
     }
   }, [abortController]);
@@ -167,14 +223,35 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setServicesPage(prev => prev + 1);
   }, []);
 
-  // חיפוש שירותים (ממוקש)
+  // חיפוש שירותים מתקדם (ממוקש)
   const searchServices = useCallback((query: string, filters?: any) => {
-    return dataSystem.searchServices(query, filters);
-  }, []);
+    performanceMonitor.start('SearchServices', { query, filterCount: Object.keys(filters || {}).length });
+    
+    // סינון שירותים זמינים בלבד
+    const availableServices = availabilityManager.filterAvailableServices(allServices);
+    
+    const results = dataSystem.searchServices(query, {
+      ...filters,
+      availableOnly: true
+    }).filter(service => 
+      availableServices.some(available => available.id === service.id)
+    );
+    
+    performanceMonitor.end('SearchServices');
+    return results;
+  }, [allServices]);
 
   // קבלת שירות לפי ID (ממוקש)
   const getServiceById = useCallback((id: string) => {
-    return allServices.find(service => service.id === id);
+    const service = allServices.find(service => service.id === id);
+    
+    // בדיקת זמינות
+    if (service && !availabilityManager.isServiceAvailable(service.id, service.providerId)) {
+      console.warn(`Service ${id} is not available`);
+      return undefined;
+    }
+    
+    return service;
   }, [allServices]);
 
   // קבלת ספק לפי ID (ממוקש)
@@ -184,8 +261,19 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // קבלת שירותים לפי ספק (ממוקש)
   const getServicesByProvider = useCallback((providerId: string) => {
-    return allServices.filter(service => service.providerId === providerId);
+    const services = allServices.filter(service => service.providerId === providerId);
+    return availabilityManager.filterAvailableServices(services);
   }, [allServices]);
+
+  // יצירת hold רך
+  const createSoftHold = useCallback((serviceId: string, providerId: string, holderId: string) => {
+    return availabilityManager.createSoftHold(serviceId, providerId, holderId);
+  }, []);
+
+  // שחרור hold רך
+  const releaseSoftHold = useCallback((holdId: string) => {
+    return availabilityManager.releaseSoftHold(holdId);
+  }, []);
 
   // רענון נתונים
   const refreshData = useCallback(async () => {
@@ -210,7 +298,7 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
         abortController.abort();
       }
     };
-  }, []);
+  }, []); // נסיר loadInitialData מהתלויות
 
   // Cleanup כללי כשהקומפוננט נמחק
   useEffect(() => {
@@ -238,7 +326,10 @@ export const UnifiedEventProvider: React.FC<{ children: React.ReactNode }> = ({ 
     hasMoreServices,
     hebrewCategories: hebrewHierarchy.categories,
     hebrewConcepts: hebrewHierarchy.concepts,
-    refreshData
+    refreshData,
+    createSoftHold,
+    releaseSoftHold,
+    topRatedProviders
   };
 
   return (
@@ -263,7 +354,10 @@ export const useSearchWithDebounce = (query: string, filters?: any, delay = 300)
 
   const results = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
-    return searchServices(debouncedQuery, filters);
+    performanceMonitor.start('DebouncedSearch');
+    const searchResults = searchServices(debouncedQuery, filters);
+    performanceMonitor.end('DebouncedSearch');
+    return searchResults;
   }, [debouncedQuery, filters, searchServices]);
 
   return results;

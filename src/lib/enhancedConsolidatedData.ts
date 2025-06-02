@@ -1,5 +1,4 @@
-
-// נתונים מאוחדים ומורחבים עם היררכיה מלאה
+// נתונים מאוחדים ומורחבים עם היררכיה מלאה - מערכת מתקדמת
 import { 
   CategoryHierarchy, 
   ExtendedProvider, 
@@ -11,41 +10,80 @@ import {
   createDataSnapshot,
   findOrphanedData
 } from './hierarchyManagement';
+import { hierarchyValidator } from './hierarchyValidator';
+import { availabilityManager } from './availabilityManager';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 
-// הרחבת הקטגוריות הקיימות
-export const enhancedCategoryHierarchy: CategoryHierarchy[] = officialCategoryHierarchy.map(category => ({
-  ...category,
-  subcategories: generateSubcategoriesForCategory(category.id, category.name).map(subcategory => {
-    const providers = generateSimulatedProviders(subcategory.id, subcategory.name, 50);
-    const providersWithServices = providers.map(provider => ({
-      ...provider,
-      services: generateSimulatedServices(provider.id, provider.name, subcategory.name)
-    }));
+// הרחבת הקטגוריות הקיימות עם אופטימיזציה
+export const enhancedCategoryHierarchy: CategoryHierarchy[] = (() => {
+  performanceMonitor.start('EnhancedCategoryHierarchy-Build');
+  
+  const result = officialCategoryHierarchy.map(category => ({
+    ...category,
+    subcategories: generateSubcategoriesForCategory(category.id, category.name).map(subcategory => {
+      const providers = generateSimulatedProviders(subcategory.id, subcategory.name, 50);
+      const providersWithServices = providers.map(provider => ({
+        ...provider,
+        services: generateSimulatedServices(provider.id, provider.name, subcategory.name)
+      }));
+      
+      return {
+        ...subcategory,
+        providers: providersWithServices,
+        providersCount: providersWithServices.length,
+        servicesCount: providersWithServices.reduce((sum, p) => sum + p.services.length, 0)
+      };
+    })
+  }));
+  
+  performanceMonitor.end('EnhancedCategoryHierarchy-Build');
+  return result;
+})();
+
+// ספקים מאוחדים מכל הקטגוריות עם מטמון
+export const allEnhancedProviders: ExtendedProvider[] = (() => {
+  performanceMonitor.start('AllEnhancedProviders-Build');
+  
+  const result = enhancedCategoryHierarchy.reduce((allProviders, category) => {
+    const categoryProviders = category.subcategories.reduce((catProviders, subcategory) => {
+      return [...catProviders, ...subcategory.providers];
+    }, [] as ExtendedProvider[]);
     
-    return {
-      ...subcategory,
-      providers: providersWithServices,
-      providersCount: providersWithServices.length,
-      servicesCount: providersWithServices.reduce((sum, p) => sum + p.services.length, 0)
-    };
-  })
-}));
-
-// ספקים מאוחדים מכל הקטגוריות
-export const allEnhancedProviders: ExtendedProvider[] = enhancedCategoryHierarchy.reduce((allProviders, category) => {
-  const categoryProviders = category.subcategories.reduce((catProviders, subcategory) => {
-    return [...catProviders, ...subcategory.providers];
+    return [...allProviders, ...categoryProviders];
   }, [] as ExtendedProvider[]);
   
-  return [...allProviders, ...categoryProviders];
-}, [] as ExtendedProvider[]);
+  // תיקון היררכיה אוטומטי
+  const { providers: fixedProviders } = hierarchyValidator.validateAndFixAll(result, []);
+  
+  performanceMonitor.end('AllEnhancedProviders-Build');
+  return fixedProviders;
+})();
 
-// שירותים מאוחדים מכל הספקים
-export const allEnhancedServices: ExtendedService[] = allEnhancedProviders.reduce((allServices, provider) => {
-  return [...allServices, ...provider.services];
-}, [] as ExtendedService[]);
+// שירותים מאוחדים מכל הספקים עם אופטימיזציה
+export const allEnhancedServices: ExtendedService[] = (() => {
+  performanceMonitor.start('AllEnhancedServices-Build');
+  
+  const result = allEnhancedProviders.reduce((allServices, provider) => {
+    return [...allServices, ...provider.services];
+  }, [] as ExtendedService[]);
+  
+  // תיקון היררכיה אוטומטי
+  const { services: fixedServices } = hierarchyValidator.validateAndFixAll([], result);
+  
+  // רישום שירותים במנהל הזמינות
+  fixedServices.forEach(service => {
+    availabilityManager.registerService(service.id, service.providerId, {
+      isAvailable: service.available,
+      hasCalendar: true,
+      maxConcurrentBookings: service.maxConcurrentBookings || 1
+    });
+  });
+  
+  performanceMonitor.end('AllEnhancedServices-Build');
+  return fixedServices;
+})();
 
-// פונקציות חיפוש מתקדמות עם בדיקת זמינות וקונספטים
+// פונקציות חיפוש מתקדמות עם ביצועים מתקדמים
 export const searchServicesWithAvailability = (
   query: string,
   filters: {
@@ -56,10 +94,21 @@ export const searchServicesWithAvailability = (
     location?: string;
     priceRange?: [number, number];
     onlyAvailable?: boolean;
-    conceptTags?: string[]; // *** תמיכה בסינון לפי קונספטים ***
+    conceptTags?: string[];
+    availableOnly?: boolean;
   } = {}
 ): ExtendedService[] => {
+  performanceMonitor.start('SearchServicesWithAvailability', { 
+    query, 
+    filterCount: Object.keys(filters).length 
+  });
+  
   let results = [...allEnhancedServices];
+  
+  // סינון רק שירותים זמינים (אם מתבקש)
+  if (filters.availableOnly || filters.onlyAvailable) {
+    results = availabilityManager.filterAvailableServices(results);
+  }
   
   // סינון בסיסי - רק שירותים זמינים
   results = results.filter(service => service.available);
@@ -79,101 +128,113 @@ export const searchServicesWithAvailability = (
     });
   }
   
-  // *** סינון לפי קונספטים - חיפוש חפיפה ***
+  // סינון לפי קונספטים - חיפוש חפיפה מתקדם
   if (filters.conceptTags && filters.conceptTags.length > 0) {
     results = results.filter(service => {
       if (!service.conceptTags || service.conceptTags.length === 0) return false;
       
       // בדיקת חפיפה - אם יש לפחות קונספט אחד משותף
       return service.conceptTags.some(conceptTag => 
-        filters.conceptTags!.includes(conceptTag)
+        filters.conceptTags!.some(filterTag => 
+          conceptTag.toLowerCase().includes(filterTag.toLowerCase()) ||
+          filterTag.toLowerCase().includes(conceptTag.toLowerCase())
+        )
       );
     });
   }
   
-  // סינון לפי חיפוש טקסט
+  // סינון לפי חיפוש טקסט מתקדם
   if (query && query.trim()) {
     const searchTerm = query.toLowerCase().trim();
-    results = results.filter(service =>
-      service.name.toLowerCase().includes(searchTerm) ||
-      service.description.toLowerCase().includes(searchTerm) ||
-      service.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
-      (service.conceptTags && service.conceptTags.some(conceptTag => 
-        conceptTag.toLowerCase().includes(searchTerm)
-      ))
-    );
+    const searchWords = searchTerm.split(/\s+/);
+    
+    results = results.filter(service => {
+      const searchableText = [
+        service.name,
+        service.description,
+        ...service.tags,
+        ...(service.conceptTags || [])
+      ].join(' ').toLowerCase();
+      
+      // חיפוש מתקדם - כל המילים צריכות להופיע
+      return searchWords.every(word => searchableText.includes(word));
+    });
   }
   
-  // סינון לפי קטגוריה
+  // שאר הסינונים...
   if (filters.categoryId) {
     results = results.filter(service => service.categoryId === filters.categoryId);
   }
   
-  // סינון לפי תת קטגוריה
   if (filters.subcategoryId) {
     results = results.filter(service => service.subcategoryId === filters.subcategoryId);
   }
   
-  // סינון לפי טווח מחירים
   if (filters.priceRange) {
     const [min, max] = filters.priceRange;
     results = results.filter(service => service.price >= min && service.price <= max);
   }
   
-  // מיון לפי רלוונטיות
-  return results.sort((a, b) => {
-    if (a.featured && !b.featured) return -1;
-    if (!a.featured && b.featured) return 1;
-    return b.rating - a.rating;
+  // מיון לפי רלוונטיות מתקדם
+  const sortedResults = results.sort((a, b) => {
+    // משקל מורכב
+    let scoreA = 0;
+    let scoreB = 0;
+    
+    // בונוס למוצגים בראש
+    if (a.featured) scoreA += 10;
+    if (b.featured) scoreB += 10;
+    
+    // בונוס לדירוג גבוה
+    scoreA += a.rating * 2;
+    scoreB += b.rating * 2;
+    
+    // בונוס לזמינות
+    if (availabilityManager.isServiceAvailable(a.id, a.providerId)) scoreA += 5;
+    if (availabilityManager.isServiceAvailable(b.id, b.providerId)) scoreB += 5;
+    
+    return scoreB - scoreA;
+  });
+  
+  performanceMonitor.end('SearchServicesWithAvailability');
+  return sortedResults;
+};
+
+// פונקציות שימושיות נוספות עם אופטימיזציות
+export const checkProviderAvailability = (providerId: string, date: string, time: string): boolean => {
+  return availabilityManager.isServiceAvailable('', providerId);
+};
+
+export const getAvailableProviders = (date: string, time: string): ExtendedProvider[] => {
+  return allEnhancedProviders.filter(provider => {
+    return provider.services.some(service => 
+      availabilityManager.isServiceAvailable(service.id, provider.id)
+    );
   });
 };
 
-// פונקציית בדיקת זמינות ספק
-export const checkProviderAvailability = (providerId: string, date: string, time: string): boolean => {
-  const provider = allEnhancedProviders.find(p => p.id === providerId);
-  if (!provider || !provider.hasAvailableCalendar) return false;
-  
-  return provider.services.some(service => 
-    service.availabilitySlots?.some(slot => 
-      slot.date === date && 
-      slot.startTime <= time && 
-      slot.endTime >= time && 
-      slot.isAvailable && 
-      slot.currentBookings < slot.maxBookings
-    )
-  );
-};
-
-// פונקציית קבלת ספקים לפי זמינות
-export const getAvailableProviders = (date: string, time: string): ExtendedProvider[] => {
-  return allEnhancedProviders.filter(provider => 
-    checkProviderAvailability(provider.id, date, time)
-  );
-};
-
-// פונקציית קבלת שירותים לפי קטגוריה
 export const getServicesByCategory = (categoryId: string): ExtendedService[] => {
   return allEnhancedServices.filter(service => service.categoryId === categoryId);
 };
 
-// פונקציית קבלת שירותים לפי תת קטגוריה
 export const getServicesBySubcategory = (subcategoryId: string): ExtendedService[] => {
   return allEnhancedServices.filter(service => service.subcategoryId === subcategoryId);
 };
 
-// פונקציית קבלת ספק לפי ID
 export const getProviderById = (providerId: string): ExtendedProvider | undefined => {
   return allEnhancedProviders.find(provider => provider.id === providerId);
 };
 
-// פונקציית קבלת שירות לפי ID
 export const getServiceById = (serviceId: string): ExtendedService | undefined => {
   return allEnhancedServices.find(service => service.id === serviceId);
 };
 
-// אבחון נתונים יתומים
+// אבחון נתונים יתומים עם ביצועים מתקדמים
 export const diagnoseDataIntegrity = () => {
+  performanceMonitor.start('DataIntegrityDiagnosis');
+  
   const orphanedData = findOrphanedData(allEnhancedProviders, allEnhancedServices);
+  const availabilityStats = availabilityManager.getAvailabilityStats();
   
   const stats = {
     totalCategories: enhancedCategoryHierarchy.length,
@@ -184,8 +245,11 @@ export const diagnoseDataIntegrity = () => {
     simulatedServices: allEnhancedServices.filter(s => s.isSimulated).length,
     providersWithCalendar: allEnhancedProviders.filter(p => p.hasAvailableCalendar).length,
     availableServices: allEnhancedServices.filter(s => s.available).length,
-    orphanedData
+    orphanedData,
+    availabilityStats
   };
+  
+  performanceMonitor.end('DataIntegrityDiagnosis');
   
   return {
     isHealthy: orphanedData.totalOrphaned === 0,
@@ -210,6 +274,10 @@ const generateRecommendations = (stats: any): string[] => {
     recommendations.push('יותר מ-80% מהספקים הם סימולציה - מומלץ להוסיף ספקים אמיתיים');
   }
   
+  if (stats.availabilityStats.activeHolds > 10) {
+    recommendations.push(`יש ${stats.availabilityStats.activeHolds} holds פעילים - בדוק ביטול אוטומטי`);
+  }
+  
   return recommendations;
 };
 
@@ -217,9 +285,12 @@ const generateRecommendations = (stats: any): string[] => {
 export const createCurrentDataSnapshot = () => {
   const changes = [
     'הוספת היררכיה מורחבת',
-    'יצירת 50 ספקים לכל תת קטגוריה',
+    'יצירת 50 ספקים לכל תת קטגוריה', 
     'הוספת שירותים לכל ספק',
-    'יצירת יומני זמינות ברירת מחדל'
+    'יצירת יומני זמינות ברירת מחדל',
+    'תיקון היררכיה אוטומטי',
+    'רישום שירותים במנהל הזמינות',
+    'אופטימיזציית ביצועים'
   ];
   
   return createDataSnapshot(enhancedCategoryHierarchy, changes);
@@ -272,7 +343,7 @@ export const consolidatedProducts = allEnhancedServices.map(service => ({
   audienceSize: service.audienceSize,
   isReceptionService: service.isReceptionService,
   tags: service.tags,
-  conceptTags: service.conceptTags || [], // *** הוספת conceptTags עם ברירת מחדל ***
+  conceptTags: service.conceptTags || [],
   suitableFor: service.suitableFor,
   additionalImages: service.additionalImages,
   videos: service.videos,

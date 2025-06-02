@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 import ServiceResultCard from './ServiceResultCard';
+import NoResultsWithLeadForm from './NoResultsWithLeadForm';
 import { useUnifiedEventContext, useSearchWithDebounce } from '@/context/UnifiedEventContext';
 import { usePaginatedData } from '@/hooks/usePaginatedData';
+import { responsiveClasses } from '@/utils/ResponsiveUtils';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface SearchResultsProps {
@@ -36,10 +39,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
 
   // שימוש בתוצאות מ-props או מחיפוש מתקדם
   const finalResults = useMemo(() => {
-    return searchResults.length > 0 ? searchResults : debouncedResults;
+    performanceMonitor.start('SearchResults-Merge');
+    const results = searchResults.length > 0 ? searchResults : debouncedResults;
+    performanceMonitor.end('SearchResults-Merge');
+    return results;
   }, [searchResults, debouncedResults]);
 
-  // Pagination לתוצאות
+  // Pagination לתוצאות עם ביצועים מתקדמים
   const {
     currentPageData: paginatedResults,
     hasNextPage,
@@ -78,18 +84,55 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
     }
   }, [selectedServices, navigate]);
 
+  const handleFilterAdjustment = useCallback((suggestion: string) => {
+    switch (suggestion) {
+      case 'הרחב את טווח התקציב':
+        // הסר מגבלת תקציב
+        updateSearchParam('maxPrice', null);
+        break;
+      case 'בחר תאריכים נוספים':
+        updateSearchParam('date', null);
+        break;
+      case 'הוסף אזורים נוספים':
+        updateSearchParam('location', null);
+        break;
+      case 'הסר מגבלות קונספט':
+        updateSearchParam('concepts', null);
+        break;
+      case 'נסה מילות חיפוש שונות':
+        updateSearchParam('q', '');
+        break;
+    }
+  }, [updateSearchParam]);
+
   const isLoading = propIsLoading || paginationLoading;
 
   if (propIsLoading) {
     return (
       <div className="space-y-4">
         <LoadingSpinner size="lg" text="מחפש שירותים..." />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={responsiveClasses.grid.cards}>
           {[...Array(6)].map((_, i) => (
             <div key={i} className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
           ))}
         </div>
       </div>
+    );
+  }
+
+  // אם אין תוצאות כלל - הצג מסך "לא נמצאו תוצאות"
+  if (finalResults.length === 0 && !propIsLoading) {
+    return (
+      <NoResultsWithLeadForm
+        searchQuery={query}
+        selectedDate={selectedDate || undefined}
+        selectedTime={selectedTime || undefined}
+        appliedFilters={{
+          location: selectedLocation,
+          available: showOnlyAvailable
+        }}
+        onFilterAdjustment={handleFilterAdjustment}
+      />
     );
   }
 
@@ -102,7 +145,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
           <span className="font-medium">סינון מתקדם</span>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className={responsiveClasses.grid.form}>
           <div className="space-y-2">
             <label className="text-sm font-medium">תאריך</label>
             <Input
@@ -110,6 +153,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
               value={selectedDate || ''}
               onChange={(e) => updateSearchParam('date', e.target.value)}
               placeholder="בחר תאריך"
+              className="w-full"
             />
           </div>
           
@@ -120,6 +164,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
               value={selectedTime || ''}
               onChange={(e) => updateSearchParam('time', e.target.value)}
               placeholder="בחר שעה"
+              className="w-full"
             />
           </div>
           
@@ -129,6 +174,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
               value={selectedLocation || ''}
               onChange={(e) => updateSearchParam('location', e.target.value)}
               placeholder="עיר או אזור"
+              className="w-full"
             />
           </div>
           
@@ -148,7 +194,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
       </div>
 
       {/* סטטיסטיקות תוצאות */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="text-sm text-gray-600">
           נמצאו {finalResults.length} תוצאות
           {showOnlyAvailable && selectedDate && selectedTime && (
@@ -172,7 +218,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
       </div>
 
       {/* תוצאות החיפוש */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={responsiveClasses.grid.cards}>
         {paginatedResults.map((service: any) => {
           const serviceId = service.id || service.serviceId || service.service_id;
           const isSelected = selectedServices.includes(serviceId);
@@ -200,6 +246,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
             disabled={isLoading}
             variant="outline"
             size="lg"
+            className={responsiveClasses.button.primary}
           >
             {isLoading ? (
               <LoadingSpinner size="sm" text="" />
@@ -210,31 +257,18 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading:
         </div>
       )}
 
-      {paginatedResults.length === 0 && !propIsLoading && (
+      {/* הודעה כשאין תוצאות בעמוד הנוכחי */}
+      {paginatedResults.length === 0 && finalResults.length > 0 && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Filter className="h-16 w-16 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            לא נמצאו שירותים זמינים
+            אין עוד תוצאות להצגה
           </h3>
           <p className="text-gray-500 mb-4">
-            {selectedDate && selectedTime 
-              ? `אין שירותים זמינים ב-${selectedDate} בשעה ${selectedTime}. נסה תאריכים או שעות אחרות.`
-              : 'נסה לשנות את קריטריוני החיפוש או הסר חלק מהפילטרים.'
-            }
+            הצגת כל התוצאות המתאימות לחיפוש שלכם
           </p>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setSearchParams(new URLSearchParams({ 
-                q: searchParams.get('q') || '',
-                available: 'false' 
-              }));
-            }}
-          >
-            הצג את כל התוצאות
-          </Button>
         </div>
       )}
     </div>

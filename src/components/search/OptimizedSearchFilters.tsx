@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, X, Filter } from 'lucide-react';
 import { debounce } from 'lodash';
 import { DateRange } from 'react-day-picker';
+import { responsiveClasses } from '@/utils/ResponsiveUtils';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 import ConceptFilter from './ConceptFilter';
 
 interface FilterState {
@@ -22,7 +24,7 @@ interface FilterState {
   attendees: number;
   categories: string[];
   rating: number;
-  conceptTags: string[]; // *** שדה חדש לקונספטים ***
+  conceptTags: string[];
 }
 
 interface OptimizedSearchFiltersProps {
@@ -42,15 +44,17 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
     attendees: 50,
     categories: [],
     rating: 0,
-    conceptTags: [] // *** ברירת מחדל לקונספטים ***
+    conceptTags: []
   });
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Debounced filter update
+  // Debounced filter update עם ביצועים מתקדמים
   const debouncedUpdate = useCallback(
     debounce((newFilters: FilterState) => {
+      performanceMonitor.start('FilterUpdate');
       onFiltersChange(newFilters);
+      performanceMonitor.end('FilterUpdate');
     }, 300),
     [onFiltersChange]
   );
@@ -64,11 +68,11 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
     };
   }, [filters, debouncedUpdate]);
 
-  const updateFilter = (key: keyof FilterState, value: any) => {
+  const updateFilter = useCallback((key: keyof FilterState, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-  };
+  }, []);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setFilters({
       dateRange: undefined,
       timeSlot: '',
@@ -77,22 +81,22 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
       attendees: 50,
       categories: [],
       rating: 0,
-      conceptTags: [] // *** איפוס קונספטים ***
+      conceptTags: []
     });
-  };
+  }, []);
 
-  const hasActiveFilters = () => {
+  const hasActiveFilters = useCallback(() => {
     return (
       filters.dateRange?.from ||
       filters.timeSlot ||
       filters.location ||
       filters.categories.length > 0 ||
-      filters.conceptTags.length > 0 || // *** בדיקת קונספטים פעילים ***
+      filters.conceptTags.length > 0 ||
       filters.rating > 0 ||
       filters.budget[0] > 500 ||
       filters.budget[1] < 10000
     );
-  };
+  }, [filters]);
 
   const categories = [
     'זמרים', 'להקות', 'קוסמים', 'אומני חושים', 'סטנדאפיסטים',
@@ -108,14 +112,14 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
   ];
 
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-4 w-full">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Filter className="h-5 w-5" />
             סינון תוצאות
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="text-sm">
               {resultsCount} תוצאות
             </Badge>
@@ -123,13 +127,19 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => setIsCollapsed(!isCollapsed)}
+              className={responsiveClasses.button.secondary}
             >
               {isCollapsed ? 'הרחב' : 'כווץ'}
             </Button>
           </div>
         </div>
         {hasActiveFilters() && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters} className="justify-start p-0">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={clearAllFilters} 
+            className="justify-start p-0 w-full sm:w-auto"
+          >
             <X className="h-4 w-4 ml-1" />
             נקה סינונים
           </Button>
@@ -138,28 +148,34 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
 
       {!isCollapsed && (
         <CardContent className="space-y-4">
-          {/* *** סינון קונספטים - מקום בולט ראשון *** */}
+          {/* קונספטים - מקום בולט ראשון */}
           <ConceptFilter
             selectedConcepts={filters.conceptTags}
             onConceptsChange={(concepts) => updateFilter('conceptTags', concepts)}
           />
 
-          {/* תאריך */}
-          <div>
+          {/* תאריך - רספונסיבי */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">תאריך האירוע</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start mt-1">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  style={{ minWidth: '200px' }}
+                >
                   <CalendarIcon className="h-4 w-4 ml-2" />
-                  {filters.dateRange?.from ? (
-                    filters.dateRange.to ? (
-                      `${filters.dateRange.from.toLocaleDateString('he-IL')} - ${filters.dateRange.to.toLocaleDateString('he-IL')}`
+                  <span className="truncate">
+                    {filters.dateRange?.from ? (
+                      filters.dateRange.to ? (
+                        `${filters.dateRange.from.toLocaleDateString('he-IL')} - ${filters.dateRange.to.toLocaleDateString('he-IL')}`
+                      ) : (
+                        filters.dateRange.from.toLocaleDateString('he-IL')
+                      )
                     ) : (
-                      filters.dateRange.from.toLocaleDateString('he-IL')
-                    )
-                  ) : (
-                    'בחר תאריך'
-                  )}
+                      'בחר תאריך'
+                    )}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -167,17 +183,17 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
                   mode="range"
                   selected={filters.dateRange}
                   onSelect={(range) => updateFilter('dateRange', range)}
-                  numberOfMonths={2}
+                  numberOfMonths={1}
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          {/* שעה */}
-          <div>
+          {/* שעה - רספונסיבי */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">שעת האירוע</Label>
             <Select value={filters.timeSlot} onValueChange={(value) => updateFilter('timeSlot', value)}>
-              <SelectTrigger className="mt-1">
+              <SelectTrigger className="w-full" style={{ minWidth: '200px' }}>
                 <SelectValue placeholder="בחר שעה" />
               </SelectTrigger>
               <SelectContent>
@@ -188,10 +204,10 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
             </Select>
           </div>
 
-          {/* תקציב */}
-          <div>
+          {/* תקציב - רספונסיבי */}
+          <div className="space-y-3">
             <Label className="text-sm font-medium">תקציב (₪)</Label>
-            <div className="mt-2 mb-3">
+            <div className="px-2">
               <Slider
                 value={filters.budget}
                 onValueChange={(value) => updateFilter('budget', value)}
@@ -201,31 +217,32 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
                 className="w-full"
               />
             </div>
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-gray-600 px-2">
               <span>₪{filters.budget[0].toLocaleString()}</span>
               <span>₪{filters.budget[1].toLocaleString()}</span>
             </div>
           </div>
 
-          {/* מיקום */}
-          <div>
+          {/* מיקום - רספונסיבי */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">מיקום</Label>
-            <div className="relative mt-1">
+            <div className="relative">
               <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 value={filters.location}
                 onChange={(e) => updateFilter('location', e.target.value)}
                 placeholder="עיר או אזור"
-                className="pr-10"
+                className="pr-10 w-full"
+                style={{ minWidth: '200px' }}
               />
             </div>
           </div>
 
-          {/* כמות משתתפים */}
-          <div>
+          {/* כמות משתתפים - רספונסיבי */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">כמות משתתפים</Label>
-            <div className="flex items-center gap-2 mt-1">
-              <Users className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-gray-400 flex-shrink-0" />
               <Input
                 type="number"
                 value={filters.attendees}
@@ -233,19 +250,20 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
                 placeholder="מספר"
                 className="flex-1"
                 min="1"
+                style={{ minWidth: '120px' }}
               />
             </div>
           </div>
 
-          {/* קטגוריות */}
-          <div>
+          {/* קטגוריות - רספונסיבי */}
+          <div className="space-y-3">
             <Label className="text-sm font-medium">קטגוריות</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <Badge
                   key={category}
                   variant={filters.categories.includes(category) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+                  className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors text-xs sm:text-sm"
                   onClick={() => {
                     const newCategories = filters.categories.includes(category)
                       ? filters.categories.filter(c => c !== category)
@@ -259,17 +277,17 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
             </div>
           </div>
 
-          {/* דירוג מינימלי */}
-          <div>
+          {/* דירוג מינימלי - רספונסיבי */}
+          <div className="space-y-3">
             <Label className="text-sm font-medium">דירוג מינימלי</Label>
-            <div className="flex gap-1 mt-2">
+            <div className="flex gap-1 flex-wrap">
               {[1, 2, 3, 4, 5].map((rating) => (
                 <Button
                   key={rating}
                   variant={filters.rating >= rating ? "default" : "outline"}
                   size="sm"
                   onClick={() => updateFilter('rating', rating)}
-                  className="w-8 h-8 p-0"
+                  className="w-8 h-8 p-0 flex-shrink-0"
                 >
                   {rating}
                 </Button>
