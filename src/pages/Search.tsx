@@ -18,7 +18,7 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode<'grid' | 'list' | 'cinematic'>('cinematic');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'cinematic'>('cinematic');
   const [selectedServices, setSelectedServices] = useState<any[]>([]);
   const [showFilters, setShowFilters] = useState(true);
   
