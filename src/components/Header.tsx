@@ -11,8 +11,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [userType, setUserType] = useState<'customer' | 'provider'>('customer');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [userType, setUserType] = useState<'client' | 'provider'>('client');
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
