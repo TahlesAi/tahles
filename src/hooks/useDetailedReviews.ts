@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -36,5 +37,20 @@ export const useDetailedReviews = () => {
     }
   };
 
-  return { loading, submitReview };
+  const getProviderReviews = async (providerId: string) => {
+    try {
+      // כאן נוסיף קריאה לשרת לשליפת ביקורות הספק
+      // const { data, error } = await supabase.from('detailed_reviews').select('*').eq('provider_id', providerId);
+      
+      console.log('Fetching reviews for provider:', providerId);
+      
+      // זמנית נחזיר מערך ריק
+      return [];
+    } catch (error) {
+      console.error('Error fetching provider reviews:', error);
+      return [];
+    }
+  };
+
+  return { loading, submitReview, getProviderReviews };
 };
