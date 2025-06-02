@@ -22,30 +22,34 @@ const SearchSubcategories = () => {
   const categoryId = searchParams.get('categoryId');
 
   useEffect(() => {
-    console.log('=== SearchSubcategories Debug Info ===');
-    console.log('CategoryId from URL:', categoryId);
-    console.log('Available Hebrew Categories:', hebrewCategories);
-    console.log('Hebrew Categories length:', hebrewCategories?.length);
+    console.log('🔍 === SearchSubcategories Debug Info ===');
+    console.log('📍 CategoryId from URL:', categoryId);
+    console.log('📚 Available Hebrew Categories:', hebrewCategories);
+    console.log('📊 Hebrew Categories length:', hebrewCategories?.length);
+    console.log('🏷️ Category IDs in system:', hebrewCategories?.map(cat => cat.id));
     
     if (!categoryId) {
+      console.error('❌ No categoryId provided in URL');
       setError("לא סופק מזהה קטגוריה");
       return;
     }
 
     if (!hebrewCategories || hebrewCategories.length === 0) {
-      console.log('No hebrew categories available yet');
+      console.warn('⏳ No hebrew categories available yet - waiting for context to load');
       return;
     }
 
     // מציאת הקטגוריה בהיררכיה העברית
+    console.log('🔎 Searching for category with ID:', categoryId);
     const foundCategory = hebrewCategories.find(cat => {
-      console.log('Checking category:', cat.id, 'vs', categoryId);
+      console.log(`  Checking: "${cat.id}" === "${categoryId}" ? ${cat.id === categoryId}`);
       return cat.id === categoryId;
     });
     
     if (foundCategory) {
-      console.log('Found category:', foundCategory.name);
-      console.log('Category subcategories:', foundCategory.subcategories);
+      console.log('✅ Found category:', foundCategory.name);
+      console.log('📋 Category subcategories:', foundCategory.subcategories);
+      console.log('🔢 Number of subcategories:', foundCategory.subcategories?.length || 0);
       setCategory(foundCategory);
       setError(null);
       
@@ -55,11 +59,17 @@ const SearchSubcategories = () => {
         parentCategoryId: categoryId
       })) || [];
       
-      console.log('Subcategories loaded:', categorySubcategories.length);
+      console.log('📝 Subcategories prepared for display:', categorySubcategories.length);
       setSubcategories(categorySubcategories);
     } else {
-      console.log('Category not found for ID:', categoryId);
-      console.log('Available category IDs:', hebrewCategories.map(cat => cat.id));
+      console.error('❌ Category not found for ID:', categoryId);
+      console.error('📋 Available category IDs:', hebrewCategories.map(cat => cat.id));
+      console.error('🔍 Exact comparison results:');
+      hebrewCategories.forEach(cat => {
+        console.error(`  "${cat.id}" (type: ${typeof cat.id}) vs "${categoryId}" (type: ${typeof categoryId})`);
+        console.error(`  Length: ${cat.id.length} vs ${categoryId.length}`);
+        console.error(`  Equals: ${cat.id === categoryId}`);
+      });
       setError(`קטגוריה עם מזהה "${categoryId}" לא נמצאה`);
     }
   }, [categoryId, hebrewCategories]);
@@ -94,9 +104,27 @@ const SearchSubcategories = () => {
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">שגיאה בטעינת תתי הקטגוריות</h2>
             <p className="mb-6 text-gray-600">{error}</p>
-            <p className="mb-6 text-sm text-gray-500">
-              נתוני Debug: categoryId={categoryId}, hebrewCategories.length={hebrewCategories?.length || 0}
-            </p>
+            
+            {/* Debug information */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-sm">
+              <h3 className="font-bold mb-2">מידע טכני לפתרון הבעיה:</h3>
+              <div className="text-right space-y-1">
+                <div><strong>Category ID מה-URL:</strong> "{categoryId}"</div>
+                <div><strong>מספר קטגוריות זמינות:</strong> {hebrewCategories?.length || 0}</div>
+                <div><strong>Context טעון:</strong> {hebrewCategories ? 'כן' : 'לא'}</div>
+                {hebrewCategories && hebrewCategories.length > 0 && (
+                  <div>
+                    <strong>רשימת IDs זמינים:</strong>
+                    <div className="mt-1 text-xs font-mono bg-gray-100 p-2 rounded">
+                      {hebrewCategories.map(cat => (
+                        <div key={cat.id}>"{cat.id}" - {cat.name}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <div className="space-x-4">
               <Button onClick={() => navigate(-1)} variant="outline">
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -104,6 +132,9 @@ const SearchSubcategories = () => {
               </Button>
               <Button onClick={() => navigate("/")}>
                 חזרה לדף הבית
+              </Button>
+              <Button onClick={() => navigate("/admin/hierarchy")} variant="outline">
+                דף ניהול היררכיה
               </Button>
             </div>
           </div>
@@ -158,6 +189,13 @@ const SearchSubcategories = () => {
               >
                 <ArrowRight className="h-4 w-4 ml-2" />
                 חזרה לדף הבית
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/admin/hierarchy')}
+              >
+                דף ניהול היררכיה
               </Button>
             </div>
           </div>

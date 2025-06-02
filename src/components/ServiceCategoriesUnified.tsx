@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -63,10 +62,22 @@ const ServiceCategoriesUnified = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  // ניווט ישיר לתתי קטגוריות - עכשיו עם הקונטקסט הנכון
+  // ניווט ישיר לתתי קטגוריות - עם debugging מפורט
   const handleCategoryClick = (category: any) => {
-    console.log('Navigating directly to subcategories for category:', category.id, category.name);
-    console.log('Category data:', category);
+    console.log('🚀 Category clicked on homepage:');
+    console.log('- Category ID:', category.id);
+    console.log('- Category Name:', category.name);
+    console.log('- Full Category Object:', category);
+    console.log('- Available Hebrew Categories:', hebrewCategories.map(cat => ({ id: cat.id, name: cat.name })));
+    
+    // וידוא שהקטגוריה קיימת
+    const categoryExists = hebrewCategories.find(cat => cat.id === category.id);
+    if (!categoryExists) {
+      console.error('❌ Category not found in hebrewCategories!');
+      return;
+    }
+    
+    console.log('✅ Category found, navigating to subcategories...');
     navigate(`/search/subcategories?categoryId=${category.id}`);
   };
 
@@ -103,7 +114,27 @@ const ServiceCategoriesUnified = () => {
               <List className="h-5 w-5 ml-2" />
               כל הקטגוריות
             </Button>
+            
+            {/* כפתור למעבר לדף ניהול - רק בפיתוח */}
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate('/admin/hierarchy')}
+                className="px-6 py-4 border-2 border-green-600 text-green-600 hover:bg-green-50"
+              >
+                דף ניהול היררכיה
+              </Button>
+            )}
           </div>
+          
+          {/* הצגת מידע debug */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 text-sm">
+              <strong>Debug Info:</strong> 
+              {hebrewCategories.length} קטגוריות טעונות מ-UnifiedEventContext
+            </div>
+          )}
         </div>
 
         <div className="relative">
