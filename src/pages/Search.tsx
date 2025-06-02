@@ -4,17 +4,24 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ServiceResultCard from "@/components/search/ServiceResultCard";
-import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
+import OptimizedSearchFilters from "@/components/search/OptimizedSearchFilters";
+import CinematicResultsView from "@/components/search/CinematicResultsView";
+import ServiceComparisonBar from "@/components/comparison/ServiceComparisonBar";
+import NoResultsFallback from "@/components/search/NoResultsFallback";
 import { searchServices } from "@/lib/unifiedMockData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Grid, List, SlidersHorizontal } from "lucide-react";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [selectedEventConcept, setSelectedEventConcept] = useState("");
+  const [filters, setFilters] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'cinematic'>('cinematic');
+  const [selectedServices, setSelectedServices] = useState<any[]>([]);
+  const [showFilters, setShowFilters] = useState(true);
+  
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -26,21 +33,32 @@ const Search = () => {
     const subcategory = urlParams.get('subcategory') || '';
     
     setSearchTerm(query);
-    if (category) setSelectedCategories([category]);
-    if (subcategory) setSelectedSubcategories([subcategory]);
+    setFilters({
+      category: category || undefined,
+      subcategory: subcategory || undefined
+    });
     setIsLoading(false);
   }, [location.search]);
 
-  // Build filters object for search
-  const filters = {
-    category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
-    subcategory: selectedSubcategories.length > 0 ? selectedSubcategories[0] : undefined,
-    eventConcept: selectedEventConcept || undefined
-  };
-
   // Search for services using the unified data
   const searchResults = searchServices(searchTerm, filters);
-  
+  const featuredServices = searchResults.filter(s => s.featured);
+  const regularServices = searchResults.filter(s => !s.featured);
+
+  const handleToggleServiceSelection = (service: any) => {
+    if (selectedServices.find(s => s.id === service.id)) {
+      setSelectedServices(prev => prev.filter(s => s.id !== service.id));
+    } else if (selectedServices.length < 3) {
+      setSelectedServices(prev => [...prev, service]);
+    }
+  };
+
+  const handleFilterAdjustment = (suggestion: string) => {
+    // Logic to adjust filters based on suggestion
+    console.log('Adjusting filters based on:', suggestion);
+    // Implementation depends on the specific suggestion
+  };
+
   // Show loading skeleton while data is being fetched
   if (isLoading) {
     return (
@@ -80,63 +98,116 @@ const Search = () => {
         <div className="container px-4">
           {/* Search Results Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              תוצאות חיפוש
-              {searchTerm && ` עבור "${searchTerm}"`}
-            </h1>
-            <p className="text-gray-600">
-              נמצאו {searchResults.length} תוצאות
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-                <h2 className="text-lg font-semibold mb-4">סינון תוצאות</h2>
-                <AdvancedSearchFilters 
-                  onCategoriesChange={setSelectedCategories}
-                  onSubcategoriesChange={setSelectedSubcategories}
-                  selectedCategories={selectedCategories}
-                  selectedSubcategories={selectedSubcategories}
-                  onEventConceptChange={setSelectedEventConcept}
-                  selectedEventConcept={selectedEventConcept}
-                />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  תוצאות חיפוש
+                  {searchTerm && ` עבור "${searchTerm}"`}
+                </h1>
+                <p className="text-gray-600">
+                  נמצאו {searchResults.length} תוצאות
+                </p>
+              </div>
+              
+              {/* View Mode Controls */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="sm:hidden"
+                >
+                  <SlidersHorizontal className="h-4 w-4 ml-1" />
+                  סינונים
+                </Button>
+                
+                <div className="flex border rounded-lg overflow-hidden">
+                  <Button
+                    variant={viewMode === 'cinematic' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('cinematic')}
+                    className="rounded-none"
+                  >
+                    קולנועי
+                  </Button>
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="rounded-none"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="rounded-none"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Results Grid */}
-            <div className="lg:col-span-3">
-              {searchResults.length === 0 ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    לא נמצאו תוצאות
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    נסו לשנות את מונחי החיפוש או הסינון
-                  </p>
-                  <button
-                    onClick={() => navigate('/')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    חזרה לעמוד הבית
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {searchResults.map((service) => (
-                    <ServiceResultCard 
-                      key={service.id} 
-                      service={service} 
-                    />
-                  ))}
+          {searchResults.length === 0 ? (
+            <NoResultsFallback
+              searchQuery={searchTerm}
+              appliedFilters={filters}
+              onFilterAdjustment={handleFilterAdjustment}
+            />
+          ) : (
+            <div className={`grid gap-8 ${showFilters ? 'grid-cols-1 lg:grid-cols-4' : 'grid-cols-1'}`}>
+              {/* Filters Sidebar */}
+              {showFilters && (
+                <div className="lg:col-span-1">
+                  <OptimizedSearchFilters 
+                    onFiltersChange={setFilters}
+                    resultsCount={searchResults.length}
+                  />
                 </div>
               )}
+
+              {/* Results */}
+              <div className={showFilters ? 'lg:col-span-3' : 'col-span-1'}>
+                {viewMode === 'cinematic' ? (
+                  <CinematicResultsView 
+                    services={featuredServices}
+                    providers={regularServices}
+                  />
+                ) : (
+                  <div className={`grid gap-6 ${
+                    viewMode === 'grid' 
+                      ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
+                      : 'grid-cols-1'
+                  }`}>
+                    {searchResults.map((service) => (
+                      <ServiceResultCard 
+                        key={service.id} 
+                        service={service}
+                        isSelected={selectedServices.some(s => s.id === service.id)}
+                        onToggleSelect={handleToggleServiceSelection}
+                        canSelect={selectedServices.length < 3 || selectedServices.some(s => s.id === service.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
+      
+      {/* Comparison Bar */}
+      <ServiceComparisonBar
+        selectedServices={selectedServices}
+        onRemoveService={(serviceId) => 
+          setSelectedServices(prev => prev.filter(s => s.id !== serviceId))
+        }
+        onClearAll={() => setSelectedServices([])}
+      />
+      
       <Footer />
     </div>
   );

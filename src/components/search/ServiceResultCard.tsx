@@ -1,10 +1,12 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Star, MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
+import { MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
+import RatingDisplay from "@/components/rating/RatingDisplay";
 
 interface ServiceResultCardProps {
   service: any;
@@ -152,13 +154,11 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
 
         <div className="space-y-2 mb-4">
           {service.rating > 0 && (
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium">{Number(service.rating).toFixed(1)}</span>
-              {(service.reviewCount || service.review_count) > 0 && (
-                <span className="text-sm text-gray-500">({service.reviewCount || service.review_count} ביקורות)</span>
-              )}
-            </div>
+            <RatingDisplay 
+              rating={service.rating} 
+              reviewCount={service.reviewCount || service.review_count}
+              size="sm"
+            />
           )}
 
           {service.location && (
