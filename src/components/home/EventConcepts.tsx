@@ -1,8 +1,9 @@
 
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useEventContext } from "@/context/EventContext";
 import useIsMobile from "@/hooks/use-mobile";
+import GuidedSearchModal from "@/components/GuidedSearch/GuidedSearchModal";
 import { 
   Cake, 
   PartyPopper, 
@@ -31,6 +32,13 @@ const iconMap: Record<string, React.ReactNode> = {
 const EventConcepts = () => {
   const isMobile = useIsMobile();
   const { hebrewConcepts } = useEventContext();
+  const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
+  const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
+
+  const handleConceptClick = (conceptId: string) => {
+    setSelectedConcept(conceptId);
+    setGuidedSearchOpen(true);
+  };
 
   return (
     <section className="py-10 bg-white border-b" dir="rtl">
@@ -43,32 +51,40 @@ const EventConcepts = () => {
         <div className={`overflow-x-auto pb-6 ${isMobile ? '-mx-4 px-4' : ''}`}>
           <div className="flex gap-4 min-w-max">
             {hebrewConcepts.map((concept) => (
-              <Link key={concept.id} to={`/search?concept=${encodeURIComponent(concept.name)}`}>
-                <div
-                  className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
-                    concept.id === "first-date" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
-                  }`}
-                >
-                  {concept.icon && iconMap[concept.icon] ? (
-                    <div className={concept.id === "first-date" ? "text-pink-700" : ""}>
-                      {iconMap[concept.icon]}
-                    </div>
-                  ) : (
-                    <div className="h-4 w-4 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
-                      {concept.name.substring(0, 1)}
-                    </div>
-                  )}
-                  <span className={`font-medium text-center text-sm ${
-                    concept.id === "first-date" ? "text-pink-700" : ""
-                  }`}>
-                    {concept.name}
-                  </span>
-                </div>
-              </Link>
+              <div
+                key={concept.id}
+                onClick={() => handleConceptClick(concept.id)}
+                className={`bg-gray-100 rounded-lg p-3 flex flex-col items-center justify-center h-24 w-32 cursor-pointer hover:bg-gray-200 transition-colors gap-2 ${
+                  concept.id === "first-date" ? "bg-pink-100 hover:bg-pink-200 border-2 border-pink-300" : ""
+                }`}
+              >
+                {concept.icon && iconMap[concept.icon] ? (
+                  <div className={concept.id === "first-date" ? "text-pink-700" : ""}>
+                    {iconMap[concept.icon]}
+                  </div>
+                ) : (
+                  <div className="h-4 w-4 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs">
+                    {concept.name.substring(0, 1)}
+                  </div>
+                )}
+                <span className={`font-medium text-center text-sm ${
+                  concept.id === "first-date" ? "text-pink-700" : ""
+                }`}>
+                  {concept.name}
+                </span>
+              </div>
             ))}
           </div>
         </div>
       </div>
+
+      <GuidedSearchModal 
+        isOpen={guidedSearchOpen} 
+        onClose={() => {
+          setGuidedSearchOpen(false);
+          setSelectedConcept(null);
+        }} 
+      />
     </section>
   );
 };

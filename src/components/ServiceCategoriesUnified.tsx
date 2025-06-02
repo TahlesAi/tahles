@@ -1,16 +1,18 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
 import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
+import CategoryGuidedSearchModal from "./GuidedSearch/CategoryGuidedSearchModal";
 
 const ServiceCategoriesUnified = () => {
   const { hebrewCategories, isLoading } = useEventContext();
   const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
+  const [categoryGuidedSearchOpen, setCategoryGuidedSearchOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   
   // טיפול במצב טעינה
@@ -62,6 +64,11 @@ const ServiceCategoriesUnified = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setCategoryGuidedSearchOpen(true);
+  };
+
   return (
     <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50" dir="rtl">
       <div className="container px-4">
@@ -106,10 +113,10 @@ const ServiceCategoriesUnified = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-8">
             {currentCategories.map((category) => (
-              <Link
+              <div
                 key={category.id}
-                to={`/categories/${category.id}`}
-                className="group block"
+                onClick={() => handleCategoryClick(category.id)}
+                className="group block cursor-pointer"
               >
                 <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-2 border-transparent hover:border-blue-200 bg-white/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
@@ -129,7 +136,7 @@ const ServiceCategoriesUnified = () => {
                     </Badge>
                   </CardContent>
                 </Card>
-              </Link>
+              </div>
             ))}
           </div>
 
@@ -148,6 +155,12 @@ const ServiceCategoriesUnified = () => {
           )}
         </div>
       </div>
+
+      <CategoryGuidedSearchModal
+        isOpen={categoryGuidedSearchOpen}
+        onClose={() => setCategoryGuidedSearchOpen(false)}
+        categoryId={selectedCategoryId}
+      />
     </section>
   );
 };
