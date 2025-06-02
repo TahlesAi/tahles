@@ -5,18 +5,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ServiceResultCard from "@/components/search/ServiceResultCard";
 import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
-import { useUnifiedDataManager } from "@/hooks/useUnifiedDataManager";
+import { searchServices } from "@/lib/unifiedMockData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<any>({});
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [selectedEventConcept, setSelectedEventConcept] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const { searchServices } = useUnifiedDataManager();
   
   // Get search term from URL params
   useEffect(() => {
@@ -26,11 +26,19 @@ const Search = () => {
     const subcategory = urlParams.get('subcategory') || '';
     
     setSearchTerm(query);
-    setFilters({ category, subcategory });
+    if (category) setSelectedCategories([category]);
+    if (subcategory) setSelectedSubcategories([subcategory]);
     setIsLoading(false);
   }, [location.search]);
 
-  // Search for services
+  // Build filters object for search
+  const filters = {
+    category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
+    subcategory: selectedSubcategories.length > 0 ? selectedSubcategories[0] : undefined,
+    eventConcept: selectedEventConcept || undefined
+  };
+
+  // Search for services using the unified data
   const searchResults = searchServices(searchTerm, filters);
   
   // Show loading skeleton while data is being fetched
@@ -87,8 +95,12 @@ const Search = () => {
               <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
                 <h2 className="text-lg font-semibold mb-4">סינון תוצאות</h2>
                 <AdvancedSearchFilters 
-                  filters={filters}
-                  onFiltersChange={setFilters}
+                  onCategoriesChange={setSelectedCategories}
+                  onSubcategoriesChange={setSelectedSubcategories}
+                  selectedCategories={selectedCategories}
+                  selectedSubcategories={selectedSubcategories}
+                  onEventConceptChange={setSelectedEventConcept}
+                  selectedEventConcept={selectedEventConcept}
                 />
               </div>
             </div>
