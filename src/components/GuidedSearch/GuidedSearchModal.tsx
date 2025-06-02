@@ -17,6 +17,7 @@ import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
 import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
 import { useEventContext } from "@/context/EventContext";
+import { useGuidedSearchStorage } from "@/hooks/useGuidedSearchStorage";
 
 export type EventType = 'private' | 'business' | 'mixed' | 'children';
 
@@ -70,8 +71,8 @@ const STEP_NAMES = {
 
 const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
   const [currentStep, setCurrentStep] = useState(STEPS.EVENT_DATE);
-  const [searchData, setSearchData] = useState<GuidedSearchData>({});
   const { hebrewCategories, hebrewConcepts } = useEventContext();
+  const { data: searchData, updateData, clearData } = useGuidedSearchStorage();
   
   const handleNext = () => {
     if (currentStep < STEPS.RESULTS) {
@@ -84,14 +85,10 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
       setCurrentStep(prev => prev - 1);
     }
   };
-  
-  const updateSearchData = (data: Partial<GuidedSearchData>) => {
-    setSearchData(prev => ({ ...prev, ...data }));
-  };
 
   const handleStepNext = (data?: Partial<GuidedSearchData>) => {
     if (data) {
-      updateSearchData(data);
+      updateData(data);
     }
     handleNext();
   };
@@ -105,7 +102,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
     onClose();
     setTimeout(() => {
       setCurrentStep(STEPS.EVENT_DATE);
-      setSearchData({});
+      clearData();
     }, 300);
   };
   
@@ -113,7 +110,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
     onClose();
     setTimeout(() => {
       setCurrentStep(STEPS.EVENT_DATE);
-      setSearchData({});
+      // לא מנקים את הנתונים כדי לשמור את הקלט
     }, 300);
   };
 
@@ -152,7 +149,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
                     style={{ width: `${getProgressPercentage()}%` }}
                   ></div>
                 </div>
@@ -205,8 +202,8 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
               selectedSubconcept={searchData.selectedSubconcept}
               eventType={searchData.eventType}
               hebrewCategories={hebrewCategories}
-              onSelectConcept={(concept) => updateSearchData({ selectedHebrewConcept: concept })}
-              onSelectSubconcept={(subconcept) => updateSearchData({ selectedSubconcept: subconcept })}
+              onSelectConcept={(concept) => updateData({ selectedHebrewConcept: concept })}
+              onSelectSubconcept={(subconcept) => updateData({ selectedSubconcept: subconcept })}
               onNext={handleNext}
               onBack={handleBack}
             />
@@ -215,7 +212,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.ATTENDEES && (
             <AttendeesStep
               attendeesCount={searchData.attendeesCount}
-              onSelect={(count) => updateSearchData({ attendeesCount: count })}
+              onSelect={(count) => updateData({ attendeesCount: count })}
               onNext={handleNext}
               onBack={handleBack}
             />
@@ -224,7 +221,7 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.BUDGET && (
             <BudgetStep
               budget={searchData.budget || { min: 0, max: 0 }}
-              onBudgetChange={(budget) => updateSearchData({ budget })}
+              onBudgetChange={(budget) => updateData({ budget })}
               onNext={handleNext}
               onBack={handleBack}
             />
