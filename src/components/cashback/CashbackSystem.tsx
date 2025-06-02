@@ -31,18 +31,21 @@ const CashbackSystem: React.FC<CashbackSystemProps> = ({ customerId }) => {
 
   const loadCashbackCredits = async () => {
     try {
+      // Use type assertion to work with the table until types are updated
       const { data, error } = await supabase
-        .from('cashback_credits')
+        .from('cashback_credits' as any)
         .select('*')
         .eq('customer_id', customerId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setCredits(data || []);
+      // Type the data properly
+      const typedData = data as CashbackCredit[];
+      setCredits(typedData || []);
       
       // חישוב סך הקרדיט הפעיל
-      const activeCredits = data?.filter(credit => 
+      const activeCredits = typedData?.filter(credit => 
         credit.status === 'active' && new Date(credit.expires_at) > new Date()
       ) || [];
       

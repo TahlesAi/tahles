@@ -120,6 +120,39 @@ export type Database = {
           },
         ]
       }
+      cashback_credits: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          expires_at: string
+          id: string
+          source_booking_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          customer_id: string
+          expires_at: string
+          id?: string
+          source_booking_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          expires_at?: string
+          id?: string
+          source_booking_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null

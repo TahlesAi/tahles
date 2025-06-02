@@ -10,6 +10,8 @@ export interface CashbackCredit {
   source_booking_id: string;
   expires_at: string;
   status: 'active' | 'used' | 'expired';
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const useCashback = () => {
@@ -27,17 +29,13 @@ export const useCashback = () => {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 30); // תוקף 30 יום
 
-      const { data, error } = await supabase
-        .from('cashback_credits')
-        .insert([{
-          customer_id: customerId,
-          amount: cashbackAmount,
-          source_booking_id: bookingId,
-          expires_at: expiryDate.toISOString(),
-          status: 'active'
-        }])
-        .select()
-        .single();
+      // Use raw SQL query instead of typed query until types are updated
+      const { data, error } = await supabase.rpc('exec_sql', {
+        sql: `INSERT INTO cashback_credits (customer_id, amount, source_booking_id, expires_at, status) 
+              VALUES ($1, $2, $3, $4, $5) 
+              RETURNING *`,
+        params: [customerId, cashbackAmount, bookingId, expiryDate.toISOString(), 'active']
+      });
 
       if (error) throw error;
 
@@ -49,7 +47,37 @@ export const useCashback = () => {
       return data;
     } catch (error) {
       console.error('Error creating cashback credit:', error);
-      return null;
+      
+      // Fallback: direct insert using raw query
+      try {
+        const cashbackAmount = Math.round((orderAmount * cashbackPercentage) / 100);
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
+
+        const { data, error: insertError } = await supabase
+          .from('cashback_credits' as any)
+          .insert([{
+            customer_id: customerId,
+            amount: cashbackAmount,
+            source_booking_id: bookingId,
+            expires_at: expiryDate.toISOString(),
+            status: 'active'
+          }])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+
+        toast.success(`זכיתם ב-${cashbackPercentage}% קאשבק!`, {
+          description: `₪${cashbackAmount} נזכו לחשבונכם (תוקף 30 יום)`,
+          duration: 6000
+        });
+
+        return data;
+      } catch (fallbackError) {
+        console.error('Fallback error:', fallbackError);
+        return null;
+      }
     } finally {
       setLoading(false);
     }
@@ -57,9 +85,9 @@ export const useCashback = () => {
 
   const applyCashbackToOrder = async (customerId: string, orderAmount: number) => {
     try {
-      // קבלת כל הקרדיטים הפעילים
+      // Use type assertion to work with the table
       const { data: credits, error } = await supabase
-        .from('cashback_credits')
+        .from('cashback_credits' as any)
         .select('*')
         .eq('customer_id', customerId)
         .eq('status', 'active')
@@ -92,7 +120,7 @@ export const useCashback = () => {
           
           // עדכן את הקרדיט עם הסכום החדש
           await supabase
-            .from('cashback_credits')
+            .from('cashback_credits' as any)
             .update({ amount: newAmount })
             .eq('id', credit.id);
         }
@@ -101,7 +129,7 @@ export const useCashback = () => {
       // עדכן קרדיטים שנוצלו במלואם
       for (const creditUpdate of creditsToUpdate) {
         await supabase
-          .from('cashback_credits')
+          .from('cashback_credits' as any)
           .update({ status: creditUpdate.status })
           .eq('id', creditUpdate.id);
       }
@@ -124,7 +152,7 @@ export const useCashback = () => {
   const getAvailableCashback = async (customerId: string) => {
     try {
       const { data: credits, error } = await supabase
-        .from('cashback_credits')
+        .from('cashback_credits' as any)
         .select('amount')
         .eq('customer_id', customerId)
         .eq('status', 'active')
@@ -132,7 +160,7 @@ export const useCashback = () => {
 
       if (error) throw error;
 
-      const total = credits?.reduce((sum, credit) => sum + credit.amount, 0) || 0;
+      const total = credits?.reduce((sum: number, credit: any) => sum + credit.amount, 0) || 0;
       return total;
     } catch (error) {
       console.error('Error getting available cashback:', error);
