@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -121,10 +122,10 @@ const ServiceTypeProviders = () => {
                   >
                     <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02] overflow-hidden">
                       <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                        {provider.logo_url ? (
+                        {provider.logo ? (
                           <img
-                            src={provider.logo_url}
-                            alt={provider.name}
+                            src={provider.logo}
+                            alt={provider.businessName}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -133,7 +134,7 @@ const ServiceTypeProviders = () => {
                       </div>
                       <CardContent className="p-2.5">
                         <h3 className="text-xs font-medium group-hover:text-brand-600 transition-colors mb-1 line-clamp-2 leading-tight">
-                          {provider.name}
+                          {provider.businessName}
                         </h3>
                         
                         {provider.rating && (
@@ -143,7 +144,7 @@ const ServiceTypeProviders = () => {
                           </div>
                         )}
                         
-                        {provider.is_verified && (
+                        {provider.verified && (
                           <div className="inline-block bg-green-100 text-green-800 text-xs px-1 py-0.5 rounded-full mb-1">
                             מאומת ✓
                           </div>

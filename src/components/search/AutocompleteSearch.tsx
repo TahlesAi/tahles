@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEventContext } from "@/context/EventContext";
 import { useNavigate } from "react-router-dom";
-import { SearchSuggestion } from "@/lib/types";
+import { SearchSuggestion } from "@/types";
 
 interface AutocompleteSearchProps {
   onSearch?: (query: string) => void;
@@ -80,11 +80,11 @@ const AutocompleteSearch = ({
       
       // חיפוש בספקים
       providers.forEach(provider => {
-        if (provider.name.includes(query) || provider.description?.includes(query)) {
+        if (provider.businessName.includes(query) || provider.description?.includes(query)) {
           filteredSuggestions.push({
             type: 'provider',
             id: provider.id,
-            name: provider.name,
+            name: provider.businessName,
             description: provider.description
           });
         }

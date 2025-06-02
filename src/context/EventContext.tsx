@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Category, Subcategory, ServiceType, Provider, Service } from '@/types';
+import { Category, Subcategory, ServiceType, ProviderProfile, SearchResultService } from '@/types';
 import { hebrewHierarchy } from '@/lib/hebrewHierarchyData';
 import { unifiedServices, unifiedProviders } from '@/lib/unifiedMockData';
 
@@ -9,10 +9,10 @@ interface EventContextProps {
   categories: Category[];
   subcategories: Subcategory[];
   serviceTypes: ServiceType[];
-  providers: Provider[];
-  services: Service[];
-  featuredServices: Service[];
-  topProviders: Provider[];
+  providers: ProviderProfile[];
+  services: SearchResultService[];
+  featuredServices: SearchResultService[];
+  topProviders: ProviderProfile[];
   isLoading: boolean;
   error: string | null;
   selectedCategory: Category | null;
@@ -21,10 +21,10 @@ interface EventContextProps {
   setSelectedCategory: (category: Category | null) => void;
   setSelectedSubcategory: (subcategory: Subcategory | null) => void;
   setSelectedServiceType: (serviceType: ServiceType | null) => void;
-  getProvidersByServiceType: (serviceTypeId: string) => Provider[];
-  getProvidersBySubcategory: (subcategoryId: string) => Provider[];
-  getServicesByProvider: (providerId: string) => Service[];
-  getServicesBySubcategory: (services: Service[], subcategoryId: string) => Service[];
+  getProvidersByServiceType: (serviceTypeId: string) => ProviderProfile[];
+  getProvidersBySubcategory: (subcategoryId: string) => ProviderProfile[];
+  getServicesByProvider: (providerId: string) => SearchResultService[];
+  getServicesBySubcategory: (services: SearchResultService[], subcategoryId: string) => SearchResultService[];
   getSubcategoriesByCategory: (categoryId: string) => Subcategory[];
   getServiceTypesBySubcategory: (subcategoryId: string) => ServiceType[];
   refreshData: () => Promise<void>;
@@ -46,10 +46,10 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [featuredServices, setFeaturedServices] = useState<Service[]>([]);
-  const [topProviders, setTopProviders] = useState<Provider[]>([]);
+  const [providers, setProviders] = useState<ProviderProfile[]>([]);
+  const [services, setServices] = useState<SearchResultService[]>([]);
+  const [featuredServices, setFeaturedServices] = useState<SearchResultService[]>([]);
+  const [topProviders, setTopProviders] = useState<ProviderProfile[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -91,59 +91,62 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       console.log('Using unified providers:', unifiedProviders.length);
 
       // המרת שירותים מאוחדים
-      const typedServices: Service[] = unifiedServices.map((service: any) => {
+      const typedServices: SearchResultService[] = unifiedServices.map((service: any) => {
         const provider = unifiedProviders.find(p => p.id === service.providerId);
         
         return {
           id: service.id,
           name: service.name,
+          provider: service.provider,
+          providerId: service.providerId || '',
           description: service.description || '',
           price: service.price,
-          price_unit: service.priceUnit || 'לאירוע',
-          imageUrl: service.imageUrl,
-          additional_images: service.additionalImages || [],
-          provider_id: service.providerId || '',
-          category_id: service.category || '',
-          subcategory_id: service.subcategory || '',
-          service_type_id: '',
+          priceUnit: service.priceUnit || 'לאירוע',
           rating: service.rating,
-          review_count: service.reviewCount,
-          tags: service.tags || [],
-          is_featured: service.featured || false,
-          suitableFor: service.suitableFor || [],
-          audience_size: "31-50" as any,
+          reviewCount: service.reviewCount,
+          imageUrl: service.imageUrl,
+          category: service.category || '',
+          subcategory: service.subcategory || '',
           location: service.location || provider?.city || 'כל הארץ',
-          videos: service.videos || []
+          suitableFor: service.suitableFor || [],
+          featured: service.featured || false,
+          additionalImages: service.additionalImages || [],
+          videos: service.videos || [],
+          audienceSize: service.audienceSize || {
+            min: 10,
+            max: 200,
+            optimal: 50
+          },
+          technicalRequirements: service.technicalRequirements || [],
+          setupTime: service.setupTime || 30,
+          tags: service.tags || [],
+          features: service.features || []
         };
       });
 
       // המרת ספקים מאוחדים
-      const typedProviders: Provider[] = unifiedProviders.map((provider: any) => {
+      const typedProviders: ProviderProfile[] = unifiedProviders.map((provider: any) => {
         return {
           id: provider.id,
-          name: provider.businessName,
+          businessName: provider.businessName,
           description: provider.description,
-          city: provider.city || '',
-          contact_phone: provider.phone || '',
-          contact_email: provider.email || '',
-          contact_person: provider.contactPerson || '',
+          contactPerson: provider.contactPerson || '',
+          email: provider.email || '',
+          phone: provider.phone || '',
           address: provider.address || '',
+          city: provider.city || '',
           website: provider.website || '',
           rating: provider.rating || 0,
-          review_count: provider.reviewCount || 0,
-          is_verified: provider.verified || false,
-          logo_url: provider.logo || '',
-          subcategory_ids: [], // יימפה לפי הקטגוריות
-          category_ids: provider.categories || [],
-          service_type_ids: [],
-          services: [],
-          serviceAreas: [provider.city || 'כל הארץ'],
-          experience: 'מעל 5 שנות ניסיון בתחום',
+          reviewCount: provider.reviewCount || 0,
+          featured: provider.verified || false,
+          verified: provider.verified || false,
+          logo: provider.logo || '',
+          categories: provider.categories || [],
+          gallery: [],
           specialties: ['מקצועיות גבוהה', 'שירות אישי', 'אמינות'],
-          testimonials: [],
-          socialLinks: {},
-          mediaLinks: [],
-          clientRecommendations: []
+          yearsExperience: 5,
+          insurance: true,
+          testimonials: []
         };
       });
 
@@ -151,13 +154,13 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setProviders(typedProviders);
 
       // הגדרת שירותים מומלצים
-      const featured = typedServices.filter(service => service.is_featured).slice(0, 12);
+      const featured = typedServices.filter(service => service.featured).slice(0, 12);
       setFeaturedServices(featured);
 
       // הגדרת ספקים מובילים
       const topProvidersList = typedProviders
         .filter(provider => provider.rating > 4.0)
-        .sort((a: Provider, b: Provider) => (b.rating || 0) - (a.rating || 0))
+        .sort((a: ProviderProfile, b: ProviderProfile) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 12);
         
       setTopProviders(topProvidersList);
@@ -198,25 +201,25 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const getProvidersByServiceType = (serviceTypeId: string) => {
     return providers.filter(
-      (provider) => provider.service_type_ids.includes(serviceTypeId)
+      (provider) => provider.categories.includes(serviceTypeId)
     );
   };
 
   const getProvidersBySubcategory = (subcategoryId: string) => {
     return providers.filter(
-      (provider) => provider.subcategory_ids?.includes(subcategoryId)
+      (provider) => provider.categories?.includes(subcategoryId)
     );
   };
 
   const getServicesByProvider = (providerId: string) => {
     return services.filter(
-      (service) => service.provider_id === providerId
+      (service) => service.providerId === providerId
     );
   };
 
-  const getServicesBySubcategory = (services: Service[], subcategoryId: string) => {
+  const getServicesBySubcategory = (services: SearchResultService[], subcategoryId: string) => {
     return services.filter(
-      (service) => service.subcategory_id === subcategoryId
+      (service) => service.subcategory === subcategoryId
     );
   };
 

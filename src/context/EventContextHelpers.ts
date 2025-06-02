@@ -1,4 +1,4 @@
-import { Category, Provider, Service, Subcategory, ServiceType } from "@/types";
+import { Category, ProviderProfile, SearchResultService, Subcategory, ServiceType } from "@/types";
 
 // Helper functions for EventContext to keep the main file clean
 
@@ -21,68 +21,68 @@ export const getServiceTypesBySubcategory = (
 };
 
 export const getProvidersByServiceType = (
-  providers: Provider[],
+  providers: ProviderProfile[],
   serviceTypeId: string
-): Provider[] => {
+): ProviderProfile[] => {
   return providers.filter(
-    (provider) => provider.service_type_ids.includes(serviceTypeId)
+    (provider) => provider.categories.includes(serviceTypeId)
   );
 };
 
 export const getServicesByProvider = (
-  services: Service[],
+  services: SearchResultService[],
   providerId: string
-): Service[] => {
+): SearchResultService[] => {
   return services.filter(
-    (service) => service.provider_id === providerId
+    (service) => service.providerId === providerId
   );
 };
 
 // חיפוש ספקים לפי קטגוריה
 export const getProvidersByCategory = (
-  providers: Provider[],
+  providers: ProviderProfile[],
   categoryId: string
-): Provider[] => {
+): ProviderProfile[] => {
   return providers.filter(
-    (provider) => provider.category_ids?.includes(categoryId)
+    (provider) => provider.categories?.includes(categoryId)
   );
 };
 
 // חיפוש ספקים לפי תת-קטגוריה
 export const getProvidersBySubcategory = (
-  providers: Provider[],
+  providers: ProviderProfile[],
   subcategoryId: string
-): Provider[] => {
+): ProviderProfile[] => {
   return providers.filter(
-    (provider) => provider.subcategory_ids?.includes(subcategoryId)
+    (provider) => provider.categories?.includes(subcategoryId)
   );
 };
 
 // חיפוש שירותים לפי קטגוריה
 export const getServicesByCategory = (
-  services: Service[],
+  services: SearchResultService[],
   categoryId: string
-): Service[] => {
+): SearchResultService[] => {
   return services.filter(
-    (service) => service.category_id === categoryId
+    (service) => service.category === categoryId
   );
 };
 
 // חיפוש שירותים לפי תת-קטגוריה
 export const getServicesBySubcategory = (
-  services: Service[],
+  services: SearchResultService[],
   subcategoryId: string
-): Service[] => {
+): SearchResultService[] => {
   return services.filter(
-    (service) => service.subcategory_id === subcategoryId
+    (service) => service.subcategory === subcategoryId
   );
 };
 
 // חיפוש שירותים לפי קונספט
 export const getServicesByConcept = (
-  services: Service[],
+  services: SearchResultService[],
   conceptId: string
-): Service[] => {
+): SearchResultService[] => {
   return services.filter(
     (service) => service.suitableFor?.includes(conceptId)
   );
@@ -90,30 +90,30 @@ export const getServicesByConcept = (
 
 // בדיקה אם קיימים שירותים לקטגוריה מסוימת
 export const hasServicesForCategory = (
-  services: Service[],
+  services: SearchResultService[],
   categoryId: string
 ): boolean => {
-  return services.some((service) => service.category_id === categoryId);
+  return services.some((service) => service.category === categoryId);
 };
 
 // בדיקה אם קיימים ספקים לתת-קטגוריה מסוימת
 export const hasProvidersForSubcategory = (
-  providers: Provider[],
+  providers: ProviderProfile[],
   subcategoryId: string
 ): boolean => {
-  return providers.some((provider) => provider.subcategory_ids?.includes(subcategoryId));
+  return providers.some((provider) => provider.categories?.includes(subcategoryId));
 };
 
 // חיפוש שירותים מובילים
-export const getTopServices = (services: Service[], limit: number = 12): Service[] => {
+export const getTopServices = (services: SearchResultService[], limit: number = 12): SearchResultService[] => {
   return services
-    .filter(service => service.is_featured)
+    .filter(service => service.featured)
     .sort((a, b) => (b.rating || 0) - (a.rating || 0))
     .slice(0, limit);
 };
 
 // חיפוש ספקים מובילים
-export const getTopProviders = (providers: Provider[], limit: number = 12): Provider[] => {
+export const getTopProviders = (providers: ProviderProfile[], limit: number = 12): ProviderProfile[] => {
   return providers
     .filter(provider => provider.rating && provider.rating > 4.0)
     .sort((a, b) => (b.rating || 0) - (a.rating || 0))
