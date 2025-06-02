@@ -40,6 +40,9 @@ interface UnifiedService {
   targetAudience?: string[];
   minAudience?: number;
   maxAudience?: number;
+  // Added missing properties for reception service
+  isReceptionService?: boolean;
+  is_reception_service?: boolean;
 }
 
 // פונקציית נורמליזציה לוודא שכל השירותים יהיו עם מבנה אחיד
@@ -78,7 +81,10 @@ function normalizeService(service: any): UnifiedService {
     audienceAges: service.audienceAges,
     targetAudience: service.targetAudience,
     minAudience: service.minAudience,
-    maxAudience: service.maxAudience
+    maxAudience: service.maxAudience,
+    // Handle reception service properties
+    isReceptionService: service.isReceptionService || service.is_reception_service || false,
+    is_reception_service: service.is_reception_service || service.isReceptionService || false
   };
 }
 

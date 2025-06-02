@@ -56,7 +56,7 @@ const RecommendedResultsPage = () => {
     if (service.suitableFor?.includes(searchCriteria.ageGroup)) score += 3;
     
     // דירוג לפי התאמה לסוג מופע
-    if (searchCriteria.isReception && (service.isReceptionService || service.is_reception_service)) score += 5;
+    if (searchCriteria.isReception && service.isReceptionService) score += 5;
     if (searchCriteria.isMainShow) score += 3;
     
     // דירוג לפי מיקום (סימולציה)
@@ -156,7 +156,7 @@ const RecommendedResultsPage = () => {
                 </Button>
               </div>
 
-              {showMoreMoreResults && (
+              {showMoreResults && (
                 <RecommendedResults
                   services={additionalResults}
                   selectedServices={selectedServices}
