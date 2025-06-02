@@ -51,7 +51,6 @@ export const useCalendarAvailability = () => {
   ): Promise<Record<string, boolean>> => {
     const results: Record<string, boolean> = {};
     
-    // בדיקה במקביל של כל השירותים
     const promises = checks.map(async (check) => {
       const available = await checkServiceAvailability(check);
       return { serviceId: check.serviceId, available };

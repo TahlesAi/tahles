@@ -22,7 +22,6 @@ export const useFilteredServices = ({
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const { checkMultipleServicesAvailability } = useCalendarAvailability();
 
-  // בדיקת זמינות כאשר משתנים הפרמטרים
   useEffect(() => {
     const checkAvailability = async () => {
       if (!showOnlyAvailable || !selectedDate || !selectedTime || services.length === 0) {
@@ -54,7 +53,6 @@ export const useFilteredServices = ({
     checkAvailability();
   }, [services, selectedDate, selectedTime, selectedLocation, showOnlyAvailable, checkMultipleServicesAvailability]);
 
-  // סינון השירותים על בסיס זמינות
   const filteredServices = useMemo(() => {
     if (!showOnlyAvailable || !selectedDate || !selectedTime) {
       return services;
