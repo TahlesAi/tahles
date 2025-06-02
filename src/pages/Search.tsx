@@ -15,7 +15,7 @@ import { SearchResultsSkeleton } from "@/components/loading/AdvancedSkeletonLoad
 import FavoritesDashboard from "@/components/favorites/FavoritesDashboard";
 import { searchServices } from "@/lib/unifiedMockData";
 import { Button } from "@/components/ui/button";
-import { Grid, List, SlidersHorizontal, Calendar, AlertCircle } from "lucide-react";
+import { Grid, List, SlidersHorizontal, Calendar, AlertCircle, Tag } from "lucide-react"; // *** הוספת Tag ***
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Search = () => {

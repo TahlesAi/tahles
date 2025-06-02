@@ -66,6 +66,7 @@ export interface ExtendedService {
   featured: boolean;
   available: boolean;
   tags: string[];
+  conceptTags?: string[]; // *** הוספת שדה conceptTags ***
   suitableFor: string[];
   audienceSize: {
     min: number;
@@ -338,6 +339,17 @@ export const generateSimulatedProviders = (subcategoryId: string, subcategoryNam
 
 // יצירת שירותים סימולציה
 export const generateSimulatedServices = (providerId: string, providerName: string, subcategoryName: string): ExtendedService[] => {
+  const conceptTagsOptions = [
+    'יום הולדת', 'בר מצווה', 'בת מצווה', 'חתונה', 'אירועי חברה', 
+    'מסיבת רווקים', 'מסיבת רווקות', 'ערב גיבוש', 'מסיבת סיום',
+    'יום העצמאות', 'חנוכה', 'פורים', 'ראש השנה', 'יום כיפור'
+  ];
+  
+  // בחירה אקראית של 2-4 קונספטים
+  const selectedConcepts = conceptTagsOptions
+    .sort(() => 0.5 - Math.random())
+    .slice(0, Math.floor(Math.random() * 3) + 2);
+
   return [{
     id: `sim-service-${providerId}-1`,
     providerId,
@@ -356,6 +368,7 @@ export const generateSimulatedServices = (providerId: string, providerName: stri
     featured: Math.random() > 0.7,
     available: true,
     tags: [subcategoryName, 'מקצועי', 'איכותי'],
+    conceptTags: selectedConcepts, // *** הוספת קונספטים דמיים ***
     suitableFor: ['אירועי חברה', 'אירועים פרטיים'],
     audienceSize: {
       min: 10,
