@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -8,6 +7,7 @@ import OptimizedSearchFilters from "@/components/search/OptimizedSearchFilters";
 import CinematicResultsView from "@/components/search/CinematicResultsView";
 import ServiceComparisonBar from "@/components/comparison/ServiceComparisonBar";
 import NoResultsFallback from "@/components/search/NoResultsFallback";
+import Chatbot from "@/components/chat/Chatbot";
 import { searchServices } from "@/lib/unifiedMockData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'cinematic'>('cinematic');
+  const [viewMode, setViewMode<'grid' | 'list' | 'cinematic'>('cinematic');
   const [selectedServices, setSelectedServices] = useState<any[]>([]);
   const [showFilters, setShowFilters] = useState(true);
   
@@ -207,6 +207,9 @@ const Search = () => {
         }
         onClearAll={() => setSelectedServices([])}
       />
+      
+      {/* Chatbot */}
+      <Chatbot />
       
       <Footer />
     </div>
