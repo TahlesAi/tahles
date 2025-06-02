@@ -5,11 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2, List } from "lucide-react";
-import { useEventContext } from "@/context/EventContext";
+import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
 import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
 
 const ServiceCategoriesUnified = () => {
-  const { hebrewCategories, isLoading } = useEventContext();
+  const { hebrewCategories, isLoading } = useUnifiedEventContext();
   const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -63,9 +63,10 @@ const ServiceCategoriesUnified = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  // ניווט ישיר לתתי קטגוריות
+  // ניווט ישיר לתתי קטגוריות - עכשיו עם הקונטקסט הנכון
   const handleCategoryClick = (category: any) => {
     console.log('Navigating directly to subcategories for category:', category.id, category.name);
+    console.log('Category data:', category);
     navigate(`/search/subcategories?categoryId=${category.id}`);
   };
 

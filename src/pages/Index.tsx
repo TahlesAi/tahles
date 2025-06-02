@@ -11,21 +11,26 @@ import MainCTA from "@/components/home/MainCTA";
 import TopProviders from "@/components/home/TopProviders";
 import FeaturesBenefits from "@/components/home/FeaturesBenefits";
 
+// עדכון לשימוש ב-UnifiedEventContext
+import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
+
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        <Hero />
-        <EventConcepts />
-        <MainCTA />
-        <ServiceCategoriesUnified />
-        <TopProviders />
-        <FeaturesBenefits />
-        <AdditionalServices />
-      </main>
-      <Footer />
-    </div>
+    <UnifiedEventProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          <Hero />
+          <EventConcepts />
+          <MainCTA />
+          <ServiceCategoriesUnified />
+          <TopProviders />
+          <FeaturesBenefits />
+          <AdditionalServices />
+        </main>
+        <Footer />
+      </div>
+    </UnifiedEventProvider>
   );
 };
 
