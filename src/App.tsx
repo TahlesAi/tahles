@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { EventProvider } from "@/context/EventContext";
-import { NotificationSystem } from "@/components/notifications/NotificationSystem";
+import NotificationSystem from "@/components/notifications/NotificationSystem";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import ServiceDetails from "./pages/ServiceDetails";
