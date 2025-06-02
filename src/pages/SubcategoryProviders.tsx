@@ -81,7 +81,7 @@ const SubcategoryProviders = () => {
           averagePrice: providerServices.length > 0 
             ? Math.round(providerServices.reduce((sum, service) => sum + (service.price || 0), 0) / providerServices.length)
             : 0,
-          // Convert to expected format
+          // תיקון לטיפוסים נכונים
           name: provider.businessName,
           contact_phone: provider.phone,
           contact_email: provider.email,
@@ -214,82 +214,91 @@ const SubcategoryProviders = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {subcategoryProviders.map((provider) => (
-                <Link
-                  key={provider.id}
-                  to={`/providers/${provider.id}`}
-                  className="group block"
-                >
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                    <CardContent className="p-6">
-                      <div className="flex items-start mb-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                          {provider.logo_url || provider.logo ? (
-                            <img 
-                              src={provider.logo_url || provider.logo} 
-                              alt={provider.name || provider.businessName}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-brand-100">
-                              <User className="h-8 w-8 text-brand-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="mr-4 flex-grow">
-                          <div className="flex items-center">
-                            <h3 className="text-lg font-semibold group-hover:text-brand-600 transition-colors">
-                              {provider.name || provider.businessName}
-                            </h3>
-                            {provider.is_verified && (
-                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+              {subcategoryProviders.map((provider) => {
+                // תיקון גישה לנכסי הספק
+                const providerName = provider.name || provider.businessName || 'ספק ללא שם';
+                const providerLogo = provider.logo_url || provider.logo;
+                const isVerified = provider.is_verified || provider.verified;
+                const providerRating = provider.rating;
+                const reviewCount = provider.review_count || provider.reviewCount || 0;
+                
+                return (
+                  <Link
+                    key={provider.id}
+                    to={`/providers/${provider.id}`}
+                    className="group block"
+                  >
+                    <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                      <CardContent className="p-6">
+                        <div className="flex items-start mb-4">
+                          <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                            {providerLogo ? (
+                              <img 
+                                src={providerLogo} 
+                                alt={providerName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-brand-100">
+                                <User className="h-8 w-8 text-brand-600" />
+                              </div>
                             )}
                           </div>
-                          <div className="flex items-center mt-1">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            <span className="mr-1 text-sm font-medium">
-                              {provider.rating?.toFixed(1) || '4.5'}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              ({provider.review_count || provider.reviewCount || 0} ביקורות)
-                            </span>
+                          <div className="mr-4 flex-grow">
+                            <div className="flex items-center">
+                              <h3 className="text-lg font-semibold group-hover:text-brand-600 transition-colors">
+                                {providerName}
+                              </h3>
+                              {isVerified && (
+                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                              )}
+                            </div>
+                            <div className="flex items-center mt-1">
+                              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                              <span className="mr-1 text-sm font-medium">
+                                {providerRating?.toFixed(1) || '4.5'}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                ({reviewCount} ביקורות)
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {provider.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                          {provider.description}
-                        </p>
-                      )}
-                      
-                      <div className="space-y-2">
-                        {provider.city && (
-                          <div className="flex items-center text-sm text-gray-500">
-                            <MapPin className="h-4 w-4 ml-1" />
-                            <span>{provider.city}</span>
-                          </div>
+                        
+                        {provider.description && (
+                          <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                            {provider.description}
+                          </p>
                         )}
                         
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-500">{provider.servicesCount} שירותים</span>
-                          {provider.averagePrice > 0 && (
-                            <span className="text-brand-600 font-medium">
-                              מ-₪{provider.averagePrice}
-                            </span>
+                        <div className="space-y-2">
+                          {provider.city && (
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 ml-1" />
+                              <span>{provider.city}</span>
+                            </div>
                           )}
+                          
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500">{provider.servicesCount} שירותים</span>
+                            {provider.averagePrice > 0 && (
+                              <span className="text-brand-600 font-medium">
+                                מ-₪{provider.averagePrice}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <span className="text-brand-600 font-medium text-sm group-hover:underline">
-                          צפה בפרופיל ←
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+                        
+                        <div className="mt-4">
+                          <span className="text-brand-600 font-medium text-sm group-hover:underline">
+                            צפה בפרופיל ←
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

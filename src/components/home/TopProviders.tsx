@@ -69,7 +69,7 @@ const TopProviders = () => {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {slideProviders.map((provider, index) => {
-                      // הוספת בדיקות בטיחות
+                      // תיקון גישה לנכסי הספק
                       const providerName = provider?.businessName || provider?.name || 'ספק ללא שם';
                       const providerDescription = provider?.description || 'ספק שירותים מקצועי';
                       const providerLogo = provider?.logo || provider?.logo_url;

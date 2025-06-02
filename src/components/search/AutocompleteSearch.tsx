@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useEventContext } from "@/context/EventContext";
 import { useNavigate } from "react-router-dom";
@@ -78,12 +77,15 @@ const AutocompleteSearch = ({
       
       // חיפוש בספקים
       providers.forEach(provider => {
-        if (provider.businessName.includes(query) || provider.description?.includes(query)) {
+        const providerName = provider.businessName || provider.name || '';
+        const providerDescription = provider.description || '';
+        
+        if (providerName.includes(query) || providerDescription.includes(query)) {
           filteredSuggestions.push({
             type: 'provider',
             id: provider.id,
-            name: provider.businessName,
-            description: provider.description
+            name: providerName,
+            description: providerDescription
           });
         }
       });

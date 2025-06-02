@@ -51,7 +51,7 @@ export interface HebrewHierarchy {
   concepts: HebrewConcept[];
 }
 
-// Provider Types
+// Provider Types - UPDATED to match all usage
 export interface Provider extends BaseEntity {
   userId?: string;
   businessName?: string;
@@ -93,6 +93,41 @@ export interface Provider extends BaseEntity {
   socialLinks?: Record<string, string>;
   mediaLinks?: string[];
   clientRecommendations?: string[];
+}
+
+// ProviderProfile - UPDATED to match AutocompleteSearch usage
+export interface ProviderProfile {
+  id: string;
+  userId?: string;
+  businessName: string;
+  name?: string; // alias for businessName
+  description: string;
+  contactPerson: string;
+  contact_person?: string; // alias
+  email: string;
+  contact_email?: string; // alias
+  phone: string;
+  contact_phone?: string; // alias
+  address?: string;
+  city?: string;
+  website?: string;
+  categories: string[];
+  category_ids?: string[]; // alias
+  logo?: string;
+  logo_url?: string; // alias
+  coverImage?: string;
+  gallery: string[];
+  rating?: number;
+  reviewCount?: number;
+  review_count?: number; // alias
+  featured?: boolean;
+  verified?: boolean;
+  is_verified?: boolean; // alias
+  services?: Service[];
+  specialties?: string[];
+  yearsExperience?: number;
+  insurance?: boolean;
+  testimonials?: any[];
 }
 
 // Calendar and Availability Types
@@ -416,33 +451,7 @@ export interface SystemConfig {
   featuredServicePrice: number;
 }
 
-// Profile Types
-export interface ProviderProfile {
-  id: string;
-  userId?: string;
-  businessName: string;
-  description: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  address?: string;
-  city?: string;
-  website?: string;
-  categories: string[];
-  logo?: string;
-  coverImage?: string;
-  gallery: string[];
-  rating?: number;
-  reviewCount?: number;
-  featured?: boolean;
-  verified?: boolean;
-  services?: Service[];
-  specialties?: string[];
-  yearsExperience?: number;
-  insurance?: boolean;
-  testimonials?: any[];
-}
-
+// ServiceProfile - UPDATED to match ServiceDetails usage
 export interface ServiceProfile {
   id: string;
   providerId: string;

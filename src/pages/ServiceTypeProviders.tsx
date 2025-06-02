@@ -114,51 +114,60 @@ const ServiceTypeProviders = () => {
             
             {providers.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {providers.map((provider) => (
-                  <Link
-                    key={provider.id}
-                    to={`/providers/${provider.id}`}
-                    className="group"
-                  >
-                    <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02] overflow-hidden">
-                      <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                        {provider.logo ? (
-                          <img
-                            src={provider.logo}
-                            alt={provider.businessName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-gray-400 text-xs">אין תמונה</span>
-                        )}
-                      </div>
-                      <CardContent className="p-2.5">
-                        <h3 className="text-xs font-medium group-hover:text-brand-600 transition-colors mb-1 line-clamp-2 leading-tight">
-                          {provider.businessName}
-                        </h3>
-                        
-                        {provider.rating && (
-                          <div className="flex items-center mb-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 ml-1" />
-                            <span className="text-xs font-medium">{provider.rating.toFixed(1)}</span>
-                          </div>
-                        )}
-                        
-                        {provider.verified && (
-                          <div className="inline-block bg-green-100 text-green-800 text-xs px-1 py-0.5 rounded-full mb-1">
-                            מאומת ✓
-                          </div>
-                        )}
-                        
-                        <div className="text-center mt-1">
-                          <span className="text-xs text-brand-600 font-medium">
-                            צפה <ChevronRight className="inline h-3 w-3" />
-                          </span>
+                {providers.map((provider) => {
+                  // תיקון גישה לנכסי הספק
+                  const providerLogo = provider.logo_url || provider.logo;
+                  const providerName = provider.businessName || provider.name || 'ספק ללא שם';
+                  const providerRating = provider.rating;
+                  const providerReviewCount = provider.review_count || provider.reviewCount || 0;
+                  const isVerified = provider.is_verified || provider.verified;
+                  
+                  return (
+                    <Link
+                      key={provider.id}
+                      to={`/providers/${provider.id}`}
+                      className="group"
+                    >
+                      <Card className="h-full hover:shadow-md transition-all duration-200 hover:scale-[1.02] overflow-hidden">
+                        <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                          {providerLogo ? (
+                            <img
+                              src={providerLogo}
+                              alt={providerName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-gray-400 text-xs">אין תמונה</span>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                        <CardContent className="p-2.5">
+                          <h3 className="text-xs font-medium group-hover:text-brand-600 transition-colors mb-1 line-clamp-2 leading-tight">
+                            {providerName}
+                          </h3>
+                          
+                          {providerRating && (
+                            <div className="flex items-center mb-1">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 ml-1" />
+                              <span className="text-xs font-medium">{providerRating.toFixed(1)}</span>
+                            </div>
+                          )}
+                          
+                          {isVerified && (
+                            <div className="inline-block bg-green-100 text-green-800 text-xs px-1 py-0.5 rounded-full mb-1">
+                              מאומת ✓
+                            </div>
+                          )}
+                          
+                          <div className="text-center mt-1">
+                            <span className="text-xs text-brand-600 font-medium">
+                              צפה <ChevronRight className="inline h-3 w-3" />
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-6 bg-gray-50 rounded-lg">

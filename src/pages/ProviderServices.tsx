@@ -54,6 +54,10 @@ const ProviderServices = () => {
   }
 
   const services = getServicesByProvider(providerId as string);
+  
+  // תיקון גישה לנכסי הספק
+  const providerName = provider.businessName || provider.name || 'ספק ללא שם';
+  const providerDescription = provider.description || '';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -68,13 +72,13 @@ const ProviderServices = () => {
             <ChevronLeft className="h-3 w-3 mx-1" />
             <Link to="/categories" className="hover:text-brand-600">קטגוריות</Link>
             <ChevronLeft className="h-3 w-3 mx-1" />
-            <span className="text-gray-900 font-medium">{provider.businessName}</span>
+            <span className="text-gray-900 font-medium">{providerName}</span>
           </nav>
 
           {/* כותרת קומפקטית */}
           <div className="mb-5">
-            <h1 className={`${designSystem.typography.title} mb-1`}>{provider.businessName}</h1>
-            <p className="text-sm text-gray-600">{provider.description}</p>
+            <h1 className={`${designSystem.typography.title} mb-1`}>{providerName}</h1>
+            <p className="text-sm text-gray-600">{providerDescription}</p>
           </div>
 
           {/* שירותים - רשת צפופה */}
