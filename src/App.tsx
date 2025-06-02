@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import SearchSubcategories from "./pages/SearchSubcategories";
 import SubcategoryProviders from "./pages/SubcategoryProviders";
-import ProviderProfile from "./pages/ProviderProfile";
 import ServiceDetails from "./pages/ServiceDetails";
 import HierarchyManagement from "./pages/admin/HierarchyManagement";
 
@@ -25,7 +24,6 @@ const App = () => (
           <Route path="/categories" element={<Categories />} />
           <Route path="/search/subcategories" element={<SearchSubcategories />} />
           <Route path="/subcategory/:subcategoryId/providers" element={<SubcategoryProviders />} />
-          <Route path="/provider/:providerId" element={<ProviderProfile />} />
           <Route path="/service/:serviceId" element={<ServiceDetails />} />
           <Route path="/admin/hierarchy" element={<HierarchyManagement />} />
         </Routes>
