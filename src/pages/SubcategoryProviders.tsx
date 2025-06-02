@@ -46,11 +46,19 @@ const SubcategoryProviders = () => {
       setSubcategory(foundSubcategory);
       setError(null);
       
-      // סינון ספקים לפי תת הקטגוריה
-      const filteredProviders = providers.filter(provider => 
-        provider.subcategoryIds?.includes(subcategoryId) || 
-        provider.categories?.includes(foundSubcategory.name)
-      );
+      // סינון ספקים לפי תת הקטגוריה - תיקון להשתמש בשדות הנכונים
+      const filteredProviders = providers.filter(provider => {
+        // בדיקה אם תת הקטגוריה נמצאת ברשימת תתי הקטגוריות של הספק
+        const hasSubcategory = provider.subcategoryIds?.includes(subcategoryId);
+        
+        // בדיקה נוספת אם הקטגוריה הראשית תואמת
+        const hasPrimaryCategory = provider.primaryCategoryId === foundCategory.id;
+        const hasSecondaryCategory = provider.secondaryCategoryIds?.includes(foundCategory.id);
+        
+        console.log(`Provider ${provider.name}: hasSubcategory=${hasSubcategory}, hasPrimaryCategory=${hasPrimaryCategory}, hasSecondaryCategory=${hasSecondaryCategory}`);
+        
+        return hasSubcategory || hasPrimaryCategory || hasSecondaryCategory;
+      });
       
       console.log('Found providers for subcategory:', filteredProviders.length);
       setSubcategoryProviders(filteredProviders);
