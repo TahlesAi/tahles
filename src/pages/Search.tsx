@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -8,8 +9,10 @@ import CinematicResultsView from "@/components/search/CinematicResultsView";
 import ServiceComparisonBar from "@/components/comparison/ServiceComparisonBar";
 import NoResultsFallback from "@/components/search/NoResultsFallback";
 import Chatbot from "@/components/chat/Chatbot";
+import AdvancedBreadcrumbs from "@/components/navigation/AdvancedBreadcrumbs";
+import { SearchResultsSkeleton } from "@/components/loading/AdvancedSkeletonLoader";
+import FavoritesDashboard from "@/components/favorites/FavoritesDashboard";
 import { searchServices } from "@/lib/unifiedMockData";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Grid, List, SlidersHorizontal } from "lucide-react";
@@ -37,7 +40,11 @@ const Search = () => {
       category: category || undefined,
       subcategory: subcategory || undefined
     });
-    setIsLoading(false);
+    
+    // סימולציה של טעינה למשך 500ms
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, [location.search]);
 
   // Search for services using the unified data
@@ -59,29 +66,34 @@ const Search = () => {
     // Implementation depends on the specific suggestion
   };
 
+  // יצירת breadcrumbs דינמיים
+  const breadcrumbItems = [
+    { label: 'דף הבית', href: '/' },
+    { label: 'חיפוש', href: '/search', isActive: !searchTerm && !filters.category },
+    ...(filters.category ? [{ label: filters.category }] : []),
+    ...(searchTerm ? [{ label: `"${searchTerm}"`, isActive: true }] : [])
+  ];
+
   // Show loading skeleton while data is being fetched
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AdvancedBreadcrumbs items={breadcrumbItems} />
         <main className="flex-grow py-8 bg-gray-50">
           <div className="container px-4">
             <div className="mb-8">
-              <Skeleton className="h-8 w-64 mb-4" />
-              <Skeleton className="h-4 w-96" />
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="h-4 w-96 bg-gray-200 rounded animate-pulse" />
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               <div className="lg:col-span-1">
-                <Skeleton className="h-96 w-full" />
+                <div className="h-96 w-full bg-gray-200 rounded animate-pulse" />
               </div>
               
               <div className="lg:col-span-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <Skeleton key={i} className="h-64 w-full" />
-                  ))}
-                </div>
+                <SearchResultsSkeleton />
               </div>
             </div>
           </div>
@@ -94,6 +106,7 @@ const Search = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      <AdvancedBreadcrumbs items={breadcrumbItems} />
       <main className="flex-grow py-8 bg-gray-50">
         <div className="container px-4">
           {/* Search Results Header */}
@@ -111,6 +124,8 @@ const Search = () => {
               
               {/* View Mode Controls */}
               <div className="flex items-center gap-2">
+                <FavoritesDashboard />
+                
                 <Button
                   variant="ghost"
                   size="sm"
