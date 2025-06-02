@@ -390,6 +390,69 @@ export type Database = {
           },
         ]
       }
+      provider_availability_slots: {
+        Row: {
+          created_at: string | null
+          current_bookings: number | null
+          date: string
+          end_time: string
+          id: string
+          is_available: boolean | null
+          max_concurrent_bookings: number | null
+          notes: string | null
+          provider_id: string | null
+          service_area: string | null
+          service_id: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_bookings?: number | null
+          date: string
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          max_concurrent_bookings?: number | null
+          notes?: string | null
+          provider_id?: string | null
+          service_area?: string | null
+          service_id?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_bookings?: number | null
+          date?: string
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          max_concurrent_bookings?: number | null
+          notes?: string | null
+          provider_id?: string | null
+          service_area?: string | null
+          service_id?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_slots_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_availability_slots_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_calendar: {
         Row: {
           created_at: string | null
@@ -473,6 +536,8 @@ export type Database = {
       providers: {
         Row: {
           address: string | null
+          calendar_active: boolean | null
+          calendar_connected: boolean | null
           city: string | null
           contact_person: string | null
           created_at: string | null
@@ -480,6 +545,7 @@ export type Database = {
           email: string | null
           id: string
           is_verified: boolean | null
+          last_calendar_sync: string | null
           logo_url: string | null
           max_travel_distance: number | null
           name: string
@@ -492,6 +558,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          calendar_active?: boolean | null
+          calendar_connected?: boolean | null
           city?: string | null
           contact_person?: string | null
           created_at?: string | null
@@ -499,6 +567,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_verified?: boolean | null
+          last_calendar_sync?: string | null
           logo_url?: string | null
           max_travel_distance?: number | null
           name: string
@@ -511,6 +580,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          calendar_active?: boolean | null
+          calendar_connected?: boolean | null
           city?: string | null
           contact_person?: string | null
           created_at?: string | null
@@ -518,6 +589,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_verified?: boolean | null
+          last_calendar_sync?: string | null
           logo_url?: string | null
           max_travel_distance?: number | null
           name?: string
@@ -629,8 +701,13 @@ export type Database = {
           price_range: string | null
           price_unit: string | null
           provider_id: string
+          requires_travel: boolean | null
+          service_areas: string[] | null
+          setup_time_minutes: number | null
           subcategory_id: string | null
+          teardown_time_minutes: number | null
           technical_requirements: string[] | null
+          travel_time_minutes: number | null
           updated_at: string | null
           videos: string[] | null
         }
@@ -651,8 +728,13 @@ export type Database = {
           price_range?: string | null
           price_unit?: string | null
           provider_id: string
+          requires_travel?: boolean | null
+          service_areas?: string[] | null
+          setup_time_minutes?: number | null
           subcategory_id?: string | null
+          teardown_time_minutes?: number | null
           technical_requirements?: string[] | null
+          travel_time_minutes?: number | null
           updated_at?: string | null
           videos?: string[] | null
         }
@@ -673,8 +755,13 @@ export type Database = {
           price_range?: string | null
           price_unit?: string | null
           provider_id?: string
+          requires_travel?: boolean | null
+          service_areas?: string[] | null
+          setup_time_minutes?: number | null
           subcategory_id?: string | null
+          teardown_time_minutes?: number | null
           technical_requirements?: string[] | null
+          travel_time_minutes?: number | null
           updated_at?: string | null
           videos?: string[] | null
         }
@@ -734,7 +821,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_service_availability: {
+        Args: {
+          p_service_id: string
+          p_date: string
+          p_start_time: string
+          p_duration_minutes?: number
+          p_location?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

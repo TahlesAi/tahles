@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
+import { MapPin, Users, Clock, Play, Image as ImageIcon, Calendar, AlertCircle } from "lucide-react";
 import RatingDisplay from "@/components/rating/RatingDisplay";
 import FavoriteButton from "@/components/favorites/FavoriteButton";
 import PDFExportButton from "@/components/export/PDFExportButton";
@@ -17,9 +17,22 @@ interface ServiceResultCardProps {
   isSelected?: boolean;
   onToggleSelect?: (service: any) => void;
   canSelect?: boolean;
+  availabilityStatus?: boolean | null; // null = לא נבדק, true = זמין, false = לא זמין
+  isCheckingAvailability?: boolean;
+  selectedDate?: string;
+  selectedTime?: string;
 }
 
-const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: ServiceResultCardProps) => {
+const ServiceResultCard = ({ 
+  service, 
+  isSelected, 
+  onToggleSelect, 
+  canSelect,
+  availabilityStatus,
+  isCheckingAvailability,
+  selectedDate,
+  selectedTime
+}: ServiceResultCardProps) => {
   const serviceId = service.id || service.serviceId || service.service_id;
   const providerId = service.providerId || service.provider_id;
   
@@ -63,15 +76,53 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
 
   const longPressHandler = handleLongPress(serviceQuickViewData);
 
+  // קביעת מצב הכרטיס על בסיס זמינות
+  const getCardStatus = () => {
+    if (isCheckingAvailability) return 'checking';
+    if (availabilityStatus === false) return 'unavailable';
+    if (availabilityStatus === true) return 'available';
+    return 'unknown';
+  };
+
+  const cardStatus = getCardStatus();
+
   return (
     <>
       <Card 
-        className="overflow-hidden hover:shadow-lg transition-shadow duration-200 border-0 shadow-md"
+        className={`overflow-hidden transition-all duration-200 border-0 shadow-md ${
+          cardStatus === 'unavailable' 
+            ? 'opacity-50 grayscale' 
+            : cardStatus === 'checking' 
+            ? 'opacity-75' 
+            : 'hover:shadow-lg'
+        }`}
         onTouchStart={longPressHandler}
         onTouchEnd={longPressHandler}
         onTouchCancel={longPressHandler}
       >
         <div className="relative h-48 overflow-hidden">
+          {/* אינדיקטור זמינות */}
+          {selectedDate && selectedTime && (
+            <div className="absolute top-2 right-12 z-10">
+              {isCheckingAvailability ? (
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 animate-pulse">
+                  <Clock className="h-3 w-3 ml-1" />
+                  בודק זמינות...
+                </Badge>
+              ) : availabilityStatus === true ? (
+                <Badge className="text-xs bg-green-500 hover:bg-green-600">
+                  <Calendar className="h-3 w-3 ml-1" />
+                  זמין
+                </Badge>
+              ) : availabilityStatus === false ? (
+                <Badge variant="destructive" className="text-xs">
+                  <AlertCircle className="h-3 w-3 ml-1" />
+                  לא זמין
+                </Badge>
+              ) : null}
+            </div>
+          )}
+
           {/* כפתור השוואה */}
           {onToggleSelect && (
             <div className="absolute top-2 right-2 z-10">
@@ -223,12 +274,23 @@ const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: S
                 )}
               </div>
             )}
+
+            {/* הצגת זמינות מפורטת */}
+            {selectedDate && selectedTime && availabilityStatus === false && (
+              <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                שירות זה אינו זמין ב-{selectedDate} בשעה {selectedTime}
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2">
             <Link to={`/service/${serviceId}`} className="flex-1">
-              <Button className="w-full">
-                צפה בפרטים
+              <Button 
+                className="w-full" 
+                disabled={cardStatus === 'unavailable'}
+                variant={cardStatus === 'unavailable' ? 'outline' : 'default'}
+              >
+                {cardStatus === 'unavailable' ? 'לא זמין' : 'צפה בפרטים'}
               </Button>
             </Link>
             
