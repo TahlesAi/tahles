@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from 'react';
 
+export type EventType = 'private' | 'business' | 'mixed' | 'children';
+
 interface GuidedSearchData {
   eventDate?: Date | null;
   eventStartTime?: string;
   eventEndTime?: string;
-  eventType?: string;
+  eventType?: EventType;
   location?: { city: string; address?: string };
   attendeesCount?: string;
   budget?: { min: number; max: number };
@@ -22,7 +24,7 @@ export const useGuidedSearchStorage = (storageKey: string = 'guided-search-data'
       if (savedData) {
         const parsed = JSON.parse(savedData);
         // המרת תאריך חזרה מ-string
-        if (parsed.eventDate) {
+        if (parsed.eventDate && typeof parsed.eventDate === 'string') {
           parsed.eventDate = new Date(parsed.eventDate);
         }
         setData(parsed);
@@ -42,7 +44,7 @@ export const useGuidedSearchStorage = (storageKey: string = 'guided-search-data'
         const dataToSave = { ...updated };
         // המרת תאריך ל-string לשמירה
         if (dataToSave.eventDate instanceof Date) {
-          dataToSave.eventDate = dataToSave.eventDate.toISOString();
+          dataToSave.eventDate = dataToSave.eventDate.toISOString() as any;
         }
         localStorage.setItem(storageKey, JSON.stringify(dataToSave));
       } catch (error) {

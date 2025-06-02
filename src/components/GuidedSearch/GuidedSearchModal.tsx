@@ -17,9 +17,7 @@ import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
 import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
 import { useEventContext } from "@/context/EventContext";
-import { useGuidedSearchStorage } from "@/hooks/useGuidedSearchStorage";
-
-export type EventType = 'private' | 'business' | 'mixed' | 'children';
+import { useGuidedSearchStorage, EventType } from "@/hooks/useGuidedSearchStorage";
 
 export interface GuidedSearchData {
   eventDate?: Date | null;
@@ -173,16 +171,16 @@ const GuidedSearchModal = ({ isOpen, onClose }: GuidedSearchModalProps) => {
           {currentStep === STEPS.EVENT_TYPE && (
             <EventTypeStep 
               selectedType={searchData.eventType}
-              onSelect={(type) => handleStepNext({ eventType: type })}
+              onSelect={(type: EventType) => handleStepNext({ eventType: type })}
               hebrewConcepts={hebrewConcepts}
               onSelectHebrewConcept={(concept) => 
                 handleStepNext({ 
                   selectedHebrewConcept: concept,
                   eventType: 
-                    concept.id === 'family-event' ? 'private' : 
-                    concept.id === 'company-event' ? 'business' :
-                    concept.id === 'children-event' ? 'children' :
-                    'mixed'
+                    concept.id === 'family-event' ? 'private' as EventType : 
+                    concept.id === 'company-event' ? 'business' as EventType :
+                    concept.id === 'children-event' ? 'children' as EventType :
+                    'mixed' as EventType
                 })
               }
             />

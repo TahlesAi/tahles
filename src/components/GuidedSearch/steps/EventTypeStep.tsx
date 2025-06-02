@@ -4,9 +4,9 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
-import { EventType } from "../GuidedSearchModal";
 import { Check, Users, Building, Heart, Baby } from "lucide-react";
 import { HebrewConcept } from "@/lib/types/hierarchy";
+import { EventType } from "@/hooks/useGuidedSearchStorage";
 
 export interface EventTypeStepProps {
   selectedType: EventType | undefined;
