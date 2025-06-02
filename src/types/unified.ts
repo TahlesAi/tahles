@@ -15,25 +15,71 @@ export interface User extends BaseEntity {
   phone?: string;
 }
 
+// Hebrew Hierarchy Types (הועברו מקובץ hierarchy)
+export interface HebrewCategory {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+  subcategories?: HebrewSubcategory[];
+}
+
+export interface HebrewSubcategory {
+  id: string;
+  name: string;
+  categoryId: string;
+  description?: string;
+}
+
+export interface HebrewConcept {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+  subconcepts?: HebrewSubconcept[];
+}
+
+export interface HebrewSubconcept {
+  id: string;
+  name: string;
+  conceptId: string;
+  description?: string;
+}
+
+export interface HebrewHierarchy {
+  categories: HebrewCategory[];
+  concepts: HebrewConcept[];
+}
+
 // Provider Types
 export interface Provider extends BaseEntity {
   userId?: string;
-  businessName: string;
+  businessName?: string;
+  name?: string;
   description: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
+  contactPerson?: string;
+  contact_person?: string;
+  email?: string;
+  contact_email?: string;
+  phone?: string;
+  contact_phone?: string;
   address?: string;
   city?: string;
   website?: string;
-  categories: string[];
+  categories?: string[];
+  category_ids?: string[];
+  subcategory_ids?: string[];
+  service_type_ids: string[];
   logo?: string;
+  logo_url?: string;
   coverImage?: string;
-  gallery: string[];
+  gallery?: string[];
   rating?: number;
   reviewCount?: number;
+  review_count?: number;
   featured?: boolean;
   verified?: boolean;
+  is_verified?: boolean;
   specialties?: string[];
   yearsExperience?: number;
   insurance?: boolean;
@@ -41,6 +87,12 @@ export interface Provider extends BaseEntity {
   calendar?: ProviderCalendar;
   workingHours?: WorkingHours;
   setupTeardownTime?: number;
+  services?: Service[];
+  serviceAreas?: string[];
+  experience?: string;
+  socialLinks?: Record<string, string>;
+  mediaLinks?: string[];
+  clientRecommendations?: string[];
 }
 
 // Calendar and Availability Types
@@ -137,23 +189,32 @@ export interface SetupRequirements {
 
 // Service Types
 export interface Service extends BaseEntity {
-  providerId: string;
+  providerId?: string;
+  provider_id: string;
   name: string;
   description: string;
-  category: string;
+  category?: string;
+  category_id: string;
   subcategory?: string;
-  images: string[];
+  subcategory_id: string;
+  service_type_id: string;
+  images?: string[];
+  imageUrl?: string;
   videos?: string[];
   additionalImages?: string[];
-  variants: ProductVariant[];
-  basePrice: number;
-  priceUnit: string;
-  suitableFor: string[];
+  additional_images?: string[];
+  variants?: ProductVariant[];
+  basePrice?: number;
+  price: number;
+  priceUnit?: string;
+  price_unit: string;
+  suitableFor?: string[];
   audienceSize?: {
     min: number;
     max: number;
     optimal?: number;
   };
+  audience_size?: string;
   audienceAges?: string[];
   duration?: number;
   maxAttendees?: number;
@@ -162,8 +223,10 @@ export interface Service extends BaseEntity {
   location?: string;
   isReceptionService?: boolean;
   featured?: boolean;
+  is_featured?: boolean;
   rating?: number;
   reviewCount?: number;
+  review_count?: number;
   tags?: string[];
   features?: string[];
   availabilityRules?: AvailabilityRule[];

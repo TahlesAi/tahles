@@ -15,7 +15,7 @@ import AttendeesStep from "./steps/AttendeesStep";
 import BudgetStep from "./steps/BudgetStep";
 import ResultsStep from "./steps/ResultsStep";
 import { toast } from "sonner";
-import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
+import { HebrewConcept, HebrewCategory } from "@/types";
 import { useEventContext } from "@/context/EventContext";
 import { useGuidedSearchStorage, EventType } from "@/hooks/useGuidedSearchStorage";
 

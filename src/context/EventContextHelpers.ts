@@ -1,4 +1,4 @@
-import { Category, Provider, Service, Subcategory, ServiceType } from "@/lib/types/hierarchy";
+import { Category, Provider, Service, Subcategory, ServiceType } from "@/types";
 
 // Helper functions for EventContext to keep the main file clean
 

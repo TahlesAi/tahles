@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { HebrewConcept, HebrewCategory } from "@/lib/types/hierarchy";
+import { HebrewConcept, HebrewCategory } from "@/types";
 import { EventType } from "@/hooks/useGuidedSearchStorage";
 import { ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 

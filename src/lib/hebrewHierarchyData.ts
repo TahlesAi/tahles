@@ -1,6 +1,5 @@
-
 // מקור יחיד ומאוחד לכל הנתונים במערכת
-import { HebrewHierarchy } from "./types/hierarchy";
+import { HebrewHierarchy } from "@/types";
 
 export const hebrewHierarchy: HebrewHierarchy = {
   // קטגוריות ראשיות - מאוחדות ומלאות

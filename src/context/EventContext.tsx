@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Category, Subcategory, ServiceType, Provider, Service } from '@/lib/types/hierarchy';
+import { Category, Subcategory, ServiceType, Provider, Service } from '@/types';
 import { hebrewHierarchy } from '@/lib/hebrewHierarchyData';
 import { unifiedServices, unifiedProviders } from '@/lib/unifiedMockData';
 

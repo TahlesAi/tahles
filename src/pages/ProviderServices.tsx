@@ -11,8 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, Home, Star, Phone, Mail, Globe, MapPin } from "lucide-react";
 import { useEventContext } from "@/context/EventContext";
 import ServiceResultCard from "@/components/search/ServiceResultCard";
-import { Service } from "@/lib/types/hierarchy";
-import { SearchResultService } from "@/lib/types";
+import { Service } from "@/types";
+import { SearchResultService } from "@/types";
 import { convertServiceToSearchResult } from "@/utils/serviceConverters";
 
 const ProviderServices = () => {

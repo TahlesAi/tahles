@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEventContext } from "@/context/EventContext";
 import { Label } from "@/components/ui/label";
-import { ServiceType } from "@/lib/types/hierarchy";
+import { ServiceType } from "@/types";
 import { 
   Music, 
   Camera, 

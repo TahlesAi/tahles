@@ -1,6 +1,5 @@
-
-import { Service } from "@/lib/types/hierarchy";
-import { SearchResultService } from "@/lib/types";
+import { Service } from "@/types";
+import { SearchResultService } from "@/types";
 
 /**
  * המרה מאובייקט Service להיררכיה לאובייקט SearchResultService שמשמש לתצוגת תוצאות חיפוש

@@ -5,7 +5,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Check, Users, Building, Heart, Baby } from "lucide-react";
-import { HebrewConcept } from "@/lib/types/hierarchy";
+import { HebrewConcept } from "@/types";
 import { EventType } from "@/hooks/useGuidedSearchStorage";
 
 export interface EventTypeStepProps {

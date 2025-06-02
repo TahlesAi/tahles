@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEventContext } from "@/context/EventContext";
 import { Label } from "@/components/ui/label";
-import { Subcategory } from "@/lib/types/hierarchy";
+import { Subcategory } from "@/types";
 import { designSystem } from "@/lib/designSystem";
 import { 
   Music, 
