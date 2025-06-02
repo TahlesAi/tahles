@@ -1,3 +1,4 @@
+
 // Base Types
 export interface BaseEntity {
   id: string;
@@ -50,7 +51,7 @@ export interface HebrewHierarchy {
   concepts: HebrewConcept[];
 }
 
-// Provider Types - UPDATED to match all usage
+// Provider Types - UNIFIED to match all usage patterns
 export interface Provider extends BaseEntity {
   userId?: string;
   businessName?: string;
@@ -68,7 +69,9 @@ export interface Provider extends BaseEntity {
   categories?: string[];
   category_ids?: string[];
   subcategory_ids?: string[];
-  service_type_ids: string[];
+  categoryIds?: string[];
+  subcategoryIds?: string[];
+  service_type_ids?: string[];
   logo?: string;
   logo_url?: string;
   coverImage?: string;
@@ -92,41 +95,40 @@ export interface Provider extends BaseEntity {
   socialLinks?: Record<string, string>;
   mediaLinks?: string[];
   clientRecommendations?: string[];
+  calendarActive?: boolean;
+  hasAvailableCalendar?: boolean;
+  isSimulated?: boolean;
+  simulationTags?: string[];
+  lastCalendarSync?: string;
+  defaultAvailability?: DefaultAvailability;
 }
 
-// ProviderProfile - UPDATED to match AutocompleteSearch usage
-export interface ProviderProfile {
-  id: string;
-  userId?: string;
+// Unified Provider Profile for compatibility
+export interface ProviderProfile extends Provider {
   businessName: string;
-  name?: string; // alias for businessName
-  description: string;
   contactPerson: string;
-  contact_person?: string; // alias
   email: string;
-  contact_email?: string; // alias
   phone: string;
-  contact_phone?: string; // alias
-  address?: string;
-  city?: string;
-  website?: string;
   categories: string[];
-  category_ids?: string[]; // alias
-  logo?: string;
-  logo_url?: string; // alias
-  coverImage?: string;
   gallery: string[];
-  rating?: number;
-  reviewCount?: number;
-  review_count?: number; // alias
+  rating: number;
+  reviewCount: number;
   featured?: boolean;
   verified?: boolean;
-  is_verified?: boolean; // alias
-  services?: Service[];
-  specialties?: string[];
-  yearsExperience?: number;
-  insurance?: boolean;
-  testimonials?: any[];
+}
+
+// Default Availability interface
+export interface DefaultAvailability {
+  workingDays: string[];
+  workingHours: {
+    start: string;
+    end: string;
+  };
+  exceptions: {
+    date: string;
+    available: boolean;
+    reason?: string;
+  }[];
 }
 
 // Calendar and Availability Types
@@ -221,17 +223,19 @@ export interface SetupRequirements {
   powerRequirements?: string;
 }
 
-// Service Types
+// Service Types - UNIFIED with all required fields
 export interface Service extends BaseEntity {
   providerId?: string;
-  provider_id: string;
+  provider_id?: string;
   name: string;
   description: string;
   category?: string;
-  category_id: string;
+  category_id?: string;
+  categoryId?: string;
   subcategory?: string;
-  subcategory_id: string;
-  service_type_id: string;
+  subcategory_id?: string;
+  subcategoryId?: string;
+  service_type_id?: string;
   images?: string[];
   imageUrl?: string;
   videos?: string[];
@@ -239,9 +243,9 @@ export interface Service extends BaseEntity {
   additional_images?: string[];
   variants?: ProductVariant[];
   basePrice?: number;
-  price: number;
+  price?: number;
   priceUnit?: string;
-  price_unit: string;
+  price_unit?: string;
   suitableFor?: string[];
   audienceSize?: {
     min: number;
@@ -266,6 +270,19 @@ export interface Service extends BaseEntity {
   features?: string[];
   availabilityRules?: AvailabilityRule[];
   additionalOptions?: AdditionalOption[];
+  available?: boolean;
+  type?: 'real' | 'simulated';
+  isSimulated?: boolean;
+  availabilitySlots?: AvailabilitySlot[];
+}
+
+export interface AvailabilitySlot {
+  date: string;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+  maxBookings: number;
+  currentBookings: number;
 }
 
 export interface AvailabilityRule {
@@ -402,7 +419,7 @@ export interface Testimonial {
   isVerified?: boolean;
 }
 
-// Category Hierarchy Types
+// Category Hierarchy Types - UNIFIED with compatibility fields
 export interface Category {
   id: string;
   name: string;
@@ -419,6 +436,7 @@ export interface Subcategory {
   icon?: string;
   image_url?: string;
   category_id: string;
+  categoryId?: string; // compatibility field
   service_types?: ServiceType[];
 }
 

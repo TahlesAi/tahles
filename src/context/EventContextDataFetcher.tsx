@@ -36,8 +36,28 @@ export const useEventDataFetcher = () => {
 
       const providers = allEnhancedProviders.map(provider => ({
         ...provider,
+        businessName: provider.businessName || provider.name,
+        contactPerson: provider.contactPerson,
+        email: provider.email,
+        phone: provider.phone,
+        categories: provider.subcategoryIds || provider.categoryIds || [],
         gallery: [],
-        categories: provider.subcategoryIds
+        rating: provider.rating || 0,
+        reviewCount: provider.reviewCount || 0,
+        featured: provider.featured || false,
+        verified: provider.verified || false,
+        // תאימות עם Services מורחבים
+        services: provider.services?.map(service => ({
+          ...service,
+          provider_id: service.providerId,
+          category_id: service.categoryId,
+          subcategory_id: service.subcategoryId,
+          service_type_id: 'default',
+          price: service.price,
+          price_unit: service.priceUnit,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })) || []
       }));
 
       const categories = enhancedCategoryHierarchy.map(cat => ({
@@ -49,6 +69,7 @@ export const useEventDataFetcher = () => {
           id: sub.id,
           name: sub.name,
           categoryId: sub.categoryId,
+          category_id: sub.categoryId, // Required field
           description: sub.description
         }))
       }));
@@ -59,6 +80,7 @@ export const useEventDataFetcher = () => {
           id: sub.id,
           name: sub.name,
           category_id: sub.categoryId,
+          categoryId: sub.categoryId, // Compatibility field
           description: sub.description
         }))
       ], [] as any[]);
@@ -114,15 +136,27 @@ export const EventContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const providers = allEnhancedProviders.map(provider => ({
         ...provider,
         businessName: provider.businessName || provider.name,
-        city: provider.city || 'לא צוין',
-        logo: provider.name,
-        contact_person: provider.contactPerson,
-        contact_email: provider.email,
-        contact_phone: provider.phone,
-        review_count: provider.reviewCount,
-        is_verified: provider.verified,
+        contactPerson: provider.contactPerson,
+        email: provider.email,
+        phone: provider.phone,
+        categories: provider.subcategoryIds || provider.categoryIds || [],
         gallery: [],
-        categories: provider.subcategoryIds
+        rating: provider.rating || 0,
+        reviewCount: provider.reviewCount || 0,
+        featured: provider.featured || false,
+        verified: provider.verified || false,
+        // המרת Services עם כל השדות הנדרשים
+        services: provider.services?.map(service => ({
+          ...service,
+          provider_id: service.providerId,
+          category_id: service.categoryId,
+          subcategory_id: service.subcategoryId,
+          service_type_id: 'default',
+          price: service.price,
+          price_unit: service.priceUnit,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })) || []
       }));
       
       setProviders(providers);

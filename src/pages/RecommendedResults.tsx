@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -67,7 +68,6 @@ const RecommendedResults = () => {
     }
 
     if (filters.isReceptionService !== undefined) {
-      // תיקון השדה - השתמש ב-isReceptionService במקום is_reception_service
       filtered = filtered.filter(item => item.isReceptionService === filters.isReceptionService);
     }
 
@@ -78,7 +78,6 @@ const RecommendedResults = () => {
     return null;
   }
 
-  
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
       <Header />
@@ -252,7 +251,6 @@ const RecommendedResults = () => {
                 <ServiceResultCard
                   key={recommendation.id}
                   service={recommendation}
-                  searchData={searchData}
                 />
               ))}
             </div>

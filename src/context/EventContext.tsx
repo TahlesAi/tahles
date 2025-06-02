@@ -60,12 +60,54 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const loadData = async () => {
     try {
       const data = await fetchData();
-      setCategories(data.categories);
-      setSubcategories(data.subcategories);
+      
+      // Convert categories with compatibility fields
+      const categoriesWithCompatibility = data.categories.map(cat => ({
+        ...cat,
+        subcategories: cat.subcategories?.map(sub => ({
+          ...sub,
+          categoryId: sub.category_id // Add compatibility field
+        })) || []
+      }));
+      
+      // Convert subcategories with compatibility fields
+      const subcategoriesWithCompatibility = data.subcategories.map(sub => ({
+        ...sub,
+        categoryId: sub.category_id // Add compatibility field
+      }));
+      
+      // Convert providers to match ProviderProfile interface
+      const providersWithCompatibility = data.providers.map(provider => ({
+        ...provider,
+        businessName: provider.businessName || provider.name || '',
+        contactPerson: provider.contactPerson || provider.contact_person || '',
+        email: provider.email || provider.contact_email || '',
+        phone: provider.phone || provider.contact_phone || '',
+        categories: provider.categories || provider.categoryIds || provider.subcategoryIds || [],
+        gallery: provider.gallery || [],
+        rating: provider.rating || 0,
+        reviewCount: provider.reviewCount || provider.review_count || 0,
+        featured: provider.featured || false,
+        verified: provider.verified || provider.is_verified || false,
+        services: provider.services?.map(service => ({
+          ...service,
+          provider_id: service.providerId || service.provider_id || provider.id,
+          category_id: service.categoryId || service.category_id || '',
+          subcategory_id: service.subcategoryId || service.subcategory_id || '',
+          service_type_id: service.service_type_id || 'default',
+          price: service.price || 0,
+          price_unit: service.priceUnit || service.price_unit || 'לאירוע',
+          created_at: service.created_at || new Date().toISOString(),
+          updated_at: service.updated_at || new Date().toISOString()
+        })) || []
+      }));
+      
+      setCategories(categoriesWithCompatibility);
+      setSubcategories(subcategoriesWithCompatibility);
       setServices(data.services);
-      setProviders(data.providers);
+      setProviders(providersWithCompatibility);
       setFeaturedServices(data.featuredServices);
-      setTopProviders(data.topProviders);
+      setTopProviders(providersWithCompatibility.filter(p => p.featured));
     } catch (error) {
       console.error('Failed to load data:', error);
     }
