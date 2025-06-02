@@ -32,7 +32,7 @@ export const useProviderCalendar = (providerId?: string) => {
         .eq('provider_id', providerId)
         .eq('date', date)
         .eq('is_available', true)
-        .lt('current_bookings', supabase.rpc('get_max_bookings', { calendar_id: 'id' }));
+        .lt('current_bookings', 'max_bookings');
 
       if (serviceArea) {
         query = query.eq('service_area', serviceArea);

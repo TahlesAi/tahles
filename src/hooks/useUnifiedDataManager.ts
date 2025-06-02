@@ -1,6 +1,5 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 
 export interface UnifiedVariant {
   id: string;
@@ -23,31 +22,14 @@ export const useUnifiedDataManager = () => {
   const [variants, setVariants] = useState<UnifiedVariant[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // פונקציה לשמירת וריאנטים מאוחדת
+  // פונקציה לשמירת וריאנטים מקומית (בלי בסיס נתונים)
   const saveVariants = async (serviceId: string, newVariants: UnifiedVariant[]) => {
     setLoading(true);
     try {
-      // מחיקת וריאנטים קיימים
-      await supabase
-        .from('service_variants')
-        .delete()
-        .eq('service_id', serviceId);
-
-      // הוספת וריאנטים חדשים
-      const variantsToInsert = newVariants.map(variant => ({
-        service_id: serviceId,
-        parameter: variant.parameter,
-        parameter_type: variant.parameter_type,
-        options: variant.options,
-        is_active: variant.is_active
-      }));
-
-      const { error } = await supabase
-        .from('service_variants')
-        .insert(variantsToInsert);
-
-      if (error) throw error;
-
+      // שמירה זמנית ב-localStorage עד שנוסיף טבלה לבסיס הנתונים
+      const storageKey = `service_variants_${serviceId}`;
+      localStorage.setItem(storageKey, JSON.stringify(newVariants));
+      
       setVariants(newVariants);
       return true;
     } catch (error) {
@@ -85,20 +67,17 @@ export const useUnifiedDataManager = () => {
     return Math.max(0, finalPrice);
   };
 
-  // פונקציה לאחזור וריאנטים
+  // פונקציה לאחזור וריאנטים מקומית
   const fetchVariants = async (serviceId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('service_variants')
-        .select('*')
-        .eq('service_id', serviceId)
-        .eq('is_active', true);
-
-      if (error) throw error;
+      // שליפה זמנית מ-localStorage עד שנוסיף טבלה לבסיס הנתונים
+      const storageKey = `service_variants_${serviceId}`;
+      const stored = localStorage.getItem(storageKey);
+      const data = stored ? JSON.parse(stored) : [];
       
-      setVariants(data || []);
-      return data || [];
+      setVariants(data);
+      return data;
     } catch (error) {
       console.error('Error fetching variants:', error);
       return [];
