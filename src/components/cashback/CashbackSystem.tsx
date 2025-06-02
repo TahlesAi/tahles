@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Coins, Calendar, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -31,23 +30,30 @@ const CashbackSystem: React.FC<CashbackSystemProps> = ({ customerId }) => {
 
   const loadCashbackCredits = async () => {
     try {
-      // Use type assertion to work with the table until types are updated
       const { data, error } = await supabase
-        .from('cashback_credits' as any)
+        .from('cashback_credits')
         .select('*')
         .eq('customer_id', customerId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Type the data properly
-      const typedData = data as CashbackCredit[];
-      setCredits(typedData || []);
+      // Type the data properly with safe casting
+      const typedData = (data || []).map(credit => ({
+        id: credit.id,
+        amount: Number(credit.amount),
+        source_booking_id: credit.source_booking_id,
+        expires_at: credit.expires_at,
+        status: credit.status as 'active' | 'used' | 'expired',
+        created_at: credit.created_at
+      }));
+      
+      setCredits(typedData);
       
       // חישוב סך הקרדיט הפעיל
-      const activeCredits = typedData?.filter(credit => 
+      const activeCredits = typedData.filter(credit => 
         credit.status === 'active' && new Date(credit.expires_at) > new Date()
-      ) || [];
+      );
       
       const total = activeCredits.reduce((sum, credit) => sum + credit.amount, 0);
       setTotalActive(total);

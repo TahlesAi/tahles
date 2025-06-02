@@ -1,203 +1,131 @@
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { useLocation, useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import ServiceResultCard from "@/components/search/ServiceResultCard";
 import AdvancedSearchFilters from "@/components/search/AdvancedSearchFilters";
-import ServiceComparisonModal from "@/components/comparison/ServiceComparisonModal";
-import { useServiceComparison } from "@/hooks/useServiceComparison";
-import { useSearchTracking } from "@/hooks/useSearchTracking";
-import { unifiedServices } from "@/lib/unifiedMockData";
-import { toast } from "sonner";
+import { useUnifiedDataManager } from "@/hooks/useUnifiedDataManager";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
 
 const Search = () => {
-  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
-  const [currentFilters, setCurrentFilters] = useState<any>({});
-  const { sessionId, trackSearch } = useSearchTracking();
+  const navigate = useNavigate();
   
-  const {
-    selectedServices,
-    addService,
-    removeService,
-    clearAll,
-    isServiceSelected,
-    canAddMore
-  } = useServiceComparison();
+  const { searchServices } = useUnifiedDataManager();
+  
+  // Get search term from URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const query = urlParams.get('q') || '';
+    const category = urlParams.get('category') || '';
+    const subcategory = urlParams.get('subcategory') || '';
+    
+    setSearchTerm(query);
+    setFilters({ category, subcategory });
+    setIsLoading(false);
+  }, [location.search]);
 
-  const searchTerm = searchParams.get("q") || "";
-  const category = searchParams.get("category") || "";
-  const subcategory = searchParams.get("subcategory") || "";
-  const locationFilter = searchParams.get("location") || "";
-
-  const { data: searchResults, isLoading } = useQuery({
-    queryKey: ["search", searchTerm, category, subcategory, locationFilter, currentFilters],
-    queryFn: async () => {
-      let filteredServices = [...unifiedServices];
-
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        filteredServices = filteredServices.filter(service =>
-          service.name.toLowerCase().includes(searchLower) ||
-          service.description.toLowerCase().includes(searchLower) ||
-          service.provider.toLowerCase().includes(searchLower) ||
-          service.category.toLowerCase().includes(searchLower) ||
-          (service.subcategory && service.subcategory.toLowerCase().includes(searchLower))
-        );
-      }
-
-      if (category) {
-        filteredServices = filteredServices.filter(service => 
-          service.category.toLowerCase() === category.toLowerCase()
-        );
-      }
-
-      if (subcategory) {
-        filteredServices = filteredServices.filter(service => 
-          service.subcategory && service.subcategory.toLowerCase() === subcategory.toLowerCase()
-        );
-      }
-
-      if (locationFilter) {
-        filteredServices = filteredServices.filter(service => 
-          service.location && service.location.toLowerCase().includes(locationFilter.toLowerCase())
-        );
-      }
-
-      if (currentFilters.priceRange) {
-        filteredServices = filteredServices.filter(service => {
-          const price = typeof service.price === 'number' ? service.price : parseInt(service.price);
-          return price >= currentFilters.priceRange.min && price <= currentFilters.priceRange.max;
-        });
-      }
-
-      if (currentFilters.rating) {
-        filteredServices = filteredServices.filter(service => 
-          service.rating >= currentFilters.rating
-        );
-      }
-
-      const results = filteredServices.sort((a, b) => {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return b.rating - a.rating;
-      });
-
-      // מעקב אחר החיפוש
-      await trackSearch({
-        category,
-        subcategory,
-        location: locationFilter,
-        searchTerm,
-        filters: currentFilters
-      }, results.length);
-
-      return results;
-    },
-  });
-
-  const handleToggleSelect = (service: any) => {
-    if (isServiceSelected(service.id)) {
-      removeService(service.id);
-    } else {
-      addService(service);
-    }
-  };
-
+  // Search for services
+  const searchResults = searchServices(searchTerm, filters);
+  
+  // Show loading skeleton while data is being fetched
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-4">
-                  <Skeleton className="h-48 w-full mb-4" />
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3" />
-                </CardContent>
-              </Card>
-            ))}
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow py-8 bg-gray-50">
+          <div className="container px-4">
+            <div className="mb-8">
+              <Skeleton className="h-8 w-64 mb-4" />
+              <Skeleton className="h-4 w-96" />
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1">
+                <Skeleton className="h-96 w-full" />
+              </div>
+              
+              <div className="lg:col-span-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <Skeleton key={i} className="h-64 w-full" />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-4">
-            תוצאות חיפוש
-            {searchTerm && ` עבור "${searchTerm}"`}
-          </h1>
-          
-          <div className="flex flex-wrap gap-2 mb-4">
-            {category && (
-              <Badge variant="secondary" className="px-3 py-1">
-                קטגוריה: {category}
-              </Badge>
-            )}
-            {subcategory && (
-              <Badge variant="secondary" className="px-3 py-1">
-                תת-קטגוריה: {subcategory}
-              </Badge>
-            )}
-            {locationFilter && (
-              <Badge variant="secondary" className="px-3 py-1">
-                מיקום: {locationFilter}
-              </Badge>
-            )}
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow py-8 bg-gray-50">
+        <div className="container px-4">
+          {/* Search Results Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              תוצאות חיפוש
+              {searchTerm && ` עבור "${searchTerm}"`}
+            </h1>
+            <p className="text-gray-600">
+              נמצאו {searchResults.length} תוצאות
+            </p>
           </div>
 
-          <AdvancedSearchFilters
-            onFiltersChange={setCurrentFilters}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Filters Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                <h2 className="text-lg font-semibold mb-4">סינון תוצאות</h2>
+                <AdvancedSearchFilters 
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                />
+              </div>
+            </div>
+
+            {/* Results Grid */}
+            <div className="lg:col-span-3">
+              {searchResults.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    לא נמצאו תוצאות
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    נסו לשנות את מונחי החיפוש או הסינון
+                  </p>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    חזרה לעמוד הבית
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {searchResults.map((service) => (
+                    <ServiceResultCard 
+                      key={service.id} 
+                      service={service} 
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
-            נמצאו {searchResults?.length || 0} תוצאות
-          </p>
-          
-          {selectedServices.length > 0 && (
-            <Badge variant="outline" className="px-3 py-1">
-              נבחרו {selectedServices.length}/3 להשוואה
-            </Badge>
-          )}
-        </div>
-
-        {searchResults && searchResults.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {searchResults.map((service) => (
-              <ServiceResultCard
-                key={service.id}
-                service={service}
-                isSelected={isServiceSelected(service.id)}
-                onToggleSelect={handleToggleSelect}
-                canSelect={canAddMore}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold mb-2">לא נמצאו תוצאות</h3>
-            <p className="text-gray-600">נסה לשנות את קריטריוני החיפוש</p>
-          </div>
-        )}
-
-        <ServiceComparisonModal
-          selectedServices={selectedServices}
-          onRemoveService={removeService}
-          onClearAll={clearAll}
-        />
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };
