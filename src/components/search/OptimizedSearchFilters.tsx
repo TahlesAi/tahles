@@ -11,9 +11,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, X, Filter } from 'lucide-react';
 import { debounce } from 'lodash';
+import { DateRange } from 'react-day-picker';
 
 interface FilterState {
-  dateRange: { from?: Date; to?: Date };
+  dateRange: DateRange | undefined;
   timeSlot: string;
   budget: [number, number];
   location: string;
@@ -32,7 +33,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
   resultsCount
 }) => {
   const [filters, setFilters] = useState<FilterState>({
-    dateRange: {},
+    dateRange: undefined,
     timeSlot: '',
     budget: [500, 10000],
     location: '',
@@ -61,7 +62,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
 
   const clearAllFilters = () => {
     setFilters({
-      dateRange: {},
+      dateRange: undefined,
       timeSlot: '',
       budget: [500, 10000],
       location: '',
@@ -73,7 +74,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
 
   const hasActiveFilters = () => {
     return (
-      filters.dateRange.from ||
+      filters.dateRange?.from ||
       filters.timeSlot ||
       filters.location ||
       filters.categories.length > 0 ||
@@ -134,7 +135,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start mt-1">
                   <CalendarIcon className="h-4 w-4 ml-2" />
-                  {filters.dateRange.from ? (
+                  {filters.dateRange?.from ? (
                     filters.dateRange.to ? (
                       `${filters.dateRange.from.toLocaleDateString('he-IL')} - ${filters.dateRange.to.toLocaleDateString('he-IL')}`
                     ) : (
@@ -149,7 +150,7 @@ const OptimizedSearchFilters: React.FC<OptimizedSearchFiltersProps> = ({
                 <Calendar
                   mode="range"
                   selected={filters.dateRange}
-                  onSelect={(range) => updateFilter('dateRange', range || {})}
+                  onSelect={(range) => updateFilter('dateRange', range)}
                   numberOfMonths={2}
                 />
               </PopoverContent>
