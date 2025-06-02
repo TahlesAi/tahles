@@ -11,6 +11,9 @@ export class ExtendedDataSystem {
   private providers: ExtendedProviderProfile[] = [];
   private services: ExtendedServiceProfile[] = [];
   private integrityStatus: DataIntegrityStatus | null = null;
+  private cache: Map<string, any> = new Map();
+  private cacheExpiry: Map<string, number> = new Map();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 דקות
 
   constructor() {
     this.initializeSystem();
@@ -24,8 +27,24 @@ export class ExtendedDataSystem {
     this.runIntegrityCheck();
   }
 
+  // מתודה מועדפת לCache
+  private getCachedData<T>(key: string, generator: () => T): T {
+    const now = Date.now();
+    const expiry = this.cacheExpiry.get(key);
+    
+    if (expiry && now < expiry && this.cache.has(key)) {
+      return this.cache.get(key);
+    }
+    
+    const data = generator();
+    this.cache.set(key, data);
+    this.cacheExpiry.set(key, now + this.CACHE_DURATION);
+    
+    return data;
+  }
+
   private createSampleData() {
-    // יצירת ספק לדוגמה
+    // יצירת ספק לדוגמה (מעודכן עם שדות נוספים)
     const sampleProvider: ExtendedProviderProfile = {
       id: 'provider-sample-001',
       created_at: new Date().toISOString(),
@@ -33,22 +52,27 @@ export class ExtendedDataSystem {
       
       name: 'נטע ברסלר - אמן המחשבות',
       businessName: 'נטע ברסלר - אמן המחשבות בע"מ',
-      description: 'מנטליסט מקצועי עם ניסיון של 15 שנה בתחום אומני החושים',
+      description: 'מנטליסט מקצועי עם ניסיון של 15 שנה בתחום אומני החושים. מתמחה במופעים אינטראקטיביים המשלבים קריאת מחשבות, ניחוש ופעלולי מנטליזם מרהיבים.',
       contactPerson: 'נטע ברסלר',
       email: 'neta@example.com',
       phone: '050-1234567',
       city: 'תל אביב',
+      address: 'רחוב הבימה 15, תל אביב',
       
       primaryCategoryId: 'cat-008',
       secondaryCategoryIds: ['cat-009'],
       subcategoryIds: ['cat-008-sub-1', 'cat-008-sub-2'],
+      
+      businessId: '123456789', // ח.פ
+      taxId: '123456789',
       
       rating: 4.8,
       reviewCount: 156,
       verified: true,
       featured: true,
       
-      isMock: false,
+      isMock: true, // מסומן כפיקטיבי
+      simulationType: 'demo',
       
       calendarActive: true,
       hasAvailableCalendar: true,
@@ -61,13 +85,22 @@ export class ExtendedDataSystem {
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'
       ],
       logo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
+      coverImage: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800',
       testimonials: [
         {
           id: 'test-001',
-          text: 'מופע מדהים! נטע הצליח לקרוא את המחשבות של כל האורחים',
+          text: 'מופע מדהים! נטע הצליח לקרוא את המחשבות של כל האורחים. האווירה הייתה מהממת והכל נהנו מאוד!',
           author: 'יעל כהן',
           rating: 5,
           date: '2024-01-15',
+          verified: true
+        },
+        {
+          id: 'test-002',
+          text: 'מקצועיות ברמה גבוהה, הגיע בזמן והיה מוכן לחלוטין. המופע עצמו היה פשוט מרהיב!',
+          author: 'דני לוי',
+          rating: 5,
+          date: '2024-01-10',
           verified: true
         }
       ],
@@ -81,7 +114,7 @@ export class ExtendedDataSystem {
       }
     };
 
-    // יצירת שירות לדוגמה
+    // יצירת שירות לדוגמה (מעודכן)
     const sampleService: ExtendedServiceProfile = {
       id: 'service-sample-001',
       providerId: 'provider-sample-001',
@@ -89,13 +122,13 @@ export class ExtendedDataSystem {
       updated_at: new Date().toISOString(),
       
       name: 'מופע מנטליזם מרכזי',
-      description: 'מופע מרתק של קריאת מחשבות ומנטליזם לכל סוגי האירועים',
+      description: 'מופע מרתק של קריאת מחשבות ומנטליזם לכל סוגי האירועים. כולל אינטראקציה עם הקהל, ניחושים מדויקים ופעלולי מנטליזם מרהיבים.',
       
       primaryCategoryId: 'cat-008',
       secondaryCategoryIds: [],
       subcategoryId: 'cat-008-sub-1',
       
-      conceptTags: ['יום הולדת', 'בר מצווה', 'אירועי חברה', 'ערב גיבוש'],
+      conceptTags: ['יום הולדת', 'בר מצווה', 'אירועי חברה', 'ערב גיבוש', 'חתונה'],
       eventTypes: ['מופע מרכזי', 'אינטראקטיבי'],
       audienceTypes: ['מבוגרים', 'נוער'],
       
@@ -112,16 +145,17 @@ export class ExtendedDataSystem {
       reviewCount: 89,
       featured: true,
       
-      isMock: false,
-      tags: ['מנטליזם', 'קריאת מחשבות', 'בידור'],
-      technicalRequirements: ['מיקרופון', 'במה מוגבהת'],
-      suitableFor: ['אירועי חברה', 'חתונות', 'בר מצווה'],
+      isMock: true,
+      tags: ['מנטליזם', 'קריאת מחשבות', 'בידור', 'אינטראקטיבי'],
+      technicalRequirements: ['מיקרופון', 'במה מוגבהת (רצוי)', 'תאורה בסיסית'],
+      suitableFor: ['אירועי חברה', 'חתונות', 'בר מצווה', 'ימי הולדת'],
       
       imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
       additionalImages: [
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+        'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400'
       ],
-      videos: [],
+      videos: ['https://example.com/sample-video.mp4'],
       
       availabilitySlots: generateAvailabilitySlots(
         generateDefaultCalendar('provider-sample-001'),
@@ -137,17 +171,18 @@ export class ExtendedDataSystem {
     this.providers[0].services = [sampleService];
   }
 
-  // API ציבורי
+  // API ציבורי - מעודכן עם Cache
   public getProviders(): ExtendedProviderProfile[] {
-    return [...this.providers];
+    return this.getCachedData('all-providers', () => [...this.providers]);
   }
 
   public getServices(): ExtendedServiceProfile[] {
-    return [...this.services];
+    return this.getCachedData('all-services', () => [...this.services]);
   }
 
   public addProvider(provider: ExtendedProviderProfile): void {
     this.providers.push(provider);
+    this.clearCache();
     this.runIntegrityCheck();
   }
 
@@ -161,6 +196,7 @@ export class ExtendedDataSystem {
       provider.services.push(service);
     }
     
+    this.clearCache();
     this.runIntegrityCheck();
   }
 
@@ -172,6 +208,7 @@ export class ExtendedDataSystem {
         ...updates, 
         updated_at: new Date().toISOString() 
       };
+      this.clearCache();
       this.runIntegrityCheck();
     }
   }
@@ -194,54 +231,65 @@ export class ExtendedDataSystem {
         }
       }
       
+      this.clearCache();
       this.runIntegrityCheck();
     }
   }
 
   public searchServices(query: string, filters: any = {}): ExtendedServiceProfile[] {
-    let results = [...this.services];
+    const cacheKey = `search-${query}-${JSON.stringify(filters)}`;
+    
+    return this.getCachedData(cacheKey, () => {
+      let results = [...this.services];
 
-    // חיפוש טקסט
-    if (query && query.trim()) {
-      const searchTerm = query.toLowerCase().trim();
-      results = results.filter(service =>
-        service.name.toLowerCase().includes(searchTerm) ||
-        service.description.toLowerCase().includes(searchTerm) ||
-        service.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
-        service.conceptTags.some(conceptTag => conceptTag.toLowerCase().includes(searchTerm))
-      );
-    }
-
-    // סינון לפי קונספטים
-    if (filters.conceptTags && filters.conceptTags.length > 0) {
-      results = results.filter(service =>
-        service.conceptTags.some(conceptTag => filters.conceptTags.includes(conceptTag))
-      );
-    }
-
-    // סינון לפי קטגוריה
-    if (filters.categoryId) {
-      results = results.filter(service => service.primaryCategoryId === filters.categoryId);
-    }
-
-    // סינון לפי זמינות
-    if (filters.date && filters.time) {
-      results = results.filter(service => {
-        return service.availabilitySlots.some(slot =>
-          slot.date === filters.date &&
-          slot.startTime <= filters.time &&
-          slot.endTime >= filters.time &&
-          slot.isAvailable &&
-          slot.currentBookings < slot.maxBookings
+      // חיפוש טקסט (מעודכן)
+      if (query && query.trim()) {
+        const searchTerm = query.toLowerCase().trim();
+        results = results.filter(service =>
+          service.name.toLowerCase().includes(searchTerm) ||
+          service.description.toLowerCase().includes(searchTerm) ||
+          service.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+          service.conceptTags.some(conceptTag => conceptTag.toLowerCase().includes(searchTerm))
         );
-      });
-    }
+      }
 
-    return results.sort((a, b) => {
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return b.rating - a.rating;
+      // סינון לפי קונספטים
+      if (filters.conceptTags && filters.conceptTags.length > 0) {
+        results = results.filter(service =>
+          service.conceptTags.some(conceptTag => filters.conceptTags.includes(conceptTag))
+        );
+      }
+
+      // סינון לפי קטגוריה
+      if (filters.categoryId) {
+        results = results.filter(service => service.primaryCategoryId === filters.categoryId);
+      }
+
+      // סינון לפי זמינות
+      if (filters.date && filters.time) {
+        results = results.filter(service => {
+          return service.availabilitySlots.some(slot =>
+            slot.date === filters.date &&
+            slot.startTime <= filters.time &&
+            slot.endTime >= filters.time &&
+            slot.isAvailable &&
+            slot.currentBookings < slot.maxBookings
+          );
+        });
+      }
+
+      // מיון תוצאות
+      return results.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return b.rating - a.rating;
+      });
     });
+  }
+
+  private clearCache(): void {
+    this.cache.clear();
+    this.cacheExpiry.clear();
   }
 
   public runIntegrityCheck(): DataIntegrityStatus {
@@ -255,7 +303,7 @@ export class ExtendedDataSystem {
 
   // ייצוא נתונים למערכת קיימת
   public exportToLegacyFormat() {
-    return {
+    return this.getCachedData('legacy-export', () => ({
       providers: this.providers.map(provider => ({
         id: provider.id,
         name: provider.name,
@@ -289,14 +337,14 @@ export class ExtendedDataSystem {
         imageUrl: service.imageUrl,
         tags: service.tags
       }))
-    };
+    }));
   }
 }
 
 // יצירת instance גלובלי
 export const dataSystem = new ExtendedDataSystem();
 
-// פונקציות עזר לשימוש חיצוני
+// פונקציות עזר לשימוש חיצוני (מעודכנות)
 export const getExtendedProviders = () => dataSystem.getProviders();
 export const getExtendedServices = () => dataSystem.getServices();
 export const searchExtendedServices = (query: string, filters?: any) => dataSystem.searchServices(query, filters);

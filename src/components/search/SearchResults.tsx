@@ -1,54 +1,68 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar, MapPin, Filter, SlidersHorizontal } from 'lucide-react';
+import { Filter, SlidersHorizontal } from 'lucide-react';
 import ServiceResultCard from './ServiceResultCard';
-import { useFilteredServices } from '@/hooks/useFilteredServices';
-import { useEventContext } from '@/context/EventContext';
+import { useUnifiedEventContext, useSearchWithDebounce } from '@/context/UnifiedEventContext';
+import { usePaginatedData } from '@/hooks/usePaginatedData';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface SearchResultsProps {
   searchResults: any[];
   isLoading?: boolean;
 }
 
-const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading }) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading: propIsLoading }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { searchServices } = useUnifiedEventContext();
   
   // קריאת פרמטרי החיפוש מה-URL
+  const query = searchParams.get('q') || '';
   const selectedDate = searchParams.get('date');
   const selectedTime = searchParams.get('time');
   const selectedLocation = searchParams.get('location');
   const showOnlyAvailable = searchParams.get('available') !== 'false';
 
-  // שימוש ב-hook לסינון השירותים לפי זמינות
-  const { 
-    filteredServices, 
-    availabilityChecks, 
-    isCheckingAvailability 
-  } = useFilteredServices({
-    services: searchResults,
-    selectedDate: selectedDate || undefined,
-    selectedTime: selectedTime || undefined,
-    selectedLocation: selectedLocation || undefined,
-    showOnlyAvailable
+  // חיפוש מתקדם עם Debounce
+  const debouncedResults = useSearchWithDebounce(query, {
+    date: selectedDate,
+    time: selectedTime,
+    location: selectedLocation,
+    onlyAvailable: showOnlyAvailable
+  });
+
+  // שימוש בתוצאות מ-props או מחיפוש מתקדם
+  const finalResults = useMemo(() => {
+    return searchResults.length > 0 ? searchResults : debouncedResults;
+  }, [searchResults, debouncedResults]);
+
+  // Pagination לתוצאות
+  const {
+    currentPageData: paginatedResults,
+    hasNextPage,
+    loadMore,
+    isLoading: paginationLoading
+  } = usePaginatedData({
+    data: finalResults,
+    itemsPerPage: 12
   });
 
   // מצב השוואה
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  const toggleServiceSelection = (service: any) => {
+  const toggleServiceSelection = useCallback((service: any) => {
     const serviceId = service.id || service.serviceId || service.service_id;
     setSelectedServices(prev => 
       prev.includes(serviceId) 
         ? prev.filter(id => id !== serviceId)
         : [...prev, serviceId].slice(0, 3) // מקסימום 3 שירותים להשוואה
     );
-  };
+  }, []);
 
-  const updateSearchParam = (key: string, value: string | null) => {
+  const updateSearchParam = useCallback((key: string, value: string | null) => {
     const newParams = new URLSearchParams(searchParams);
     if (value) {
       newParams.set(key, value);
@@ -56,20 +70,23 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading 
       newParams.delete(key);
     }
     setSearchParams(newParams);
-  };
+  }, [searchParams, setSearchParams]);
 
-  const handleCompareServices = () => {
+  const handleCompareServices = useCallback(() => {
     if (selectedServices.length >= 2) {
       navigate(`/compare?services=${selectedServices.join(',')}`);
     }
-  };
+  }, [selectedServices, navigate]);
 
-  if (isLoading) {
+  const isLoading = propIsLoading || paginationLoading;
+
+  if (propIsLoading) {
     return (
       <div className="space-y-4">
-        <div className="animate-pulse">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+        <LoadingSpinner size="lg" text="מחפש שירותים..." />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -133,15 +150,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading 
       {/* סטטיסטיקות תוצאות */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          {isCheckingAvailability ? (
-            <span className="animate-pulse">בודק זמינות...</span>
-          ) : (
-            <>
-              נמצאו {filteredServices.length} תוצאות
-              {showOnlyAvailable && selectedDate && selectedTime && (
-                <span className="mr-2">זמינות ב-{selectedDate} בשעה {selectedTime}</span>
-              )}
-            </>
+          נמצאו {finalResults.length} תוצאות
+          {showOnlyAvailable && selectedDate && selectedTime && (
+            <span className="mr-2">זמינות ב-{selectedDate} בשעה {selectedTime}</span>
+          )}
+          {query && (
+            <span className="mr-2">עבור "{query}"</span>
           )}
         </div>
         
@@ -159,7 +173,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading 
 
       {/* תוצאות החיפוש */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredServices.map((service: any) => {
+        {paginatedResults.map((service: any) => {
           const serviceId = service.id || service.serviceId || service.service_id;
           const isSelected = selectedServices.includes(serviceId);
           const canSelect = selectedServices.length < 3 || isSelected;
@@ -171,8 +185,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading 
               isSelected={isSelected}
               onToggleSelect={toggleServiceSelection}
               canSelect={canSelect}
-              availabilityStatus={availabilityChecks[serviceId]}
-              isCheckingAvailability={isCheckingAvailability}
               selectedDate={selectedDate || undefined}
               selectedTime={selectedTime || undefined}
             />
@@ -180,7 +192,25 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchResults, isLoading 
         })}
       </div>
 
-      {filteredServices.length === 0 && !isLoading && (
+      {/* כפתור טעינת עוד */}
+      {hasNextPage && (
+        <div className="text-center py-4">
+          <Button 
+            onClick={loadMore}
+            disabled={isLoading}
+            variant="outline"
+            size="lg"
+          >
+            {isLoading ? (
+              <LoadingSpinner size="sm" text="" />
+            ) : (
+              'טען עוד תוצאות'
+            )}
+          </Button>
+        </div>
+      )}
+
+      {paginatedResults.length === 0 && !propIsLoading && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Filter className="h-16 w-16 mx-auto" />
