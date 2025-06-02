@@ -112,33 +112,82 @@ export const getFeaturedServices = (): UnifiedService[] => {
   return unifiedServices.filter(service => service.featured).slice(0, 12);
 };
 
+// Enhanced search function with better filtering capabilities
 export const searchServices = (query: string, filters?: any): UnifiedService[] => {
   let results = [...unifiedServices];
   
-  if (query) {
-    const searchTerm = query.toLowerCase();
+  console.log('Search started with query:', query, 'and filters:', filters);
+  
+  // Filter by search query
+  if (query && query.trim()) {
+    const searchTerm = query.toLowerCase().trim();
     results = results.filter(service => 
       service.name.toLowerCase().includes(searchTerm) ||
       service.description.toLowerCase().includes(searchTerm) ||
       service.provider.toLowerCase().includes(searchTerm) ||
-      service.category.toLowerCase().includes(searchTerm)
+      service.category.toLowerCase().includes(searchTerm) ||
+      (service.subcategory && service.subcategory.toLowerCase().includes(searchTerm)) ||
+      (service.tags && service.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
     );
   }
   
-  if (filters?.category) {
+  // Filter by category
+  if (filters?.category && filters.category.trim()) {
     results = results.filter(service => 
-      service.category.toLowerCase() === filters.category.toLowerCase()
+      service.category.toLowerCase().includes(filters.category.toLowerCase()) ||
+      (service.subcategory && service.subcategory.toLowerCase().includes(filters.category.toLowerCase()))
     );
   }
   
-  if (filters?.priceRange) {
+  // Filter by subcategory
+  if (filters?.subcategory && filters.subcategory.trim()) {
+    results = results.filter(service => 
+      service.subcategory && service.subcategory.toLowerCase().includes(filters.subcategory.toLowerCase())
+    );
+  }
+  
+  // Filter by event concept
+  if (filters?.eventConcept && filters.eventConcept.trim()) {
+    results = results.filter(service => 
+      service.eventTypes?.some(type => type.toLowerCase().includes(filters.eventConcept.toLowerCase())) ||
+      service.tags.some(tag => tag.toLowerCase().includes(filters.eventConcept.toLowerCase()))
+    );
+  }
+  
+  // Filter by price range
+  if (filters?.priceRange && Array.isArray(filters.priceRange)) {
     const [min, max] = filters.priceRange;
     results = results.filter(service => 
       service.price >= min && service.price <= max
     );
   }
   
-  return results;
+  // Filter by location
+  if (filters?.location && filters.location.trim()) {
+    results = results.filter(service => 
+      service.location && service.location.toLowerCase().includes(filters.location.toLowerCase())
+    );
+  }
+  
+  // Filter by rating
+  if (filters?.minRating && typeof filters.minRating === 'number') {
+    results = results.filter(service => service.rating >= filters.minRating);
+  }
+  
+  console.log('Search completed. Results count:', results.length);
+  
+  // Sort results by relevance: featured first, then by rating, then by review count
+  return results.sort((a, b) => {
+    // Featured services first
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    
+    // Then by rating
+    if (a.rating !== b.rating) return b.rating - a.rating;
+    
+    // Then by review count
+    return b.reviewCount - a.reviewCount;
+  });
 };
 
 export const getServicesByCategory = (category: string): UnifiedService[] => {
