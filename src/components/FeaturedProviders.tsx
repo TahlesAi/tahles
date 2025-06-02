@@ -30,7 +30,9 @@ const FeaturedProviders = () => {
     specialties: service.tags || ['מקצועיות', 'איכות', 'מהימנות'],
     yearsExperience: Math.floor(Math.random() * 10) + 5,
     insurance: true,
-    testimonials: []
+    testimonials: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }));
 
   return (

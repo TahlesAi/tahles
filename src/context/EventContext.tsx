@@ -66,29 +66,31 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         ...cat,
         subcategories: cat.subcategories?.map(sub => ({
           ...sub,
-          categoryId: sub.category_id // Add compatibility field
+          categoryId: sub.category_id
         })) || []
       }));
       
       // Convert subcategories with compatibility fields
       const subcategoriesWithCompatibility = data.subcategories.map(sub => ({
         ...sub,
-        categoryId: sub.category_id // Add compatibility field
+        categoryId: sub.category_id
       }));
       
-      // Convert providers to match ProviderProfile interface
+      // Convert providers to match ProviderProfile interface - הוספת שדות חסרים
       const providersWithCompatibility = data.providers.map(provider => ({
         ...provider,
         businessName: provider.businessName || provider.name || '',
-        contactPerson: provider.contactPerson || provider.contact_person || '',
-        email: provider.email || provider.contact_email || '',
-        phone: provider.phone || provider.contact_phone || '',
+        contactPerson: provider.contactPerson || '',
+        email: provider.email || '',
+        phone: provider.phone || '',
         categories: provider.categories || provider.categoryIds || provider.subcategoryIds || [],
         gallery: provider.gallery || [],
         rating: provider.rating || 0,
-        reviewCount: provider.reviewCount || provider.review_count || 0,
+        reviewCount: provider.reviewCount || 0,
         featured: provider.featured || false,
-        verified: provider.verified || provider.is_verified || false,
+        verified: provider.verified || false,
+        created_at: provider.created_at || new Date().toISOString(),
+        updated_at: provider.updated_at || new Date().toISOString(),
         services: provider.services?.map(service => ({
           ...service,
           provider_id: service.providerId || service.provider_id || provider.id,

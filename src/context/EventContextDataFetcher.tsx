@@ -46,6 +46,8 @@ export const useEventDataFetcher = () => {
         reviewCount: provider.reviewCount || 0,
         featured: provider.featured || false,
         verified: provider.verified || false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         // תאימות עם Services מורחבים
         services: provider.services?.map(service => ({
           ...service,
@@ -69,7 +71,7 @@ export const useEventDataFetcher = () => {
           id: sub.id,
           name: sub.name,
           categoryId: sub.categoryId,
-          category_id: sub.categoryId, // Required field
+          category_id: sub.categoryId,
           description: sub.description
         }))
       }));
@@ -80,7 +82,7 @@ export const useEventDataFetcher = () => {
           id: sub.id,
           name: sub.name,
           category_id: sub.categoryId,
-          categoryId: sub.categoryId, // Compatibility field
+          categoryId: sub.categoryId,
           description: sub.description
         }))
       ], [] as any[]);
@@ -145,6 +147,8 @@ export const EventContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
         reviewCount: provider.reviewCount || 0,
         featured: provider.featured || false,
         verified: provider.verified || false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         // המרת Services עם כל השדות הנדרשים
         services: provider.services?.map(service => ({
           ...service,

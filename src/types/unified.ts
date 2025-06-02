@@ -2,8 +2,8 @@
 // Base Types
 export interface BaseEntity {
   id: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // User and Authentication Types
@@ -52,7 +52,10 @@ export interface HebrewHierarchy {
 }
 
 // Provider Types - UNIFIED to match all usage patterns
-export interface Provider extends BaseEntity {
+export interface Provider {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
   userId?: string;
   businessName?: string;
   name?: string;
@@ -103,18 +106,20 @@ export interface Provider extends BaseEntity {
   defaultAvailability?: DefaultAvailability;
 }
 
-// Unified Provider Profile for compatibility
+// Unified Provider Profile for compatibility - שדות חובה הופכים לאופציונליים
 export interface ProviderProfile extends Provider {
-  businessName: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  categories: string[];
-  gallery: string[];
-  rating: number;
-  reviewCount: number;
+  businessName?: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  categories?: string[];
+  gallery?: string[];
+  rating?: number;
+  reviewCount?: number;
   featured?: boolean;
   verified?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Default Availability interface
@@ -224,7 +229,10 @@ export interface SetupRequirements {
 }
 
 // Service Types - UNIFIED with all required fields
-export interface Service extends BaseEntity {
+export interface Service {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
   providerId?: string;
   provider_id?: string;
   name: string;
@@ -385,7 +393,10 @@ export interface BookingRequest {
   pricingDetails?: any;
 }
 
-export interface Booking extends BookingRequest, BaseEntity {
+export interface Booking extends BookingRequest {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   paymentStatus: 'pending' | 'paid' | 'refunded';
   providerConfirmed?: boolean;
@@ -394,7 +405,10 @@ export interface Booking extends BookingRequest, BaseEntity {
 }
 
 // Review Types
-export interface Review extends BaseEntity {
+export interface Review {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
   serviceId: string;
   providerId: string;
   userId: string;
