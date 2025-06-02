@@ -1,4 +1,3 @@
-
 // src/lib/unifiedMockData.ts
 
 import { expandedMockSearchResults, expandedMockProviders, expandedMockReviews } from './mockDataExpanded';
@@ -88,14 +87,21 @@ function normalizeService(service: any): UnifiedService {
   };
 }
 
-// נורמליזציה של כל השירותים
-const normalizedExpandedProducts = expandedMockProducts.map(normalizeService);
-const normalizedSearchResults = expandedMockSearchResults.map(normalizeService);
+// עדכון לשימוש בנתונים החדשים
+import { 
+  consolidatedProducts, 
+  consolidatedProviders,
+  getAvailableProductsForDate 
+} from './consolidatedMockData';
+
+// עדכון הנתונים המנורמלים
+const normalizedExpandedProducts = consolidatedProducts.map(normalizeService);
+const normalizedSearchResults = consolidatedProducts.map(normalizeService);
 
 // איחוד השירותים לאחר נורמליזציה
 export const allServices = normalizedExpandedProducts;
 export const unifiedServices = [...normalizedSearchResults, ...normalizedExpandedProducts];
-export const unifiedProviders = expandedMockProviders;
+export const unifiedProviders = consolidatedProviders;
 
 // Helper functions for finding services and providers - עכשיו עם נתונים מנורמלים
 export const getServiceById = (id: string): UnifiedService | undefined => {
@@ -118,11 +124,26 @@ export const getFeaturedServices = (): UnifiedService[] => {
   return unifiedServices.filter(service => service.featured).slice(0, 12);
 };
 
-// Enhanced search function with better filtering capabilities
-export const searchServices = (query: string, filters?: any): UnifiedService[] => {
+// Enhanced search function with availability checking
+export const searchServices = (
+  query: string, 
+  filters?: any,
+  selectedDate?: string,
+  selectedTime?: string
+): UnifiedService[] => {
   let results = [...unifiedServices];
   
   console.log('Search started with query:', query, 'and filters:', filters);
+  
+  // סינון ראשוני - רק שירותים זמינים
+  results = results.filter(service => service.featured !== undefined); // בדיקה שזה שירות תקין
+  
+  // סינון לפי זמינות אם נבחרו תאריך ושעה
+  if (selectedDate) {
+    const availableProducts = getAvailableProductsForDate(selectedDate, selectedTime);
+    const availableProductIds = availableProducts.map(p => p.id);
+    results = results.filter(service => availableProductIds.includes(service.id));
+  }
   
   // Filter by search query
   if (query && query.trim()) {
