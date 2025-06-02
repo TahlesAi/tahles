@@ -1,17 +1,20 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Star, MapPin, Users, Clock, Play, Image as ImageIcon } from "lucide-react";
 
 interface ServiceResultCardProps {
   service: any;
+  isSelected?: boolean;
+  onToggleSelect?: (service: any) => void;
+  canSelect?: boolean;
 }
 
-const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
-  // נבדוק אם יש ID תקין לשירות
+const ServiceResultCard = ({ service, isSelected, onToggleSelect, canSelect }: ServiceResultCardProps) => {
+  // ... keep existing code (validation and calculations)
   const serviceId = service.id || service.serviceId || service.service_id;
   const providerId = service.providerId || service.provider_id;
   
@@ -28,10 +31,42 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
   const videoCount = (service.videos?.length || 0) + (service.video_urls?.length || 0);
   const imageCount = (service.additionalImages?.length || 0) + (service.additional_images?.length || 0) + (service.imageUrl ? 1 : 0);
 
+  const handleSelectToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleSelect) {
+      onToggleSelect(service);
+    }
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
       <div className="relative h-48 overflow-hidden">
-        {/* תמונה או placeholder */}
+        {/* כפתור השוואה */}
+        {onToggleSelect && (
+          <div className="absolute top-2 right-2 z-10">
+            <div 
+              onClick={handleSelectToggle}
+              className={`
+                flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer transition-all
+                ${isSelected 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-white/90 backdrop-blur-sm hover:bg-white'
+                }
+                ${!canSelect && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <Checkbox 
+                checked={isSelected} 
+                disabled={!canSelect && !isSelected}
+                className="h-4 w-4"
+              />
+              <span className="text-xs font-medium">השווה</span>
+            </div>
+          </div>
+        )}
+
+        {/* ... keep existing code (image display, media badges, price) */}
         {(service.imageUrl || service.image_url) ? (
           <img
             src={service.imageUrl || service.image_url}
@@ -62,7 +97,6 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           </div>
         )}
 
-        {/* תגיות מדיה */}
         {hasMedia && (
           <div className="absolute top-2 left-2 flex gap-1">
             {videoCount > 0 && (
@@ -80,16 +114,14 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           </div>
         )}
 
-        {/* תגיות נוספות */}
-        <div className="absolute top-2 right-2 flex gap-1">
-          {service.featured && (
+        {service.featured && (
+          <div className="absolute bottom-2 left-2">
             <Badge className="text-xs bg-amber-500 hover:bg-amber-600">
               מומלץ
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* מחיר */}
         <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm rounded px-2 py-1">
           <span className="font-bold text-blue-600">
             ₪{typeof service.price === 'number' ? service.price.toLocaleString() : service.price}
@@ -103,7 +135,7 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
       </div>
 
       <CardContent className="p-4">
-        {/* כותרת וספק */}
+        {/* ... keep existing code (title, provider, description, rating, location, tags, action button) */}
         <div className="mb-3">
           <h3 className="font-bold text-lg mb-1 line-clamp-2">{service.name}</h3>
           <div className="flex items-center gap-2">
@@ -116,12 +148,9 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           </div>
         </div>
 
-        {/* תיאור */}
         <p className="text-gray-600 text-sm mb-3 line-clamp-3">{service.description}</p>
 
-        {/* מידע נוסף */}
         <div className="space-y-2 mb-4">
-          {/* דירוג */}
           {service.rating > 0 && (
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
@@ -132,7 +161,6 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
             </div>
           )}
 
-          {/* מיקום */}
           {service.location && (
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4 text-gray-400" />
@@ -140,7 +168,6 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
             </div>
           )}
 
-          {/* תגיות */}
           {service.tags && service.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {service.tags.slice(0, 3).map((tag: string, index: number) => (
@@ -157,7 +184,6 @@ const ServiceResultCard = ({ service }: ServiceResultCardProps) => {
           )}
         </div>
 
-        {/* כפתור פעולה */}
         <Link to={`/service/${serviceId}`} className="block">
           <Button className="w-full">
             צפה בפרטים
