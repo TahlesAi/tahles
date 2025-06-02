@@ -9,9 +9,55 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      assistance_requests: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          failed_searches_count: number | null
+          id: string
+          notes: string | null
+          search_criteria: Json
+          session_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          failed_searches_count?: number | null
+          id?: string
+          notes?: string | null
+          search_criteria: Json
+          session_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          failed_searches_count?: number | null
+          id?: string
+          notes?: string | null
+          search_criteria?: Json
+          session_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           additional_requests: string | null
+          completion_date: string | null
           created_at: string
           customer_email: string
           customer_name: string
@@ -20,12 +66,14 @@ export type Database = {
           id: string
           notes: string | null
           provider_id: string
+          service_completed: boolean | null
           service_id: string
           status: string
           updated_at: string
         }
         Insert: {
           additional_requests?: string | null
+          completion_date?: string | null
           created_at?: string
           customer_email: string
           customer_name: string
@@ -34,12 +82,14 @@ export type Database = {
           id?: string
           notes?: string | null
           provider_id: string
+          service_completed?: boolean | null
           service_id: string
           status?: string
           updated_at?: string
         }
         Update: {
           additional_requests?: string | null
+          completion_date?: string | null
           created_at?: string
           customer_email?: string
           customer_name?: string
@@ -48,6 +98,7 @@ export type Database = {
           id?: string
           notes?: string | null
           provider_id?: string
+          service_completed?: boolean | null
           service_id?: string
           status?: string
           updated_at?: string
@@ -96,6 +147,139 @@ export type Database = {
           image_url?: string | null
           name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      detailed_reviews: {
+        Row: {
+          booking_id: string | null
+          comment: string | null
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          id: string
+          is_verified: boolean | null
+          overall_rating: number | null
+          price_rating: number | null
+          provider_id: string | null
+          quality_rating: number | null
+          service_id: string | null
+          service_rating: number | null
+          timing_rating: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          id?: string
+          is_verified?: boolean | null
+          overall_rating?: number | null
+          price_rating?: number | null
+          provider_id?: string | null
+          quality_rating?: number | null
+          service_id?: string | null
+          service_rating?: number | null
+          timing_rating?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          is_verified?: boolean | null
+          overall_rating?: number | null
+          price_rating?: number | null
+          provider_id?: string | null
+          quality_rating?: number | null
+          service_id?: string | null
+          service_rating?: number | null
+          timing_rating?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "detailed_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "detailed_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "detailed_reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lottery_participants: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          id: string
+          is_eligible: boolean | null
+          last_review_date: string | null
+          reviews_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          id?: string
+          is_eligible?: boolean | null
+          last_review_date?: string | null
+          reviews_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          id?: string
+          is_eligible?: boolean | null
+          last_review_date?: string | null
+          reviews_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lottery_winners: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          id: string
+          prize_amount: number | null
+          status: string | null
+          winning_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          id?: string
+          prize_amount?: number | null
+          status?: string | null
+          winning_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          id?: string
+          prize_amount?: number | null
+          status?: string | null
+          winning_date?: string | null
         }
         Relationships: []
       }
@@ -173,6 +357,56 @@ export type Database = {
           },
         ]
       }
+      provider_calendar: {
+        Row: {
+          created_at: string | null
+          current_bookings: number | null
+          date: string
+          end_time: string
+          id: string
+          is_available: boolean | null
+          max_bookings: number | null
+          provider_id: string | null
+          service_area: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_bookings?: number | null
+          date: string
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          max_bookings?: number | null
+          provider_id?: string | null
+          service_area?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_bookings?: number | null
+          date?: string
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          max_bookings?: number | null
+          provider_id?: string | null
+          service_area?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_calendar_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_subcategories: {
         Row: {
           provider_id: string
@@ -214,10 +448,12 @@ export type Database = {
           id: string
           is_verified: boolean | null
           logo_url: string | null
+          max_travel_distance: number | null
           name: string
           phone: string | null
           rating: number | null
           review_count: number | null
+          service_areas: string[] | null
           updated_at: string | null
           website: string | null
         }
@@ -231,10 +467,12 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           logo_url?: string | null
+          max_travel_distance?: number | null
           name: string
           phone?: string | null
           rating?: number | null
           review_count?: number | null
+          service_areas?: string[] | null
           updated_at?: string | null
           website?: string | null
         }
@@ -248,10 +486,12 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           logo_url?: string | null
+          max_travel_distance?: number | null
           name?: string
           phone?: string | null
           rating?: number | null
           review_count?: number | null
+          service_areas?: string[] | null
           updated_at?: string | null
           website?: string | null
         }
@@ -307,6 +547,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      search_tracking: {
+        Row: {
+          id: string
+          results_found: number | null
+          search_criteria: Json
+          search_timestamp: string | null
+          session_id: string
+          user_agent: string | null
+          user_ip: string | null
+        }
+        Insert: {
+          id?: string
+          results_found?: number | null
+          search_criteria: Json
+          search_timestamp?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_ip?: string | null
+        }
+        Update: {
+          id?: string
+          results_found?: number | null
+          search_criteria?: Json
+          search_timestamp?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_ip?: string | null
+        }
+        Relationships: []
       }
       services: {
         Row: {

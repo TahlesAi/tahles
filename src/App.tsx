@@ -1,66 +1,89 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { Toaster } from "@/components/ui/toaster"
 import { EventProvider } from '@/context/EventContext';
-
-// Pages
-import Index from './pages/Index';
-import Search from './pages/Search';
-import ServiceDetails from './pages/ServiceDetails';
-import CategorySubcategories from './pages/CategorySubcategories';
-import SubcategoryServiceTypes from './pages/SubcategoryServiceTypes';
-import ProviderServices from './pages/ProviderServices';
-import EnhancedProviderProfile from './pages/EnhancedProviderProfile';
-import Categories from './pages/Categories';
-import ProviderGenerator from './pages/ProviderGenerator';
-import BookingPage from './pages/BookingPage';
-import ProviderOnboarding from './pages/ProviderOnboarding';
-import NotFound from './pages/NotFound';
-
-const queryClient = new QueryClient();
+import Home from '@/pages/Home';
+import CategoryPage from '@/pages/CategoryPage';
+import ServicePage from '@/pages/ServicePage';
+import ProviderProfilePage from '@/pages/ProviderProfilePage';
+import SearchResultsPage from '@/pages/SearchResultsPage';
+import BookingPage from '@/pages/BookingPage';
+import TermsOfServicePage from '@/pages/TermsOfServicePage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import ContactUsPage from '@/pages/ContactUsPage';
+import AboutUsPage from '@/pages/AboutUsPage';
+import LoginPage from '@/pages/LoginPage';
+import SignupPage from '@/pages/SignupPage';
+import DashboardPage from '@/pages/DashboardPage';
+import ProviderDashboard from '@/pages/ProviderDashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
+import NotFoundPage from '@/pages/NotFoundPage';
+import { useAuth } from '@/hooks/useAuth';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ProviderRoute } from '@/components/auth/ProviderRoute';
+import { AdminRoute } from '@/components/auth/AdminRoute';
+import ScrollToTop from '@/components/utils/ScrollToTop';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ModeToggle } from '@/components/ModeToggle';
+import { Button } from '@/components/ui/button';
+import AssistancePopupManager from '@/components/assistance/AssistancePopupManager';
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <EventProvider>
-        <TooltipProvider>
-          <Toaster />
-          <BrowserRouter>
+        <BrowserRouter>
+          <div className="min-h-screen bg-gray-50" dir="rtl">
+            <Toaster />
             <Routes>
-              {/* עמודים קיימים */}
-              <Route path="/" element={<Index />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/categories/:categoryId" element={<CategorySubcategories />} />
-              <Route path="/subcategories/:subcategoryId" element={<SubcategoryServiceTypes />} />
-              
-              {/* נתיבי ספקים - נתיבים חדשים וקיימים */}
-              <Route path="/provider/:providerId" element={<EnhancedProviderProfile />} />
-              <Route path="/providers/:providerId" element={<ProviderServices />} />
-              <Route path="/enhanced-providers/:providerId" element={<EnhancedProviderProfile />} />
-              
-              {/* נתיבי מוצרים ושירותים */}
-              <Route path="/product/:productId" element={<ServiceDetails />} />
-              <Route path="/service/:id" element={<ServiceDetails />} />
-              <Route path="/enhanced-services/:serviceId" element={<ServiceDetails />} />
-              
-              {/* נתיב הזמנה */}
+              <Route path="/" element={<Home />} />
+              <Route path="/category/:categoryId" element={<CategoryPage />} />
+              <Route path="/service/:serviceId" element={<ServicePage />} />
+              <Route path="/provider/:providerId" element={<ProviderProfilePage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
               <Route path="/booking/:serviceId" element={<BookingPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/contact" element={<ContactUsPage />} />
+              <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="*" element={<NotFoundPage />} />
               
-              {/* נתיב הרשמת ספקים - חדש */}
-              <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
+              {/* Protected Routes */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } 
+              />
               
-              {/* דף מחולל ספקים */}
-              <Route path="/admin/provider-generator" element={<ProviderGenerator />} />
+              {/* Provider Routes */}
+              <Route
+                path="/provider-dashboard"
+                element={
+                  <ProviderRoute>
+                    <ProviderDashboard />
+                  </ProviderRoute>
+                }
+              />
               
-              {/* 404 */}
-              <Route path="*" element={<NotFound />} />
+              {/* Admin Routes */}
+              <Route
+                path="/admin-dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+            <AssistancePopupManager />
+          </div>
+        </BrowserRouter>
       </EventProvider>
     </QueryClientProvider>
   );
