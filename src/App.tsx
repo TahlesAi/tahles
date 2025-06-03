@@ -15,7 +15,7 @@ const Categories = lazy(() => import("./pages/Categories"));
 const CategorySubcategories = lazy(() => import("./pages/CategorySubcategories"));
 const ProviderCalendar = lazy(() => import("./pages/ProviderCalendar"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const DataExportPage = lazy(() => import("./pages/admin/DataExportPage"));
 const ReadableExportPage = lazy(() => import("./pages/admin/ReadableExportPage"));
 const HierarchyManagement = lazy(() => import("./pages/admin/HierarchyManagement"));
