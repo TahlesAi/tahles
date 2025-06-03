@@ -10,6 +10,7 @@ import SearchSubcategories from "./pages/SearchSubcategories";
 import SubcategoryProviders from "./pages/SubcategoryProviders";
 import ServiceDetails from "./pages/ServiceDetails";
 import HierarchyManagement from "./pages/admin/HierarchyManagement";
+import DataExportPage from "./pages/admin/DataExportPage";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/subcategory/:subcategoryId/providers" element={<SubcategoryProviders />} />
           <Route path="/service/:serviceId" element={<ServiceDetails />} />
           <Route path="/admin/hierarchy" element={<HierarchyManagement />} />
+          <Route path="/admin/export" element={<DataExportPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

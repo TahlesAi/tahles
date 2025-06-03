@@ -22,7 +22,8 @@ import {
   Eye,
   Calendar,
   Building,
-  Star
+  Star,
+  Download
 } from 'lucide-react';
 
 const HierarchyManagement = () => {
@@ -125,6 +126,15 @@ const HierarchyManagement = () => {
               >
                 <Home className="h-4 w-4 ml-2" />
                 חזרה לדף הבית
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/admin/export')}
+                className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+              >
+                <Download className="h-4 w-4 ml-2" />
+                ייצוא נתונים לאקסל
               </Button>
               <h1 className="text-3xl font-bold">ניהול היררכיית הנתונים</h1>
             </div>
