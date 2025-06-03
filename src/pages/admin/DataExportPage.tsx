@@ -42,8 +42,8 @@ const DataExportPage = () => {
       subconcepts: totalSubconcepts,
       providers: providers.length,
       services: services.length,
-      simulatedProviders: providers.filter(p => p.isSimulated).length,
-      simulatedServices: services.filter(s => s.isSimulated).length
+      simulatedProviders: providers.filter(p => p.isMock || false).length,
+      simulatedServices: services.filter(s => s.isMock || false).length
     };
   }, [providers, services]);
 
@@ -105,9 +105,8 @@ const DataExportPage = () => {
         'מוצג': provider.featured ? 'כן' : 'לא',
         'יומן פעיל': provider.calendarActive ? 'כן' : 'לא',
         'יומן מחובר': provider.hasAvailableCalendar ? 'כן' : 'לא',
-        'אזורי שירות': (provider.serviceAreas || []).join(', '),
         'תתי קטגוריות': (provider.subcategoryIds || []).join(', '),
-        'סימולציה': provider.isSimulated ? 'כן' : 'לא',
+        'סימולציה': (provider.isMock || false) ? 'כן' : 'לא',
         'מספר שירותים': services.filter(s => s.providerId === provider.id).length
       })),
 
@@ -121,10 +120,7 @@ const DataExportPage = () => {
         'מחיר': service.price || 0,
         'יחידת מחיר': service.priceUnit || '',
         'משך': service.duration || '',
-        'מזהה קטגוריה': service.categoryId || '',
         'מזהה תת קטגוריה': service.subcategoryId || '',
-        'גודל קהל': service.audienceSize || '',
-        'שירות קבלת פנים': service.isReceptionService ? 'כן' : 'לא',
         'זמין': service.available ? 'כן' : 'לא',
         'מוצג': service.featured ? 'כן' : 'לא',
         'דירוג': service.rating || 0,
@@ -136,7 +132,7 @@ const DataExportPage = () => {
         'זמן הכנה (דק)': service.setupTime || '',
         'תמונות נוספות': (service.additionalImages || []).join(', '),
         'סרטונים': (service.videos || []).join(', '),
-        'סימולציה': service.isSimulated ? 'כן' : 'לא'
+        'סימולציה': (service.isMock || false) ? 'כן' : 'לא'
       }))
     };
 
