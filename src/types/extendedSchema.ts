@@ -1,4 +1,3 @@
-
 // סכמת נתונים מורחבת עם תמיכה בכל הדרישות החדשות
 export interface ExtendedProviderProfile {
   id: string;
@@ -33,6 +32,7 @@ export interface ExtendedProviderProfile {
   
   // סימונים מיוחדים
   isMock: boolean; // סימון פיקטיבי
+  isSimulated: boolean; // *** שדה חסר שנוסף ***
   simulationType?: 'demo' | 'completion' | 'testing';
   
   // יומן וזמינות
@@ -93,6 +93,7 @@ export interface ExtendedServiceProfile {
   
   // מטא-דאטה
   isMock: boolean;
+  isSimulated: boolean; // *** שדה חסר שנוסף גם כאן ***
   tags: string[];
   technicalRequirements: string[];
   suitableFor: string[];
@@ -213,5 +214,4 @@ export interface AvailabilitySlot {
   isAvailable: boolean;
   maxBookings: number;
   currentBookings: number;
-  softHolds: number;
 }
