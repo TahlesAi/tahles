@@ -19,6 +19,7 @@ const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const DataExportPage = lazy(() => import("./pages/admin/DataExportPage"));
 const ReadableExportPage = lazy(() => import("./pages/admin/ReadableExportPage"));
 const HierarchyManagement = lazy(() => import("./pages/admin/HierarchyManagement"));
+const LegacyDataFreeze = lazy(() => import("./pages/admin/LegacyDataFreeze"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="/admin/data-export" element={<Suspense fallback={<div>טוען...</div>}><DataExportPage /></Suspense>} />
               <Route path="/admin/readable-export" element={<Suspense fallback={<div>טוען...</div>}><ReadableExportPage /></Suspense>} />
               <Route path="/admin/hierarchy" element={<Suspense fallback={<div>טוען...</div>}><HierarchyManagement /></Suspense>} />
+              <Route path="/admin/legacy-freeze" element={<Suspense fallback={<div>טוען...</div>}><LegacyDataFreeze /></Suspense>} />
               
               <Route path="*" element={<Suspense fallback={<div>טוען...</div>}><NotFound /></Suspense>} />
             </Routes>
