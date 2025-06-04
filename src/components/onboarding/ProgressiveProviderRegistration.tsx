@@ -181,6 +181,7 @@ const ProgressiveProviderRegistration: React.FC<{
       featured: false,
       
       isMock: registrationData.isMock,
+      isSimulated: registrationData.isMock, // הוספת השדה החסר
       simulationType: registrationData.simulationType,
       
       calendarActive: true,

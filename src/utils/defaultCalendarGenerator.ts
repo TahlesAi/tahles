@@ -1,4 +1,3 @@
-
 import { 
   DefaultCalendarSettings, 
   WorkingHoursConfig, 
@@ -108,8 +107,7 @@ export const generateAvailabilitySlots = (
       endTime,
       isAvailable: true,
       maxBookings: 1, // ברירת מחדל - הזמנה אחת בכל פעם
-      currentBookings: 0,
-      softHolds: 0
+      currentBookings: 0
     });
   }
   

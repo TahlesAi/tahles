@@ -72,6 +72,7 @@ export class ExtendedDataSystem {
       featured: true,
       
       isMock: true, // מסומן כפיקטיבי
+      isSimulated: true, // הוספת השדה החסר
       simulationType: 'demo',
       
       calendarActive: true,
@@ -146,6 +147,7 @@ export class ExtendedDataSystem {
       featured: true,
       
       isMock: true,
+      isSimulated: true, // הוספת השדה החסר
       tags: ['מנטליזם', 'קריאת מחשבות', 'בידור', 'אינטראקטיבי'],
       technicalRequirements: ['מיקרופון', 'במה מוגבהת (רצוי)', 'תאורה בסיסית'],
       suitableFor: ['אירועי חברה', 'חתונות', 'בר מצווה', 'ימי הולדת'],
