@@ -9,7 +9,7 @@ import {
   Settings, 
   Download, 
   FileText, 
-  Hierarchy,
+  Network,
   Snowflake,
   AlertTriangle,
   Database,
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
 
         <Card>
           <CardContent className="p-6 text-center">
-            <Hierarchy className="h-12 w-12 mx-auto mb-4 text-orange-600" />
+            <Network className="h-12 w-12 mx-auto mb-4 text-orange-600" />
             <div className="text-3xl font-bold mb-2">{stats.totalSubcategories}</div>
             <div className="text-gray-600">תתי קטגוריות</div>
           </CardContent>
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Hierarchy className="h-5 w-5 text-green-600" />
+              <Network className="h-5 w-5 text-green-600" />
               ניהול היררכיה
             </CardTitle>
           </CardHeader>
