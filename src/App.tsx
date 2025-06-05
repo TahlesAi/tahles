@@ -1,64 +1,48 @@
 
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import NotificationSystem from '@/components/notifications/NotificationSystem';
-import { UnifiedEventProvider } from '@/context/UnifiedEventContext';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
+import Index from "./pages/Index";
+import AdminDashboard from "./components/admin/AdminDashboard";
 
-// Pages
-const Index = lazy(() => import("./pages/Index"));
-const Categories = lazy(() => import("./pages/Categories"));
-const CategorySubcategories = lazy(() => import("./pages/CategorySubcategories"));
-const ProviderCalendar = lazy(() => import("./pages/ProviderCalendar"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
-const DataExportPage = lazy(() => import("./pages/admin/DataExportPage"));
-const ReadableExportPage = lazy(() => import("./pages/admin/ReadableExportPage"));
-const HierarchyManagement = lazy(() => import("./pages/admin/HierarchyManagement"));
+// Lazy loading for better performance
 const LegacyDataFreeze = lazy(() => import("./pages/admin/LegacyDataFreeze"));
+const SystemMigration = lazy(() => import("./pages/admin/SystemMigration"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <UnifiedEventProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <NotificationSystem />
-        <BrowserRouter>
-          <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<Suspense fallback={<div>טוען...</div>}><Index /></Suspense>} />
-              <Route path="/categories" element={<Suspense fallback={<div>טוען...</div>}><Categories /></Suspense>} />
-              <Route path="/categories/:categoryId" element={<Suspense fallback={<div>טוען...</div>}><CategorySubcategories /></Suspense>} />
-              <Route path="/calendar" element={<Suspense fallback={<div>טוען...</div>}><ProviderCalendar /></Suspense>} />
-              
-              {/* Admin Routes */}
-              <Route path="/admin" element={<Suspense fallback={<div>טוען...</div>}><AdminDashboardPage /></Suspense>} />
-              <Route path="/admin/data-export" element={<Suspense fallback={<div>טוען...</div>}><DataExportPage /></Suspense>} />
-              <Route path="/admin/readable-export" element={<Suspense fallback={<div>טוען...</div>}><ReadableExportPage /></Suspense>} />
-              <Route path="/admin/hierarchy" element={<Suspense fallback={<div>טוען...</div>}><HierarchyManagement /></Suspense>} />
-              <Route path="/admin/legacy-freeze" element={<Suspense fallback={<div>טוען...</div>}><LegacyDataFreeze /></Suspense>} />
-              
-              <Route path="*" element={<Suspense fallback={<div>טוען...</div>}><NotFound /></Suspense>} />
-            </Routes>
-          </ErrorBoundary>
-        </BrowserRouter>
+        <UnifiedEventProvider>
+          <Toaster />
+          <BrowserRouter>
+            <div className="min-h-screen">
+              <Suspense fallback={<div className="flex items-center justify-center h-screen">טוען...</div>}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/legacy-freeze" element={<LegacyDataFreeze />} />
+                  <Route path="/admin/system-migration" element={<SystemMigration />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </BrowserRouter>
+        </UnifiedEventProvider>
       </TooltipProvider>
-    </UnifiedEventProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;
