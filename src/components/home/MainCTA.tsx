@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, Snowflake } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const MainCTA = () => {
@@ -8,6 +8,10 @@ const MainCTA = () => {
   
   const goToSearch = () => {
     navigate('/search');
+  };
+
+  const goToSystemMigration = () => {
+    navigate('/admin/system-migration');
   };
 
   return (
@@ -32,6 +36,15 @@ const MainCTA = () => {
               <UserPlus className="h-5 w-5 ml-2" />
               ספק חדש
             </Link>
+          </Button>
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="bg-blue-500 text-white hover:bg-blue-600 border-2 border-white flex items-center"
+            onClick={goToSystemMigration}
+          >
+            <Snowflake className="h-5 w-5 ml-2" />
+            מעבר למערכת החדשה
           </Button>
         </div>
       </div>
