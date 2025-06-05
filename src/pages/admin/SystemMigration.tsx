@@ -1,9 +1,9 @@
 
 import React from 'react';
-import SystemMigrationDashboard from '@/components/admin/SystemMigrationDashboard';
+import ComprehensiveMigrationDashboard from '@/components/admin/ComprehensiveMigrationDashboard';
 
 const SystemMigration: React.FC = () => {
-  return <SystemMigrationDashboard />;
+  return <ComprehensiveMigrationDashboard />;
 };
 
 export default SystemMigration;

@@ -1,393 +1,502 @@
 
-// מנהל המערכת החדשה
+// מנהל המערכת החדשה - אחראי על ניהול המבנה החדש
 import { 
-  NewSystemCategory,
-  NewSystemSubcategory,
+  NewSystemCategory, 
+  NewSystemSubcategory, 
+  EventConcept,
   NewSystemProvider,
   NewSystemProduct,
-  EventConcept,
-  EventType,
-  BusinessRules,
-  WishlistItem,
-  DocumentReminder
+  CustomField,
+  BusinessRules 
 } from '@/types/newSystemSchema';
 
-export class NewSystemManager {
+class NewSystemManager {
   private categories: NewSystemCategory[] = [];
   private subcategories: NewSystemSubcategory[] = [];
+  private concepts: EventConcept[] = [];
   private providers: NewSystemProvider[] = [];
   private products: NewSystemProduct[] = [];
-  private concepts: EventConcept[] = [];
-  private businessRules: BusinessRules;
-  private wishlistItems: WishlistItem[] = [];
-  private documentReminders: DocumentReminder[] = [];
+  private businessRules: BusinessRules = {
+    hideUnavailableProducts: true,
+    requireImmediatePayment: true,
+    noCustomPricingOnly: true,
+    requireClearPricing: true,
+    ratingsAffectFiltering: false,
+    enableProductComparison: false,
+    enableWishlist: false,
+    requireSMSVerification: false,
+    requireProviderIDVerification: false,
+    enableCRMIntegration: false,
+    hideBrandingDuringLaunch: true
+  };
+  private isActive: boolean = false;
 
   constructor() {
-    this.businessRules = this.getDefaultBusinessRules();
-    this.initializeDefaultConcepts();
+    this.initializeData();
+    this.loadFromStorage();
   }
 
-  private getDefaultBusinessRules(): BusinessRules {
-    return {
-      hideUnavailableProducts: true,
-      requireImmediatePayment: true,
-      noCustomPricingOnly: true,
-      requireClearPricing: true,
-      ratingsAffectFiltering: true,
-      enableProductComparison: true,
-      enableWishlist: true,
-      requireSMSVerification: true,
-      requireProviderIDVerification: true,
-      enableCRMIntegration: true,
-      hideBrandingDuringLaunch: true
-    };
-  }
+  private initializeData(): void {
+    // יצירת קטגוריות-על לדוגמה
+    this.categories = [
+      {
+        id: 'cat-001',
+        name: 'הפקות',
+        description: 'פתרונות הפקה לכל סוגי האירועים',
+        icon: 'event',
+        order: 1,
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'cat-002',
+        name: 'העשרה',
+        description: 'תכני העשרה וסדנאות',
+        icon: 'school',
+        order: 2,
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'cat-003',
+        name: 'מתנות',
+        description: 'מתנות לכל מטרה ואירוע',
+        icon: 'gift',
+        order: 3,
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'cat-004',
+        name: 'כרטיסים',
+        description: 'כרטיסים למופעים ואירועים',
+        icon: 'ticket',
+        order: 4,
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'cat-005',
+        name: 'טיולים',
+        description: 'טיולים וחוויות בחוץ',
+        icon: 'map',
+        order: 5,
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
 
-  private initializeDefaultConcepts(): void {
-    const defaultConcepts: EventConcept[] = [
+    // תתי-קטגוריות לדוגמה
+    this.subcategories = [
+      {
+        id: 'sub-001',
+        categoryId: 'cat-001',
+        name: 'אולמות אירועים',
+        description: 'אולמות לכל סוגי האירועים',
+        icon: 'venue',
+        order: 1,
+        customFields: this.generateVenueCustomFields(),
+        requiredFields: ['capacity', 'hasParking'],
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'sub-002',
+        categoryId: 'cat-001',
+        name: 'שירותי קייטרינג',
+        description: 'קייטרינג לאירועים',
+        icon: 'food',
+        order: 2,
+        customFields: this.generateCateringCustomFields(),
+        requiredFields: ['isKosher', 'cuisineType'],
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'sub-003',
+        categoryId: 'cat-002',
+        name: 'סדנאות יצירה',
+        description: 'סדנאות יצירה לקבוצות',
+        icon: 'art',
+        order: 1,
+        customFields: this.generateWorkshopCustomFields(),
+        requiredFields: ['workshopType', 'maxParticipants'],
+        isActive: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+
+    // קונספטים לדוגמה
+    this.concepts = [
       {
         id: 'concept-001',
         name: 'יום גיבוש',
-        description: 'פעילויות לחיזוק צוותים וקבוצות',
-        eventTypes: ['אירוע חברה', 'אירוע חברים'],
+        description: 'פעילויות ושירותים ליום גיבוש',
+        icon: 'team',
+        eventTypes: ['אירוע חברה'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 120,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-002',
         name: 'מסיבת סיום',
-        description: 'חגיגות סיום לימודים או פרויקטים',
-        eventTypes: ['אירוע חברים', 'מפגש ילדים'],
+        description: 'כל מה שצריך למסיבת סיום מושלמת',
+        icon: 'graduation',
+        eventTypes: ['אירוע חברה', 'אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 85,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-003',
         name: 'שבת חתן',
-        description: 'חגיגת שבת לכבוד חתן',
+        description: 'אירוח ופעילויות לשבת חתן',
+        icon: 'groom',
         eventTypes: ['אירוע משפחתי', 'אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 95,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-004',
         name: 'חינה',
-        description: 'טקס חינה מסורתי',
+        description: 'מסיבת חינה מסורתית',
+        icon: 'henna',
         eventTypes: ['אירוע משפחתי'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 75,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-005',
         name: 'מסיבת רווקות',
-        description: 'חגיגה לכבוד הכלה',
+        description: 'פעילויות ושירותים למסיבת רווקות',
+        icon: 'party',
         eventTypes: ['אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 110,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-006',
         name: 'בר מצווה',
-        description: 'חגיגת בר/בת מצווה',
+        description: 'אירוע בר מצווה',
+        icon: 'bar-mitzvah',
         eventTypes: ['אירוע משפחתי'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 130,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-007',
         name: 'מסיבת חצר',
-        description: 'מסיבה בחצר הבית',
-        eventTypes: ['אירוע משפחתי', 'אירוע חברים'],
+        description: 'אירוע לא פורמלי בחצר',
+        icon: 'backyard',
+        eventTypes: ['אירוע חברים', 'אירוע משפחתי'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 65,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-008',
         name: 'הפנינג עובדים',
-        description: 'אירוע לעובדי החברה',
+        description: 'אירוע חברה גדול לעובדים',
+        icon: 'company',
         eventTypes: ['אירוע חברה'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 40,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-009',
         name: 'יום הולדת גיל 40',
-        description: 'חגיגת יום הולדת מיוחדת',
+        description: 'אירוע מיוחד לגיל 40',
+        icon: 'birthday',
         eventTypes: ['אירוע משפחתי', 'אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 50,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-010',
         name: 'סדנת יצירה',
-        description: 'סדנה ליצירה והכנה',
-        eventTypes: ['מפגש ילדים', 'אירוע חברים'],
+        description: 'סדנת יצירה לכל מטרה',
+        icon: 'workshop',
+        eventTypes: ['אירוע חברה', 'מפגש ילדים', 'אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 80,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 'concept-011',
         name: 'קבלת שבת',
-        description: 'מפגש לכבוד שבת',
-        eventTypes: ['אירוע משפחתי'],
+        description: 'אירוע קבלת שבת',
+        icon: 'shabbat',
+        eventTypes: ['אירוע משפחתי', 'אירוע חברים'],
         isActive: true,
-        usageCount: 0,
+        usageCount: 30,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
     ];
 
-    this.concepts = defaultConcepts;
+    // טעינה של ספקים ומוצרים תתבצע מהמערכת הישנה בתהליך המעבר
+    this.providers = [];
+    this.products = [];
   }
 
-  // ניהול קטגוריות
-  public addCategory(category: Omit<NewSystemCategory, 'id' | 'created_at' | 'updated_at'>): string {
-    const newCategory: NewSystemCategory = {
-      ...category,
-      id: `category-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    this.categories.push(newCategory);
-    return newCategory.id;
-  }
-
-  // ניהול תתי קטגוריות
-  public addSubcategory(subcategory: Omit<NewSystemSubcategory, 'id' | 'created_at' | 'updated_at'>): string {
-    const newSubcategory: NewSystemSubcategory = {
-      ...subcategory,
-      id: `subcategory-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    this.subcategories.push(newSubcategory);
-    return newSubcategory.id;
-  }
-
-  // ניהול ספקים
-  public addProvider(provider: Omit<NewSystemProvider, 'id' | 'created_at' | 'updated_at' | 'subcategoryIds'>): string {
-    const newProvider: NewSystemProvider = {
-      ...provider,
-      id: `provider-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      subcategoryIds: [] // יחושב אוטומטית לפי המוצרים
-    };
-
-    this.providers.push(newProvider);
-    return newProvider.id;
-  }
-
-  // ניהול מוצרים
-  public addProduct(product: Omit<NewSystemProduct, 'id' | 'created_at' | 'updated_at'>): string {
-    // וולידציה - מוצר חייב לפחות קונספט אחד
-    if (!product.conceptIds || product.conceptIds.length === 0) {
-      throw new Error('מוצר חייב להיות משויך לפחות לקונספט אחד');
-    }
-
-    // וולידציה - מוצר חייב להיות זמין לחיוב מיידי
-    if (!product.canChargeImmediately) {
-      throw new Error('כל מוצר חייב להיות זמין לחיוב מיידי');
-    }
-
-    const newProduct: NewSystemProduct = {
-      ...product,
-      id: `product-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    this.products.push(newProduct);
-
-    // עדכון תתי קטגוריות של הספק
-    this.updateProviderSubcategories(product.providerId, product.subcategoryId);
-
-    return newProduct.id;
-  }
-
-  private updateProviderSubcategories(providerId: string, subcategoryId: string): void {
-    const provider = this.providers.find(p => p.id === providerId);
-    if (provider && !provider.subcategoryIds.includes(subcategoryId)) {
-      provider.subcategoryIds.push(subcategoryId);
-      provider.updated_at = new Date().toISOString();
-    }
-  }
-
-  // חיפוש מוצרים לפי קונספטים וסוג אירוע
-  public searchProductsByEventType(eventType: EventType, additionalFilters?: {
-    subcategoryId?: string;
-    targetAudience?: string;
-    priceRange?: [number, number];
-  }): NewSystemProduct[] {
-    // קבלת קונספטים רלוונטיים לסוג האירוע
-    const relevantConcepts = this.concepts
-      .filter(concept => concept.eventTypes.includes(eventType))
-      .map(concept => concept.id);
-
-    // סינון מוצרים
-    let filteredProducts = this.products.filter(product => {
-      // בדיקה שהמוצר זמין ופעיל
-      if (!product.isAvailable || product.status !== 'active') {
-        return false;
-      }
-
-      // בדיקה שיש חפיפה בקונספטים
-      const hasRelevantConcept = product.conceptIds.some(conceptId => 
-        relevantConcepts.includes(conceptId)
-      );
-      
-      return hasRelevantConcept;
-    });
-
-    // סינונים נוספים
-    if (additionalFilters?.subcategoryId) {
-      filteredProducts = filteredProducts.filter(p => 
-        p.subcategoryId === additionalFilters.subcategoryId
-      );
-    }
-
-    if (additionalFilters?.targetAudience) {
-      filteredProducts = filteredProducts.filter(p => 
-        p.targetAudiences.includes(additionalFilters.targetAudience as any)
-      );
-    }
-
-    if (additionalFilters?.priceRange) {
-      const [min, max] = additionalFilters.priceRange;
-      filteredProducts = filteredProducts.filter(p => 
-        p.basePrice >= min && p.basePrice <= max
-      );
-    }
-
-    // מיון לפי דירוג ופופולריות
-    return filteredProducts.sort((a, b) => {
-      const scoreA = a.productRating * 0.7 + (a.totalBookings / 100) * 0.3;
-      const scoreB = b.productRating * 0.7 + (b.totalBookings / 100) * 0.3;
-      return scoreB - scoreA;
-    });
-  }
-
-  // ניהול Wishlist
-  public addToWishlist(userId: string, productId: string): string {
-    const existing = this.wishlistItems.find(item => 
-      item.userId === userId && item.productId === productId
-    );
-
-    if (existing) {
-      throw new Error('המוצר כבר נמצא ברשימת המשאלות');
-    }
-
-    const product = this.products.find(p => p.id === productId);
-    if (!product) {
-      throw new Error('מוצר לא נמצא');
-    }
-
-    const wishlistItem: WishlistItem = {
-      id: `wishlist-${Date.now()}`,
-      userId,
-      productId,
-      providerId: product.providerId,
-      addedDate: new Date().toISOString()
-    };
-
-    this.wishlistItems.push(wishlistItem);
-    return wishlistItem.id;
-  }
-
-  // קבלת רשימת משאלות של משתמש
-  public getUserWishlist(userId: string): WishlistItem[] {
-    return this.wishlistItems.filter(item => item.userId === userId);
-  }
-
-  // מערכת תזכורות למסמכים
-  public checkDocumentExpirations(): DocumentReminder[] {
-    const now = new Date();
-    const expiringSoon: DocumentReminder[] = [];
-
-    this.providers.forEach(provider => {
-      provider.businessDocuments.forEach(doc => {
-        if (doc.expiryDate && doc.reminderDays > 0) {
-          const expiryDate = new Date(doc.expiryDate);
-          const reminderDate = new Date(expiryDate);
-          reminderDate.setDate(reminderDate.getDate() - doc.reminderDays);
-
-          if (now >= reminderDate && now < expiryDate) {
-            const reminder: DocumentReminder = {
-              id: `reminder-${Date.now()}-${Math.random()}`,
-              providerId: provider.id,
-              documentType: doc.type,
-              expiryDate: doc.expiryDate,
-              reminderDate: reminderDate.toISOString(),
-              isActive: true,
-              reminderSent: false
-            };
-
-            expiringSoon.push(reminder);
-          }
+  private generateVenueCustomFields(): CustomField[] {
+    return [
+      {
+        id: 'venue-field-001',
+        name: 'capacity',
+        type: 'number',
+        required: true,
+        displayOrder: 1,
+        validation: {
+          min: 10,
+          max: 2000
         }
-      });
-    });
-
-    return expiringSoon;
+      },
+      {
+        id: 'venue-field-002',
+        name: 'hasParking',
+        type: 'boolean',
+        required: true,
+        displayOrder: 2
+      },
+      {
+        id: 'venue-field-003',
+        name: 'indoorOutdoor',
+        type: 'select',
+        required: true,
+        options: ['indoor', 'outdoor', 'both'],
+        displayOrder: 3
+      },
+      {
+        id: 'venue-field-004',
+        name: 'accessibility',
+        type: 'boolean',
+        required: false,
+        displayOrder: 4
+      }
+    ];
   }
 
-  // getters
+  private generateCateringCustomFields(): CustomField[] {
+    return [
+      {
+        id: 'catering-field-001',
+        name: 'isKosher',
+        type: 'boolean',
+        required: true,
+        displayOrder: 1
+      },
+      {
+        id: 'catering-field-002',
+        name: 'cuisineType',
+        type: 'multiselect',
+        required: true,
+        options: ['Israeli', 'Mediterranean', 'Asian', 'European', 'American'],
+        displayOrder: 2
+      },
+      {
+        id: 'catering-field-003',
+        name: 'servingStyle',
+        type: 'select',
+        required: false,
+        options: ['buffet', 'plated', 'stations', 'family_style'],
+        displayOrder: 3
+      }
+    ];
+  }
+
+  private generateWorkshopCustomFields(): CustomField[] {
+    return [
+      {
+        id: 'workshop-field-001',
+        name: 'workshopType',
+        type: 'select',
+        required: true,
+        options: ['art', 'cooking', 'crafts', 'science', 'wellness'],
+        displayOrder: 1
+      },
+      {
+        id: 'workshop-field-002',
+        name: 'maxParticipants',
+        type: 'number',
+        required: true,
+        validation: {
+          min: 5,
+          max: 100
+        },
+        displayOrder: 2
+      },
+      {
+        id: 'workshop-field-003',
+        name: 'materialsIncluded',
+        type: 'boolean',
+        required: false,
+        displayOrder: 3
+      },
+      {
+        id: 'workshop-field-004',
+        name: 'duration',
+        type: 'number',
+        required: true,
+        validation: {
+          min: 30,
+          max: 480
+        },
+        displayOrder: 4
+      }
+    ];
+  }
+
+  // שמירה וטעינה מ-localStorage
+  private saveToStorage(): void {
+    localStorage.setItem('newSystem.categories', JSON.stringify(this.categories));
+    localStorage.setItem('newSystem.subcategories', JSON.stringify(this.subcategories));
+    localStorage.setItem('newSystem.concepts', JSON.stringify(this.concepts));
+    localStorage.setItem('newSystem.businessRules', JSON.stringify(this.businessRules));
+    localStorage.setItem('newSystem.isActive', JSON.stringify(this.isActive));
+  }
+
+  private loadFromStorage(): void {
+    // טעינה מ-localStorage אם קיים
+    try {
+      const categories = localStorage.getItem('newSystem.categories');
+      const subcategories = localStorage.getItem('newSystem.subcategories');
+      const concepts = localStorage.getItem('newSystem.concepts');
+      const businessRules = localStorage.getItem('newSystem.businessRules');
+      const isActive = localStorage.getItem('newSystem.isActive');
+
+      if (categories) this.categories = JSON.parse(categories);
+      if (subcategories) this.subcategories = JSON.parse(subcategories);
+      if (concepts) this.concepts = JSON.parse(concepts);
+      if (businessRules) this.businessRules = JSON.parse(businessRules);
+      if (isActive) this.isActive = JSON.parse(isActive);
+    } catch (error) {
+      console.error('שגיאה בטעינת המערכת החדשה:', error);
+    }
+  }
+
+  // API ציבורי
   public getCategories(): NewSystemCategory[] {
-    return this.categories.filter(c => c.isActive);
+    return [...this.categories];
   }
 
-  public getSubcategories(categoryId?: string): NewSystemSubcategory[] {
-    const active = this.subcategories.filter(s => s.isActive);
-    return categoryId ? active.filter(s => s.categoryId === categoryId) : active;
+  public getSubcategories(): NewSystemSubcategory[] {
+    return [...this.subcategories];
   }
 
-  public getProviders(): NewSystemProvider[] {
-    return this.providers.filter(p => p.status === 'active');
-  }
-
-  public getProducts(): NewSystemProduct[] {
-    return this.products.filter(p => p.status === 'active' && p.isAvailable);
+  public getSubcategoriesByCategory(categoryId: string): NewSystemSubcategory[] {
+    return this.subcategories.filter(sub => sub.categoryId === categoryId);
   }
 
   public getConcepts(): EventConcept[] {
-    return this.concepts.filter(c => c.isActive);
+    return [...this.concepts];
   }
 
-  public getConceptsByEventType(eventType: EventType): EventConcept[] {
-    return this.concepts.filter(c => c.isActive && c.eventTypes.includes(eventType));
+  public getConceptsByEventType(eventType: string): EventConcept[] {
+    return this.concepts.filter(concept => 
+      concept.eventTypes.includes(eventType as any)
+    );
+  }
+
+  public getProviders(): NewSystemProvider[] {
+    return [...this.providers];
+  }
+
+  public getProducts(): NewSystemProduct[] {
+    return [...this.products];
   }
 
   public getBusinessRules(): BusinessRules {
-    return { ...this.businessRules };
+    return {...this.businessRules};
   }
 
-  // עדכון חוקים עסקיים
-  public updateBusinessRules(rules: Partial<BusinessRules>): void {
-    this.businessRules = { ...this.businessRules, ...rules };
+  public activateSystem(): boolean {
+    this.isActive = true;
+    this.saveToStorage();
+    console.log('🚀 המערכת החדשה הופעלה בהצלחה');
+    return true;
+  }
+
+  public isSystemActive(): boolean {
+    return this.isActive;
+  }
+
+  // הוספת קטגוריה חדשה
+  public addCategory(category: Omit<NewSystemCategory, 'id' | 'created_at' | 'updated_at'>): string {
+    const id = `cat-${Date.now()}`;
+    const newCategory: NewSystemCategory = {
+      ...category,
+      id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    this.categories.push(newCategory);
+    this.saveToStorage();
+    return id;
+  }
+
+  // הוספת תת-קטגוריה חדשה
+  public addSubcategory(subcategory: Omit<NewSystemSubcategory, 'id' | 'created_at' | 'updated_at'>): string {
+    const id = `sub-${Date.now()}`;
+    const newSubcategory: NewSystemSubcategory = {
+      ...subcategory,
+      id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    this.subcategories.push(newSubcategory);
+    this.saveToStorage();
+    return id;
+  }
+
+  // הוספת קונספט חדש
+  public addConcept(concept: Omit<EventConcept, 'id' | 'created_at' | 'updated_at'>): string {
+    const id = `concept-${Date.now()}`;
+    const newConcept: EventConcept = {
+      ...concept,
+      id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    this.concepts.push(newConcept);
+    this.saveToStorage();
+    return id;
+  }
+
+  // עדכון חוק עסקי
+  public updateBusinessRule<K extends keyof BusinessRules>(rule: K, value: BusinessRules[K]): void {
+    this.businessRules[rule] = value;
+    this.saveToStorage();
   }
 }
 
-// יצירת instance גלובלי
+// יצירת אינסטנס גלובלי של מנהל המערכת החדשה
 export const newSystemManager = new NewSystemManager();

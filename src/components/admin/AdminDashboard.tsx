@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,15 +13,22 @@ import {
   AlertTriangle,
   TrendingUp,
   CheckSquare,
-  Target
+  Target,
+  Snowflake
 } from 'lucide-react';
 import { useUnifiedEventContext } from '@/context/UnifiedEventContext';
 import SystemComplianceChecker from './SystemComplianceChecker';
 import GapAnalysis from './GapAnalysis';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard: React.FC = () => {
   const { providers, services, categories, subcategories } = useUnifiedEventContext();
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
+
+  const handleNavigateToSystemMigration = () => {
+    navigate('/admin/system-migration');
+  };
 
   return (
     <div className="container mx-auto px-4 py-8" dir="rtl">
@@ -191,23 +199,25 @@ const AdminDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Database className="h-5 w-5" />
-                מעבר למערכת החדשה
+                <Snowflake className="h-5 w-5 text-blue-600" />
+                מעבר למערכת החדשה - הקפאה ושינוי מבנה
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <Database className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">מעבר למבנה חדש</h3>
+                <Snowflake className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">מעבר מקיף למערכת חדשה</h3>
                 <p className="text-gray-600 mb-4">
                   הקפאת המבנה הישן והטמעת המבנה החדש עם קונספטים ושדות מותאמים.
+                  הכולל מערכת מקיפה לבדיקת תאימות, ניתוח פערים, ומעבר מסודר.
                 </p>
                 <Button 
-                  onClick={() => window.location.href = '/admin/system-migration'}
+                  onClick={handleNavigateToSystemMigration}
                   size="lg"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
-                  <Database className="h-4 w-4 ml-2" />
-                  עבור למסך המעבר
+                  <Snowflake className="h-4 w-4 ml-2" />
+                  עבור למערכת המעבר המקיפה
                 </Button>
               </div>
             </CardContent>

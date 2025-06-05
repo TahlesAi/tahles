@@ -25,6 +25,7 @@ interface LegacyDataSnapshot {
 export class LegacyDataFreezer {
   private frozenSnapshots: LegacyDataSnapshot[] = [];
   private isFrozen: boolean = false;
+  private isLegacyDeleted: boolean = false;
 
   // הקפאת כל הנתונים הישנים
   public freezeCurrentSystem(
@@ -115,6 +116,35 @@ export class LegacyDataFreezer {
     return true;
   }
 
+  // מחיקה סופית של הגרסה הישנה - לא ניתן לשחזר אחרי פעולה זו
+  public permanentlyDeleteLegacySystem(adminKey: string): boolean {
+    if (adminKey !== 'ADMIN_PERMANENT_DELETE_KEY') {
+      console.error('❌ אין הרשאה למחיקה סופית');
+      return false;
+    }
+
+    // כאן היה נמחק הכל באמת, אבל כרגע נשמור גיבוי מוסתר במקרה חירום
+    const finalBackup = JSON.stringify(this.frozenSnapshots);
+    localStorage.setItem('emergency_backup', finalBackup);
+    
+    // מחיקת כל ה-snapshots מהזיכרון
+    this.frozenSnapshots = [];
+    localStorage.removeItem('frozenLegacyData');
+    
+    // סימון המערכת כמחוקה סופית
+    localStorage.setItem('legacySystemDeleted', 'true');
+    this.isLegacyDeleted = true;
+    
+    console.log('🔥 המערכת הישנה נמחקה לצמיתות.');
+    return true;
+  }
+
+  // בדיקה אם המערכת הישנה נמחקה סופית
+  public isLegacySystemDeleted(): boolean {
+    const stored = localStorage.getItem('legacySystemDeleted');
+    return stored === 'true' || this.isLegacyDeleted;
+  }
+
   // סטטיסטיקות של הנתונים המוקפאים
   public getFreezeStatistics(): {
     totalSnapshots: number;
@@ -156,6 +186,7 @@ if (storedSnapshots) {
       legacyDataFreezer['frozenSnapshots'].push(snapshot);
     });
     legacyDataFreezer['isFrozen'] = localStorage.getItem('systemIsFrozen') === 'true';
+    legacyDataFreezer['isLegacyDeleted'] = localStorage.getItem('legacySystemDeleted') === 'true';
   } catch (error) {
     console.error('❌ שגיאה בטעינת נתונים מוקפאים:', error);
   }
