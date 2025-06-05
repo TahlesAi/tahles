@@ -1,220 +1,219 @@
-
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useUnifiedEventContext } from '@/context/UnifiedEventContext';
 import { 
+  BarChart3, 
+  Users, 
+  Package, 
   Settings, 
-  Download, 
-  FileText, 
-  Network,
-  Snowflake,
-  AlertTriangle,
   Database,
-  Users,
-  Package
+  FileText,
+  AlertTriangle,
+  TrendingUp,
+  CheckSquare,
+  Target
 } from 'lucide-react';
+import { useUnifiedEventContext } from '@/context/UnifiedEventContext';
+import SystemComplianceChecker from './SystemComplianceChecker';
+import GapAnalysis from './GapAnalysis';
 
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { providers, services, categories, subcategories, isLoading } = useUnifiedEventContext();
-
-  const stats = {
-    totalProviders: providers.length,
-    totalServices: services.length,
-    totalCategories: categories.length,
-    totalSubcategories: subcategories.length,
-    activeServices: services.filter(s => s.available).length,
-    simulatedProviders: providers.filter(p => p.isSimulated).length
-  };
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8" dir="rtl">
-        <div className="text-center">טוען נתוני מערכת...</div>
-      </div>
-    );
-  }
+const AdminDashboard: React.FC = () => {
+  const { providers, services, categories, subcategories } = useUnifiedEventContext();
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <div className="container mx-auto px-4 py-8" dir="rtl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">ממשק ניהול מערכת</h1>
-        <p className="text-gray-600">ניהול תוכן, נתונים והגדרות מערכת</p>
+        <h1 className="text-3xl font-bold mb-2">לוח בקרה מנהל</h1>
+        <p className="text-gray-600">ניהול ובקרת המערכת</p>
       </div>
 
-      {/* אזהרת מעבר מבני */}
-      <Card className="mb-6 border-yellow-200 bg-yellow-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-yellow-800">
-            <AlertTriangle className="h-5 w-5" />
-            מעבר מבני במערכת
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-yellow-700 mb-4">
-            מערכת ההנהלה זמינה למעבר למבנה חדש. יש להקפיא את המבנה הקיים לפני תחילת המעבר.
-          </p>
-          <Button 
-            onClick={() => navigate('/admin/legacy-freeze')}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white"
-          >
-            <Snowflake className="h-4 w-4 ml-2" />
-            התחל הקפאת מבנה
-          </Button>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsTrigger value="overview">סקירה כללית</TabsTrigger>
+          <TabsTrigger value="providers">ספקים</TabsTrigger>
+          <TabsTrigger value="services">שירותים</TabsTrigger>
+          <TabsTrigger value="compliance">בדיקת תאימות</TabsTrigger>
+          <TabsTrigger value="gaps">ניתוח פערים</TabsTrigger>
+          <TabsTrigger value="migration">מעבר למערכת חדשה</TabsTrigger>
+        </TabsList>
 
-      {/* סטטיסטיקות מערכת */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Users className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-            <div className="text-3xl font-bold mb-2">{stats.totalProviders}</div>
-            <div className="text-gray-600">ספקים</div>
-            <Badge variant="outline" className="mt-2">
-              {stats.simulatedProviders} סימולציה
-            </Badge>
-          </CardContent>
-        </Card>
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">ספקים כולל</p>
+                    <p className="text-3xl font-bold">{providers.length}</p>
+                    <p className="text-sm text-green-600">
+                      {providers.filter(p => !p.isSimulated).length} אמיתיים
+                    </p>
+                  </div>
+                  <Users className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Package className="h-12 w-12 mx-auto mb-4 text-green-600" />
-            <div className="text-3xl font-bold mb-2">{stats.totalServices}</div>
-            <div className="text-gray-600">שירותים</div>
-            <Badge variant="outline" className="mt-2">
-              {stats.activeServices} פעילים
-            </Badge>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">שירותים</p>
+                    <p className="text-3xl font-bold">{services.length}</p>
+                    <p className="text-sm text-green-600">
+                      {services.filter(s => s.available).length} זמינים
+                    </p>
+                  </div>
+                  <Package className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Database className="h-12 w-12 mx-auto mb-4 text-purple-600" />
-            <div className="text-3xl font-bold mb-2">{stats.totalCategories}</div>
-            <div className="text-gray-600">קטגוריות</div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">קטגוריות</p>
+                    <p className="text-3xl font-bold">{categories.length}</p>
+                    <p className="text-sm text-purple-600">
+                      {subcategories.length} תתי קטגוריות
+                    </p>
+                  </div>
+                  <Settings className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Network className="h-12 w-12 mx-auto mb-4 text-orange-600" />
-            <div className="text-3xl font-bold mb-2">{stats.totalSubcategories}</div>
-            <div className="text-gray-600">תתי קטגוריות</div>
-          </CardContent>
-        </Card>
-      </div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">תאימות מערכת</p>
+                    <p className="text-3xl font-bold">75%</p>
+                    <p className="text-sm text-yellow-600">נדרשות התאמות</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-orange-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      {/* כלי ניהול */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Snowflake className="h-5 w-5 text-blue-600" />
-              הקפאת מבנה
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              הקפאת המבנה הקיים לפני מעבר למבנה חדש
-            </p>
-            <Button 
-              onClick={() => navigate('/admin/legacy-freeze')}
-              className="w-full"
-              variant="outline"
-            >
-              התחל הקפאה
-            </Button>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  בעיות דחופות
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded">
+                    <span className="text-sm">מוצרים ללא מחיר ברור</span>
+                    <span className="text-sm font-bold text-red-600">
+                      {services.filter(s => !s.price || s.price <= 0).length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                    <span className="text-sm">ספקים לא מאומתים</span>
+                    <span className="text-sm font-bold text-yellow-600">
+                      {providers.filter(p => !p.verified).length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded">
+                    <span className="text-sm">שירותים לא זמינים</span>
+                    <span className="text-sm font-bold text-orange-600">
+                      {services.filter(s => !s.available).length}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5 text-green-600" />
-              ניהול היררכיה
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              ניהול קטגוריות, תתי קטגוריות וקונספטים
-            </p>
-            <Button 
-              onClick={() => navigate('/admin/hierarchy')}
-              className="w-full"
-              variant="outline"
-            >
-              נהל היררכיה
-            </Button>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-blue-600" />
+                  פעולות מומלצות
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('compliance')}
+                  >
+                    <CheckSquare className="h-4 w-4 ml-2" />
+                    בדוק תאימות מערכת
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('gaps')}
+                  >
+                    <Target className="h-4 w-4 ml-2" />
+                    נתח פערים
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('migration')}
+                  >
+                    <Database className="h-4 w-4 ml-2" />
+                    התחל מעבר למערכת חדשה
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5 text-blue-600" />
-              ייצוא נתונים
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              ייצוא נתוני המערכת לקבצי CSV
-            </p>
-            <Button 
-              onClick={() => navigate('/admin/data-export')}
-              className="w-full"
-              variant="outline"
-            >
-              ייצא נתונים
-            </Button>
-          </CardContent>
-        </Card>
+        <TabsContent value="providers">
+          {/* קומפוננט ספקים קיים */}
+        </TabsContent>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-purple-600" />
-              ייצוא קריא
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              ייצוא נתונים בפורמט קריא לוורד ואקסל
-            </p>
-            <Button 
-              onClick={() => navigate('/admin/readable-export')}
-              className="w-full"
-              variant="outline"
-            >
-              ייצא קריא
-            </Button>
-          </CardContent>
-        </Card>
+        <TabsContent value="services">
+          {/* קומפוננט שירותים קיים */}
+        </TabsContent>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-gray-600" />
-              הגדרות מערכת
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              הגדרות כלליות ותצורת מערכת
-            </p>
-            <Button 
-              className="w-full"
-              variant="outline"
-              disabled
-            >
-              בפיתוח
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="compliance">
+          <SystemComplianceChecker />
+        </TabsContent>
+
+        <TabsContent value="gaps">
+          <GapAnalysis />
+        </TabsContent>
+
+        <TabsContent value="migration">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                מעבר למערכת החדשה
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Database className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">מעבר למבנה חדש</h3>
+                <p className="text-gray-600 mb-4">
+                  הקפאת המבנה הישן והטמעת המבנה החדש עם קונספטים ושדות מותאמים.
+                </p>
+                <Button 
+                  onClick={() => window.location.href = '/admin/system-migration'}
+                  size="lg"
+                >
+                  <Database className="h-4 w-4 ml-2" />
+                  עבור למסך המעבר
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
