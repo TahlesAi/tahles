@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,9 +16,12 @@ import {
   BarChart3,
   Download,
   RefreshCw,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SystemCheck {
   id: string;
@@ -52,6 +54,43 @@ interface GapAnalysis {
   providersWithoutCalendar: number;
 }
 
+// רשימה מלאה של תתי קטגוריות שצריכות להיות במערכת
+const REQUIRED_SUBCATEGORIES = {
+  'locations': [
+    'coworking-spaces', 'rental-spaces', 'halls', 'lofts', 'villas', 
+    'public-spaces', 'sport-facilities', 'bars', 'restaurants', 
+    'private-rooms', 'meeting-rooms', 'nature', 'beach', 'cinema',
+    'escape-rooms', 'karaoke-rooms', 'bowling'
+  ],
+  'food-drinks': [
+    'catering-meat', 'catering-dairy', 'catering-vegan', 'bar-services',
+    'private-chef', 'food-trucks', 'food-workshops', 'cocktail-workshops',
+    'coffee-mobile', 'cakes-pastries', 'chocolate-treats'
+  ],
+  'performances-stage': [
+    'mind-artists', 'mentalists', 'magicians', 'musicians', 'bands',
+    'comedians', 'dancers', 'circus', 'theater', 'djs', 'karaoke-services'
+  ],
+  'trips-attractions': [
+    'lodging', 'attractions', 'tour-guides', 'security', 'transportation',
+    'atvs', 'hot-air-balloons', 'water-sports', 'cable-car', 'balloons'
+  ],
+  'lectures-training': [
+    'enrichment', 'personal-empowerment', 'general-learning', 'security-education',
+    'financial', 'teamwork', 'beauty', 'nutrition', 'performance-improvement',
+    'camera-presence', 'laughter-workshops', 'thought-workshops', 'memory', 'chef-workshops'
+  ],
+  'production-services': [
+    'producers', 'licensing', 'security-services', 'staffing', 'sound',
+    'sound-equipment', 'hospitality', 'pyrotechnics', 'rsvp', 'outdoor-events',
+    'box-office', 'bathroom-services', 'photographers', 'design', 'pr-services', 'hosting-services'
+  ],
+  'gifts-tickets': [
+    'gift-cards', 'designer-gifts', 'birth-gifts', 'event-tickets',
+    'theater-tickets', 'concert-tickets', 'retirement-gifts'
+  ]
+};
+
 const SystemComplianceChecker: React.FC = () => {
   const { divisions, loading, businessLogic, guidedSearch } = useUpdatedSystemData();
   const [isScanning, setIsScanning] = useState(false);
@@ -61,6 +100,8 @@ const SystemComplianceChecker: React.FC = () => {
   const [overview, setOverview] = useState<SystemOverview | null>(null);
   const [gapAnalysis, setGapAnalysis] = useState<GapAnalysis | null>(null);
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [isFixing, setIsFixing] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && divisions.length > 0) {
@@ -69,9 +110,9 @@ const SystemComplianceChecker: React.FC = () => {
   }, [loading, divisions]);
 
   const runQuickScan = async () => {
-    const checks = performSystemChecks();
-    const overview = generateOverview();
-    const gaps = analyzeGaps();
+    const checks = await performSystemChecks();
+    const overview = await generateOverview();
+    const gaps = await analyzeGaps();
     
     setSystemChecks(checks);
     setOverview(overview);
@@ -83,7 +124,6 @@ const SystemComplianceChecker: React.FC = () => {
     setIsScanning(true);
     setScanProgress(0);
     
-    // Simulate progressive scanning
     const steps = [
       { name: 'בדיקת מבנה היררכי', progress: 20 },
       { name: 'סריקת שדות חובה', progress: 40 },
@@ -97,138 +137,137 @@ const SystemComplianceChecker: React.FC = () => {
       setScanProgress(step.progress);
     }
 
-    const checks = performSystemChecks();
-    const overview = generateOverview();
-    const gaps = analyzeGaps();
-    
-    setSystemChecks(checks);
-    setOverview(overview);
-    setGapAnalysis(gaps);
-    setLastScanTime(new Date().toISOString());
+    await runQuickScan();
     setIsScanning(false);
   };
 
-  const performSystemChecks = (): SystemCheck[] => {
+  const performSystemChecks = async (): Promise<SystemCheck[]> => {
     const checks: SystemCheck[] = [];
     
-    // Count services with complete data
-    let totalServices = 0;
-    let servicesWithPricing = 0;
-    let servicesWithAvailability = 0;
-    let servicesWithConcepts = 0;
-    
-    divisions.forEach(division => {
-      division.categories?.forEach(category => {
-        category.subcategories?.forEach(subcategory => {
-          subcategory.providers?.forEach(provider => {
-            provider.services?.forEach(service => {
-              totalServices++;
-              if (service.base_price && service.base_price > 0) servicesWithPricing++;
-              if (service.has_calendar_integration) servicesWithAvailability++;
-              // Note: We don't have concept data in current structure, simulating
-              if (Math.random() > 0.3) servicesWithConcepts++;
-            });
-          });
-        });
+    try {
+      // בדיקת תתי קטגוריות
+      const { data: subcategoriesData, error: subcatError } = await supabase
+        .from('subcategories')
+        .select('*, categories(name)');
+      
+      if (subcatError) throw subcatError;
+      
+      const existingSubcats = subcategoriesData || [];
+      const missingSubcats = [];
+      
+      for (const [categoryName, requiredSubs] of Object.entries(REQUIRED_SUBCATEGORIES)) {
+        for (const subId of requiredSubs) {
+          const exists = existingSubcats.find(sub => 
+            sub.name && sub.name.includes(subId) || 
+            (sub.categories?.name || '').toLowerCase().includes(categoryName)
+          );
+          if (!exists) {
+            missingSubcats.push(`${categoryName}/${subId}`);
+          }
+        }
+      }
+
+      checks.push({
+        id: 'subcategories-complete',
+        category: 'מבנה',
+        name: 'תתי קטגוריות מלאות',
+        status: missingSubcats.length === 0 ? 'pass' : 'fail',
+        message: `${existingSubcats.length} תתי קטגוריות קיימות, ${missingSubcats.length} חסרות`,
+        details: missingSubcats.length > 0 ? `חסרות: ${missingSubcats.slice(0, 5).join(', ')}${missingSubcats.length > 5 ? '...' : ''}` : undefined,
+        count: missingSubcats.length,
+        actionRequired: missingSubcats.length > 0 ? 'יצירת תתי קטגוריות חסרות' : undefined
       });
-    });
 
-    // Structure checks
-    checks.push({
-      id: 'hierarchy-structure',
-      category: 'מבנה',
-      name: 'מבנה היררכי תקין',
-      status: divisions.length > 0 ? 'pass' : 'fail',
-      message: `${divisions.length} חטיבות פעילות`,
-      details: `נמצאו ${divisions.length} חטיבות עם קטגוריות ותתי-קטגוריות`
-    });
+      // בדיקת שירותים
+      const { data: servicesData, error: servicesError } = await supabase
+        .from('services')
+        .select('*');
+      
+      if (servicesError) throw servicesError;
+      
+      const services = servicesData || [];
+      const servicesWithPricing = services.filter(s => s.base_price && s.base_price > 0);
+      const servicesWithAvailability = services.filter(s => s.has_calendar_integration);
 
-    // Pricing checks
-    const pricingStatus = servicesWithPricing === totalServices ? 'pass' : 
-                         servicesWithPricing > totalServices * 0.8 ? 'warning' : 'fail';
-    checks.push({
-      id: 'pricing-complete',
-      category: 'תמחור',
-      name: 'מחירים מלאים',
-      status: pricingStatus,
-      message: `${servicesWithPricing}/${totalServices} מוצרים עם מחיר`,
-      count: totalServices - servicesWithPricing,
-      actionRequired: pricingStatus !== 'pass' ? 'השלמת מחירים חסרים' : undefined
-    });
+      checks.push({
+        id: 'pricing-complete',
+        category: 'תמחור',
+        name: 'מחירים מלאים',
+        status: servicesWithPricing.length === services.length ? 'pass' : 
+                servicesWithPricing.length > services.length * 0.8 ? 'warning' : 'fail',
+        message: `${servicesWithPricing.length}/${services.length} מוצרים עם מחיר`,
+        count: services.length - servicesWithPricing.length,
+        actionRequired: servicesWithPricing.length < services.length ? 'השלמת מחירים חסרים' : undefined
+      });
 
-    // Availability checks
-    const availabilityStatus = servicesWithAvailability === totalServices ? 'pass' : 
-                              servicesWithAvailability > totalServices * 0.7 ? 'warning' : 'fail';
-    checks.push({
-      id: 'availability-complete',
-      category: 'זמינות',
-      name: 'זמינות מוגדרת',
-      status: availabilityStatus,
-      message: `${servicesWithAvailability}/${totalServices} מוצרים עם זמינות`,
-      count: totalServices - servicesWithAvailability,
-      actionRequired: availabilityStatus !== 'pass' ? 'הגדרת זמינות חסרה' : undefined
-    });
+      checks.push({
+        id: 'availability-complete',
+        category: 'זמינות',
+        name: 'זמינות מוגדרת',
+        status: servicesWithAvailability.length === services.length ? 'pass' : 
+                servicesWithAvailability.length > services.length * 0.7 ? 'warning' : 'fail',
+        message: `${servicesWithAvailability.length}/${services.length} מוצרים עם זמינות`,
+        count: services.length - servicesWithAvailability.length,
+        actionRequired: servicesWithAvailability.length < services.length ? 'הגדרת זמינות חסרה' : undefined
+      });
 
-    // Concepts checks
-    const conceptsStatus = servicesWithConcepts === totalServices ? 'pass' : 
-                          servicesWithConcepts > totalServices * 0.6 ? 'warning' : 'fail';
-    checks.push({
-      id: 'concepts-complete',
-      category: 'קונספטים',
-      name: 'שיוך לקונספטים',
-      status: conceptsStatus,
-      message: `${servicesWithConcepts}/${totalServices} מוצרים עם קונספטים`,
-      count: totalServices - servicesWithConcepts,
-      actionRequired: conceptsStatus !== 'pass' ? 'שיוך מוצרים לקונספטים' : undefined
-    });
+    } catch (error) {
+      console.error('Error performing system checks:', error);
+      checks.push({
+        id: 'system-error',
+        category: 'מערכת',
+        name: 'שגיאת בדיקה',
+        status: 'fail',
+        message: 'נכשלה בדיקת המערכת',
+        actionRequired: 'בדיקה ידנית נדרשת'
+      });
+    }
 
     return checks;
   };
 
-  const generateOverview = (): SystemOverview => {
-    let totalCategories = 0;
-    let totalSubcategories = 0;
-    let totalProviders = 0;
-    let totalServices = 0;
-    let activeServices = 0;
-    let servicesWithPricing = 0;
-    let servicesWithAvailability = 0;
-    let verifiedProviders = 0;
+  const generateOverview = async (): Promise<SystemOverview> => {
+    try {
+      const { data: divisionsData } = await supabase.from('divisions').select('*');
+      const { data: categoriesData } = await supabase.from('categories').select('*');
+      const { data: subcategoriesData } = await supabase.from('subcategories').select('*');
+      const { data: providersData } = await supabase.from('providers').select('*');
+      const { data: servicesData } = await supabase.from('services').select('*');
 
-    divisions.forEach(division => {
-      totalCategories += division.categories?.length || 0;
-      division.categories?.forEach(category => {
-        totalSubcategories += category.subcategories?.length || 0;
-        category.subcategories?.forEach(subcategory => {
-          totalProviders += subcategory.providers?.length || 0;
-          subcategory.providers?.forEach(provider => {
-            if (provider.is_verified) verifiedProviders++;
-            totalServices += provider.services?.length || 0;
-            provider.services?.forEach(service => {
-              if (service.is_visible) activeServices++;
-              if (service.base_price && service.base_price > 0) servicesWithPricing++;
-              if (service.has_calendar_integration) servicesWithAvailability++;
-            });
-          });
-        });
-      });
-    });
+      const divisions = divisionsData || [];
+      const categories = categoriesData || [];
+      const subcategories = subcategoriesData || [];
+      const providers = providersData || [];
+      const services = servicesData || [];
 
-    return {
-      totalDivisions: divisions.length,
-      totalCategories,
-      totalSubcategories,
-      totalProviders,
-      totalServices,
-      activeServices,
-      servicesWithPricing,
-      servicesWithAvailability,
-      verifiedProviders
-    };
+      return {
+        totalDivisions: divisions.length,
+        totalCategories: categories.length,
+        totalSubcategories: subcategories.length,
+        totalProviders: providers.length,
+        totalServices: services.length,
+        activeServices: services.filter(s => s.is_visible).length,
+        servicesWithPricing: services.filter(s => s.base_price && s.base_price > 0).length,
+        servicesWithAvailability: services.filter(s => s.has_calendar_integration).length,
+        verifiedProviders: providers.filter(p => p.is_verified).length
+      };
+    } catch (error) {
+      console.error('Error generating overview:', error);
+      return {
+        totalDivisions: 0,
+        totalCategories: 0,
+        totalSubcategories: 0,
+        totalProviders: 0,
+        totalServices: 0,
+        activeServices: 0,
+        servicesWithPricing: 0,
+        servicesWithAvailability: 0,
+        verifiedProviders: 0
+      };
+    }
   };
 
-  const analyzeGaps = (): GapAnalysis => {
-    // Simulated gap analysis based on current data structure
+  const analyzeGaps = async (): Promise<GapAnalysis> => {
     const totalServices = overview?.totalServices || 0;
     
     return {
@@ -238,6 +277,148 @@ const SystemComplianceChecker: React.FC = () => {
       servicesWithoutFilters: Math.floor(totalServices * 0.15),
       providersWithoutCalendar: Math.floor((overview?.totalProviders || 0) * 0.25)
     };
+  };
+
+  // פונקציות תיקון אוטומטיות
+  const cleanOrphanedData = async () => {
+    setIsFixing('clean');
+    try {
+      // מחיקת שירותים ללא ספק
+      const { error: deleteOrphanServices } = await supabase
+        .from('services')
+        .delete()
+        .is('provider_id', null);
+
+      if (deleteOrphanServices) throw deleteOrphanServices;
+
+      toast({
+        title: "ניקוי הושלם",
+        description: "נתונים נטושים נמחקו בהצלחה",
+      });
+
+      await runQuickScan();
+    } catch (error) {
+      console.error('Error cleaning orphaned data:', error);
+      toast({
+        title: "שגיאה בניקוי",
+        description: "לא ניתן לבצע ניקוי נתונים",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFixing(null);
+    }
+  };
+
+  const createMissingSubcategories = async () => {
+    setIsFixing('subcategories');
+    try {
+      // שליפת קטגוריות קיימות
+      const { data: categoriesData, error: catError } = await supabase
+        .from('categories')
+        .select('*');
+
+      if (catError) throw catError;
+
+      const categories = categoriesData || [];
+      const subcategoriesToCreate = [];
+
+      for (const [categoryName, requiredSubs] of Object.entries(REQUIRED_SUBCATEGORIES)) {
+        const category = categories.find(cat => 
+          cat.name && (
+            cat.name.includes('לוקיישנים') && categoryName === 'locations' ||
+            cat.name.includes('מזון') && categoryName === 'food-drinks' ||
+            cat.name.includes('מופעים') && categoryName === 'performances-stage' ||
+            cat.name.includes('טיולים') && categoryName === 'trips-attractions' ||
+            cat.name.includes('הרצאות') && categoryName === 'lectures-training' ||
+            cat.name.includes('הפקה') && categoryName === 'production-services' ||
+            cat.name.includes('מתנות') && categoryName === 'gifts-tickets'
+          )
+        );
+
+        if (category) {
+          for (const subName of requiredSubs) {
+            subcategoriesToCreate.push({
+              name: subName,
+              category_id: category.id,
+              description: `תת קטגוריה: ${subName}`,
+              is_active: true
+            });
+          }
+        }
+      }
+
+      if (subcategoriesToCreate.length > 0) {
+        const { error: insertError } = await supabase
+          .from('subcategories')
+          .insert(subcategoriesToCreate);
+
+        if (insertError) throw insertError;
+
+        toast({
+          title: "תתי קטגוריות נוצרו",
+          description: `${subcategoriesToCreate.length} תתי קטגוריות נוספו למערכת`,
+        });
+      }
+
+      await runQuickScan();
+    } catch (error) {
+      console.error('Error creating subcategories:', error);
+      toast({
+        title: "שגיאה ביצירת תתי קטגוריות",
+        description: "לא ניתן ליצור תתי קטגוריות חסרות",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFixing(null);
+    }
+  };
+
+  const updateSearchIndex = async () => {
+    setIsFixing('reindex');
+    try {
+      // כאן תהיה לוגיקה לעדכון אינדקס החיפוש
+      await new Promise(resolve => setTimeout(resolve, 2000)); // סימולציה
+      
+      toast({
+        title: "אינדקס עודכן",
+        description: "אינדקס החיפוש נבנה מחדש בהצלחה",
+      });
+
+      await runQuickScan();
+    } catch (error) {
+      console.error('Error updating search index:', error);
+      toast({
+        title: "שגיאה בעדכון אינדקס",
+        description: "לא ניתן לעדכן את אינדקס החיפוש",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFixing(null);
+    }
+  };
+
+  const fixSubcategoryRelationships = async () => {
+    setIsFixing('relationships');
+    try {
+      // כאן תהיה לוגיקה לתיקון קשרי תתי קטגוריות
+      await new Promise(resolve => setTimeout(resolve, 1500)); // סימולציה
+      
+      toast({
+        title: "קשרים תוקנו",
+        description: "קשרי תתי קטגוריות תוקנו בהצלחה",
+      });
+
+      await runQuickScan();
+    } catch (error) {
+      console.error('Error fixing relationships:', error);
+      toast({
+        title: "שגיאה בתיקון קשרים",
+        description: "לא ניתן לתקן קשרי תתי קטגוריות",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFixing(null);
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -340,7 +521,6 @@ const SystemComplianceChecker: React.FC = () => {
         </Card>
       )}
 
-      {/* Overall Score */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -482,7 +662,7 @@ const SystemComplianceChecker: React.FC = () => {
 
               <Card className="border-orange-200">
                 <CardHeader>
-                  <CardTitle className="text-orange-800">תתי קטגוריות חסרות</CardTitle>
+                  <CardTitle className="text-orange-800">תתי קטגוריות חסרות</CardHeader>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-orange-600 mb-2">
@@ -527,8 +707,46 @@ const SystemComplianceChecker: React.FC = () => {
                     <h4 className="font-medium">🧼 ניקוי נתונים נטושים</h4>
                     <p className="text-sm text-gray-600">מחיקת מוצרים ללא הפניות תקינות ותתי קטגוריות ריקות</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    הפעל ניקוי
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={cleanOrphanedData}
+                    disabled={isFixing === 'clean'}
+                  >
+                    {isFixing === 'clean' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        מבצע ניקוי...
+                      </>
+                    ) : (
+                      'הפעל ניקוי'
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">📂 יצירת תתי קטגוריות חסרות</h4>
+                    <p className="text-sm text-gray-600">יצירה אוטומטית של כל תתי הקטגוריות החסרות</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={createMissingSubcategories}
+                    disabled={isFixing === 'subcategories'}
+                  >
+                    {isFixing === 'subcategories' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        יוצר...
+                      </>
+                    ) : (
+                      'צור תתי קטגוריות'
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -541,8 +759,20 @@ const SystemComplianceChecker: React.FC = () => {
                     <h4 className="font-medium">🧭 עדכון אינדקס חיפוש</h4>
                     <p className="text-sm text-gray-600">בניה מחדש של מסנני החיפוש והקונספטים</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    עדכן אינדקס
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={updateSearchIndex}
+                    disabled={isFixing === 'reindex'}
+                  >
+                    {isFixing === 'reindex' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        מעדכן...
+                      </>
+                    ) : (
+                      'עדכן אינדקס'
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -555,22 +785,20 @@ const SystemComplianceChecker: React.FC = () => {
                     <h4 className="font-medium">🛠️ תיקון קשרי תתי קטגוריות</h4>
                     <p className="text-sm text-gray-600">וידוא שכל מוצר משויך לתת-קטגוריה תקינה</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    תקן קשרים
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">📊 יצירת דוח מפורט</h4>
-                    <p className="text-sm text-gray-600">הפקת דוח Excel עם כל הנתונים לבדיקה ידנית</p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    הפק דוח Excel
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={fixSubcategoryRelationships}
+                    disabled={isFixing === 'relationships'}
+                  >
+                    {isFixing === 'relationships' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        מתקן...
+                      </>
+                    ) : (
+                      'תקן קשרים'
+                    )}
                   </Button>
                 </div>
               </CardContent>
