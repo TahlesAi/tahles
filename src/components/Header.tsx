@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Sheet,
@@ -28,7 +29,7 @@ export default function Header() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -109,9 +110,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() =>
-                setTheme(theme => (theme === "light" ? "dark" : "light"))
-              }
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             >
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -122,8 +121,8 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar_url || ""} alt={user.full_name || "User Avatar"} />
-                      <AvatarFallback>{user.full_name?.slice(0, 2).toUpperCase() || "UN"}</AvatarFallback>
+                      <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.user_metadata?.full_name || "User Avatar"} />
+                      <AvatarFallback>{user.user_metadata?.full_name?.slice(0, 2).toUpperCase() || user.email?.slice(0, 2).toUpperCase() || "UN"}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -204,8 +203,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-      
-      {/* Mobile Menu */}
     </header>
   );
 }

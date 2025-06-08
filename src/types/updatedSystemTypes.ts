@@ -61,56 +61,63 @@ export interface UpdatedService {
   description: string;
   
   // שדות חובה חדשים
-  main_image: string;
-  icon: string;
+  main_image?: string;
+  icon?: string;
   base_price: number;
-  pricing_model: 'fixed' | 'variable' | 'tiered';
+  pricing_model?: 'fixed' | 'variable' | 'tiered';
   
   // קהלי יעד (חובה)
-  target_age_groups: string[];
-  target_gender: 'mixed' | 'men' | 'women';
-  target_religion: string[];
+  target_age_groups?: string[];
+  target_gender?: 'mixed' | 'men' | 'women';
+  target_religion?: string[];
   
   // פרטי אירוע (חובה)
-  budget_range: string;
-  participant_range: string;
-  event_type: 'business' | 'social' | 'family' | 'children';
-  location_type: 'outdoor' | 'indoor' | 'home' | 'hall';
-  is_outdoor_event: boolean;
+  budget_range?: string;
+  participant_range?: string;
+  event_type?: 'business' | 'social' | 'family' | 'children';
+  location_type?: 'outdoor' | 'indoor' | 'home' | 'hall';
+  is_outdoor_event?: boolean;
   
   // סוג שירות
-  service_type: 'digital' | 'frontal' | 'hybrid';
-  service_language: string[];
+  service_type?: 'digital' | 'frontal' | 'hybrid';
+  service_language?: string[];
   
   // זמינות ויומן (חובה)
-  has_calendar_integration: boolean;
-  availability_schedule: Record<string, any>;
-  working_days: string[];
-  working_hours_start: string;
-  working_hours_end: string;
+  has_calendar_integration?: boolean;
+  availability_schedule?: Record<string, any>;
+  working_days?: string[];
+  working_hours_start?: string;
+  working_hours_end?: string;
   
   // זמני הכנה ופירוק
-  setup_time_required: number;
-  teardown_time_required: number;
-  travel_time_required: number;
+  setup_time_required?: number;
+  teardown_time_required?: number;
+  travel_time_required?: number;
   
   // תנאי ביטול
-  free_cancellation_days: number;
+  free_cancellation_days?: number;
   
   // מוצרים קשורים
-  can_show_similar: boolean;
-  can_show_complementary: boolean;
+  can_show_similar?: boolean;
+  can_show_complementary?: boolean;
   
   // תוספות
-  has_addons: boolean;
+  has_addons?: boolean;
   addons?: ServiceAddon[];
   
   // שדות מותאמים אישית
-  custom_fields: Record<string, any>;
+  custom_fields?: Record<string, any>;
   
   // אפשרויות נוספות
-  can_duplicate: boolean;
-  is_visible: boolean;
+  can_duplicate?: boolean;
+  is_visible?: boolean;
+  
+  // שדות נוספים מהטבלה הקיימת
+  duration?: string;
+  image_url?: string;
+  price_range?: string;
+  features?: string[];
+  technical_requirements?: string[];
   
   created_at: string;
   updated_at: string;

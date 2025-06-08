@@ -233,7 +233,20 @@ export const useUpdatedSystemData = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      return data || [];
+      
+      // המרה בטוחה של הנתונים לטיפוסים הנכונים
+      const wishlistItems: WishlistItem[] = (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        service_id: item.service_id,
+        created_at: item.created_at,
+        service: item.service ? {
+          ...item.service,
+          pricing_model: (item.service.pricing_model as 'fixed' | 'variable' | 'tiered') || 'fixed'
+        } as UpdatedService : undefined
+      }));
+      
+      return wishlistItems;
     } catch (err) {
       console.error('Error loading wishlist:', err);
       return [];
