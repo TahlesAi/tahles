@@ -259,6 +259,7 @@ const CategoryGuidedSearchModal = ({ isOpen, onClose, categoryId }: CategoryGuid
           {currentStep === STEPS.RESULTS && (
             <ResultsStep 
               searchData={searchData}
+              onNext={() => {}} // Dummy function since this is the final step
               onBack={handleBack}
               onSubmit={handleSubmitLead}
             />
