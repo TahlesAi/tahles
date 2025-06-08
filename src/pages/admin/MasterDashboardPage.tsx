@@ -15,8 +15,8 @@ import {
   CheckCircle,
   AlertTriangle
 } from 'lucide-react';
-import DataInitializer from '@/components/system/DataInitializer';
 import SystemComplianceChecker from '@/components/system/SystemComplianceChecker';
+import NewSystemInitializer from '@/components/system/NewSystemInitializer';
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
 
 const MasterDashboardPage: React.FC = () => {
@@ -74,16 +74,16 @@ const MasterDashboardPage: React.FC = () => {
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <LayoutDashboard className="h-8 w-8 text-blue-600" />
-              <h1 className="text-3xl font-bold">מערכת ניהול תכלס</h1>
-              <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                ממשק מאוחד
+              <h1 className="text-3xl font-bold">מערכת ניהול תכלס החדשה</h1>
+              <Badge variant="outline" className="bg-green-100 text-green-800">
+                מבנה חדש
               </Badge>
             </div>
             
             <Alert className="mb-6 border-green-200 bg-green-50">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
-                <strong>ממשק ניהול מאוחד:</strong> כל הכלים והדוחות במקום אחד
+                <strong>מבנה חדש:</strong> 5 חטיבות עם קטגוריות ותתי קטגוריות מובנות
               </AlertDescription>
             </Alert>
           </div>
@@ -92,30 +92,30 @@ const MasterDashboardPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardContent className="p-4 text-center">
-                <Database className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                <Database className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold">{divisions.length}</div>
+                <div className="text-sm text-gray-600">חטיבות</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Settings className="h-6 w-6 text-blue-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold">{stats.totalCategories}</div>
                 <div className="text-sm text-gray-600">קטגוריות</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <Settings className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+                <BarChart3 className="h-6 w-6 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold">{stats.totalSubcategories}</div>
                 <div className="text-sm text-gray-600">תתי קטגוריות</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <BarChart3 className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                <Shield className="h-6 w-6 text-orange-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold">{stats.totalProviders}</div>
                 <div className="text-sm text-gray-600">ספקים</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Shield className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{stats.totalServices}</div>
-                <div className="text-sm text-gray-600">שירותים</div>
               </CardContent>
             </Card>
           </div>
@@ -123,63 +123,57 @@ const MasterDashboardPage: React.FC = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">סקירה כללית</TabsTrigger>
-              <TabsTrigger value="data-setup">הגדרת נתונים</TabsTrigger>
+              <TabsTrigger value="system-check">בדיקת מערכת</TabsTrigger>
               <TabsTrigger value="system-health">תקינות מערכת</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>מצב המערכת הנוכחי</CardTitle>
+                  <CardTitle>מצב המערכת החדשה</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <h4 className="font-medium">נתוני מערכת:</h4>
-                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                      <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
                         <span>חטיבות פעילות</span>
                         <Badge variant="secondary">{divisions.length}</Badge>
                       </div>
-                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                         <span>סך קטגוריות</span>
                         <Badge variant="secondary">{stats.totalCategories}</Badge>
                       </div>
-                      <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
                         <span>סך תתי קטגוריות</span>
                         <Badge variant="secondary">{stats.totalSubcategories}</Badge>
                       </div>
                     </div>
                     
                     <div className="space-y-3">
-                      <h4 className="font-medium">סטטוס מערכת:</h4>
-                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                        <span>מבנה היררכי</span>
-                        <Badge variant="default">תקין</Badge>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                        <span>תתי קטגוריות</span>
-                        <Badge variant="secondary">טעון השלמה</Badge>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                        <span>ממשק ניהול</span>
-                        <Badge variant="default">מאוחד</Badge>
-                      </div>
+                      <h4 className="font-medium">חטיבות במערכת:</h4>
+                      {divisions.map((division, index) => (
+                        <div key={division.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span>{division.name}</span>
+                          <Badge variant="outline">{division.categories?.length || 0} קטגוריות</Badge>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="data-setup" className="space-y-4">
+            <TabsContent value="system-check" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Database className="h-5 w-5" />
-                    אתחול וניהול נתונים
+                    בדיקת המערכת החדשה
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <DataInitializer />
+                  <NewSystemInitializer />
                 </CardContent>
               </Card>
             </TabsContent>
