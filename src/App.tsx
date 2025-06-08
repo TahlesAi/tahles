@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Index from "./pages/Index";
@@ -14,6 +15,8 @@ import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
 
 function App() {
+  console.log('App component rendered');
+  
   return (
     <Router>
       <div className="min-h-screen bg-background">

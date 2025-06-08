@@ -7,15 +7,18 @@ import { useNavigate } from 'react-router-dom';
 const AdminShortcutButton: React.FC = () => {
   const navigate = useNavigate();
 
-  // רק במצב פיתוח או למשתמשי admin
-  const isDev = import.meta.env.DEV;
+  // תמיד להציג את הכפתור (לצורכי בדיקה)
+  const isDev = true;
   if (!isDev) return null;
 
   return (
     <Button
       variant="outline"
       size="sm"
-      onClick={() => navigate('/admin/system-dashboard')}
+      onClick={() => {
+        console.log('Navigating to system dashboard...');
+        navigate('/admin/system-dashboard');
+      }}
       className="flex items-center gap-2 bg-gradient-to-l from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium"
     >
       <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">

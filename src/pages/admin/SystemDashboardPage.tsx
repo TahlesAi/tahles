@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import SystemDashboard from '@/components/admin/SystemDashboard';
 
 const SystemDashboardPage: React.FC = () => {
+  console.log('SystemDashboardPage rendered');
+  
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
