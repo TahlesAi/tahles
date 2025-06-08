@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Sparkles, Target } from "lucide-react";
 import GuidedSearchModal from "./GuidedSearchModal";
 
 interface GuidedSearchButtonProps {
@@ -30,11 +30,16 @@ const GuidedSearchButton = ({
         onClick={() => setIsOpen(true)} 
         size={size} 
         variant={variant}
-        className={className}
+        className={`bg-gradient-to-l from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${className}`}
         dir="rtl"
       >
-        <Search className="ml-2 h-4 w-4" />
-        מצא לי פתרון לאירוע מושלם
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+            <Target className="h-3 w-3" />
+          </div>
+          <span>מצא לי פתרון לאירוע מושלם</span>
+          <Sparkles className="h-4 w-4 opacity-80" />
+        </div>
       </Button>
       
       <GuidedSearchModal 
