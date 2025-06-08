@@ -3,12 +3,23 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+interface GuidedSearchData {
+  category?: string;
+  subcategory?: string;
+  eventType?: string;
+  location?: string;
+  attendees?: number;
+  budget?: number;
+  eventDate?: Date;
+}
+
 interface ResultsStepProps {
+  searchData?: GuidedSearchData;
   onNext: () => void;
   onBack: () => void;
 }
 
-const ResultsStep: React.FC<ResultsStepProps> = ({ onNext, onBack }) => {
+const ResultsStep: React.FC<ResultsStepProps> = ({ searchData, onNext, onBack }) => {
   return (
     <div className="space-y-6" dir="rtl">
       <div>
