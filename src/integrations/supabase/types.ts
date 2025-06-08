@@ -115,6 +115,13 @@ export type Database = {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -295,6 +302,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "detailed_reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "active_services"
             referencedColumns: ["id"]
           },
           {
@@ -528,6 +542,13 @@ export type Database = {
             foreignKeyName: "provider_availability_slots_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_availability_slots_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -728,6 +749,13 @@ export type Database = {
             foreignKeyName: "reviews_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -763,6 +791,57 @@ export type Database = {
         }
         Relationships: []
       }
+      service_addons: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          order_index: number | null
+          price: number
+          service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          order_index?: number | null
+          price: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          order_index?: number | null
+          price?: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_addons_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_addons_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_concepts: {
         Row: {
           concept_id: string
@@ -791,6 +870,13 @@ export type Database = {
             foreignKeyName: "service_concepts_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_concepts_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -803,117 +889,248 @@ export type Database = {
           },
         ]
       }
+      service_relationships: {
+        Row: {
+          created_at: string
+          id: string
+          related_service_id: string | null
+          relationship_type: string
+          source_service_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          related_service_id?: string | null
+          relationship_type: string
+          source_service_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          related_service_id?: string | null
+          relationship_type?: string
+          source_service_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_relationships_related_service_id_fkey"
+            columns: ["related_service_id"]
+            isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_relationships_related_service_id_fkey"
+            columns: ["related_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_relationships_source_service_id_fkey"
+            columns: ["source_service_id"]
+            isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_relationships_source_service_id_fkey"
+            columns: ["source_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           additional_images: string[] | null
           audience_ages: string[] | null
           audience_size: number | null
+          availability_schedule: Json | null
           base_price: number | null
+          budget_range: string | null
           calendar_required: boolean | null
+          can_duplicate: boolean | null
+          can_show_complementary: boolean | null
+          can_show_similar: boolean | null
           category_id: string | null
           created_at: string | null
+          custom_fields: Json | null
           description: string | null
           duration: string | null
           duration_minutes: number | null
+          event_type: string | null
           event_types: string[] | null
           features: string[] | null
+          free_cancellation_days: number | null
           geographic_coverage: string[] | null
+          has_addons: boolean | null
+          has_calendar_integration: boolean | null
+          icon: string | null
           id: string
           image_url: string | null
           is_outdoor_event: boolean | null
           is_reception_service: boolean | null
           is_visible: boolean | null
+          location_type: string | null
+          main_image: string | null
           max_participants: number | null
           min_participants: number | null
           name: string
+          participant_range: string | null
           price_range: string | null
           price_type: string | null
           price_unit: string | null
+          pricing_model: string | null
           provider_id: string
           requires_travel: boolean | null
           service_areas: string[] | null
+          service_language: string[] | null
+          service_type: string | null
           setup_time_minutes: number | null
+          setup_time_required: number | null
           subcategory_id: string | null
+          target_age_groups: string[] | null
           target_budget_range: string | null
+          target_gender: string | null
+          target_religion: string[] | null
           teardown_time_minutes: number | null
+          teardown_time_required: number | null
           technical_requirements: string[] | null
           travel_time_minutes: number | null
+          travel_time_required: number | null
           updated_at: string | null
           videos: string[] | null
+          working_days: string[] | null
+          working_hours_end: string | null
+          working_hours_start: string | null
         }
         Insert: {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          availability_schedule?: Json | null
           base_price?: number | null
+          budget_range?: string | null
           calendar_required?: boolean | null
+          can_duplicate?: boolean | null
+          can_show_complementary?: boolean | null
+          can_show_similar?: boolean | null
           category_id?: string | null
           created_at?: string | null
+          custom_fields?: Json | null
           description?: string | null
           duration?: string | null
           duration_minutes?: number | null
+          event_type?: string | null
           event_types?: string[] | null
           features?: string[] | null
+          free_cancellation_days?: number | null
           geographic_coverage?: string[] | null
+          has_addons?: boolean | null
+          has_calendar_integration?: boolean | null
+          icon?: string | null
           id?: string
           image_url?: string | null
           is_outdoor_event?: boolean | null
           is_reception_service?: boolean | null
           is_visible?: boolean | null
+          location_type?: string | null
+          main_image?: string | null
           max_participants?: number | null
           min_participants?: number | null
           name: string
+          participant_range?: string | null
           price_range?: string | null
           price_type?: string | null
           price_unit?: string | null
+          pricing_model?: string | null
           provider_id: string
           requires_travel?: boolean | null
           service_areas?: string[] | null
+          service_language?: string[] | null
+          service_type?: string | null
           setup_time_minutes?: number | null
+          setup_time_required?: number | null
           subcategory_id?: string | null
+          target_age_groups?: string[] | null
           target_budget_range?: string | null
+          target_gender?: string | null
+          target_religion?: string[] | null
           teardown_time_minutes?: number | null
+          teardown_time_required?: number | null
           technical_requirements?: string[] | null
           travel_time_minutes?: number | null
+          travel_time_required?: number | null
           updated_at?: string | null
           videos?: string[] | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
         }
         Update: {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          availability_schedule?: Json | null
           base_price?: number | null
+          budget_range?: string | null
           calendar_required?: boolean | null
+          can_duplicate?: boolean | null
+          can_show_complementary?: boolean | null
+          can_show_similar?: boolean | null
           category_id?: string | null
           created_at?: string | null
+          custom_fields?: Json | null
           description?: string | null
           duration?: string | null
           duration_minutes?: number | null
+          event_type?: string | null
           event_types?: string[] | null
           features?: string[] | null
+          free_cancellation_days?: number | null
           geographic_coverage?: string[] | null
+          has_addons?: boolean | null
+          has_calendar_integration?: boolean | null
+          icon?: string | null
           id?: string
           image_url?: string | null
           is_outdoor_event?: boolean | null
           is_reception_service?: boolean | null
           is_visible?: boolean | null
+          location_type?: string | null
+          main_image?: string | null
           max_participants?: number | null
           min_participants?: number | null
           name?: string
+          participant_range?: string | null
           price_range?: string | null
           price_type?: string | null
           price_unit?: string | null
+          pricing_model?: string | null
           provider_id?: string
           requires_travel?: boolean | null
           service_areas?: string[] | null
+          service_language?: string[] | null
+          service_type?: string | null
           setup_time_minutes?: number | null
+          setup_time_required?: number | null
           subcategory_id?: string | null
+          target_age_groups?: string[] | null
           target_budget_range?: string | null
+          target_gender?: string | null
+          target_religion?: string[] | null
           teardown_time_minutes?: number | null
+          teardown_time_required?: number | null
           technical_requirements?: string[] | null
           travel_time_minutes?: number | null
+          travel_time_required?: number | null
           updated_at?: string | null
           videos?: string[] | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
         }
         Relationships: [
           {
@@ -1037,9 +1254,244 @@ export type Database = {
         }
         Relationships: []
       }
+      wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          service_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          service_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          service_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "active_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wishlists_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      active_services: {
+        Row: {
+          additional_images: string[] | null
+          audience_ages: string[] | null
+          audience_size: number | null
+          availability_schedule: Json | null
+          base_price: number | null
+          budget_range: string | null
+          calendar_required: boolean | null
+          can_duplicate: boolean | null
+          can_show_complementary: boolean | null
+          can_show_similar: boolean | null
+          category_id: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          description: string | null
+          duration: string | null
+          duration_minutes: number | null
+          event_type: string | null
+          event_types: string[] | null
+          features: string[] | null
+          free_cancellation_days: number | null
+          geographic_coverage: string[] | null
+          has_addons: boolean | null
+          has_calendar_integration: boolean | null
+          icon: string | null
+          id: string | null
+          image_url: string | null
+          is_outdoor_event: boolean | null
+          is_reception_service: boolean | null
+          is_visible: boolean | null
+          location_type: string | null
+          main_image: string | null
+          max_participants: number | null
+          min_participants: number | null
+          name: string | null
+          participant_range: string | null
+          price_range: string | null
+          price_type: string | null
+          price_unit: string | null
+          pricing_model: string | null
+          provider_id: string | null
+          requires_travel: boolean | null
+          service_areas: string[] | null
+          service_language: string[] | null
+          service_type: string | null
+          setup_time_minutes: number | null
+          setup_time_required: number | null
+          subcategory_id: string | null
+          target_age_groups: string[] | null
+          target_budget_range: string | null
+          target_gender: string | null
+          target_religion: string[] | null
+          teardown_time_minutes: number | null
+          teardown_time_required: number | null
+          technical_requirements: string[] | null
+          travel_time_minutes: number | null
+          travel_time_required: number | null
+          updated_at: string | null
+          videos: string[] | null
+          working_days: string[] | null
+          working_hours_end: string | null
+          working_hours_start: string | null
+        }
+        Insert: {
+          additional_images?: string[] | null
+          audience_ages?: string[] | null
+          audience_size?: number | null
+          availability_schedule?: Json | null
+          base_price?: number | null
+          budget_range?: string | null
+          calendar_required?: boolean | null
+          can_duplicate?: boolean | null
+          can_show_complementary?: boolean | null
+          can_show_similar?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          description?: string | null
+          duration?: string | null
+          duration_minutes?: number | null
+          event_type?: string | null
+          event_types?: string[] | null
+          features?: string[] | null
+          free_cancellation_days?: number | null
+          geographic_coverage?: string[] | null
+          has_addons?: boolean | null
+          has_calendar_integration?: boolean | null
+          icon?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_outdoor_event?: boolean | null
+          is_reception_service?: boolean | null
+          is_visible?: boolean | null
+          location_type?: string | null
+          main_image?: string | null
+          max_participants?: number | null
+          min_participants?: number | null
+          name?: string | null
+          participant_range?: string | null
+          price_range?: string | null
+          price_type?: string | null
+          price_unit?: string | null
+          pricing_model?: string | null
+          provider_id?: string | null
+          requires_travel?: boolean | null
+          service_areas?: string[] | null
+          service_language?: string[] | null
+          service_type?: string | null
+          setup_time_minutes?: number | null
+          setup_time_required?: number | null
+          subcategory_id?: string | null
+          target_age_groups?: string[] | null
+          target_budget_range?: string | null
+          target_gender?: string | null
+          target_religion?: string[] | null
+          teardown_time_minutes?: number | null
+          teardown_time_required?: number | null
+          technical_requirements?: string[] | null
+          travel_time_minutes?: number | null
+          travel_time_required?: number | null
+          updated_at?: string | null
+          videos?: string[] | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
+        }
+        Update: {
+          additional_images?: string[] | null
+          audience_ages?: string[] | null
+          audience_size?: number | null
+          availability_schedule?: Json | null
+          base_price?: number | null
+          budget_range?: string | null
+          calendar_required?: boolean | null
+          can_duplicate?: boolean | null
+          can_show_complementary?: boolean | null
+          can_show_similar?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          description?: string | null
+          duration?: string | null
+          duration_minutes?: number | null
+          event_type?: string | null
+          event_types?: string[] | null
+          features?: string[] | null
+          free_cancellation_days?: number | null
+          geographic_coverage?: string[] | null
+          has_addons?: boolean | null
+          has_calendar_integration?: boolean | null
+          icon?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_outdoor_event?: boolean | null
+          is_reception_service?: boolean | null
+          is_visible?: boolean | null
+          location_type?: string | null
+          main_image?: string | null
+          max_participants?: number | null
+          min_participants?: number | null
+          name?: string | null
+          participant_range?: string | null
+          price_range?: string | null
+          price_type?: string | null
+          price_unit?: string | null
+          pricing_model?: string | null
+          provider_id?: string | null
+          requires_travel?: boolean | null
+          service_areas?: string[] | null
+          service_language?: string[] | null
+          service_type?: string | null
+          setup_time_minutes?: number | null
+          setup_time_required?: number | null
+          subcategory_id?: string | null
+          target_age_groups?: string[] | null
+          target_budget_range?: string | null
+          target_gender?: string | null
+          target_religion?: string[] | null
+          teardown_time_minutes?: number | null
+          teardown_time_required?: number | null
+          technical_requirements?: string[] | null
+          travel_time_minutes?: number | null
+          travel_time_required?: number | null
+          updated_at?: string | null
+          videos?: string[] | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       check_service_availability: {
@@ -1050,6 +1502,10 @@ export type Database = {
           p_duration_minutes?: number
           p_location?: string
         }
+        Returns: boolean
+      }
+      is_service_active: {
+        Args: { service_id: string }
         Returns: boolean
       }
     }
