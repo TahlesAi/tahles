@@ -2,24 +2,16 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
-interface GuidedSearchData {
-  category?: string;
-  subcategory?: string;
-  eventType?: string;
-  location?: string;
-  attendees?: number;
-  budget?: number;
-  eventDate?: Date;
-}
+import { useGuidedSearchStorage } from '@/hooks/useGuidedSearchStorage';
 
 interface ResultsStepProps {
-  searchData?: GuidedSearchData;
+  searchData?: ReturnType<typeof useGuidedSearchStorage>['data'];
   onNext: () => void;
   onBack: () => void;
+  onSubmit?: () => void;
 }
 
-const ResultsStep: React.FC<ResultsStepProps> = ({ searchData, onNext, onBack }) => {
+const ResultsStep: React.FC<ResultsStepProps> = ({ searchData, onNext, onBack, onSubmit }) => {
   return (
     <div className="space-y-6" dir="rtl">
       <div>
@@ -63,8 +55,8 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ searchData, onNext, onBack })
         <Button variant="outline" onClick={onBack}>
           חזור
         </Button>
-        <Button onClick={onNext}>
-          סיום
+        <Button onClick={onSubmit || onNext}>
+          {onSubmit ? 'שלח פנייה' : 'סיום'}
         </Button>
       </div>
     </div>
