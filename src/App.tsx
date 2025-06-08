@@ -7,6 +7,7 @@ import ServiceDetails from "./pages/ServiceDetails";
 import ProviderProfile from "./pages/ProviderProfile";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import SystemDashboardPage from "./pages/admin/SystemDashboardPage";
+import NewSystemDashboard from "./pages/NewSystemDashboard";
 import WishlistPage from "./pages/WishlistPage";
 import ComparisonPage from "./pages/ComparisonPage";
 import BookingPage from "./pages/BookingPage";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/system-dashboard" element={<SystemDashboardPage />} />
+          <Route path="/admin/new-system" element={<NewSystemDashboard />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/comparison" element={<ComparisonPage />} />
           <Route path="/booking/:id" element={<BookingPage />} />

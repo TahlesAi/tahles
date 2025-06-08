@@ -157,29 +157,76 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          division_id: string | null
           icon: string | null
           id: string
           image_url: string | null
+          is_active: boolean | null
           name: string
+          order_index: number | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          division_id?: string | null
           icon?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name: string
+          order_index?: number | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          division_id?: string | null
           icon?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name?: string
+          order_index?: number | null
           updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      concepts: {
+        Row: {
+          concept_type: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          concept_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          concept_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -258,6 +305,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      divisions: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       lottery_participants: {
         Row: {
@@ -683,28 +763,78 @@ export type Database = {
         }
         Relationships: []
       }
+      service_concepts: {
+        Row: {
+          concept_id: string
+          service_id: string
+          subconcept_id: string | null
+        }
+        Insert: {
+          concept_id: string
+          service_id: string
+          subconcept_id?: string | null
+        }
+        Update: {
+          concept_id?: string
+          service_id?: string
+          subconcept_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_concepts_concept_id_fkey"
+            columns: ["concept_id"]
+            isOneToOne: false
+            referencedRelation: "concepts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_concepts_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_concepts_subconcept_id_fkey"
+            columns: ["subconcept_id"]
+            isOneToOne: false
+            referencedRelation: "subconcepts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           additional_images: string[] | null
           audience_ages: string[] | null
           audience_size: number | null
+          base_price: number | null
+          calendar_required: boolean | null
           category_id: string | null
           created_at: string | null
           description: string | null
           duration: string | null
+          duration_minutes: number | null
           event_types: string[] | null
           features: string[] | null
+          geographic_coverage: string[] | null
           id: string
           image_url: string | null
+          is_outdoor_event: boolean | null
           is_reception_service: boolean | null
+          is_visible: boolean | null
+          max_participants: number | null
+          min_participants: number | null
           name: string
           price_range: string | null
+          price_type: string | null
           price_unit: string | null
           provider_id: string
           requires_travel: boolean | null
           service_areas: string[] | null
           setup_time_minutes: number | null
           subcategory_id: string | null
+          target_budget_range: string | null
           teardown_time_minutes: number | null
           technical_requirements: string[] | null
           travel_time_minutes: number | null
@@ -715,23 +845,33 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          base_price?: number | null
+          calendar_required?: boolean | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          duration_minutes?: number | null
           event_types?: string[] | null
           features?: string[] | null
+          geographic_coverage?: string[] | null
           id?: string
           image_url?: string | null
+          is_outdoor_event?: boolean | null
           is_reception_service?: boolean | null
+          is_visible?: boolean | null
+          max_participants?: number | null
+          min_participants?: number | null
           name: string
           price_range?: string | null
+          price_type?: string | null
           price_unit?: string | null
           provider_id: string
           requires_travel?: boolean | null
           service_areas?: string[] | null
           setup_time_minutes?: number | null
           subcategory_id?: string | null
+          target_budget_range?: string | null
           teardown_time_minutes?: number | null
           technical_requirements?: string[] | null
           travel_time_minutes?: number | null
@@ -742,23 +882,33 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          base_price?: number | null
+          calendar_required?: boolean | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          duration_minutes?: number | null
           event_types?: string[] | null
           features?: string[] | null
+          geographic_coverage?: string[] | null
           id?: string
           image_url?: string | null
+          is_outdoor_event?: boolean | null
           is_reception_service?: boolean | null
+          is_visible?: boolean | null
+          max_participants?: number | null
+          min_participants?: number | null
           name?: string
           price_range?: string | null
+          price_type?: string | null
           price_unit?: string | null
           provider_id?: string
           requires_travel?: boolean | null
           service_areas?: string[] | null
           setup_time_minutes?: number | null
           subcategory_id?: string | null
+          target_budget_range?: string | null
           teardown_time_minutes?: number | null
           technical_requirements?: string[] | null
           travel_time_minutes?: number | null
@@ -783,7 +933,9 @@ export type Database = {
           icon: string | null
           id: string
           image_url: string | null
+          is_active: boolean | null
           name: string
+          order_index: number | null
           updated_at: string | null
         }
         Insert: {
@@ -793,7 +945,9 @@ export type Database = {
           icon?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name: string
+          order_index?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -803,7 +957,9 @@ export type Database = {
           icon?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name?: string
+          order_index?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -815,6 +971,71 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subconcepts: {
+        Row: {
+          concept_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          concept_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          concept_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subconcepts_concept_id_fkey"
+            columns: ["concept_id"]
+            isOneToOne: false
+            referencedRelation: "concepts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          is_active: boolean
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          is_active?: boolean
+          role: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          is_active?: boolean
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

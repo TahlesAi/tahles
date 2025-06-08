@@ -1,123 +1,115 @@
+
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, User, Heart, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
-import AuthModal from "./AuthModal";
-import AdminShortcutButton from "./AdminShortcutButton";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, Settings, LayoutDashboard } from "lucide-react";
 
 const Header = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleSystemNavigation = () => {
+    navigate('/admin/new-system');
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-sm border-b" dir="rtl">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-reverse space-x-2">
+      <div className="container px-4 py-4">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2 space-x-reverse">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">ת</span>
+              <span className="text-white font-bold text-lg">ת</span>
             </div>
-            <span className="text-xl font-bold">תכלס</span>
+            <span className="text-xl font-bold text-gray-900">תכלס הפקות</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-reverse space-x-8">
-            <Link to="/search" className="text-gray-600 hover:text-primary transition-colors">
-              חיפוש שירותים
+          <nav className="hidden md:flex items-center space-x-6 space-x-reverse">
+            <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
+              בית
             </Link>
             <Link to="/categories" className="text-gray-600 hover:text-primary transition-colors">
               קטגוריות
             </Link>
             <Link to="/providers" className="text-gray-600 hover:text-primary transition-colors">
-              עבור ספקים
+              ספקים
             </Link>
             <Link to="/about" className="text-gray-600 hover:text-primary transition-colors">
-              אודותינו
+              אודות
             </Link>
+            <Button variant="outline" onClick={handleSystemNavigation}>
+              <LayoutDashboard className="h-4 w-4 ml-2" />
+              המערכת החדשה
+            </Button>
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-reverse space-x-4">
-            <AdminShortcutButton />
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/wishlist')}
-              className="hidden md:flex"
-            >
-              <Heart className="h-4 w-4 ml-1" />
-              רשימת מועדפים
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+            <Link to="/admin">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 ml-2" />
+                ניהול
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm">
+              <User className="h-4 w-4 ml-2" />
+              כניסה
             </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/comparison')}
-              className="hidden md:flex"
-            >
-              <Scale className="h-4 w-4 ml-1" />
-              השוואה
-            </Button>
-
-            <GuidedSearchButton />
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setIsAuthModalOpen(true)}
-            >
-              <User className="h-4 w-4" />
-            </Button>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden"
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
-            </Button>
+            <Button size="sm">הרשמה</Button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={toggleMenu}
+            aria-label="תפריט"
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden">
-            <nav className="py-4">
-              <Link to="/search" className="block py-2 text-gray-600 hover:text-primary transition-colors">
-                חיפוש שירותים
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 py-4 border-t">
+            <nav className="flex flex-col space-y-4">
+              <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
+                בית
               </Link>
-              <Link to="/categories" className="block py-2 text-gray-600 hover:text-primary transition-colors">
+              <Link to="/categories" className="text-gray-600 hover:text-primary transition-colors">
                 קטגוריות
               </Link>
-              <Link to="/providers" className="block py-2 text-gray-600 hover:text-primary transition-colors">
-                עבור ספקים
+              <Link to="/providers" className="text-gray-600 hover:text-primary transition-colors">
+                ספקים
               </Link>
-              <Link to="/about" className="block py-2 text-gray-600 hover:text-primary transition-colors">
-                אודותינו
+              <Link to="/about" className="text-gray-600 hover:text-primary transition-colors">
+                אודות
               </Link>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/wishlist')}>
-                <Heart className="h-4 w-4 ml-1" />
-                רשימת מועדפים
+              <Button variant="outline" onClick={handleSystemNavigation} className="w-full justify-start">
+                <LayoutDashboard className="h-4 w-4 ml-2" />
+                המערכת החדשה
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/comparison')}>
-                <Scale className="h-4 w-4 ml-1" />
-                השוואה
-              </Button>
+              <div className="flex flex-col space-y-2 pt-4 border-t">
+                <Link to="/admin">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Settings className="h-4 w-4 ml-2" />
+                    ניהול
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <User className="h-4 w-4 ml-2" />
+                  כניסה
+                </Button>
+                <Button size="sm" className="w-full">הרשמה</Button>
+              </div>
             </nav>
           </div>
         )}
       </div>
-
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-      />
     </header>
   );
 };
