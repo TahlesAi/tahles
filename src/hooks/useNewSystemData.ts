@@ -119,7 +119,13 @@ export const useNewSystemData = () => {
 
       if (conceptsError) throw conceptsError;
 
-      setConcepts(conceptsData || []);
+      // Type assertion for concept_type
+      const typedConcepts = (conceptsData || []).map(concept => ({
+        ...concept,
+        concept_type: concept.concept_type as 'אירועי חברה' | 'אירועי משפחה' | 'אירועי חברים' | 'מפגשי ילדים'
+      })) as ExternalConcept[];
+
+      setConcepts(typedConcepts);
     } catch (err) {
       console.error('Error loading concepts:', err);
     }
@@ -142,7 +148,15 @@ export const useNewSystemData = () => {
         throw roleError;
       }
 
-      setUserRole(roleData);
+      // Type assertion for role
+      if (roleData) {
+        const typedUserRole = {
+          ...roleData,
+          role: roleData.role as 'מנהל-על' | 'מנהל' | 'ספק' | 'לקוח'
+        } as UserRole;
+        
+        setUserRole(typedUserRole);
+      }
     } catch (err) {
       console.error('Error loading user role:', err);
     }

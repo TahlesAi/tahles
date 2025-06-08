@@ -181,7 +181,7 @@ const ConceptManager: React.FC<ConceptManagerProps> = ({
                       ) : (
                         <CardTitle className="text-lg">{concept.name}</CardTitle>
                       )}
-                      <Badge variant="secondary" size="sm">
+                      <Badge variant="secondary">
                         {concept.concept_type}
                       </Badge>
                     </div>
@@ -262,7 +262,6 @@ const ConceptManager: React.FC<ConceptManagerProps> = ({
                         value={newSubconcept}
                         onChange={(e) => setNewSubconcept(e.target.value)}
                         placeholder="שם תת-קונספט"
-                        size="sm"
                       />
                       <Button 
                         size="sm"

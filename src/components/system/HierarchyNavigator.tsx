@@ -114,7 +114,7 @@ const HierarchyNavigator: React.FC<HierarchyNavigatorProps> = ({
             <p className="text-xs text-gray-500">{category.description}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" size="sm">
+            <Badge variant="outline">
               {category.subcategories?.length || 0} תתי קטגוריות
             </Badge>
             {hasContent && (
@@ -149,7 +149,7 @@ const HierarchyNavigator: React.FC<HierarchyNavigatorProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" size="sm">
+            <Badge variant="secondary">
               {subcategory.providers?.length || 0} ספקים
             </Badge>
             {hasProviders && (
@@ -184,7 +184,7 @@ const HierarchyNavigator: React.FC<HierarchyNavigatorProps> = ({
               <span>({provider.review_count} ביקורות)</span>
             </div>
           </div>
-          <Badge variant={provider.is_verified ? "default" : "secondary"} size="sm">
+          <Badge variant={provider.is_verified ? "default" : "secondary"}>
             {provider.is_verified ? "מאומת" : "לא מאומת"}
           </Badge>
         </div>
@@ -232,9 +232,9 @@ const HierarchyNavigator: React.FC<HierarchyNavigatorProps> = ({
           </div>
           <div className="flex flex-col items-end gap-1">
             {service.is_outdoor_event && (
-              <Badge variant="outline" size="sm">אירוע חוץ</Badge>
+              <Badge variant="outline">אירוע חוץ</Badge>
             )}
-            <Badge variant={service.is_visible ? "default" : "secondary"} size="sm">
+            <Badge variant={service.is_visible ? "default" : "secondary"}>
               {service.is_visible ? "זמין" : "לא זמין"}
             </Badge>
           </div>
@@ -290,7 +290,7 @@ const HierarchyNavigator: React.FC<HierarchyNavigatorProps> = ({
                     type="number"
                     placeholder="מספר משתתפים"
                     value={searchFilters.participant_count || ''}
-                    onChange={(e) => setSearchFilters({...searchFilters, participant_count: parseInt(e.target.value)})}
+                    onChange={(e) => setSearchFilters({...searchFilters, participant_count: parseInt(e.target.value) || undefined})}
                   />
                 </div>
 
