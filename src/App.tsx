@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -17,6 +16,7 @@ import BookingPage from "./pages/BookingPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
+import SystemComplianceChecker from "./components/system/SystemComplianceChecker";
 
 function App() {
   console.log('App component rendered');
@@ -35,6 +35,7 @@ function App() {
               <Route path="/admin/system-dashboard" element={<SystemDashboardPage />} />
               <Route path="/admin/new-system" element={<NewSystemDashboard />} />
               <Route path="/admin/updated-system" element={<UpdatedSystemPage />} />
+              <Route path="/admin/system-compliance-checker" element={<SystemComplianceChecker />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/comparison" element={<ComparisonPage />} />
               <Route path="/booking/:id" element={<BookingPage />} />
