@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,6 +20,7 @@ import {
   Plus
 } from 'lucide-react';
 import { MAIN_DIVISIONS, Division } from '@/types/adminHierarchy';
+import ReportsPanel from './ReportsPanel';
 
 const SystemDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('divisions');
@@ -56,10 +56,11 @@ const SystemDashboard: React.FC = () => {
           </Badge>
         </div>
         
-        <Alert className="mb-6">
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            <strong>מבנה היררכי חדש:</strong> חטיבה → קטגוריה → תת-קטגוריה → ספק → מוצר
+        <Alert className="mb-6 border-red-200 bg-red-50">
+          <Shield className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong>זוהו בעיות מבניות:</strong> חוסר התאמה בין החטיבות החדשות לקטגוריות הקיימות. 
+            עבור לכרטיסיית "דוחות" לקבלת ניתוח מפורט ופתרונות.
           </AlertDescription>
         </Alert>
       </div>
@@ -216,17 +217,17 @@ const SystemDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Alert className="border-green-200 bg-green-50">
-                  <Shield className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    <strong>מבנה היררכי:</strong> תקין - כל 5 החטיבות מוגדרות כראוי
+                <Alert className="border-red-200 bg-red-50">
+                  <Shield className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    <strong>מבנה היררכי:</strong> לא תקין - חוסר התאמה בין חטיבות לקטגוריות
                   </AlertDescription>
                 </Alert>
                 
-                <Alert className="border-green-200 bg-green-50">
-                  <Shield className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    <strong>קונספטים:</strong> תקין - 30 קונספטים פעילים
+                <Alert className="border-yellow-200 bg-yellow-50">
+                  <Shield className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    <strong>קונספטים:</strong> חלקי - חלק מהקונספטים לא משויכים נכון
                   </AlertDescription>
                 </Alert>
                 
@@ -267,31 +268,7 @@ const SystemDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="reports">
-          <Card>
-            <CardHeader>
-              <CardTitle>דוחות מערכת</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline">
-                  <Database className="h-4 w-4 ml-2" />
-                  דוח חטיבות מלא
-                </Button>
-                <Button variant="outline">
-                  <Users className="h-4 w-4 ml-2" />
-                  דוח ספקים
-                </Button>
-                <Button variant="outline">
-                  <Package className="h-4 w-4 ml-2" />
-                  דוח מוצרים
-                </Button>
-                <Button variant="outline">
-                  <BarChart3 className="h-4 w-4 ml-2" />
-                  דוח ביצועים
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ReportsPanel />
         </TabsContent>
       </Tabs>
     </div>
