@@ -15,10 +15,12 @@ import {
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
 import GuidedSearchForm from './GuidedSearchForm';
 import SystemComplianceChecker from './SystemComplianceChecker';
+import { GuidedSearchFilters } from '@/types/updatedSystemTypes';
 
 const UpdatedSystemDashboard: React.FC = () => {
-  const { divisions, loading, businessLogic } = useUpdatedSystemData();
+  const { divisions, loading, businessLogic, guidedSearch } = useUpdatedSystemData();
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [showGuidedSearch, setShowGuidedSearch] = useState(false);
 
   const calculateStats = () => {
     let totalCategories = 0;
@@ -55,6 +57,14 @@ const UpdatedSystemDashboard: React.FC = () => {
     };
   };
 
+  const handleGuidedSearch = async (filters: GuidedSearchFilters) => {
+    console.log('מבצע חיפוש מונחה:', filters);
+    const results = await guidedSearch(filters);
+    console.log('תוצאות חיפוש:', results);
+    setShowGuidedSearch(false);
+    // כאן ניתן להוסיף הצגת תוצאות או ניווט לעמוד תוצאות
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,6 +80,7 @@ const UpdatedSystemDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6" dir="rtl">
+      {/* Header section */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">מערכת מעודכנת 2024</h1>
@@ -135,6 +146,7 @@ const UpdatedSystemDashboard: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Overview content */}
           <Card>
             <CardHeader>
               <CardTitle>מבנה המערכת החדש</CardTitle>
@@ -172,7 +184,30 @@ const UpdatedSystemDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="search">
-          <GuidedSearchForm />
+          {showGuidedSearch ? (
+            <GuidedSearchForm 
+              divisions={divisions}
+              onSearch={handleGuidedSearch}
+              onClose={() => setShowGuidedSearch(false)}
+            />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>חיפוש מונחה</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-4">
+                  <p className="text-gray-600">
+                    השתמש בחיפוש המונחה כדי למצוא בדיוק את מה שאתה מחפש
+                  </p>
+                  <Button onClick={() => setShowGuidedSearch(true)}>
+                    <Search className="h-4 w-4 ml-2" />
+                    התחל חיפוש מונחה
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="compliance">
