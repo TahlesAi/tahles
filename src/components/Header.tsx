@@ -84,6 +84,9 @@ export default function Header() {
             <Link to="/admin/master-dashboard" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium bg-blue-50 rounded-md">
               ניהול מערכת
             </Link>
+            <Link to="/system/initialize" className="text-white bg-green-600 hover:bg-green-700 px-3 py-2 text-sm font-medium rounded-md">
+              אתחול מערכת
+            </Link>
           </nav>
 
           {/* Authentication and Theme Toggle */}
@@ -166,6 +169,9 @@ export default function Header() {
                   </Link>
                   <Link to="/admin/master-dashboard" className="px-4 py-2 text-sm font-medium bg-blue-50 rounded-md">
                     ניהול מערכת
+                  </Link>
+                  <Link to="/system/initialize" className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md">
+                    אתחול מערכת
                   </Link>
                   {user ? (
                     <Button variant="destructive" size="sm" onClick={handleSignOut}>
