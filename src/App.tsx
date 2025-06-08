@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -6,17 +7,13 @@ import Index from "./pages/Index";
 import SearchResults from "./pages/SearchResults";
 import ServiceDetails from "./pages/ServiceDetails";
 import ProviderProfile from "./pages/ProviderProfile";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import SystemDashboardPage from "./pages/admin/SystemDashboardPage";
-import NewSystemDashboard from "./pages/NewSystemDashboard";
-import UpdatedSystemPage from "./pages/UpdatedSystemPage";
+import MasterDashboardPage from "./pages/admin/MasterDashboardPage";
 import WishlistPage from "./pages/WishlistPage";
 import ComparisonPage from "./pages/ComparisonPage";
 import BookingPage from "./pages/BookingPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
-import SystemComplianceChecker from "./components/system/SystemComplianceChecker";
 
 function App() {
   console.log('App component rendered');
@@ -31,11 +28,7 @@ function App() {
               <Route path="/search" element={<SearchResults />} />
               <Route path="/service/:id" element={<ServiceDetails />} />
               <Route path="/provider/:id" element={<ProviderProfile />} />
-              <Route path="/admin" element={<AdminDashboardPage />} />
-              <Route path="/admin/system-dashboard" element={<SystemDashboardPage />} />
-              <Route path="/admin/new-system" element={<NewSystemDashboard />} />
-              <Route path="/admin/updated-system" element={<UpdatedSystemPage />} />
-              <Route path="/admin/system-compliance-checker" element={<SystemComplianceChecker />} />
+              <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/comparison" element={<ComparisonPage />} />
               <Route path="/booking/:id" element={<BookingPage />} />

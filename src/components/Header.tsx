@@ -81,28 +81,9 @@ export default function Header() {
             <Link to="/about" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium">
               אודות
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-brand-600">
-                  מערכת ניהול
-                  <ChevronDown className="h-4 w-4 mr-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to="/admin">לוח בקרה</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/admin/system-dashboard">מערכת ישנה</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/admin/new-system">המערכת החדשה</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/admin/updated-system">מערכת מעודכנת 2024</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link to="/admin/master-dashboard" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium bg-blue-50 rounded-md">
+              ניהול מערכת
+            </Link>
           </nav>
 
           {/* Authentication and Theme Toggle */}
@@ -167,7 +148,7 @@ export default function Header() {
                 <SheetHeader>
                   <SheetTitle>תפריט</SheetTitle>
                   <SheetDescription>
-                    גלה את כל האפשרויות שלנו
+                    גלש את כל האפשרויות שלנו
                   </SheetDescription>
                 </SheetHeader>
                 <div className="grid gap-4 py-4">
@@ -183,8 +164,8 @@ export default function Header() {
                   <Link to="/about" className="px-4 py-2 text-sm font-medium">
                     אודות
                   </Link>
-                  <Link to="/admin" className="px-4 py-2 text-sm font-medium">
-                    לוח בקרה
+                  <Link to="/admin/master-dashboard" className="px-4 py-2 text-sm font-medium bg-blue-50 rounded-md">
+                    ניהול מערכת
                   </Link>
                   {user ? (
                     <Button variant="destructive" size="sm" onClick={handleSignOut}>
