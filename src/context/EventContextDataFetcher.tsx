@@ -1,5 +1,4 @@
 
-// עדכון לשימוש בנתונים המורחבים
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { 
   enhancedCategoryHierarchy,
@@ -48,7 +47,6 @@ export const useEventDataFetcher = () => {
         verified: provider.verified || false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        // תאימות עם Services מורחבים
         services: provider.services?.map(service => ({
           ...service,
           provider_id: service.providerId,
@@ -149,7 +147,6 @@ export const EventContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
         verified: provider.verified || false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        // המרת Services עם כל השדות הנדרשים
         services: provider.services?.map(service => ({
           ...service,
           provider_id: service.providerId,
