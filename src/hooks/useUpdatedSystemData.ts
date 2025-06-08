@@ -75,11 +75,13 @@ export const useUpdatedSystemData = () => {
 
       // טעינת שירותים פעילים בלבד
       const { data: servicesData, error: servicesError } = await supabase
-        .from('active_services')
+        .from('services')
         .select(`
           *,
           service_addons(*)
-        `);
+        `)
+        .eq('is_visible', true)
+        .not('base_price', 'is', null);
 
       if (servicesError) throw servicesError;
 
@@ -105,35 +107,51 @@ export const useUpdatedSystemData = () => {
   const guidedSearch = useCallback(async (filters: GuidedSearchFilters) => {
     try {
       let query = supabase
-        .from('active_services')
+        .from('services')
         .select(`
           *,
           providers(*),
           subcategories(*),
           categories(*),
           service_addons(*)
-        `);
+        `)
+        .eq('is_visible', true)
+        .not('base_price', 'is', null);
 
       // סינון לפי חטיבה
       if (filters.division_id) {
-        query = query.eq('categories.division_id', filters.division_id);
+        const { data: categoryIds } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('division_id', filters.division_id);
+        
+        if (categoryIds && categoryIds.length > 0) {
+          const { data: subcategoryIds } = await supabase
+            .from('subcategories')
+            .select('id')
+            .in('category_id', categoryIds.map(c => c.id));
+          
+          if (subcategoryIds && subcategoryIds.length > 0) {
+            query = query.in('subcategory_id', subcategoryIds.map(s => s.id));
+          }
+        }
       }
 
       // סינון לפי קטגוריה
       if (filters.category_id) {
-        query = query.eq('subcategories.category_id', filters.category_id);
+        const { data: subcategoryIds } = await supabase
+          .from('subcategories')
+          .select('id')
+          .eq('category_id', filters.category_id);
+        
+        if (subcategoryIds && subcategoryIds.length > 0) {
+          query = query.in('subcategory_id', subcategoryIds.map(s => s.id));
+        }
       }
 
       // סינון לפי תת-קטגוריה
       if (filters.subcategory_id) {
         query = query.eq('subcategory_id', filters.subcategory_id);
-      }
-
-      // סינון לפי מספר משתתפים
-      if (filters.participant_count) {
-        query = query
-          .lte('min_participants', filters.participant_count)
-          .gte('max_participants', filters.participant_count);
       }
 
       // סינון לפי סוג אירוע
@@ -144,11 +162,6 @@ export const useUpdatedSystemData = () => {
       // סינון לפי סוג מיקום
       if (filters.location_type) {
         query = query.eq('location_type', filters.location_type);
-      }
-
-      // סינון לפי סוג שירות
-      if (filters.service_type) {
-        query = query.eq('service_type', filters.service_type);
       }
 
       // סינון לפי טווח תקציב
