@@ -2,812 +2,319 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle, 
-  FileText, 
-  Users, 
-  Package,
-  Settings,
-  BarChart3,
-  Download,
-  RefreshCw,
-  Search,
-  Loader2
-} from 'lucide-react';
-import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
-import { useToast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, AlertTriangle, Database, RefreshCw, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
-interface SystemCheck {
-  id: string;
-  category: string;
-  name: string;
-  status: 'pass' | 'warning' | 'fail';
-  message: string;
-  details?: string;
-  count?: number;
-  actionRequired?: string;
-}
-
-interface SystemOverview {
-  totalDivisions: number;
-  totalCategories: number;
-  totalSubcategories: number;
-  totalProviders: number;
-  totalServices: number;
-  activeServices: number;
-  servicesWithPricing: number;
+interface ComplianceResults {
+  score: number;
+  divisionsCount: number;
+  categoriesCount: number;
+  subcategoriesCount: number;
+  conceptsCount: number;
+  providersCount: number;
+  servicesCount: number;
+  servicesWithPrices: number;
+  servicesWithImages: number;
   servicesWithAvailability: number;
-  verifiedProviders: number;
+  issues: string[];
+  recommendations: string[];
 }
-
-interface GapAnalysis {
-  missingConcepts: number;
-  orphanedServices: number;
-  incompleteSubcategories: number;
-  servicesWithoutFilters: number;
-  providersWithoutCalendar: number;
-}
-
-// רשימה מלאה של תתי קטגוריות שצריכות להיות במערכת
-const REQUIRED_SUBCATEGORIES = {
-  'locations': [
-    'coworking-spaces', 'rental-spaces', 'halls', 'lofts', 'villas', 
-    'public-spaces', 'sport-facilities', 'bars', 'restaurants', 
-    'private-rooms', 'meeting-rooms', 'nature', 'beach', 'cinema',
-    'escape-rooms', 'karaoke-rooms', 'bowling'
-  ],
-  'food-drinks': [
-    'catering-meat', 'catering-dairy', 'catering-vegan', 'bar-services',
-    'private-chef', 'food-trucks', 'food-workshops', 'cocktail-workshops',
-    'coffee-mobile', 'cakes-pastries', 'chocolate-treats'
-  ],
-  'performances-stage': [
-    'mind-artists', 'mentalists', 'magicians', 'musicians', 'bands',
-    'comedians', 'dancers', 'circus', 'theater', 'djs', 'karaoke-services'
-  ],
-  'trips-attractions': [
-    'lodging', 'attractions', 'tour-guides', 'security', 'transportation',
-    'atvs', 'hot-air-balloons', 'water-sports', 'cable-car', 'balloons'
-  ],
-  'lectures-training': [
-    'enrichment', 'personal-empowerment', 'general-learning', 'security-education',
-    'financial', 'teamwork', 'beauty', 'nutrition', 'performance-improvement',
-    'camera-presence', 'laughter-workshops', 'thought-workshops', 'memory', 'chef-workshops'
-  ],
-  'production-services': [
-    'producers', 'licensing', 'security-services', 'staffing', 'sound',
-    'sound-equipment', 'hospitality', 'pyrotechnics', 'rsvp', 'outdoor-events',
-    'box-office', 'bathroom-services', 'photographers', 'design', 'pr-services', 'hosting-services'
-  ],
-  'gifts-tickets': [
-    'gift-cards', 'designer-gifts', 'birth-gifts', 'event-tickets',
-    'theater-tickets', 'concert-tickets', 'retirement-gifts'
-  ]
-};
 
 const SystemComplianceChecker: React.FC = () => {
-  const { divisions, loading, businessLogic, guidedSearch } = useUpdatedSystemData();
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [lastScanTime, setLastScanTime] = useState<string | null>(null);
-  const [systemChecks, setSystemChecks] = useState<SystemCheck[]>([]);
-  const [overview, setOverview] = useState<SystemOverview | null>(null);
-  const [gapAnalysis, setGapAnalysis] = useState<GapAnalysis | null>(null);
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const [isFixing, setIsFixing] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [results, setResults] = useState<ComplianceResults | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && divisions.length > 0) {
-      runQuickScan();
-    }
-  }, [loading, divisions]);
-
-  const runQuickScan = async () => {
-    const checks = await performSystemChecks();
-    const overview = await generateOverview();
-    const gaps = await analyzeGaps();
-    
-    setSystemChecks(checks);
-    setOverview(overview);
-    setGapAnalysis(gaps);
-    setLastScanTime(new Date().toISOString());
-  };
-
-  const runFullSystemScan = async () => {
-    setIsScanning(true);
-    setScanProgress(0);
-    
-    const steps = [
-      { name: 'בדיקת מבנה היררכי', progress: 20 },
-      { name: 'סריקת שדות חובה', progress: 40 },
-      { name: 'ניתוח זמינות ומחירים', progress: 60 },
-      { name: 'בדיקת קונספטים וסינונים', progress: 80 },
-      { name: 'יצירת דוח סופי', progress: 100 }
-    ];
-
-    for (const step of steps) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setScanProgress(step.progress);
-    }
-
-    await runQuickScan();
-    setIsScanning(false);
-  };
-
-  const performSystemChecks = async (): Promise<SystemCheck[]> => {
-    const checks: SystemCheck[] = [];
-    
+  const runComplianceCheck = async () => {
+    setIsChecking(true);
     try {
-      // בדיקת תתי קטגוריות
-      const { data: subcategoriesData, error: subcatError } = await supabase
-        .from('subcategories')
-        .select('*, categories(name)');
-      
-      if (subcatError) throw subcatError;
-      
-      const existingSubcats = subcategoriesData || [];
-      const missingSubcats = [];
-      
-      for (const [categoryName, requiredSubs] of Object.entries(REQUIRED_SUBCATEGORIES)) {
-        for (const subId of requiredSubs) {
-          const exists = existingSubcats.find(sub => 
-            sub.name && sub.name.includes(subId) || 
-            (sub.categories?.name || '').toLowerCase().includes(categoryName)
-          );
-          if (!exists) {
-            missingSubcats.push(`${categoryName}/${subId}`);
-          }
-        }
-      }
+      const results: ComplianceResults = {
+        score: 0,
+        divisionsCount: 0,
+        categoriesCount: 0,
+        subcategoriesCount: 0,
+        conceptsCount: 0,
+        providersCount: 0,
+        servicesCount: 0,
+        servicesWithPrices: 0,
+        servicesWithImages: 0,
+        servicesWithAvailability: 0,
+        issues: [],
+        recommendations: []
+      };
 
-      checks.push({
-        id: 'subcategories-complete',
-        category: 'מבנה',
-        name: 'תתי קטגוריות מלאות',
-        status: missingSubcats.length === 0 ? 'pass' : 'fail',
-        message: `${existingSubcats.length} תתי קטגוריות קיימות, ${missingSubcats.length} חסרות`,
-        details: missingSubcats.length > 0 ? `חסרות: ${missingSubcats.slice(0, 5).join(', ')}${missingSubcats.length > 5 ? '...' : ''}` : undefined,
-        count: missingSubcats.length,
-        actionRequired: missingSubcats.length > 0 ? 'יצירת תתי קטגוריות חסרות' : undefined
-      });
+      // בדיקת חטיבות
+      const { data: divisions, error: divisionsError } = await supabase
+        .from('divisions')
+        .select('*')
+        .eq('is_active', true);
+
+      if (divisionsError) throw divisionsError;
+      results.divisionsCount = divisions?.length || 0;
+
+      // בדיקת קטגוריות
+      const { data: categories, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true);
+
+      if (categoriesError) throw categoriesError;
+      results.categoriesCount = categories?.length || 0;
+
+      // בדיקת תתי קטגוריות
+      const { data: subcategories, error: subcategoriesError } = await supabase
+        .from('subcategories')
+        .select('*')
+        .eq('is_active', true);
+
+      if (subcategoriesError) throw subcategoriesError;
+      results.subcategoriesCount = subcategories?.length || 0;
+
+      // בדיקת קונספטים
+      const { data: concepts, error: conceptsError } = await supabase
+        .from('concepts')
+        .select('*')
+        .eq('is_active', true);
+
+      if (conceptsError) throw conceptsError;
+      results.conceptsCount = concepts?.length || 0;
+
+      // בדיקת ספקים
+      const { data: providers, error: providersError } = await supabase
+        .from('providers')
+        .select('*');
+
+      if (providersError) throw providersError;
+      results.providersCount = providers?.length || 0;
 
       // בדיקת שירותים
-      const { data: servicesData, error: servicesError } = await supabase
+      const { data: services, error: servicesError } = await supabase
         .from('services')
-        .select('*');
-      
+        .select('*')
+        .eq('is_visible', true);
+
       if (servicesError) throw servicesError;
-      
-      const services = servicesData || [];
-      const servicesWithPricing = services.filter(s => s.base_price && s.base_price > 0);
-      const servicesWithAvailability = services.filter(s => s.has_calendar_integration);
+      results.servicesCount = services?.length || 0;
 
-      checks.push({
-        id: 'pricing-complete',
-        category: 'תמחור',
-        name: 'מחירים מלאים',
-        status: servicesWithPricing.length === services.length ? 'pass' : 
-                servicesWithPricing.length > services.length * 0.8 ? 'warning' : 'fail',
-        message: `${servicesWithPricing.length}/${services.length} מוצרים עם מחיר`,
-        count: services.length - servicesWithPricing.length,
-        actionRequired: servicesWithPricing.length < services.length ? 'השלמת מחירים חסרים' : undefined
-      });
+      // בדיקת שירותים עם מחירים
+      results.servicesWithPrices = services?.filter(s => s.base_price && s.base_price > 0).length || 0;
 
-      checks.push({
-        id: 'availability-complete',
-        category: 'זמינות',
-        name: 'זמינות מוגדרת',
-        status: servicesWithAvailability.length === services.length ? 'pass' : 
-                servicesWithAvailability.length > services.length * 0.7 ? 'warning' : 'fail',
-        message: `${servicesWithAvailability.length}/${services.length} מוצרים עם זמינות`,
-        count: services.length - servicesWithAvailability.length,
-        actionRequired: servicesWithAvailability.length < services.length ? 'הגדרת זמינות חסרה' : undefined
-      });
+      // בדיקת שירותים עם תמונות
+      results.servicesWithImages = services?.filter(s => s.image_url).length || 0;
 
-    } catch (error) {
-      console.error('Error performing system checks:', error);
-      checks.push({
-        id: 'system-error',
-        category: 'מערכת',
-        name: 'שגיאת בדיקה',
-        status: 'fail',
-        message: 'נכשלה בדיקת המערכת',
-        actionRequired: 'בדיקה ידנית נדרשת'
-      });
-    }
+      // בדיקת זמינות (יומן או סלוטים)
+      const { data: availability } = await supabase
+        .from('provider_availability_slots')
+        .select('service_id')
+        .eq('is_available', true);
 
-    return checks;
-  };
+      const servicesWithAvailability = new Set(availability?.map(a => a.service_id) || []);
+      results.servicesWithAvailability = servicesWithAvailability.size;
 
-  const generateOverview = async (): Promise<SystemOverview> => {
-    try {
-      const { data: divisionsData } = await supabase.from('divisions').select('*');
-      const { data: categoriesData } = await supabase.from('categories').select('*');
-      const { data: subcategoriesData } = await supabase.from('subcategories').select('*');
-      const { data: providersData } = await supabase.from('providers').select('*');
-      const { data: servicesData } = await supabase.from('services').select('*');
-
-      const divisions = divisionsData || [];
-      const categories = categoriesData || [];
-      const subcategories = subcategoriesData || [];
-      const providers = providersData || [];
-      const services = servicesData || [];
-
-      return {
-        totalDivisions: divisions.length,
-        totalCategories: categories.length,
-        totalSubcategories: subcategories.length,
-        totalProviders: providers.length,
-        totalServices: services.length,
-        activeServices: services.filter(s => s.is_visible).length,
-        servicesWithPricing: services.filter(s => s.base_price && s.base_price > 0).length,
-        servicesWithAvailability: services.filter(s => s.has_calendar_integration).length,
-        verifiedProviders: providers.filter(p => p.is_verified).length
+      // חישוב ציון
+      let score = 0;
+      const weights = {
+        divisions: 15, // 5 חטיבות = 15 נקודות
+        categories: 15, // 12+ קטגוריות = 15 נקודות  
+        subcategories: 20, // 80+ תתי קטגוריות = 20 נקודות
+        concepts: 10, // 4+ קונספטים = 10 נקודות
+        providers: 10, // ספקים = 10 נקודות
+        services: 10, // שירותים = 10 נקודות
+        pricesComplete: 10, // מחירים = 10 נקודות
+        imagesComplete: 5, // תמונות = 5 נקודות
+        availabilityComplete: 5 // זמינות = 5 נקודות
       };
-    } catch (error) {
-      console.error('Error generating overview:', error);
-      return {
-        totalDivisions: 0,
-        totalCategories: 0,
-        totalSubcategories: 0,
-        totalProviders: 0,
-        totalServices: 0,
-        activeServices: 0,
-        servicesWithPricing: 0,
-        servicesWithAvailability: 0,
-        verifiedProviders: 0
-      };
-    }
-  };
 
-  const analyzeGaps = async (): Promise<GapAnalysis> => {
-    const totalServices = overview?.totalServices || 0;
-    
-    return {
-      missingConcepts: Math.floor(totalServices * 0.3),
-      orphanedServices: Math.floor(totalServices * 0.05),
-      incompleteSubcategories: Math.floor((overview?.totalSubcategories || 0) * 0.2),
-      servicesWithoutFilters: Math.floor(totalServices * 0.15),
-      providersWithoutCalendar: Math.floor((overview?.totalProviders || 0) * 0.25)
-    };
-  };
+      // חישוב ציון לפי קריטריונים
+      if (results.divisionsCount >= 5) score += weights.divisions;
+      else score += (results.divisionsCount / 5) * weights.divisions;
 
-  // פונקציות תיקון אוטומטיות
-  const cleanOrphanedData = async () => {
-    setIsFixing('clean');
-    try {
-      // מחיקת שירותים ללא ספק
-      const { error: deleteOrphanServices } = await supabase
-        .from('services')
-        .delete()
-        .is('provider_id', null);
+      if (results.categoriesCount >= 12) score += weights.categories;
+      else score += (results.categoriesCount / 12) * weights.categories;
 
-      if (deleteOrphanServices) throw deleteOrphanServices;
+      if (results.subcategoriesCount >= 80) score += weights.subcategories;
+      else score += (results.subcategoriesCount / 80) * weights.subcategories;
 
-      toast({
-        title: "ניקוי הושלם",
-        description: "נתונים נטושים נמחקו בהצלחה",
-      });
+      if (results.conceptsCount >= 4) score += weights.concepts;
+      else score += (results.conceptsCount / 4) * weights.concepts;
 
-      await runQuickScan();
-    } catch (error) {
-      console.error('Error cleaning orphaned data:', error);
-      toast({
-        title: "שגיאה בניקוי",
-        description: "לא ניתן לבצע ניקוי נתונים",
-        variant: "destructive"
-      });
-    } finally {
-      setIsFixing(null);
-    }
-  };
+      if (results.providersCount > 0) score += weights.providers;
+      if (results.servicesCount > 0) score += weights.services;
 
-  const createMissingSubcategories = async () => {
-    setIsFixing('subcategories');
-    try {
-      // שליפת קטגוריות קיימות
-      const { data: categoriesData, error: catError } = await supabase
-        .from('categories')
-        .select('*');
-
-      if (catError) throw catError;
-
-      const categories = categoriesData || [];
-      const subcategoriesToCreate = [];
-
-      for (const [categoryName, requiredSubs] of Object.entries(REQUIRED_SUBCATEGORIES)) {
-        const category = categories.find(cat => 
-          cat.name && (
-            cat.name.includes('לוקיישנים') && categoryName === 'locations' ||
-            cat.name.includes('מזון') && categoryName === 'food-drinks' ||
-            cat.name.includes('מופעים') && categoryName === 'performances-stage' ||
-            cat.name.includes('טיולים') && categoryName === 'trips-attractions' ||
-            cat.name.includes('הרצאות') && categoryName === 'lectures-training' ||
-            cat.name.includes('הפקה') && categoryName === 'production-services' ||
-            cat.name.includes('מתנות') && categoryName === 'gifts-tickets'
-          )
-        );
-
-        if (category) {
-          for (const subName of requiredSubs) {
-            subcategoriesToCreate.push({
-              name: subName,
-              category_id: category.id,
-              description: `תת קטגוריה: ${subName}`,
-              is_active: true
-            });
-          }
-        }
+      if (results.servicesCount > 0) {
+        score += (results.servicesWithPrices / results.servicesCount) * weights.pricesComplete;
+        score += (results.servicesWithImages / results.servicesCount) * weights.imagesComplete;
+        score += (results.servicesWithAvailability / results.servicesCount) * weights.availabilityComplete;
       }
 
-      if (subcategoriesToCreate.length > 0) {
-        const { error: insertError } = await supabase
-          .from('subcategories')
-          .insert(subcategoriesToCreate);
+      results.score = Math.round(score);
 
-        if (insertError) throw insertError;
-
-        toast({
-          title: "תתי קטגוריות נוצרו",
-          description: `${subcategoriesToCreate.length} תתי קטגוריות נוספו למערכת`,
-        });
+      // זיהוי בעיות והמלצות
+      if (results.divisionsCount < 5) {
+        results.issues.push(`חסרות ${5 - results.divisionsCount} חטיבות`);
+        results.recommendations.push('הרץ את מערכת האתחול המלאה');
       }
 
-      await runQuickScan();
-    } catch (error) {
-      console.error('Error creating subcategories:', error);
-      toast({
-        title: "שגיאה ביצירת תתי קטגוריות",
-        description: "לא ניתן ליצור תתי קטגוריות חסרות",
-        variant: "destructive"
-      });
-    } finally {
-      setIsFixing(null);
-    }
-  };
+      if (results.subcategoriesCount < 80) {
+        results.issues.push(`חסרות ${80 - results.subcategoriesCount} תתי קטגוריות`);
+      }
 
-  const updateSearchIndex = async () => {
-    setIsFixing('reindex');
-    try {
-      // כאן תהיה לוגיקה לעדכון אינדקס החיפוש
-      await new Promise(resolve => setTimeout(resolve, 2000)); // סימולציה
+      if (results.providersCount === 0) {
+        results.issues.push('אין ספקים במערכת');
+        results.recommendations.push('הוסף ספקים לדוגמה או הפעל מחולל ספקים');
+      }
+
+      if (results.servicesCount === 0) {
+        results.issues.push('אין שירותים במערכת');
+        results.recommendations.push('הוסף שירותים לספקים הקיימים');
+      }
+
+      if (results.servicesWithPrices < results.servicesCount) {
+        results.issues.push(`${results.servicesCount - results.servicesWithPrices} שירותים ללא מחיר`);
+        results.recommendations.push('הוסף מחירים לכל השירותים');
+      }
+
+      setResults(results);
       
       toast({
-        title: "אינדקס עודכן",
-        description: "אינדקס החיפוש נבנה מחדש בהצלחה",
+        title: "בדיקת תקינות הושלמה",
+        description: `ציון המערכת: ${results.score}%`,
+        variant: results.score >= 70 ? "default" : "destructive"
       });
 
-      await runQuickScan();
     } catch (error) {
-      console.error('Error updating search index:', error);
+      console.error('Error in compliance check:', error);
       toast({
-        title: "שגיאה בעדכון אינדקס",
-        description: "לא ניתן לעדכן את אינדקס החיפוש",
+        title: "שגיאה בבדיקת תקינות",
+        description: "אנא נסה שוב",
         variant: "destructive"
       });
     } finally {
-      setIsFixing(null);
+      setIsChecking(false);
     }
   };
 
-  const fixSubcategoryRelationships = async () => {
-    setIsFixing('relationships');
-    try {
-      // כאן תהיה לוגיקה לתיקון קשרי תתי קטגוריות
-      await new Promise(resolve => setTimeout(resolve, 1500)); // סימולציה
-      
-      toast({
-        title: "קשרים תוקנו",
-        description: "קשרי תתי קטגוריות תוקנו בהצלחה",
-      });
+  useEffect(() => {
+    runComplianceCheck();
+  }, []);
 
-      await runQuickScan();
-    } catch (error) {
-      console.error('Error fixing relationships:', error);
-      toast({
-        title: "שגיאה בתיקון קשרים",
-        description: "לא ניתן לתקן קשרי תתי קטגוריות",
-        variant: "destructive"
-      });
-    } finally {
-      setIsFixing(null);
-    }
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pass':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case 'fail':
-        return <XCircle className="h-5 w-5 text-red-600" />;
-      default:
-        return null;
-    }
+  const getScoreBgColor = (score: number) => {
+    if (score >= 80) return 'bg-green-50 border-green-200';
+    if (score >= 60) return 'bg-yellow-50 border-yellow-200';
+    return 'bg-red-50 border-red-200';
   };
-
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      pass: 'bg-green-100 text-green-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      fail: 'bg-red-100 text-red-800'
-    };
-    return variants[status as keyof typeof variants] || '';
-  };
-
-  const calculateOverallScore = () => {
-    if (systemChecks.length === 0) return 0;
-    const passCount = systemChecks.filter(check => check.status === 'pass').length;
-    const warningCount = systemChecks.filter(check => check.status === 'warning').length;
-    return Math.round(((passCount + warningCount * 0.5) / systemChecks.length) * 100);
-  };
-
-  const exportReport = () => {
-    const reportData = {
-      timestamp: new Date().toISOString(),
-      systemOverview: overview,
-      gapAnalysis,
-      systemChecks,
-      overallScore: calculateOverallScore()
-    };
-
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `system-compliance-report-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <RefreshCw className="h-12 w-12 text-gray-400 mx-auto mb-4 animate-spin" />
-          <p>טוען נתוני מערכת...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">דוח ביקורת מערכת</h2>
-          <p className="text-gray-600">
-            בדיקה אוטומטית של שלמות המערכת ותקינות הנתונים
-          </p>
-          {lastScanTime && (
-            <p className="text-sm text-gray-500">
-              סריקה אחרונה: {new Date(lastScanTime).toLocaleString('he-IL')}
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={runFullSystemScan} disabled={isScanning}>
-            <Search className="h-4 w-4 ml-2" />
-            {isScanning ? 'סורק מערכת...' : 'הרץ דוח ביקורת מלא'}
-          </Button>
-          <Button variant="outline" onClick={exportReport}>
-            <Download className="h-4 w-4 ml-2" />
-            ייצא דוח
-          </Button>
-        </div>
-      </div>
-
-      {isScanning && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>מריץ סריקה מלאה של המערכת</span>
-                <span>{scanProgress}%</span>
-              </div>
-              <Progress value={scanProgress} className="w-full" />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            ציון תקינות כללי
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center">
-            <div className={`text-4xl font-bold mb-2 ${
-              calculateOverallScore() >= 80 ? 'text-green-600' :
-              calculateOverallScore() >= 60 ? 'text-yellow-600' : 'text-red-600'
-            }`}>
-              {calculateOverallScore()}%
-            </div>
-            <p className="text-gray-600">
-              {calculateOverallScore() >= 80 ? 'המערכת תקינה ומוכנה לשימוש' :
-               calculateOverallScore() >= 60 ? 'נדרשות התאמות קלות' : 'נדרשות התאמות משמעותיות'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">System Overview</TabsTrigger>
-          <TabsTrigger value="gaps">Gap Analysis</TabsTrigger>
-          <TabsTrigger value="actions">Actions Required</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {overview && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{overview.totalDivisions}</div>
-                  <div className="text-sm text-gray-600">חטיבות</div>
-                  <div className="text-xs text-blue-600">{overview.totalCategories} קטגוריות</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Settings className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{overview.totalSubcategories}</div>
-                  <div className="text-sm text-gray-600">תתי קטגוריות</div>
-                  <div className="text-xs text-purple-600">מבנה היררכי</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Users className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{overview.totalProviders}</div>
-                  <div className="text-sm text-gray-600">ספקים</div>
-                  <div className="text-xs text-green-600">{overview.verifiedProviders} מאומתים</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Package className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{overview.totalServices}</div>
-                  <div className="text-sm text-gray-600">מוצרים</div>
-                  <div className="text-xs text-orange-600">{overview.activeServices} פעילים</div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {systemChecks.map((check) => (
-              <Card key={check.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      {getStatusIcon(check.status)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{check.name}</h4>
-                          <Badge className={getStatusBadge(check.status)}>
-                            {check.status === 'pass' ? 'תקין' : 
-                             check.status === 'warning' ? 'אזהרה' : 'דורש תיקון'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-2">{check.message}</p>
-                        {check.details && (
-                          <p className="text-xs text-gray-500">{check.details}</p>
-                        )}
-                        {check.actionRequired && (
-                          <Alert className="mt-2">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertDescription>
-                              <strong>פעולה נדרשת:</strong> {check.actionRequired}
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                    </div>
-                    <Badge variant="outline">{check.category}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="gaps" className="space-y-4">
-          {gapAnalysis && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="border-yellow-200">
-                <CardHeader>
-                  <CardTitle className="text-yellow-800">מוצרים ללא קונספטים</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">
-                    {gapAnalysis.missingConcepts}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    מוצרים שלא שויכו לקונספטים ולא ניתנים לחיפוש מונחה
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-red-200">
-                <CardHeader>
-                  <CardTitle className="text-red-800">מוצרים נטושים</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-red-600 mb-2">
-                    {gapAnalysis.orphanedServices}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    מוצרים ללא תת-קטגוריה או עם הפניות שבורות
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-orange-200">
-                <CardHeader>
-                  <CardTitle className="text-orange-800">תתי קטגוריות חסרות</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-orange-600 mb-2">
-                    {gapAnalysis.incompleteSubcategories}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    תתי קטגוריות ללא שדות מותאמים או פילטרים
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-purple-200">
-                <CardHeader>
-                  <CardTitle className="text-purple-800">ספקים ללא יומן</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-purple-600 mb-2">
-                    {gapAnalysis.providersWithoutCalendar}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    ספקים ללא חיבור יומן או זמינות מוגדרת
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="actions" className="space-y-4">
-          <Alert>
-            <CheckCircle className="h-4 w-4" />
+    <Card className="w-full" dir="rtl">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          בדיקת תקינות מערכת תכלס המעודכנת
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        
+        {results && (
+          <Alert className={getScoreBgColor(results.score)}>
+            <CheckCircle className={`h-4 w-4 ${getScoreColor(results.score)}`} />
             <AlertDescription>
-              <strong>פעולות אוטומטיות זמינות:</strong>
+              <div className="flex items-center justify-between">
+                <span className="font-bold">ציון תקינות המערכת:</span>
+                <span className={`text-2xl font-bold ${getScoreColor(results.score)}`}>
+                  {results.score}%
+                </span>
+              </div>
+              <Progress value={results.score} className="mt-2" />
             </AlertDescription>
           </Alert>
+        )}
 
-          <div className="space-y-3">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">🧼 ניקוי נתונים נטושים</h4>
-                    <p className="text-sm text-gray-600">מחיקת מוצרים ללא הפניות תקינות ותתי קטגוריות ריקות</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={cleanOrphanedData}
-                    disabled={isFixing === 'clean'}
-                  >
-                    {isFixing === 'clean' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                        מבצע ניקוי...
-                      </>
-                    ) : (
-                      'הפעל ניקוי'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">📂 יצירת תתי קטגוריות חסרות</h4>
-                    <p className="text-sm text-gray-600">יצירה אוטומטית של כל תתי הקטגוריות החסרות</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={createMissingSubcategories}
-                    disabled={isFixing === 'subcategories'}
-                  >
-                    {isFixing === 'subcategories' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                        יוצר...
-                      </>
-                    ) : (
-                      'צור תתי קטגוריות'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">🧭 עדכון אינדקס חיפוש</h4>
-                    <p className="text-sm text-gray-600">בניה מחדש של מסנני החיפוש והקונספטים</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={updateSearchIndex}
-                    disabled={isFixing === 'reindex'}
-                  >
-                    {isFixing === 'reindex' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                        מעדכן...
-                      </>
-                    ) : (
-                      'עדכן אינדקס'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">🛠️ תיקון קשרי תתי קטגוריות</h4>
-                    <p className="text-sm text-gray-600">וידוא שכל מוצר משויך לתת-קטגוריה תקינה</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={fixSubcategoryRelationships}
-                    disabled={isFixing === 'relationships'}
-                  >
-                    {isFixing === 'relationships' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                        מתקן...
-                      </>
-                    ) : (
-                      'תקן קשרים'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {results && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{results.divisionsCount}</div>
+              <div className="text-sm text-gray-600">חטיבות (יעד: 5)</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{results.categoriesCount}</div>
+              <div className="text-sm text-gray-600">קטגוריות (יעד: 12+)</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{results.subcategoriesCount}</div>
+              <div className="text-sm text-gray-600">תתי קטגוריות (יעד: 80+)</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{results.conceptsCount}</div>
+              <div className="text-sm text-gray-600">קונספטים (יעד: 4+)</div>
+            </div>
+            <div className="text-center p-4 bg-indigo-50 rounded-lg">
+              <div className="text-2xl font-bold text-indigo-600">{results.providersCount}</div>
+              <div className="text-sm text-gray-600">ספקים</div>
+            </div>
+            <div className="text-center p-4 bg-pink-50 rounded-lg">
+              <div className="text-2xl font-bold text-pink-600">{results.servicesCount}</div>
+              <div className="text-sm text-gray-600">שירותים</div>
+            </div>
+            <div className="text-center p-4 bg-cyan-50 rounded-lg">
+              <div className="text-2xl font-bold text-cyan-600">{results.servicesWithPrices}</div>
+              <div className="text-sm text-gray-600">שירותים עם מחיר</div>
+            </div>
+            <div className="text-center p-4 bg-teal-50 rounded-lg">
+              <div className="text-2xl font-bold text-teal-600">{results.servicesWithImages}</div>
+              <div className="text-sm text-gray-600">שירותים עם תמונות</div>
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+        )}
+
+        {results && results.issues.length > 0 && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <strong>בעיות שזוהו:</strong>
+              <ul className="mt-2 space-y-1">
+                {results.issues.map((issue, index) => (
+                  <li key={index} className="text-sm">• {issue}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {results && results.recommendations.length > 0 && (
+          <Alert className="border-blue-200 bg-blue-50">
+            <CheckCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>המלצות לשיפור:</strong>
+              <ul className="mt-2 space-y-1">
+                {results.recommendations.map((rec, index) => (
+                  <li key={index} className="text-sm">• {rec}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex justify-center">
+          <Button 
+            onClick={runComplianceCheck}
+            disabled={isChecking}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
+            {isChecking ? 'בודק...' : 'רענן בדיקה'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

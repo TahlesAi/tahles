@@ -75,6 +75,9 @@ export default function Header() {
             <Link to="/categories" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium">
               קטגוריות
             </Link>
+            <Link to="/services" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium">
+              שירותים
+            </Link>
             <Link to="/providers" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium">
               ספקים
             </Link>
@@ -160,6 +163,9 @@ export default function Header() {
                   </Link>
                   <Link to="/categories" className="px-4 py-2 text-sm font-medium">
                     קטגוריות
+                  </Link>
+                  <Link to="/services" className="px-4 py-2 text-sm font-medium">
+                    שירותים
                   </Link>
                   <Link to="/providers" className="px-4 py-2 text-sm font-medium">
                     ספקים

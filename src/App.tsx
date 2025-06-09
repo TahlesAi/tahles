@@ -9,12 +9,15 @@ import ServiceDetails from "./pages/ServiceDetails";
 import ProviderProfile from "./pages/ProviderProfile";
 import MasterDashboardPage from "./pages/admin/MasterDashboardPage";
 import SystemInitializationPage from "./pages/SystemInitializationPage";
+import SystemMigration from "./pages/admin/SystemMigration";
 import WishlistPage from "./pages/WishlistPage";
 import ComparisonPage from "./pages/ComparisonPage";
 import BookingPage from "./pages/BookingPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
+import CategoriesManagementPage from "./pages/admin/CategoriesManagementPage";
+import ServicesPage from "./pages/ServicesPage";
 
 function App() {
   console.log('App component rendered');
@@ -30,7 +33,10 @@ function App() {
               <Route path="/service/:id" element={<ServiceDetails />} />
               <Route path="/provider/:id" element={<ProviderProfile />} />
               <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
+              <Route path="/admin/system-migration" element={<SystemMigration />} />
+              <Route path="/admin/categories" element={<CategoriesManagementPage />} />
               <Route path="/system/initialize" element={<SystemInitializationPage />} />
+              <Route path="/services" element={<ServicesPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/comparison" element={<ComparisonPage />} />
               <Route path="/booking/:id" element={<BookingPage />} />
