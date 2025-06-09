@@ -1,10 +1,10 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import SearchResults from "./pages/SearchResults";
+import { SearchResultsPage } from "./pages/SearchResultsPage";
 import ServiceDetails from "./pages/ServiceDetails";
 import ProviderProfile from "./pages/ProviderProfile";
 import MasterDashboardPage from "./pages/admin/MasterDashboardPage";
@@ -31,6 +31,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/search-results" element={<SearchResultsPage />} />
               <Route path="/service/:id" element={<ServiceDetails />} />
               <Route path="/provider/:id" element={<ProviderProfile />} />
               <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
