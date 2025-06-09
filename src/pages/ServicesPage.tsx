@@ -29,17 +29,11 @@ interface Service {
   image_url: string;
   is_visible: boolean;
   calendar_required: boolean;
-  provider: {
-    name: string;
-    city: string;
-    rating: number;
-  };
-  subcategory: {
-    name: string;
-    category: {
-      name: string;
-    };
-  };
+  provider_name: string;
+  provider_city: string;
+  provider_rating: number;
+  subcategory_name: string;
+  category_name: string;
 }
 
 const ServicesPage: React.FC = () => {
@@ -53,6 +47,7 @@ const ServicesPage: React.FC = () => {
 
   const fetchServices = async () => {
     try {
+      // שאילתה מפורטת עם JOIN מפורש
       const { data, error } = await supabase
         .from('services')
         .select(`
@@ -67,14 +62,14 @@ const ServicesPage: React.FC = () => {
           image_url,
           is_visible,
           calendar_required,
-          providers!inner (
+          providers!services_provider_id_fkey (
             name,
             city,
             rating
           ),
-          subcategories!inner (
+          subcategories!services_subcategory_id_fkey (
             name,
-            categories!inner (
+            categories!subcategories_category_id_fkey (
               name
             )
           )
@@ -82,17 +77,34 @@ const ServicesPage: React.FC = () => {
         .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
-      const formattedServices = data?.map(service => ({
-        ...service,
-        provider: service.providers,
-        subcategory: {
-          name: service.subcategories.name,
-          category: service.subcategories.categories
-        }
-      })) || [];
+      console.log('Raw data from Supabase:', data);
 
+      // עיבוד הנתונים לפורמט הנדרש
+      const formattedServices = (data || []).map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description || '',
+        base_price: service.base_price || 0,
+        price_unit: service.price_unit || 'לאירוע',
+        duration_minutes: service.duration_minutes || 0,
+        min_participants: service.min_participants || 0,
+        max_participants: service.max_participants || 0,
+        image_url: service.image_url || '',
+        is_visible: service.is_visible || false,
+        calendar_required: service.calendar_required || false,
+        provider_name: service.providers?.name || 'לא ידוע',
+        provider_city: service.providers?.city || 'לא צוין',
+        provider_rating: service.providers?.rating || 0,
+        subcategory_name: service.subcategories?.name || 'לא צוין',
+        category_name: service.subcategories?.categories?.name || 'לא צוין'
+      }));
+
+      console.log('Formatted services:', formattedServices);
       setServices(formattedServices);
     } catch (err) {
       console.error('Error fetching services:', err);
@@ -178,9 +190,9 @@ const ServicesPage: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">{service.name}</CardTitle>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span>{service.subcategory.category.name}</span>
+                      <span>{service.category_name}</span>
                       <span>•</span>
-                      <span>{service.subcategory.name}</span>
+                      <span>{service.subcategory_name}</span>
                     </div>
                   </CardHeader>
                   
@@ -206,11 +218,11 @@ const ServicesPage: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm text-gray-600">{service.provider.city}</span>
+                          <span className="text-sm text-gray-600">{service.provider_city}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium">{service.provider.rating}</span>
+                          <span className="text-sm font-medium">{service.provider_rating}</span>
                         </div>
                       </div>
                       
@@ -228,7 +240,7 @@ const ServicesPage: React.FC = () => {
                     </div>
                     
                     <div className="text-xs text-gray-500 border-t pt-2">
-                      ספק: {service.provider.name}
+                      ספק: {service.provider_name}
                     </div>
                   </CardContent>
                 </Card>
