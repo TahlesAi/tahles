@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,6 +15,8 @@ import WishlistPage from "./pages/WishlistPage";
 import ComparisonPage from "./pages/ComparisonPage";
 import BookingPage from "./pages/BookingPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import CategoryPage from "./pages/CategoryPage";
+import SubcategoryPage from "./pages/SubcategoryPage";
 import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
 import CategoriesManagementPage from "./pages/admin/CategoriesManagementPage";
@@ -43,6 +46,8 @@ function App() {
               <Route path="/comparison" element={<ComparisonPage />} />
               <Route path="/booking/:id" element={<BookingPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/categories/:id" element={<CategoryPage />} />
+              <Route path="/subcategories/:id" element={<SubcategoryPage />} />
               <Route path="/categories/locations" element={<LocationsPage />} />
               <Route path="/providers" element={<ProvidersPage />} />
               <Route path="/about" element={<AboutPage />} />
