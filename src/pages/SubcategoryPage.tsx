@@ -5,9 +5,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, AlertTriangle, Layers, Building } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Layers, Building, Package, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Subcategory {
@@ -22,11 +23,21 @@ interface Category {
   name: string;
 }
 
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  base_price: number;
+  image_url: string;
+  price_unit: string;
+}
+
 interface Provider {
   id: string;
   name: string;
   description: string;
   is_verified: boolean;
+  services: Service[];
 }
 
 const SubcategoryPage: React.FC = () => {
@@ -36,6 +47,7 @@ const SubcategoryPage: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!id) {
@@ -78,10 +90,16 @@ const SubcategoryPage: React.FC = () => {
         setCategory(categoryData);
       }
 
-      // טעינת ספקים בתת-קטגוריה
+      // טעינת ספקים עם השירותים שלהם
       const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select(`
+          id,
+          name,
+          description,
+          base_price,
+          image_url,
+          price_unit,
           provider_id,
           providers (
             id,
@@ -91,25 +109,63 @@ const SubcategoryPage: React.FC = () => {
           )
         `)
         .eq('subcategory_id', id)
-        .eq('is_visible', true);
+        .eq('is_visible', true)
+        .not('base_price', 'is', null);
 
       if (servicesError) {
-        console.warn('שגיאה בטעינת ספקים:', servicesError);
+        console.warn('שגיאה בטעינת שירותים:', servicesError);
+        setProviders([]);
       } else {
-        // הסרת כפילויות של ספקים
-        const uniqueProviders = new Map();
+        // ארגון השירותים לפי ספקים
+        const providersMap = new Map<string, Provider>();
+        
         servicesData?.forEach(service => {
-          if (service.providers && !uniqueProviders.has(service.providers.id)) {
-            uniqueProviders.set(service.providers.id, service.providers);
+          if (service.providers) {
+            const provider = service.providers;
+            const serviceData: Service = {
+              id: service.id,
+              name: service.name,
+              description: service.description || '',
+              base_price: service.base_price || 0,
+              image_url: service.image_url || '',
+              price_unit: service.price_unit || 'לאירוע'
+            };
+
+            if (providersMap.has(provider.id)) {
+              providersMap.get(provider.id)!.services.push(serviceData);
+            } else {
+              providersMap.set(provider.id, {
+                id: provider.id,
+                name: provider.name,
+                description: provider.description || '',
+                is_verified: provider.is_verified || false,
+                services: [serviceData]
+              });
+            }
           }
         });
-        setProviders(Array.from(uniqueProviders.values()));
+
+        setProviders(Array.from(providersMap.values()));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'שגיאה בטעינת הנתונים');
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleProviderExpansion = (providerId: string) => {
+    const newExpanded = new Set(expandedProviders);
+    if (newExpanded.has(providerId)) {
+      newExpanded.delete(providerId);
+    } else {
+      newExpanded.add(providerId);
+    }
+    setExpandedProviders(newExpanded);
+  };
+
+  const formatPrice = (price: number, unit: string) => {
+    return `₪${price.toLocaleString()} ${unit}`;
   };
 
   if (loading) {
@@ -212,44 +268,99 @@ const SubcategoryPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {providers.map((provider) => (
-                <Link
-                  key={provider.id}
-                  to={`/provider/${provider.id}`}
-                  className="group block"
-                >
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                    <CardHeader>
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                          <Building className="h-6 w-6 text-green-600" />
-                        </div>
-                        <div className="flex-grow">
-                          <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                <Card key={provider.id} className="h-full hover:shadow-lg transition-all duration-300">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Building className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div className="flex-grow">
+                        <CardTitle className="text-lg">
+                          <Link 
+                            to={`/provider/${provider.id}`}
+                            className="hover:text-blue-600 transition-colors"
+                          >
                             {provider.name}
-                            {provider.is_verified && (
-                              <Badge variant="outline" className="mr-2 text-xs">
-                                מאומת
-                              </Badge>
-                            )}
-                          </CardTitle>
-                        </div>
+                          </Link>
+                          {provider.is_verified && (
+                            <Badge variant="outline" className="mr-2 text-xs">
+                              מאומת
+                            </Badge>
+                          )}
+                        </CardTitle>
                       </div>
-                    </CardHeader>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    {provider.description && (
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                        {provider.description}
+                      </p>
+                    )}
                     
-                    <CardContent>
-                      {provider.description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                          {provider.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center justify-end text-blue-600 text-sm font-medium group-hover:underline">
-                        <span>צפה בספק</span>
-                        <ArrowLeft className="h-4 w-4 mr-1" />
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          {provider.services.length} מוצרים זמינים
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleProviderExpansion(provider.id)}
+                          className="h-8"
+                        >
+                          {expandedProviders.has(provider.id) ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                      
+                      {expandedProviders.has(provider.id) && (
+                        <div className="space-y-2 border-t pt-2">
+                          {provider.services.length > 0 ? (
+                            provider.services.map((service) => (
+                              <Link
+                                key={service.id}
+                                to={`/service/${service.id}`}
+                                className="block p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Package className="h-4 w-4 text-gray-500" />
+                                  <div className="flex-grow">
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {service.name}
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      {formatPrice(service.base_price, service.price_unit)}
+                                    </div>
+                                  </div>
+                                  <Eye className="h-4 w-4 text-gray-400" />
+                                </div>
+                              </Link>
+                            ))
+                          ) : (
+                            <div className="text-sm text-gray-500 p-2">
+                              אין מוצרים זמינים כרגע
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-end text-blue-600 text-sm font-medium">
+                      <Link 
+                        to={`/provider/${provider.id}`}
+                        className="hover:underline flex items-center gap-1"
+                      >
+                        <span>צפה בספק</span>
+                        <ArrowLeft className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
