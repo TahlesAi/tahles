@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,42 +14,37 @@ import {
   FileText 
 } from 'lucide-react';
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
-import GuidedSearchForm from './GuidedSearchForm';
 import SystemComplianceChecker from './SystemComplianceChecker';
 import { GuidedSearchFilters } from '@/types/updatedSystemTypes';
 
 const UpdatedSystemDashboard: React.FC = () => {
-  const { divisions, loading, businessLogic, guidedSearch } = useUpdatedSystemData();
+  const { categories, loading, businessLogic, guidedSearch } = useUpdatedSystemData();
   const [selectedTab, setSelectedTab] = useState('overview');
   const [showGuidedSearch, setShowGuidedSearch] = useState(false);
 
   const calculateStats = () => {
-    let totalCategories = 0;
+    let totalCategories = categories.length;
     let totalSubcategories = 0;
     let totalProviders = 0;
     let totalServices = 0;
     let activeServices = 0;
 
-    divisions.forEach(division => {
-      totalCategories += division.categories?.length || 0;
-      division.categories?.forEach(category => {
-        totalSubcategories += category.subcategories?.length || 0;
-        category.subcategories?.forEach(subcategory => {
-          totalProviders += subcategory.providers?.length || 0;
-          subcategory.providers?.forEach(provider => {
-            totalServices += provider.services?.length || 0;
-            provider.services?.forEach(service => {
-              if (service.is_visible && service.base_price) {
-                activeServices++;
-              }
-            });
+    categories.forEach(category => {
+      totalSubcategories += category.subcategories?.length || 0;
+      category.subcategories?.forEach(subcategory => {
+        totalProviders += subcategory.providers?.length || 0;
+        subcategory.providers?.forEach(provider => {
+          totalServices += provider.services?.length || 0;
+          provider.services?.forEach(service => {
+            if (service.available && service.price) {
+              activeServices++;
+            }
           });
         });
       });
     });
 
     return {
-      totalDivisions: divisions.length,
       totalCategories,
       totalSubcategories,
       totalProviders,
@@ -62,7 +58,6 @@ const UpdatedSystemDashboard: React.FC = () => {
     const results = await guidedSearch(filters);
     console.log('תוצאות חיפוש:', results);
     setShowGuidedSearch(false);
-    // כאן ניתן להוסיף הצגת תוצאות או ניווט לעמוד תוצאות
   };
 
   if (loading) {
@@ -92,14 +87,7 @@ const UpdatedSystemDashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <FileText className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.totalDivisions}</div>
-            <div className="text-sm text-gray-600">חטיבות</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
             <Settings className="h-6 w-6 text-purple-600 mx-auto mb-2" />
@@ -138,15 +126,13 @@ const UpdatedSystemDashboard: React.FC = () => {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">סקירה כללית</TabsTrigger>
-          <TabsTrigger value="search">חיפוש מונחה</TabsTrigger>
           <TabsTrigger value="compliance">ביקורת מערכת</TabsTrigger>
           <TabsTrigger value="hierarchy">היררכיה</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Overview content */}
           <Card>
             <CardHeader>
               <CardTitle>מבנה המערכת החדש</CardTitle>
@@ -154,17 +140,16 @@ const UpdatedSystemDashboard: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-sm text-gray-600">
-                  המערכת החדשה בנויה על היררכיה של: חטיבה → קטגוריה → תת-קטגוריה → ספק → מוצר
+                  המערכת החדשה בנויה על היררכיה של: קטגוריה → תת-קטגוריה → ספק → מוצר
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="font-medium">חטיבות ראשיות:</h4>
+                    <h4 className="font-medium">קטגוריות ראשיות:</h4>
                     <ul className="text-sm space-y-1">
-                      <li>• הפקות אירועים</li>
-                      <li>• העשרה וחינוך</li>
-                      <li>• מתנות וכרטיסים</li>
-                      <li>• טיולים ואטרקציות</li>
+                      {categories.slice(0, 6).map(category => (
+                        <li key={category.id}>• {category.name}</li>
+                      ))}
                     </ul>
                   </div>
                   
@@ -183,63 +168,31 @@ const UpdatedSystemDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="search">
-          {showGuidedSearch ? (
-            <GuidedSearchForm 
-              divisions={divisions}
-              onSearch={handleGuidedSearch}
-              onClose={() => setShowGuidedSearch(false)}
-            />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>חיפוש מונחה</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center space-y-4">
-                  <p className="text-gray-600">
-                    השתמש בחיפוש המונחה כדי למצוא בדיוק את מה שאתה מחפש
-                  </p>
-                  <Button onClick={() => setShowGuidedSearch(true)}>
-                    <Search className="h-4 w-4 ml-2" />
-                    התחל חיפוש מונחה
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
         <TabsContent value="compliance">
           <SystemComplianceChecker />
         </TabsContent>
 
         <TabsContent value="hierarchy" className="space-y-4">
-          {divisions.map(division => (
-            <Card key={division.id}>
+          {categories.map(category => (
+            <Card key={category.id}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  {division.name}
+                  {category.name}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {division.categories?.map(category => (
-                    <div key={category.id} className="border rounded-lg p-3">
-                      <h4 className="font-medium mb-2">{category.name}</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                        {category.subcategories?.map(subcategory => (
-                          <div key={subcategory.id} className="bg-gray-50 p-2 rounded text-sm">
-                            <div className="font-medium">{subcategory.name}</div>
-                            <div className="text-gray-600 text-xs">
-                              {subcategory.providers?.length || 0} ספקים
-                            </div>
-                          </div>
-                        ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {category.subcategories?.map(subcategory => (
+                      <div key={subcategory.id} className="bg-gray-50 p-2 rounded text-sm">
+                        <div className="font-medium">{subcategory.name}</div>
+                        <div className="text-gray-600 text-xs">
+                          {subcategory.providers?.length || 0} ספקים
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>

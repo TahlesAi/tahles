@@ -18,28 +18,25 @@ import DataInitializer from './DataInitializer';
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
 
 const EnhancedSystemDashboard: React.FC = () => {
-  const { divisions, loading } = useUpdatedSystemData();
+  const { categories, loading } = useUpdatedSystemData();
   const [selectedTab, setSelectedTab] = useState('initialization');
 
   const calculateQuickStats = () => {
-    if (loading || !divisions.length) {
+    if (loading || !categories.length) {
       return { totalCategories: 0, totalSubcategories: 0, totalProviders: 0, totalServices: 0 };
     }
 
-    let totalCategories = 0;
+    let totalCategories = categories.length;
     let totalSubcategories = 0;
     let totalProviders = 0;
     let totalServices = 0;
 
-    divisions.forEach(division => {
-      totalCategories += division.categories?.length || 0;
-      division.categories?.forEach(category => {
-        totalSubcategories += category.subcategories?.length || 0;
-        category.subcategories?.forEach(subcategory => {
-          totalProviders += subcategory.providers?.length || 0;
-          subcategory.providers?.forEach(provider => {
-            totalServices += provider.services?.length || 0;
-          });
+    categories.forEach(category => {
+      totalSubcategories += category.subcategories?.length || 0;
+      category.subcategories?.forEach(subcategory => {
+        totalProviders += subcategory.providers?.length || 0;
+        subcategory.providers?.forEach(provider => {
+          totalServices += provider.services?.length || 0;
         });
       });
     });

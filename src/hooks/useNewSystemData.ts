@@ -40,11 +40,19 @@ export interface SimpleConcept {
   name: string;
   description: string;
   concept_type: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserRole {
+  role: string;
 }
 
 export const useNewSystemData = () => {
   const [categories, setCategories] = useState<SimpleCategory[]>([]);
   const [concepts, setConcepts] = useState<SimpleConcept[]>([]);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -117,7 +125,10 @@ export const useNewSystemData = () => {
         id: concept.id,
         name: concept.name,
         description: concept.description || '',
-        concept_type: concept.concept_type || ''
+        concept_type: concept.concept_type || '',
+        is_active: concept.is_active,
+        created_at: concept.created_at,
+        updated_at: concept.updated_at
       })) as SimpleConcept[];
 
       setConcepts(simpleConcepts);
@@ -126,19 +137,78 @@ export const useNewSystemData = () => {
     }
   }, []);
 
+  // טעינת תפקיד משתמש
+  const loadUserRole = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .single();
+        
+        setUserRole(roleData ? { role: roleData.role } : { role: 'user' });
+      } else {
+        setUserRole({ role: 'guest' });
+      }
+    } catch (err) {
+      console.error('Error loading user role:', err);
+      setUserRole({ role: 'guest' });
+    }
+  }, []);
+
+  // פונקציית חיפוש שירותים
+  const searchServices = useCallback(async (query: string, filters?: any) => {
+    try {
+      let servicesQuery = supabase
+        .from('services')
+        .select('*')
+        .eq('is_visible', true);
+
+      if (query) {
+        servicesQuery = servicesQuery.ilike('name', `%${query}%`);
+      }
+
+      if (filters?.category_id) {
+        const { data: subcategoryIds } = await supabase
+          .from('subcategories')
+          .select('id')
+          .eq('category_id', filters.category_id);
+        
+        if (subcategoryIds && subcategoryIds.length > 0) {
+          servicesQuery = servicesQuery.in('subcategory_id', subcategoryIds.map(s => s.id));
+        }
+      }
+
+      const { data, error } = await servicesQuery;
+      if (error) throw error;
+
+      return data || [];
+    } catch (err) {
+      console.error('Error searching services:', err);
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
     loadCategories();
     loadConcepts();
-  }, [loadCategories, loadConcepts]);
+    loadUserRole();
+  }, [loadCategories, loadConcepts, loadUserRole]);
 
   return {
     categories,
     concepts,
+    userRole,
     loading,
     error,
+    searchServices,
     refreshData: () => {
       loadCategories();
       loadConcepts();
+      loadUserRole();
     }
   };
 };
