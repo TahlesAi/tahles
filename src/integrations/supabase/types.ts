@@ -164,7 +164,6 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
-          division_id: string | null
           icon: string | null
           id: string
           image_url: string | null
@@ -176,7 +175,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
-          division_id?: string | null
           icon?: string | null
           id?: string
           image_url?: string | null
@@ -188,7 +186,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
-          division_id?: string | null
           icon?: string | null
           id?: string
           image_url?: string | null
@@ -197,15 +194,7 @@ export type Database = {
           order_index?: number | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "categories_division_id_fkey"
-            columns: ["division_id"]
-            isOneToOne: false
-            referencedRelation: "divisions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       concepts: {
         Row: {
@@ -319,39 +308,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      divisions: {
-        Row: {
-          created_at: string
-          description: string | null
-          icon: string | null
-          id: string
-          is_active: boolean
-          name: string
-          order_index: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          order_index?: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          order_index?: number
-          updated_at?: string
-        }
-        Relationships: []
       }
       lottery_participants: {
         Row: {
