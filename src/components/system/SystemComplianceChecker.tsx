@@ -10,7 +10,6 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface ComplianceResults {
   score: number;
-  divisionsCount: number;
   categoriesCount: number;
   subcategoriesCount: number;
   conceptsCount: number;
@@ -33,7 +32,6 @@ const SystemComplianceChecker: React.FC = () => {
     try {
       const results: ComplianceResults = {
         score: 0,
-        divisionsCount: 0,
         categoriesCount: 0,
         subcategoriesCount: 0,
         conceptsCount: 0,
@@ -45,15 +43,6 @@ const SystemComplianceChecker: React.FC = () => {
         issues: [],
         recommendations: []
       };
-
-      // בדיקת חטיבות
-      const { data: divisions, error: divisionsError } = await supabase
-        .from('divisions')
-        .select('*')
-        .eq('is_active', true);
-
-      if (divisionsError) throw divisionsError;
-      results.divisionsCount = divisions?.length || 0;
 
       // בדיקת קטגוריות
       const { data: categories, error: categoriesError } = await supabase
@@ -117,26 +106,22 @@ const SystemComplianceChecker: React.FC = () => {
       // חישוב ציון
       let score = 0;
       const weights = {
-        divisions: 15, // 5 חטיבות = 15 נקודות
-        categories: 15, // 12+ קטגוריות = 15 נקודות  
-        subcategories: 20, // 80+ תתי קטגוריות = 20 נקודות
-        concepts: 10, // 4+ קונספטים = 10 נקודות
-        providers: 10, // ספקים = 10 נקודות
+        categories: 20, // 6 קטגוריות = 20 נקודות
+        subcategories: 25, // 20+ תתי קטגוריות = 25 נקודות
+        concepts: 15, // 4+ קונספטים = 15 נקודות
+        providers: 15, // ספקים = 15 נקודות
         services: 10, // שירותים = 10 נקודות
         pricesComplete: 10, // מחירים = 10 נקודות
-        imagesComplete: 5, // תמונות = 5 נקודות
-        availabilityComplete: 5 // זמינות = 5 נקודות
+        imagesComplete: 3, // תמונות = 3 נקודות
+        availabilityComplete: 2 // זמינות = 2 נקודות
       };
 
-      // חישוב ציון לפי קריטריונים
-      if (results.divisionsCount >= 5) score += weights.divisions;
-      else score += (results.divisionsCount / 5) * weights.divisions;
+      // חישוב ציון לפי קריטריונים חדשים
+      if (results.categoriesCount >= 6) score += weights.categories;
+      else score += (results.categoriesCount / 6) * weights.categories;
 
-      if (results.categoriesCount >= 12) score += weights.categories;
-      else score += (results.categoriesCount / 12) * weights.categories;
-
-      if (results.subcategoriesCount >= 80) score += weights.subcategories;
-      else score += (results.subcategoriesCount / 80) * weights.subcategories;
+      if (results.subcategoriesCount >= 20) score += weights.subcategories;
+      else score += (results.subcategoriesCount / 20) * weights.subcategories;
 
       if (results.conceptsCount >= 4) score += weights.concepts;
       else score += (results.conceptsCount / 4) * weights.concepts;
@@ -153,13 +138,13 @@ const SystemComplianceChecker: React.FC = () => {
       results.score = Math.round(score);
 
       // זיהוי בעיות והמלצות
-      if (results.divisionsCount < 5) {
-        results.issues.push(`חסרות ${5 - results.divisionsCount} חטיבות`);
-        results.recommendations.push('הרץ את מערכת האתחול המלאה');
+      if (results.categoriesCount < 6) {
+        results.issues.push(`חסרות ${6 - results.categoriesCount} קטגוריות`);
+        results.recommendations.push('הוסף קטגוריות חסרות');
       }
 
-      if (results.subcategoriesCount < 80) {
-        results.issues.push(`חסרות ${80 - results.subcategoriesCount} תתי קטגוריות`);
+      if (results.subcategoriesCount < 20) {
+        results.issues.push(`חסרות ${20 - results.subcategoriesCount} תתי קטגוריות`);
       }
 
       if (results.providersCount === 0) {
@@ -241,36 +226,36 @@ const SystemComplianceChecker: React.FC = () => {
         {results && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{results.divisionsCount}</div>
-              <div className="text-sm text-gray-600">חטיבות (יעד: 5)</div>
+              <div className="text-2xl font-bold text-blue-600">{results.categoriesCount}</div>
+              <div className="text-sm text-gray-600">קטגוריות (יעד: 6)</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{results.categoriesCount}</div>
-              <div className="text-sm text-gray-600">קטגוריות (יעד: 12+)</div>
+              <div className="text-2xl font-bold text-green-600">{results.subcategoriesCount}</div>
+              <div className="text-sm text-gray-600">תתי קטגוריות (יעד: 20+)</div>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{results.subcategoriesCount}</div>
-              <div className="text-sm text-gray-600">תתי קטגוריות (יעד: 80+)</div>
-            </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">{results.conceptsCount}</div>
+              <div className="text-2xl font-bold text-purple-600">{results.conceptsCount}</div>
               <div className="text-sm text-gray-600">קונספטים (יעד: 4+)</div>
             </div>
-            <div className="text-center p-4 bg-indigo-50 rounded-lg">
-              <div className="text-2xl font-bold text-indigo-600">{results.providersCount}</div>
+            <div className="text-center p-4 bg-orange-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{results.providersCount}</div>
               <div className="text-sm text-gray-600">ספקים</div>
             </div>
-            <div className="text-center p-4 bg-pink-50 rounded-lg">
-              <div className="text-2xl font-bold text-pink-600">{results.servicesCount}</div>
+            <div className="text-center p-4 bg-indigo-50 rounded-lg">
+              <div className="text-2xl font-bold text-indigo-600">{results.servicesCount}</div>
               <div className="text-sm text-gray-600">שירותים</div>
             </div>
-            <div className="text-center p-4 bg-cyan-50 rounded-lg">
-              <div className="text-2xl font-bold text-cyan-600">{results.servicesWithPrices}</div>
+            <div className="text-center p-4 bg-pink-50 rounded-lg">
+              <div className="text-2xl font-bold text-pink-600">{results.servicesWithPrices}</div>
               <div className="text-sm text-gray-600">שירותים עם מחיר</div>
             </div>
-            <div className="text-center p-4 bg-teal-50 rounded-lg">
-              <div className="text-2xl font-bold text-teal-600">{results.servicesWithImages}</div>
+            <div className="text-center p-4 bg-cyan-50 rounded-lg">
+              <div className="text-2xl font-bold text-cyan-600">{results.servicesWithImages}</div>
               <div className="text-sm text-gray-600">שירותים עם תמונות</div>
+            </div>
+            <div className="text-center p-4 bg-teal-50 rounded-lg">
+              <div className="text-2xl font-bold text-teal-600">{results.servicesWithAvailability}</div>
+              <div className="text-sm text-gray-600">שירותים עם זמינות</div>
             </div>
           </div>
         )}

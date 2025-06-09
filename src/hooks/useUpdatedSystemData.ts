@@ -1,22 +1,83 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  UpdatedDivision, 
-  UpdatedService, 
-  GuidedSearchFilters,
-  VisibilityRules,
-  BusinessLogic,
-  WishlistItem
-} from '@/types/updatedSystemTypes';
+
+export interface UpdatedCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  subcategories: UpdatedSubcategory[];
+}
+
+export interface UpdatedSubcategory {
+  id: string;
+  name: string;
+  description: string;
+  category_id: string;
+  providers: UpdatedProvider[];
+}
+
+export interface UpdatedProvider {
+  id: string;
+  name: string;
+  description: string;
+  verified: boolean;
+  services: UpdatedService[];
+}
+
+export interface UpdatedService {
+  id: string;
+  name: string;
+  description: string;
+  pricing_model: 'fixed' | 'variable' | 'tiered';
+  price: number;
+  available: boolean;
+  subcategory_id: string;
+}
+
+export interface GuidedSearchFilters {
+  date?: string;
+  location?: string;
+  concept?: string;
+  participants?: string;
+  category_id?: string;
+  subcategory_id?: string;
+  budget?: string;
+}
+
+export interface VisibilityRules {
+  showEmptyCategories: boolean;
+  showEmptySubcategories: boolean;
+  showInactiveProviders: boolean;
+  requireActiveServices: boolean;
+}
+
+export interface BusinessLogic {
+  participantRanges: {
+    production: string[];
+    tickets: string[];
+  };
+  hideUnavailableServices: boolean;
+  requirePricing: boolean;
+  requireCalendarIntegration: boolean;
+  allowSpecialProducts: boolean;
+}
+
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  service_id: string;
+  created_at: string;
+  service?: UpdatedService;
+}
 
 export const useUpdatedSystemData = () => {
-  const [divisions, setDivisions] = useState<UpdatedDivision[]>([]);
+  const [categories, setCategories] = useState<UpdatedCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const visibilityRules: VisibilityRules = {
-    showEmptyDivisions: false,
     showEmptyCategories: false,
     showEmptySubcategories: false,
     showInactiveProviders: false,
@@ -34,19 +95,10 @@ export const useUpdatedSystemData = () => {
     allowSpecialProducts: true
   };
 
-  const loadDivisionsWithHierarchy = useCallback(async () => {
+  const loadCategoriesWithHierarchy = useCallback(async () => {
     try {
       setLoading(true);
       
-      // טעינת חטיבות
-      const { data: divisionsData, error: divisionsError } = await supabase
-        .from('divisions')
-        .select('*')
-        .eq('is_active', true)
-        .order('order_index');
-
-      if (divisionsError) throw divisionsError;
-
       // טעינת קטגוריות
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
@@ -87,7 +139,6 @@ export const useUpdatedSystemData = () => {
 
       // בניית היררכיה עם כללי תצוגה
       const hierarchyWithActiveServices = buildActiveHierarchy(
-        divisionsData || [],
         categoriesData || [],
         subcategoriesData || [],
         providersData || [],
@@ -96,7 +147,7 @@ export const useUpdatedSystemData = () => {
         businessLogic
       );
 
-      setDivisions(hierarchyWithActiveServices);
+      setCategories(hierarchyWithActiveServices);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'שגיאה בטעינת הנתונים');
     } finally {
@@ -118,25 +169,6 @@ export const useUpdatedSystemData = () => {
         .eq('is_visible', true)
         .not('base_price', 'is', null);
 
-      // סינון לפי חטיבה
-      if (filters.division_id) {
-        const { data: categoryIds } = await supabase
-          .from('categories')
-          .select('id')
-          .eq('division_id', filters.division_id);
-        
-        if (categoryIds && categoryIds.length > 0) {
-          const { data: subcategoryIds } = await supabase
-            .from('subcategories')
-            .select('id')
-            .in('category_id', categoryIds.map(c => c.id));
-          
-          if (subcategoryIds && subcategoryIds.length > 0) {
-            query = query.in('subcategory_id', subcategoryIds.map(s => s.id));
-          }
-        }
-      }
-
       // סינון לפי קטגוריה
       if (filters.category_id) {
         const { data: subcategoryIds } = await supabase
@@ -152,21 +184,6 @@ export const useUpdatedSystemData = () => {
       // סינון לפי תת-קטגוריה
       if (filters.subcategory_id) {
         query = query.eq('subcategory_id', filters.subcategory_id);
-      }
-
-      // סינון לפי סוג אירוע
-      if (filters.event_type) {
-        query = query.eq('event_type', filters.event_type);
-      }
-
-      // סינון לפי סוג מיקום
-      if (filters.location_type) {
-        query = query.eq('location_type', filters.location_type);
-      }
-
-      // סינון לפי טווח תקציב
-      if (filters.budget_range) {
-        query = query.eq('budget_range', filters.budget_range);
       }
 
       const { data, error } = await query;
@@ -254,11 +271,11 @@ export const useUpdatedSystemData = () => {
   }, []);
 
   useEffect(() => {
-    loadDivisionsWithHierarchy();
-  }, [loadDivisionsWithHierarchy]);
+    loadCategoriesWithHierarchy();
+  }, [loadCategoriesWithHierarchy]);
 
   return {
-    divisions,
+    categories,
     loading,
     error,
     businessLogic,
@@ -266,70 +283,76 @@ export const useUpdatedSystemData = () => {
     addToWishlist,
     removeFromWishlist,
     getWishlist,
-    refreshData: loadDivisionsWithHierarchy
+    refreshData: loadCategoriesWithHierarchy
   };
 };
 
 // פונקציה לבניית היררכיה עם שירותים פעילים בלבד
 const buildActiveHierarchy = (
-  divisions: any[],
   categories: any[],
   subcategories: any[],
   providers: any[],
   services: any[],
   rules: VisibilityRules,
   logic: BusinessLogic
-): UpdatedDivision[] => {
-  return divisions.map(division => {
-    const divisionCategories = categories
-      .filter(cat => cat.division_id === division.id)
-      .map(category => {
-        const categorySubcategories = subcategories
-          .filter(sub => sub.category_id === category.id)
-          .map(subcategory => {
-            const subcategoryProviders = providers
-              .filter(provider => {
-                // בדיקה שלספק יש שירותים פעילים בתת-קטגוריה זו
-                const hasActiveServices = services.some(service => 
-                  service.provider_id === provider.id && 
-                  service.subcategory_id === subcategory.id &&
-                  isServiceActive(service, logic)
-                );
-                return hasActiveServices;
-              })
-              .map(provider => {
-                const providerServices = services.filter(service => 
-                  service.provider_id === provider.id && 
-                  service.subcategory_id === subcategory.id &&
-                  isServiceActive(service, logic)
-                );
-
-                return {
-                  ...provider,
-                  services: providerServices
-                };
-              });
+): UpdatedCategory[] => {
+  return categories.map(category => {
+    const categorySubcategories = subcategories
+      .filter(sub => sub.category_id === category.id)
+      .map(subcategory => {
+        const subcategoryProviders = providers
+          .filter(provider => {
+            // בדיקה שלספק יש שירותים פעילים בתת-קטגוריה זו
+            const hasActiveServices = services.some(service => 
+              service.provider_id === provider.id && 
+              service.subcategory_id === subcategory.id &&
+              isServiceActive(service, logic)
+            );
+            return hasActiveServices;
+          })
+          .map(provider => {
+            const providerServices = services.filter(service => 
+              service.provider_id === provider.id && 
+              service.subcategory_id === subcategory.id &&
+              isServiceActive(service, logic)
+            );
 
             return {
-              ...subcategory,
-              providers: subcategoryProviders
+              id: provider.id,
+              name: provider.name,
+              description: provider.description || '',
+              verified: provider.is_verified || false,
+              services: providerServices.map(service => ({
+                id: service.id,
+                name: service.name,
+                description: service.description || '',
+                pricing_model: (service.pricing_model as 'fixed' | 'variable' | 'tiered') || 'fixed',
+                price: service.base_price || 0,
+                available: service.is_visible,
+                subcategory_id: service.subcategory_id
+              }))
             };
-          })
-          .filter(subcategory => subcategory.providers.length > 0);
+          });
 
         return {
-          ...category,
-          subcategories: categorySubcategories
+          id: subcategory.id,
+          name: subcategory.name,
+          description: subcategory.description || '',
+          category_id: subcategory.category_id,
+          providers: subcategoryProviders
         };
       })
-      .filter(category => category.subcategories.length > 0);
+      .filter(subcategory => subcategory.providers.length > 0);
 
     return {
-      ...division,
-      categories: divisionCategories
+      id: category.id,
+      name: category.name,
+      description: category.description || '',
+      icon: category.icon || 'FolderOpen',
+      subcategories: categorySubcategories
     };
   })
-  .filter(division => division.categories.length > 0);
+  .filter(category => category.subcategories.length > 0);
 };
 
 // פונקציה לבדיקת שירות פעיל

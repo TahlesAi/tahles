@@ -20,28 +20,25 @@ import NewSystemInitializer from '@/components/system/NewSystemInitializer';
 import { useUpdatedSystemData } from '@/hooks/useUpdatedSystemData';
 
 const MasterDashboardPage: React.FC = () => {
-  const { divisions, loading } = useUpdatedSystemData();
+  const { categories, loading } = useUpdatedSystemData();
   const [activeTab, setActiveTab] = useState('overview');
 
   const calculateStats = () => {
-    if (loading || !divisions.length) {
+    if (loading || !categories.length) {
       return { totalCategories: 0, totalSubcategories: 0, totalProviders: 0, totalServices: 0 };
     }
 
-    let totalCategories = 0;
+    let totalCategories = categories.length;
     let totalSubcategories = 0;
     let totalProviders = 0;
     let totalServices = 0;
 
-    divisions.forEach(division => {
-      totalCategories += division.categories?.length || 0;
-      division.categories?.forEach(category => {
-        totalSubcategories += category.subcategories?.length || 0;
-        category.subcategories?.forEach(subcategory => {
-          totalProviders += subcategory.providers?.length || 0;
-          subcategory.providers?.forEach(provider => {
-            totalServices += provider.services?.length || 0;
-          });
+    categories.forEach(category => {
+      totalSubcategories += category.subcategories?.length || 0;
+      category.subcategories?.forEach(subcategory => {
+        totalProviders += subcategory.providers?.length || 0;
+        subcategory.providers?.forEach(provider => {
+          totalServices += provider.services?.length || 0;
         });
       });
     });
@@ -83,20 +80,13 @@ const MasterDashboardPage: React.FC = () => {
             <Alert className="mb-6 border-green-200 bg-green-50">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
-                <strong>מבנה חדש:</strong> 5 חטיבות עם קטגוריות ותתי קטגוריות מובנות
+                <strong>מבנה חדש:</strong> 6 קטגוריות ראשיות ללא חטיבות
               </AlertDescription>
             </Alert>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Database className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{divisions.length}</div>
-                <div className="text-sm text-gray-600">חטיבות</div>
-              </CardContent>
-            </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <Settings className="h-6 w-6 text-blue-600 mx-auto mb-2" />
@@ -118,6 +108,13 @@ const MasterDashboardPage: React.FC = () => {
                 <div className="text-sm text-gray-600">ספקים</div>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Database className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold">{stats.totalServices}</div>
+                <div className="text-sm text-gray-600">שירותים</div>
+              </CardContent>
+            </Card>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -136,26 +133,26 @@ const MasterDashboardPage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <h4 className="font-medium">נתוני מערכת:</h4>
-                      <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                        <span>חטיבות פעילות</span>
-                        <Badge variant="secondary">{divisions.length}</Badge>
-                      </div>
                       <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                        <span>סך קטגוריות</span>
+                        <span>קטגוריות פעילות</span>
                         <Badge variant="secondary">{stats.totalCategories}</Badge>
                       </div>
                       <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
                         <span>סך תתי קטגוריות</span>
                         <Badge variant="secondary">{stats.totalSubcategories}</Badge>
                       </div>
+                      <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                        <span>ספקים מאומתים</span>
+                        <Badge variant="secondary">{stats.totalProviders}</Badge>
+                      </div>
                     </div>
                     
                     <div className="space-y-3">
-                      <h4 className="font-medium">חטיבות במערכת:</h4>
-                      {divisions.map((division, index) => (
-                        <div key={division.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span>{division.name}</span>
-                          <Badge variant="outline">{division.categories?.length || 0} קטגוריות</Badge>
+                      <h4 className="font-medium">קטגוריות במערכת:</h4>
+                      {categories.map((category, index) => (
+                        <div key={category.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span>{category.name}</span>
+                          <Badge variant="outline">{category.subcategories?.length || 0} תתי קטגוריות</Badge>
                         </div>
                       ))}
                     </div>

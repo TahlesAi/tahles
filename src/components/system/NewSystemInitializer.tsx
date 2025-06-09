@@ -14,42 +14,27 @@ const NewSystemInitializer: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState('');
   const [results, setResults] = useState<{
-    divisionsFound: number;
     categoriesFound: number;
     subcategoriesFound: number;
     conceptsFound: number;
     errors: string[];
-  }>({ divisionsFound: 0, categoriesFound: 0, subcategoriesFound: 0, conceptsFound: 0, errors: [] });
+  }>({ categoriesFound: 0, subcategoriesFound: 0, conceptsFound: 0, errors: [] });
   const { toast } = useToast();
 
   const checkSystemStatus = async () => {
     setIsInitializing(true);
     setStatus('running');
     setProgress(0);
-    setResults({ divisionsFound: 0, categoriesFound: 0, subcategoriesFound: 0, conceptsFound: 0, errors: [] });
+    setResults({ categoriesFound: 0, subcategoriesFound: 0, conceptsFound: 0, errors: [] });
 
     try {
-      setCurrentStep('בודק חטיבות קיימות...');
-      setProgress(25);
-
-      // בדיקת חטיבות
-      const { data: divisions, error: divisionError } = await supabase
-        .from('divisions')
-        .select('id, name')
-        .order('order_index');
-
-      if (divisionError) {
-        throw new Error(`שגיאה בשליפת חטיבות: ${divisionError.message}`);
-      }
-
-      setResults(prev => ({ ...prev, divisionsFound: divisions?.length || 0 }));
       setCurrentStep('בודק קטגוריות...');
-      setProgress(50);
+      setProgress(33);
 
       // בדיקת קטגוריות
       const { data: categories, error: categoryError } = await supabase
         .from('categories')
-        .select('id, name, division_id')
+        .select('id, name')
         .order('order_index');
 
       if (categoryError) {
@@ -58,7 +43,7 @@ const NewSystemInitializer: React.FC = () => {
 
       setResults(prev => ({ ...prev, categoriesFound: categories?.length || 0 }));
       setCurrentStep('בודק תתי קטגוריות...');
-      setProgress(75);
+      setProgress(66);
 
       // בדיקת תתי קטגוריות
       const { data: subcategories, error: subcategoryError } = await supabase
@@ -89,7 +74,7 @@ const NewSystemInitializer: React.FC = () => {
       
       toast({
         title: "בדיקת המערכת הושלמה בהצלחה!",
-        description: `נמצאו: ${divisions?.length} חטיבות, ${categories?.length} קטגוריות, ${subcategories?.length} תתי קטגוריות`,
+        description: `נמצאו: ${categories?.length} קטגוריות, ${subcategories?.length} תתי קטגוריות`,
       });
 
     } catch (error) {
@@ -116,9 +101,8 @@ const NewSystemInitializer: React.FC = () => {
   }, []);
 
   const isSystemReady = () => {
-    return results.divisionsFound === 5 && 
-           results.categoriesFound === 12 && 
-           results.subcategoriesFound >= 80 &&
+    return results.categoriesFound >= 6 && 
+           results.subcategoriesFound >= 20 &&
            results.conceptsFound >= 4;
   };
 
@@ -134,7 +118,7 @@ const NewSystemInitializer: React.FC = () => {
         <Alert className="border-blue-200 bg-blue-50">
           <Settings className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
-            <strong>בדיקת מערכת:</strong> בודק את המבנה החדש עם 5 חטיבות ו-86 תתי קטגוריות
+            <strong>בדיקת מערכת:</strong> בודק את המבנה החדש ללא חטיבות
           </AlertDescription>
         </Alert>
 
@@ -158,9 +142,8 @@ const NewSystemInitializer: React.FC = () => {
             <AlertDescription className={isSystemReady() ? 'text-green-800' : 'text-yellow-800'}>
               <strong>תוצאות בדיקה:</strong>
               <div className="mt-2 space-y-1">
-                <div>📊 {results.divisionsFound} חטיבות נמצאו (צפוי: 5)</div>
-                <div>📁 {results.categoriesFound} קטגוריות נמצאו (צפוי: 12)</div>
-                <div>📂 {results.subcategoriesFound} תתי קטגוריות נמצאו (צפוי: 86)</div>
+                <div>📁 {results.categoriesFound} קטגוריות נמצאו (צפוי: 6)</div>
+                <div>📂 {results.subcategoriesFound} תתי קטגוריות נמצאו (צפוי: 20+)</div>
                 <div>🎯 {results.conceptsFound} קונספטים נמצאו (צפוי: 4+)</div>
                 <div className="font-bold mt-3">
                   {isSystemReady() ? 
@@ -189,13 +172,14 @@ const NewSystemInitializer: React.FC = () => {
         <div className="border rounded-lg p-4 bg-gray-50">
           <h4 className="font-medium mb-2">המבנה החדש של תכל'ס:</h4>
           <div className="space-y-2 text-sm">
-            <div><strong>הפקות</strong> - 4 קטגוריות, 55 תתי קטגוריות</div>
-            <div><strong>העשרה</strong> - 2 קטגוריות, 16 תתי קטגוריות</div>
-            <div><strong>מתנות</strong> - 2 קטגוריות, 7 תתי קטגוריות</div>
-            <div><strong>כרטיסים</strong> - 3 קטגוריות, 12 תתי קטגוריות</div>
-            <div><strong>טיולים</strong> - 2 קטגוריות, 13 תתי קטגוריות</div>
+            <div><strong>לוקיישנים</strong> - אולמות, גנים, חופים</div>
+            <div><strong>מזון ומשקאות</strong> - קייטרינג, שף פרטי, בר</div>
+            <div><strong>מופעים ובמה</strong> - אמנים, זמרים, קוסמים</div>
+            <div><strong>שירותי הפקה</strong> - הגברה, צילום, אבטחה</div>
+            <div><strong>הרצאות והכשרות</strong> - העשרה, גיבוש צוות</div>
+            <div><strong>אטרקציות</strong> - כרטיסים, מתנות, טיולים</div>
             <div className="pt-2 border-t font-bold text-blue-600">
-              סה"כ: 5 חטיבות, 13 קטגוריות, 103 תתי קטגוריות
+              סה"כ: 6 קטגוריות ראשיות
             </div>
           </div>
         </div>
