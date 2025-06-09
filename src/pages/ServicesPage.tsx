@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -47,8 +46,10 @@ const ServicesPage: React.FC = () => {
 
   const fetchServices = async () => {
     try {
-      // שאילתה מפורטת עם JOIN מפורש
-      const { data, error } = await supabase
+      console.log('Starting to fetch services...');
+      
+      // קודם נביא את כל השירותים הבסיסיים
+      const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select(`
           id,
@@ -62,49 +63,101 @@ const ServicesPage: React.FC = () => {
           image_url,
           is_visible,
           calendar_required,
-          providers!services_provider_id_fkey (
-            name,
-            city,
-            rating
-          ),
-          subcategories!services_subcategory_id_fkey (
-            name,
-            categories!subcategories_category_id_fkey (
-              name
-            )
-          )
+          provider_id,
+          subcategory_id
         `)
         .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (servicesError) {
+        console.error('Services query error:', servicesError);
+        throw servicesError;
       }
 
-      console.log('Raw data from Supabase:', data);
+      console.log('Services data:', servicesData);
 
-      // עיבוד הנתונים לפורמט הנדרש
-      const formattedServices = (data || []).map(service => ({
-        id: service.id,
-        name: service.name,
-        description: service.description || '',
-        base_price: service.base_price || 0,
-        price_unit: service.price_unit || 'לאירוע',
-        duration_minutes: service.duration_minutes || 0,
-        min_participants: service.min_participants || 0,
-        max_participants: service.max_participants || 0,
-        image_url: service.image_url || '',
-        is_visible: service.is_visible || false,
-        calendar_required: service.calendar_required || false,
-        provider_name: service.providers?.name || 'לא ידוע',
-        provider_city: service.providers?.city || 'לא צוין',
-        provider_rating: service.providers?.rating || 0,
-        subcategory_name: service.subcategories?.name || 'לא צוין',
-        category_name: service.subcategories?.categories?.name || 'לא צוין'
-      }));
+      if (!servicesData || servicesData.length === 0) {
+        console.log('No services found');
+        setServices([]);
+        return;
+      }
 
-      console.log('Formatted services:', formattedServices);
+      // עכשיו נביא את פרטי הספקים
+      const providerIds = [...new Set(servicesData.map(s => s.provider_id))];
+      const { data: providersData, error: providersError } = await supabase
+        .from('providers')
+        .select('id, name, city, rating')
+        .in('id', providerIds);
+
+      if (providersError) {
+        console.error('Providers query error:', providersError);
+        throw providersError;
+      }
+
+      console.log('Providers data:', providersData);
+
+      // נביא את תתי הקטגוריות והקטגוריות
+      const subcategoryIds = [...new Set(servicesData.map(s => s.subcategory_id).filter(Boolean))];
+      let subcategoriesData: any[] = [];
+      let categoriesData: any[] = [];
+
+      if (subcategoryIds.length > 0) {
+        const { data: subData, error: subError } = await supabase
+          .from('subcategories')
+          .select('id, name, category_id')
+          .in('id', subcategoryIds);
+
+        if (subError) {
+          console.error('Subcategories query error:', subError);
+        } else {
+          subcategoriesData = subData || [];
+          console.log('Subcategories data:', subcategoriesData);
+
+          // נביא את הקטגוריות
+          const categoryIds = [...new Set(subcategoriesData.map(s => s.category_id).filter(Boolean))];
+          if (categoryIds.length > 0) {
+            const { data: catData, error: catError } = await supabase
+              .from('categories')
+              .select('id, name')
+              .in('id', categoryIds);
+
+            if (catError) {
+              console.error('Categories query error:', catError);
+            } else {
+              categoriesData = catData || [];
+              console.log('Categories data:', categoriesData);
+            }
+          }
+        }
+      }
+
+      // עיבוד הנתונים
+      const formattedServices: Service[] = servicesData.map(service => {
+        const provider = providersData?.find(p => p.id === service.provider_id);
+        const subcategory = subcategoriesData.find(s => s.id === service.subcategory_id);
+        const category = subcategory ? categoriesData.find(c => c.id === subcategory.category_id) : null;
+
+        return {
+          id: service.id,
+          name: service.name || 'שירות ללא שם',
+          description: service.description || '',
+          base_price: service.base_price || 0,
+          price_unit: service.price_unit || 'לאירוע',
+          duration_minutes: service.duration_minutes || 0,
+          min_participants: service.min_participants || 0,
+          max_participants: service.max_participants || 0,
+          image_url: service.image_url || '',
+          is_visible: service.is_visible || false,
+          calendar_required: service.calendar_required || false,
+          provider_name: provider?.name || 'ספק לא ידוע',
+          provider_city: provider?.city || 'עיר לא צוינה',
+          provider_rating: provider?.rating || 0,
+          subcategory_name: subcategory?.name || 'תת קטגוריה לא צוינה',
+          category_name: category?.name || 'קטגוריה לא צוינה'
+        };
+      });
+
+      console.log('Final formatted services:', formattedServices);
       setServices(formattedServices);
     } catch (err) {
       console.error('Error fetching services:', err);
