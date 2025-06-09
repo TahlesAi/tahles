@@ -258,8 +258,13 @@ export const useUpdatedSystemData = () => {
         service_id: item.service_id,
         created_at: item.created_at,
         service: item.service ? {
-          ...item.service,
-          pricing_model: (item.service.pricing_model as 'fixed' | 'variable' | 'tiered') || 'fixed'
+          id: item.service.id,
+          name: item.service.name,
+          description: item.service.description || '',
+          pricing_model: (item.service.pricing_model as 'fixed' | 'variable' | 'tiered') || 'fixed',
+          price: item.service.base_price || 0,
+          available: item.service.is_visible || false,
+          subcategory_id: item.service.subcategory_id
         } as UpdatedService : undefined
       }));
       
