@@ -1,8 +1,8 @@
-// מקור יחיד ומאוחד לכל הנתונים במערכת
+// מקור יחיד ומאוחד לכל הנתונים במערכת - ללא חטיבות
 import { HebrewHierarchy } from "@/types";
 
 export const hebrewHierarchy: HebrewHierarchy = {
-  // קטגוריות ראשיות - מאוחדות ומלאות
+  // קטגוריות ראשיות - ללא חטיבות
   categories: [
     {
       id: "locations",
@@ -68,21 +68,27 @@ export const hebrewHierarchy: HebrewHierarchy = {
       ]
     },
     {
-      id: "trips-attractions",
-      name: "טיולים ואטרקציות",
-      icon: "TentTree",
-      description: "חוויות בטבע ואטרקציות מיוחדות",
+      id: "production-services",
+      name: "שירותי הפקה",
+      icon: "Building",
+      description: "שירותים מקצועיים להפקת אירועים",
       subcategories: [
-        { id: "lodging", name: "מקומות לינה", categoryId: "trips-attractions" },
-        { id: "attractions", name: "אטרקציות", categoryId: "trips-attractions" },
-        { id: "tour-guides", name: "מדריכי טיולים", categoryId: "trips-attractions" },
-        { id: "security", name: "אבטחה", categoryId: "trips-attractions" },
-        { id: "transportation", name: "הסעות", categoryId: "trips-attractions" },
-        { id: "atvs", name: "טרקטורונים", categoryId: "trips-attractions" },
-        { id: "hot-air-balloons", name: "בלונים פורחים", categoryId: "trips-attractions" },
-        { id: "water-sports", name: "ספורט ימי", categoryId: "trips-attractions" },
-        { id: "cable-car", name: "רכבל", categoryId: "trips-attractions" },
-        { id: "balloons", name: "בלונים", categoryId: "trips-attractions" }
+        { id: "producers", name: "מפיקים", categoryId: "production-services" },
+        { id: "licensing", name: "שרותי רישוי", categoryId: "production-services" },
+        { id: "security-services", name: "אבטחה", categoryId: "production-services" },
+        { id: "staffing", name: "כוח אדם", categoryId: "production-services" },
+        { id: "sound", name: "הגברה", categoryId: "production-services" },
+        { id: "sound-equipment", name: "ציוד סאונד", categoryId: "production-services" },
+        { id: "hospitality", name: "אירוח", categoryId: "production-services" },
+        { id: "pyrotechnics", name: "פירוטכניקה", categoryId: "production-services" },
+        { id: "rsvp", name: "אישורי הגעה", categoryId: "production-services" },
+        { id: "outdoor-events", name: "אירועי חוץ", categoryId: "production-services" },
+        { id: "box-office", name: "קופות", categoryId: "production-services" },
+        { id: "bathroom-services", name: "שירותים", categoryId: "production-services" },
+        { id: "photographers", name: "צלמים", categoryId: "production-services" },
+        { id: "design", name: "עיצוב ודקורציה", categoryId: "production-services" },
+        { id: "pr-services", name: "שרותי יח\"צ", categoryId: "production-services" },
+        { id: "hosting-services", name: "שרותי הנחיה", categoryId: "production-services" }
       ]
     },
     {
@@ -108,47 +114,32 @@ export const hebrewHierarchy: HebrewHierarchy = {
       ]
     },
     {
-      id: "production-services",
-      name: "שירותי הפקה",
-      icon: "Building",
-      description: "שירותים מקצועיים להפקת אירועים",
+      id: "attractions",
+      name: "אטרקציות",
+      icon: "TentTree",
+      description: "כרטיסים, מתנות, טיולים ואטרקציות",
       subcategories: [
-        { id: "producers", name: "מפיקים", categoryId: "production-services" },
-        { id: "licensing", name: "שרותי רישוי", categoryId: "production-services" },
-        { id: "security-services", name: "אבטחה", categoryId: "production-services" },
-        { id: "staffing", name: "כוח אדם", categoryId: "production-services" },
-        { id: "sound", name: "הגברה", categoryId: "production-services" },
-        { id: "sound-equipment", name: "ציוד סאונד", categoryId: "production-services" },
-        { id: "hospitality", name: "אירוח", categoryId: "production-services" },
-        { id: "pyrotechnics", name: "פירוטכניקה", categoryId: "production-services" },
-        { id: "rsvp", name: "אישורי הגעה", categoryId: "production-services" },
-        { id: "outdoor-events", name: "אירועי חוץ", categoryId: "production-services" },
-        { id: "box-office", name: "קופות", categoryId: "production-services" },
-        { id: "bathroom-services", name: "שירותים", categoryId: "production-services" },
-        { id: "photographers", name: "צלמים", categoryId: "production-services" },
-        { id: "design", name: "עיצוב ודקורציה", categoryId: "production-services" },
-        { id: "pr-services", name: "שרותי יח\"צ", categoryId: "production-services" },
-        { id: "hosting-services", name: "שרותי הנחיה", categoryId: "production-services" }
-      ]
-    },
-    {
-      id: "gifts-tickets",
-      name: "מתנות וכרטיסים",
-      icon: "Gift",
-      description: "מתנות, כרטיסים ותווי קניה",
-      subcategories: [
-        { id: "gift-cards", name: "תווי קניה", categoryId: "gifts-tickets" },
-        { id: "designer-gifts", name: "מתנות מעוצבות", categoryId: "gifts-tickets" },
-        { id: "birth-gifts", name: "מתנות לידה", categoryId: "gifts-tickets" },
-        { id: "event-tickets", name: "כרטיסים לאירועים", categoryId: "gifts-tickets" },
-        { id: "theater-tickets", name: "כרטיסים להצגות", categoryId: "gifts-tickets" },
-        { id: "concert-tickets", name: "כרטיסים להופעות", categoryId: "gifts-tickets" },
-        { id: "retirement-gifts", name: "מתנות פרישה", categoryId: "gifts-tickets" }
+        { id: "event-tickets", name: "כרטיסים לאירועים", categoryId: "attractions" },
+        { id: "show-tickets", name: "כרטיסים להצגות", categoryId: "attractions" },
+        { id: "concert-tickets", name: "כרטיסים להופעות", categoryId: "attractions" },
+        { id: "designer-gifts", name: "מתנות מעוצבות", categoryId: "attractions" },
+        { id: "retirement-gifts", name: "מתנות פרישה", categoryId: "attractions" },
+        { id: "birth-gifts", name: "מתנות לידה", categoryId: "attractions" },
+        { id: "gift-vouchers", name: "תווי קנייה", categoryId: "attractions" },
+        { id: "trips", name: "טיולים", categoryId: "attractions" },
+        { id: "accommodation", name: "מקומות לינה", categoryId: "attractions" },
+        { id: "attractions-sites", name: "אטרקציות", categoryId: "attractions" },
+        { id: "transportation", name: "הסעות", categoryId: "attractions" },
+        { id: "tour-guides", name: "מדריכי טיולים", categoryId: "attractions" },
+        { id: "security-services-attractions", name: "אבטחה", categoryId: "attractions" },
+        { id: "hot-air-balloons", name: "בלונים פורחים", categoryId: "attractions" },
+        { id: "water-sports", name: "ספורט ימי", categoryId: "attractions" },
+        { id: "cable-car", name: "רכבל", categoryId: "attractions" },
+        { id: "atvs", name: "טרקטורונים", categoryId: "attractions" }
       ]
     }
   ],
   
-  // קונספטים מאוחדים - כולל הכל מכל המקורות
   concepts: [
     // קונספטים משפחתיים
     { 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -13,7 +14,8 @@ import {
   MapPin, 
   Star, 
   CheckCircle,
-  AlertTriangle 
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 
 interface Service {
@@ -28,6 +30,7 @@ interface Service {
   image_url: string;
   is_visible: boolean;
   calendar_required: boolean;
+  has_calendar_integration: boolean;
   provider_name: string;
   provider_city: string;
   provider_rating: number;
@@ -39,10 +42,34 @@ const ServicesPage: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchServices();
   }, []);
+
+  const updateCalendarIntegration = async () => {
+    try {
+      setUpdating(true);
+      console.log('Updating calendar integration...');
+      
+      const { error } = await supabase
+        .from('services')
+        .update({ has_calendar_integration: true })
+        .eq('calendar_required', true);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log('Calendar integration updated successfully');
+      await fetchServices(); // רענון הנתונים
+    } catch (err) {
+      console.error('Error updating calendar integration:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const fetchServices = async () => {
     try {
@@ -63,6 +90,7 @@ const ServicesPage: React.FC = () => {
           image_url,
           is_visible,
           calendar_required,
+          has_calendar_integration,
           provider_id,
           subcategory_id
         `)
@@ -149,6 +177,7 @@ const ServicesPage: React.FC = () => {
           image_url: service.image_url || '',
           is_visible: service.is_visible || false,
           calendar_required: service.calendar_required || false,
+          has_calendar_integration: service.has_calendar_integration || false,
           provider_name: provider?.name || 'ספק לא ידוע',
           provider_city: provider?.city || 'עיר לא צוינה',
           provider_rating: provider?.rating || 0,
@@ -196,6 +225,21 @@ const ServicesPage: React.FC = () => {
             <p className="text-gray-600">
               רשימת כל השירותים הזמינים במערכת תכלס - עם מחירים, זמינות ופרטים מלאים
             </p>
+            
+            <div className="flex gap-2 mt-4">
+              <Button 
+                onClick={updateCalendarIntegration}
+                disabled={updating}
+                className="flex items-center gap-2"
+              >
+                {updating ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Calendar className="h-4 w-4" />
+                )}
+                {updating ? 'מעדכן חיבור יומן...' : 'עדכן חיבור יומן'}
+              </Button>
+            </div>
           </div>
 
           {error && (
@@ -232,9 +276,9 @@ const ServicesPage: React.FC = () => {
                         </Badge>
                       )}
                       {service.calendar_required && (
-                        <Badge variant="outline" className="bg-white">
+                        <Badge variant="outline" className={service.has_calendar_integration ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'}>
                           <Calendar className="h-3 w-3 mr-1" />
-                          יומן
+                          {service.has_calendar_integration ? 'יומן מחובר' : 'יומן נדרש'}
                         </Badge>
                       )}
                     </div>

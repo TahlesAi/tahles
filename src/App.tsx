@@ -18,6 +18,7 @@ import ProvidersPage from "./pages/ProvidersPage";
 import AboutPage from "./pages/AboutPage";
 import CategoriesManagementPage from "./pages/admin/CategoriesManagementPage";
 import ServicesPage from "./pages/ServicesPage";
+import LocationsPage from "./pages/LocationsPage";
 
 function App() {
   console.log('App component rendered');
@@ -41,6 +42,7 @@ function App() {
               <Route path="/comparison" element={<ComparisonPage />} />
               <Route path="/booking/:id" element={<BookingPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/categories/locations" element={<LocationsPage />} />
               <Route path="/providers" element={<ProvidersPage />} />
               <Route path="/about" element={<AboutPage />} />
             </Routes>
