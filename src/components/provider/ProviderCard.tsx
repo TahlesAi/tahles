@@ -8,7 +8,8 @@ import {
   MapPin, 
   CheckCircle,
   Eye,
-  Users
+  Users,
+  Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -44,8 +45,8 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
                   className="w-16 h-16 object-cover rounded-lg border"
                 />
               ) : (
-                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Users className="h-8 w-8 text-gray-400" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                  <Users className="h-8 w-8 text-blue-600" />
                 </div>
               )}
             </div>
@@ -87,26 +88,29 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
             </p>
           )}
 
-          {/* Categories */}
-          {(provider.categories || provider.category_ids) && (
-            <div className="flex flex-wrap gap-2">
-              {(provider.categories || provider.category_ids || []).slice(0, 3).map((category: string, index: number) => (
-                <Badge key={category + index} variant="outline" className="text-xs">
-                  {typeof category === 'string' ? category : `קטגוריה ${index + 1}`}
-                </Badge>
-              ))}
-              {(provider.categories || provider.category_ids || []).length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{(provider.categories || provider.category_ids || []).length - 3}
-                </Badge>
-              )}
+          {/* Services Count */}
+          {showServices && (
+            <div className="flex items-center gap-2 text-blue-600 bg-blue-50 rounded-lg p-3">
+              <Package className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {provider.serviceCount || provider.services?.length || 0} שירותים זמינים
+              </span>
             </div>
           )}
 
-          {/* Services Count */}
-          {showServices && provider.services && (
-            <div className="text-sm text-gray-600">
-              {provider.services.length} שירותים זמינים
+          {/* Categories */}
+          {(provider.categories || provider.category_ids || provider.subcategory_ids) && (
+            <div className="flex flex-wrap gap-2">
+              {(provider.categories || provider.category_ids || provider.subcategory_ids || []).slice(0, 2).map((category: string, index: number) => (
+                <Badge key={category + index} variant="outline" className="text-xs">
+                  {typeof category === 'string' ? (category.length > 15 ? 'קטגוריה' : category) : `קטגוריה ${index + 1}`}
+                </Badge>
+              ))}
+              {(provider.categories || provider.category_ids || provider.subcategory_ids || []).length > 2 && (
+                <Badge variant="outline" className="text-xs">
+                  +{(provider.categories || provider.category_ids || provider.subcategory_ids || []).length - 2}
+                </Badge>
+              )}
             </div>
           )}
 

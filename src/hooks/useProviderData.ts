@@ -59,7 +59,7 @@ export const useProviderData = () => {
     try {
       setLoading(true);
       
-      // טעינת ספקים עם תתי קטגוריות
+      // טעינת ספקים עם תתי קטגוריות - בלי JOIN לטבלת subcategories
       const { data: providersData, error: providersError } = await supabase
         .from('providers')
         .select(`
@@ -73,13 +73,12 @@ export const useProviderData = () => {
         throw providersError;
       }
 
-      // טעינת שירותים עם פרטי הספק ותת קטגוריות
+      // טעינת שירותים עם פרטי הספק
       const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select(`
           *,
-          provider:providers(*),
-          subcategory:subcategories(id, name)
+          provider:providers(*)
         `)
         .eq('is_visible', true)
         .order('base_price', { ascending: false });
@@ -143,13 +142,35 @@ export const useProviderData = () => {
   };
 
   const getProvidersBySubcategory = (subcategoryId: string) => {
-    return providers.filter(provider => 
-      provider.subcategory_ids?.includes(subcategoryId) ||
-      services.some(service => 
-        service.provider_id === provider.id && 
-        service.subcategory_id === subcategoryId
-      )
+    console.log('Looking for providers with subcategory:', subcategoryId);
+    
+    // חיפוש ספקים בשתי דרכים:
+    // 1. ספקים שמקושרים ישירות לתת הקטגוריה דרך provider_subcategories
+    const directProviders = providers.filter(provider => 
+      provider.subcategory_ids?.includes(subcategoryId)
     );
+    
+    // 2. ספקים שיש להם שירותים המשוייכים לתת הקטגוריה
+    const serviceProviderIds = services
+      .filter(service => service.subcategory_id === subcategoryId)
+      .map(service => service.provider_id);
+    
+    const serviceProviders = providers.filter(provider => 
+      serviceProviderIds.includes(provider.id)
+    );
+    
+    // איחוד הרשימות ללא כפילויות
+    const allProviders = [...directProviders];
+    serviceProviders.forEach(provider => {
+      if (!allProviders.find(p => p.id === provider.id)) {
+        allProviders.push(provider);
+      }
+    });
+    
+    console.log(`Found ${allProviders.length} providers for subcategory ${subcategoryId}`);
+    console.log('Providers:', allProviders.map(p => ({ id: p.id, name: p.name })));
+    
+    return allProviders;
   };
 
   return {

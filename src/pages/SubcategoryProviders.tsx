@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, User, AlertCircle } from "lucide-react";
+import { ArrowRight, User, AlertCircle, CheckCircle } from "lucide-react";
 import { useProviderData } from '@/hooks/useProviderData';
 import ProviderCard from '@/components/provider/ProviderCard';
 import AdvancedBreadcrumbs from "@/components/navigation/AdvancedBreadcrumbs";
@@ -28,10 +28,24 @@ const SubcategoryProviders = () => {
     const foundProviders = getProvidersBySubcategory(subcategoryId);
     console.log('Found providers:', foundProviders);
     
-    setSubcategoryProviders(foundProviders);
+    // הוספת מידע על השירותים לכל ספק
+    const enrichedProviders = foundProviders.map(provider => {
+      const providerServices = services.filter(service => 
+        service.provider_id === provider.id && 
+        service.subcategory_id === subcategoryId
+      );
+      
+      return {
+        ...provider,
+        services: providerServices,
+        serviceCount: providerServices.length
+      };
+    });
+    
+    setSubcategoryProviders(enrichedProviders);
     
     // קביעת שם תת הקטגוריה
-    if (subcategoryId === 'אמני חושים' || subcategoryId === 'mind-artists') {
+    if (subcategoryId === 'אמני חושים' || subcategoryId === 'mind-artists' || subcategoryId === 'f72b5a67-4564-4f7e-b9ca-ff1052407955') {
       setSubcategoryName('אמני חושים');
     } else {
       setSubcategoryName(subcategoryId);
@@ -121,14 +135,24 @@ const SubcategoryProviders = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {subcategoryProviders.map((provider) => (
-                <ProviderCard
-                  key={provider.id}
-                  provider={provider}
-                  showServices={true}
-                />
-              ))}
+            <div className="space-y-6">
+              {/* הודעת הצלחה אם יש ספקים */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="text-green-800">
+                  נמצאו {subcategoryProviders.length} ספקים עם {subcategoryProviders.reduce((sum, p) => sum + p.serviceCount, 0)} שירותים זמינים בתחום {subcategoryName}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {subcategoryProviders.map((provider) => (
+                  <ProviderCard
+                    key={provider.id}
+                    provider={provider}
+                    showServices={true}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
