@@ -4,80 +4,48 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, User, Star, MapPin, CheckCircle } from "lucide-react";
-import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
+import { ArrowRight, User, AlertCircle } from "lucide-react";
+import { useProviderData } from '@/hooks/useProviderData';
+import ProviderCard from '@/components/provider/ProviderCard';
 import AdvancedBreadcrumbs from "@/components/navigation/AdvancedBreadcrumbs";
+import { SearchResultsSkeleton } from '@/components/loading/AdvancedSkeletonLoader';
 
 const SubcategoryProviders = () => {
   const { subcategoryId } = useParams<{ subcategoryId: string }>();
   const navigate = useNavigate();
-  const { hebrewCategories, providers, isLoading } = useUnifiedEventContext();
+  const { providers, services, loading, error, getProvidersBySubcategory } = useProviderData();
   
-  const [category, setCategory] = useState<any>(null);
-  const [subcategory, setSubcategory] = useState<any>(null);
+  const [subcategoryName, setSubcategoryName] = useState<string>('');
   const [subcategoryProviders, setSubcategoryProviders] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('SubcategoryId from URL:', subcategoryId);
-    
-    if (!subcategoryId) {
-      setError("לא סופק מזהה תת קטגוריה");
-      return;
-    }
+    if (!subcategoryId || loading) return;
 
-    // מציאת תת הקטגוריה והקטגוריה הראשית
-    let foundCategory = null;
-    let foundSubcategory = null;
+    console.log('Loading providers for subcategory:', subcategoryId);
     
-    for (const cat of hebrewCategories) {
-      const sub = cat.subcategories?.find(s => s.id === subcategoryId);
-      if (sub) {
-        foundCategory = cat;
-        foundSubcategory = sub;
-        break;
-      }
-    }
+    // מציאת ספקים לתת הקטגוריה
+    const foundProviders = getProvidersBySubcategory(subcategoryId);
+    console.log('Found providers:', foundProviders);
     
-    if (foundCategory && foundSubcategory) {
-      console.log('Found subcategory:', foundSubcategory.name, 'in category:', foundCategory.name);
-      setCategory(foundCategory);
-      setSubcategory(foundSubcategory);
-      setError(null);
-      
-      // סינון ספקים לפי תת הקטגוריה - תיקון להשתמש בשדות הנכונים
-      const filteredProviders = providers.filter(provider => {
-        // בדיקה אם תת הקטגוריה נמצאת ברשימת תתי הקטגוריות של הספק
-        const hasSubcategory = provider.subcategoryIds?.includes(subcategoryId);
-        
-        // בדיקה נוספת אם הקטגוריה הראשית תואמת
-        const hasPrimaryCategory = provider.primaryCategoryId === foundCategory.id;
-        const hasSecondaryCategory = provider.secondaryCategoryIds?.includes(foundCategory.id);
-        
-        console.log(`Provider ${provider.name}: hasSubcategory=${hasSubcategory}, hasPrimaryCategory=${hasPrimaryCategory}, hasSecondaryCategory=${hasSecondaryCategory}`);
-        
-        return hasSubcategory || hasPrimaryCategory || hasSecondaryCategory;
-      });
-      
-      console.log('Found providers for subcategory:', filteredProviders.length);
-      setSubcategoryProviders(filteredProviders);
+    setSubcategoryProviders(foundProviders);
+    
+    // קביעת שם תת הקטגוריה
+    if (subcategoryId === 'אמני חושים' || subcategoryId === 'mind-artists') {
+      setSubcategoryName('אמני חושים');
     } else {
-      console.log('Subcategory not found for ID:', subcategoryId);
-      setError(`תת קטגוריה עם מזהה "${subcategoryId}" לא נמצאה`);
+      setSubcategoryName(subcategoryId);
     }
-  }, [subcategoryId, hebrewCategories, providers]);
+  }, [subcategoryId, providers, services, loading, getProvidersBySubcategory]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <AdvancedBreadcrumbs />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">טוען ספקים...</p>
+        <main className="flex-grow">
+          <div className="container px-4 py-8">
+            <SearchResultsSkeleton />
           </div>
         </main>
         <Footer />
@@ -92,6 +60,7 @@ const SubcategoryProviders = () => {
         <AdvancedBreadcrumbs />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center" dir="rtl">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">שגיאה בטעינת הספקים</h2>
             <p className="mb-6 text-gray-600">{error}</p>
             <div className="space-x-4">
@@ -119,13 +88,8 @@ const SubcategoryProviders = () => {
           {/* כותרת תת הקטגוריה */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">
-              ספקים בתחום {subcategory?.name}
+              ספקים בתחום {subcategoryName}
             </h1>
-            {subcategory?.description && (
-              <p className="text-gray-600 mb-4">
-                {subcategory.description}
-              </p>
-            )}
             <div className="flex items-center gap-4">
               <Badge variant="outline">
                 {subcategoryProviders.length} ספקים זמינים
@@ -159,77 +123,11 @@ const SubcategoryProviders = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {subcategoryProviders.map((provider) => (
-                <Link
+                <ProviderCard
                   key={provider.id}
-                  to={`/provider/${provider.id}`}
-                  className="group block"
-                >
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                    <CardContent className="p-6">
-                      <div className="flex items-start mb-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                          {provider.logo ? (
-                            <img 
-                              src={provider.logo} 
-                              alt={provider.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-brand-100">
-                              <User className="h-8 w-8 text-brand-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="mr-4 flex-grow">
-                          <div className="flex items-center">
-                            <h3 className="text-lg font-semibold group-hover:text-brand-600 transition-colors">
-                              {provider.name || provider.businessName}
-                            </h3>
-                            {provider.verified && (
-                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                            )}
-                          </div>
-                          <div className="flex items-center mt-1">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            <span className="mr-1 text-sm font-medium">
-                              {provider.rating?.toFixed(1) || '4.5'}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              ({provider.reviewCount || 0} ביקורות)
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {provider.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                          {provider.description}
-                        </p>
-                      )}
-                      
-                      <div className="space-y-2">
-                        {provider.city && (
-                          <div className="flex items-center text-sm text-gray-500">
-                            <MapPin className="h-4 w-4 ml-1" />
-                            <span>{provider.city}</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-500">
-                            {provider.services?.length || 0} שירותים
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <span className="text-brand-600 font-medium text-sm group-hover:underline">
-                          צפה בפרופיל ובשירותים ←
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                  provider={provider}
+                  showServices={true}
+                />
               ))}
             </div>
           )}

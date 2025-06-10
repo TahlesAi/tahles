@@ -13,6 +13,7 @@ interface Provider {
   rating: number;
   review_count: number;
   logo_url?: string;
+  subcategory_ids?: string[];
 }
 
 interface Service {
@@ -30,6 +31,7 @@ interface Service {
   event_types?: string[];
   service_language?: string[];
   has_calendar_integration: boolean;
+  subcategory_id?: string;
   provider?: Provider;
 }
 
@@ -38,6 +40,8 @@ interface SearchFilters {
   ageGroups?: string[];
   minPrice?: number;
   maxPrice?: number;
+  category?: string;
+  subcategory?: string;
   [key: string]: any;
 }
 
@@ -55,10 +59,13 @@ export const useProviderData = () => {
     try {
       setLoading(true);
       
-      // טעינת ספקים
+      // טעינת ספקים עם תתי קטגוריות
       const { data: providersData, error: providersError } = await supabase
         .from('providers')
-        .select('*')
+        .select(`
+          *,
+          provider_subcategories(subcategory_id)
+        `)
         .eq('is_verified', true)
         .order('rating', { ascending: false });
 
@@ -66,12 +73,13 @@ export const useProviderData = () => {
         throw providersError;
       }
 
-      // טעינת שירותים עם פרטי הספק
+      // טעינת שירותים עם פרטי הספק ותת קטגוריות
       const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select(`
           *,
-          provider:providers(*)
+          provider:providers(*),
+          subcategory:subcategories(id, name)
         `)
         .eq('is_visible', true)
         .order('base_price', { ascending: false });
@@ -80,7 +88,13 @@ export const useProviderData = () => {
         throw servicesError;
       }
 
-      setProviders(providersData || []);
+      // עיבוד נתוני הספקים
+      const processedProviders = (providersData || []).map(provider => ({
+        ...provider,
+        subcategory_ids: provider.provider_subcategories?.map((ps: any) => ps.subcategory_id) || []
+      }));
+
+      setProviders(processedProviders);
       setServices(servicesData || []);
       
     } catch (err) {
@@ -117,6 +131,8 @@ export const useProviderData = () => {
             return typeof value === 'number' && service.base_price >= value;
           case 'maxPrice':
             return typeof value === 'number' && service.base_price <= value;
+          case 'subcategory':
+            return service.subcategory_id === value;
           default:
             return true;
         }
@@ -126,12 +142,23 @@ export const useProviderData = () => {
     });
   };
 
+  const getProvidersBySubcategory = (subcategoryId: string) => {
+    return providers.filter(provider => 
+      provider.subcategory_ids?.includes(subcategoryId) ||
+      services.some(service => 
+        service.provider_id === provider.id && 
+        service.subcategory_id === subcategoryId
+      )
+    );
+  };
+
   return {
     providers,
     services,
     loading,
     error,
     searchServices,
+    getProvidersBySubcategory,
     refetch: fetchData
   };
 };
