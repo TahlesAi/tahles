@@ -33,6 +33,14 @@ interface Service {
   provider?: Provider;
 }
 
+interface SearchFilters {
+  eventTypes?: string[];
+  ageGroups?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  [key: string]: any;
+}
+
 export const useProviderData = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -83,7 +91,7 @@ export const useProviderData = () => {
     }
   };
 
-  const searchServices = (query: string, filters: any = {}) => {
+  const searchServices = (query: string, filters: SearchFilters = {}) => {
     if (!query.trim() && !Object.keys(filters).length) {
       return services;
     }
@@ -100,17 +108,15 @@ export const useProviderData = () => {
         
         switch (key) {
           case 'eventTypes':
-            return service.event_types?.some(type => 
-              value.includes(type)
-            );
+            return Array.isArray(value) && Array.isArray(service.event_types) &&
+              service.event_types.some(type => value.includes(type));
           case 'ageGroups':
-            return service.target_age_groups?.some(age => 
-              value.includes(age)
-            );
+            return Array.isArray(value) && Array.isArray(service.target_age_groups) &&
+              service.target_age_groups.some(age => value.includes(age));
           case 'minPrice':
-            return service.base_price >= value;
+            return typeof value === 'number' && service.base_price >= value;
           case 'maxPrice':
-            return service.base_price <= value;
+            return typeof value === 'number' && service.base_price <= value;
           default:
             return true;
         }
