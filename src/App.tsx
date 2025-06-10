@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { EventProvider } from "@/context/EventContext";
+import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
 import Index from "./pages/Index";
 import GuidedSearchPage from "./pages/GuidedSearchPage";
 import SearchResults from "./pages/SearchResults";
@@ -30,33 +32,37 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-background">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/guided-search" element={<GuidedSearchPage />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/search-results" element={<SearchResultsPage />} />
-              <Route path="/service/:id" element={<ServiceDetails />} />
-              <Route path="/provider/:id" element={<ProviderProfile />} />
-              <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
-              <Route path="/admin/system-migration" element={<SystemMigration />} />
-              <Route path="/admin/categories" element={<CategoriesManagementPage />} />
-              <Route path="/system/initialize" element={<SystemInitializationPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/comparison" element={<ComparisonPage />} />
-              <Route path="/booking/:id" element={<BookingPage />} />
-              <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/categories/:id" element={<CategoryPage />} />
-              <Route path="/subcategories/:id" element={<SubcategoryPage />} />
-              <Route path="/categories/locations" element={<LocationsPage />} />
-              <Route path="/providers" element={<ProvidersPage />} />
-              <Route path="/about" element={<AboutPage />} />
-            </Routes>
-            <Toaster position="top-right" />
-          </div>
-        </Router>
+        <EventProvider>
+          <UnifiedEventProvider>
+            <Router>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/guided-search" element={<GuidedSearchPage />} />
+                  <Route path="/search" element={<SearchResults />} />
+                  <Route path="/search-results" element={<SearchResultsPage />} />
+                  <Route path="/service/:id" element={<ServiceDetails />} />
+                  <Route path="/provider/:id" element={<ProviderProfile />} />
+                  <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
+                  <Route path="/admin/system-migration" element={<SystemMigration />} />
+                  <Route path="/admin/categories" element={<CategoriesManagementPage />} />
+                  <Route path="/system/initialize" element={<SystemInitializationPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/comparison" element={<ComparisonPage />} />
+                  <Route path="/booking/:id" element={<BookingPage />} />
+                  <Route path="/categories" element={<CategoriesPage />} />
+                  <Route path="/categories/:id" element={<CategoryPage />} />
+                  <Route path="/subcategories/:id" element={<SubcategoryPage />} />
+                  <Route path="/categories/locations" element={<LocationsPage />} />
+                  <Route path="/providers" element={<ProvidersPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                </Routes>
+                <Toaster position="top-right" />
+              </div>
+            </Router>
+          </UnifiedEventProvider>
+        </EventProvider>
       </AuthProvider>
     </ThemeProvider>
   );
