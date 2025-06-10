@@ -17,18 +17,16 @@ import {
   Building,
   Lightbulb
 } from "lucide-react";
-import GuidedSearchModal from "./GuidedSearch/GuidedSearchModal";
 import useIsMobile from "@/hooks/use-mobile";
 import { useEventContext } from "@/context/EventContext";
 
 const Hero = () => {
-  const [isGuidedSearchOpen, setIsGuidedSearchOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { hebrewCategories, isLoading } = useEventContext();
   
   const handleSearch = () => {
-    setIsGuidedSearchOpen(true);
+    navigate('/guided-search');
   };
   
   // מיפוי אייקונים עבור הקטגוריות העבריות
@@ -117,12 +115,6 @@ const Hero = () => {
             ))}
         </div>
       </div>
-      
-      {/* מודל החיפוש המונחה */}
-      <GuidedSearchModal 
-        isOpen={isGuidedSearchOpen} 
-        onClose={() => setIsGuidedSearchOpen(false)} 
-      />
     </section>
   );
 };

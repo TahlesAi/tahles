@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import GuidedSearchPage from "./pages/GuidedSearchPage";
 import SearchResults from "./pages/SearchResults";
 import { SearchResultsPage } from "./pages/SearchResultsPage";
 import ServiceDetails from "./pages/ServiceDetails";
@@ -33,6 +34,7 @@ function App() {
           <div className="min-h-screen bg-background">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/guided-search" element={<GuidedSearchPage />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/search-results" element={<SearchResultsPage />} />
               <Route path="/service/:id" element={<ServiceDetails />} />
