@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 
 interface ServiceErrorStateProps {
   error: string | null;
+  onRetry?: () => void;
 }
 
-const ServiceErrorState = ({ error }: ServiceErrorStateProps) => {
+const ServiceErrorState = ({ error, onRetry }: ServiceErrorStateProps) => {
   const navigate = useNavigate();
   
   return (
@@ -19,6 +20,12 @@ const ServiceErrorState = ({ error }: ServiceErrorStateProps) => {
         <p className="mb-6 text-gray-600">{error || "לא הצלחנו למצוא את השירות המבוקש"}</p>
         
         <div className="flex flex-col gap-3">
+          {onRetry && (
+            <Button onClick={onRetry} className="flex items-center gap-2">
+              נסה שוב
+            </Button>
+          )}
+          
           <Button onClick={() => navigate(-1)} className="flex items-center gap-2">
             <ArrowRight className="h-4 w-4" />
             חזרה לעמוד הקודם

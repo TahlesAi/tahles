@@ -34,9 +34,19 @@ interface MockService {
   reviewCount: number;
   features?: string[];
   tags?: string[];
+  videoUrl?: string;
   mediaGallery?: Array<{
     type: 'image' | 'video';
     url: string;
+  }>;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  variants?: Array<{
+    name: string;
+    duration: number;
+    basePrice: number;
   }>;
 }
 
@@ -53,75 +63,128 @@ const mockProviders: MockProvider[] = [
     reviewCount: 127,
     isVerified: true,
     logoUrl: '/lovable-uploads/dec3a07c-5760-46de-8667-f64d47df6447.png',
-    website: 'https://netabresler.co.il',
+    website: 'https://neta.live',
     experience: 'מנטליסט מקצועי עם מעל 10 שנות ניסיון במופעים ברחבי הארץ. מתמחה במופעי חברות, אירועים פרטיים והרצאות העשרה.',
     categories: ['מנטליזם', 'אמני חושים', 'מופעים']
   }
 ];
 
-// Mock services data - נטע ברסלר
+// Mock services data - נטע ברסלר - עדכון מלא לפי הדרישות החדשות
 const mockServices: MockService[] = [
   {
-    id: 'neta-nomad-show',
-    name: 'מופע נודד',
-    description: 'מופע מנטליזם אינטימי ומותאם אישית שמתאים לכל מקום - בית, משרד, או כל סביבה קטנה. המופע כולל אינטראקציה ישירה עם הקהל וחוויה אישית בלתי נשכחת.',
+    id: 'neta-8-lies-show',
+    name: 'המופע המרכזי - "8 שקרים"',
+    description: 'מופע במה מרכזי, מנטליזם משולב סיפור אישי. מופע מרתק המשלב טכניקות מנטליזם מתקדמות עם סיפור אישי מרגש שמותיר את הקהל בהלם.',
     provider: 'נטע ברסלר - אמן המחשבות',
     providerId: 'neta-bresler-id',
-    price: 2500,
+    price: '4,000-8,000',
     priceUnit: 'למופע',
-    duration: '45 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
-    category: 'הזמנת מופעים',
-    subcategory: 'אמני חושים',
-    location: 'בכל הארץ',
-    rating: 4.9,
-    reviewCount: 23,
-    features: [
-      'מופע אינטימי ואישי',
-      'מתאים לקבוצות קטנות',
-      'אינטראקציה ישירה עם הקהל',
-      'גמישות במיקום',
-      'חוויה בלתי נשכחת'
-    ],
-    tags: ['מנטליזם', 'אינטימי', 'נייד', 'אירועי חברה'],
-    mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
-    ]
-  },
-  {
-    id: 'neta-stage-show',
-    name: 'מופע במה',
-    description: 'מופע מנטליזם מרכזי ומרשים המתאים לאירועים גדולים. כולל הפעלת קהל רחבה, טריקים מרהיבים וחוויה קולקטיבית מותחת.',
-    provider: 'נטע ברסלר - אמן המחשבות',
-    providerId: 'neta-bresler-id',
-    price: 4500,
-    priceUnit: 'למופע',
-    duration: '60 דקות',
+    duration: '45-90 דקות',
     imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
     category: 'הזמנת מופעים',
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
     rating: 4.9,
     reviewCount: 45,
-    features: [
-      'מופע מרכזי מרהיב',
-      'מתאים לקהל גדול',
-      'טריקים מתקדמים',
-      'הפעלת קהל מקצועית',
-      'חוויה קולקטיבית'
+    videoUrl: 'https://www.youtube.com/watch?v=AS8VdiHcnoM',
+    priceRange: { min: 4000, max: 8000 },
+    variants: [
+      { name: '45 דקות', duration: 45, basePrice: 4000 },
+      { name: '60 דקות', duration: 60, basePrice: 5500 },
+      { name: '75 דקות', duration: 75, basePrice: 6500 },
+      { name: '90 דקות', duration: 90, basePrice: 8000 }
     ],
-    tags: ['מנטליזם', 'במה', 'קהל גדול', 'מרכזי'],
+    features: [
+      'מופע במה מרכזי',
+      'מנטליזם מתקדם',
+      'סיפור אישי מרגש',
+      'מתאים לקהל גדול',
+      'חוויה בלתי נשכחת'
+    ],
+    tags: ['מנטליזם', 'במה', 'מרכזי', 'אירועי חברה', 'מופע', 'חווייתי'],
     mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
+      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'video', url: 'https://www.youtube.com/watch?v=AS8VdiHcnoM' }
+    ]
+  },
+  {
+    id: 'neta-nomad-show',
+    name: 'מופע נודד',
+    description: 'מופע קז\'ואלי בין הקהל - מופע מתגלגל באירוע. נטע מסתובב בין האורחים ומבצע טריקי מנטליזם אישיים שיוצרים חוויה אינטימית וקסומה.',
+    provider: 'נטע ברסלר - אמן המחשבות',
+    providerId: 'neta-bresler-id',
+    price: '3,000-6,000',
+    priceUnit: 'למופע',
+    duration: '45-90 דקות',
+    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    category: 'הזמנת מופעים',
+    subcategory: 'אמני חושים',
+    location: 'בכל הארץ',
+    rating: 4.8,
+    reviewCount: 32,
+    videoUrl: 'https://www.youtube.com/watch?v=EXLmZu-t9-s',
+    priceRange: { min: 3000, max: 6000 },
+    variants: [
+      { name: '45 דקות', duration: 45, basePrice: 3000 },
+      { name: '60 דקות', duration: 60, basePrice: 4000 },
+      { name: '75 דקות', duration: 75, basePrice: 5000 },
+      { name: '90 דקות', duration: 90, basePrice: 6000 }
+    ],
+    features: [
+      'מופע אינטימי ואישי',
+      'מתאים לקבוצות קטנות ובינוניות',
+      'אינטראקציה ישירה עם האורחים',
+      'גמישות במיקום',
+      'חוויה קז\'ואלית וחמה'
+    ],
+    tags: ['מנטליזם', 'נודד', 'אינטימי', 'אירועי חברה', 'משפחתי', 'חווייתי'],
+    mediaGallery: [
+      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'video', url: 'https://www.youtube.com/watch?v=EXLmZu-t9-s' }
+    ]
+  },
+  {
+    id: 'neta-second-thought-lecture',
+    name: 'הרצאה - "במחשבה שנייה"',
+    description: 'הרצאה חווייתית על שליטה בתודעה. שילוב ייחודי של מנטליזם והרצאה מעמיקה על כוח המחשבה, קריאת אנשים ופסיכולוגיה יישומית.',
+    provider: 'נטע ברסלר - אמן המחשבות',
+    providerId: 'neta-bresler-id',
+    price: '6,500-15,000',
+    priceUnit: 'להרצאה',
+    duration: '45-90 דקות',
+    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    category: 'הרצאות',
+    subcategory: 'אמני חושים',
+    location: 'בכל הארץ',
+    rating: 4.9,
+    reviewCount: 28,
+    videoUrl: 'https://www.youtube.com/watch?v=50uD8u1Yufg',
+    priceRange: { min: 6500, max: 15000 },
+    variants: [
+      { name: 'גרסה קצרה - 45 דקות', duration: 45, basePrice: 6500 },
+      { name: 'גרסה ארוכה - 90 דקות', duration: 90, basePrice: 10000 },
+      { name: 'גרסה מותאמת אישית', duration: 90, basePrice: 15000 }
+    ],
+    features: [
+      'שילוב מנטליזם והרצאה',
+      'תובנות פסיכולוגיות מעמיקות',
+      'מתאים לכנסים עסקיים',
+      'תוכן העשרה איכותי',
+      'מעורבות הקהל גבוהה'
+    ],
+    tags: ['הרצאה', 'מנטליזם', 'עסקי', 'העשרה', 'אירועי חברה', 'כנסים'],
+    mediaGallery: [
+      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'video', url: 'https://www.youtube.com/watch?v=50uD8u1Yufg' }
     ]
   },
   {
     id: 'neta-combined-show',
     name: 'מופע משולב',
-    description: 'שילוב מושלם של מופע קבלת פנים ומופע מרכזי. מתחיל עם מנטליזם אינטימי בין האורחים ומסתיים במופע מרכזי מרהיב.',
+    description: 'מופע במה 45 דק\' + מופע נודד 45 דק\'. שילוב מושלם של מופע מרכזי מרהיב ומופע אינטימי בין האורחים - הטוב משני העולמות.',
     provider: 'נטע ברסלר - אמן המחשבות',
     providerId: 'neta-bresler-id',
-    price: 6000,
+    price: '5,000-10,000',
     priceUnit: 'למופע',
     duration: '90 דקות',
     imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
@@ -129,69 +192,21 @@ const mockServices: MockService[] = [
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
     rating: 5.0,
-    reviewCount: 34,
+    reviewCount: 19,
+    priceRange: { min: 5000, max: 10000 },
+    variants: [
+      { name: 'חבילה בסיסית', duration: 90, basePrice: 5000 },
+      { name: 'חבילה מורחבת', duration: 90, basePrice: 7500 },
+      { name: 'חבילה פרימיום', duration: 90, basePrice: 10000 }
+    ],
     features: [
       'שילוב של שני מופעים',
-      'קבלת פנים אינטימית',
-      'מופע מרכזי מרהיב',
+      'מופע במה מרכזי 45 דק\'',
+      'מופע נודד אינטימי 45 דק\'',
       'ערך מוסף מקסימלי',
-      'חוויה מקיפה'
+      'חוויה מקיפה ומגוונת'
     ],
-    tags: ['מנטליזם', 'משולב', 'קבלת פנים', 'מרכזי'],
-    mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
-    ]
-  },
-  {
-    id: 'neta-lecture',
-    name: 'הרצאה במחשבה שניה',
-    description: 'הרצאה מרתקת המשלבת מנטליזם עם תובנות על כוח המחשבה, קריאת אנשים ופסיכולוגיה. מתאימה לכנסים עסקיים ואירועי העשרה.',
-    provider: 'נטע ברסלר - אמן המחשבות',
-    providerId: 'neta-bresler-id',
-    price: 3500,
-    priceUnit: 'להרצאה',
-    duration: '50 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
-    category: 'הרצאות',
-    subcategory: 'אמני חושים',
-    location: 'בכל הארץ',
-    rating: 4.8,
-    reviewCount: 19,
-    features: [
-      'שילוב מנטליזם והרצאה',
-      'תובנות פסיכולוגיות',
-      'מתאים לכנסים עסקיים',
-      'תוכן העשרה',
-      'מעורבות הקהל'
-    ],
-    tags: ['הרצאה', 'מנטליזם', 'עסקי', 'העשרה'],
-    mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
-    ]
-  },
-  {
-    id: 'neta-error-show',
-    name: 'מופע ERROR - לחברות היטק',
-    description: 'מופע מנטליזם ייחודי המותאם במיוחד לעולם ההיטק והטכנולוגיה. כולל התייחסויות לעולם הדיגיטלי, בינה מלאכותית וחשיבה אלגוריתמית.',
-    provider: 'נטע ברסלר - אמן המחשבות',
-    providerId: 'neta-bresler-id',
-    price: 5500,
-    priceUnit: 'למופע',
-    duration: '55 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
-    category: 'הזמנת מופעים',
-    subcategory: 'אמני חושים',
-    location: 'בכל הארץ',
-    rating: 4.9,
-    reviewCount: 28,
-    features: [
-      'מותאם לעולם ההיטק',
-      'התייחסויות טכנולוגיות',
-      'תוכן מקורי ויצירתי',
-      'רלוונטי לחברות היטק',
-      'שפה מקצועית'
-    ],
-    tags: ['מנטליזם', 'היטק', 'טכנולוגיה', 'חדשני'],
+    tags: ['מנטליזם', 'משולב', 'במה', 'נודד', 'אירועי חברה', 'מופע'],
     mediaGallery: [
       { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
     ]
@@ -217,6 +232,52 @@ export const getAllProviders = (): MockProvider[] => {
 
 export const getAllServices = (): MockService[] => {
   return mockServices;
+};
+
+// Featured services for homepage
+export const getFeaturedServices = (): MockService[] => {
+  return mockServices.slice(0, 4);
+};
+
+// Search functionality
+export const searchServices = (query: string, filters?: any): MockService[] => {
+  let results = [...mockServices];
+  
+  if (query && query.trim()) {
+    const searchTerm = query.toLowerCase().trim();
+    results = results.filter(service => 
+      service.name.toLowerCase().includes(searchTerm) ||
+      service.description.toLowerCase().includes(searchTerm) ||
+      (service.tags && service.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+    );
+  }
+  
+  return results;
+};
+
+// Guided search recommendations
+export const getGuidedSearchRecommendations = (criteria: any): MockService[] => {
+  let results = [...mockServices];
+  
+  // Filter based on criteria
+  if (criteria.category) {
+    results = results.filter(service => 
+      service.category === criteria.category || 
+      service.subcategory === criteria.subcategory
+    );
+  }
+  
+  if (criteria.priceRange) {
+    results = results.filter(service => {
+      if (service.priceRange) {
+        return service.priceRange.min >= criteria.priceRange.min &&
+               service.priceRange.max <= criteria.priceRange.max;
+      }
+      return true;
+    });
+  }
+  
+  return results.slice(0, 6);
 };
 
 // Export the data

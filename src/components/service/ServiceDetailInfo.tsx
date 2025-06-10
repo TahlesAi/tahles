@@ -1,119 +1,131 @@
 
-import React from "react";
-import { Check, Clock, Users, Star, MapPin } from "lucide-react";
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Users, MapPin, Tag, Star, PlayCircle } from "lucide-react";
 
 interface ServiceDetailInfoProps {
   service: any;
-  showMedia?: boolean;
 }
 
-const ServiceDetailInfo = ({ service, showMedia = true }: ServiceDetailInfoProps) => {
-  // לוודא שהשדות קיימים לפני שימוש בהם
-  const features = service.features || [];
-  const eventTypes = service.eventTypes || service.event_types || [];
-  const technicalRequirements = service.technicalRequirements || service.technical_requirements || [];
-  const audienceAges = service.audienceAges || service.audience_ages || [];
-
+const ServiceDetailInfo = ({ service }: ServiceDetailInfoProps) => {
   return (
-    <div className="space-y-8">
-      {/* מידע טכני בכרטיסים */}
-      {(service.duration || service.audienceSize || audienceAges.length > 0) && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-brand-600" />
-            מידע טכני
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {service.duration && (
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">משך זמן</span>
-                </div>
-                <span className="text-lg font-semibold text-blue-900">{service.duration}</span>
-              </div>
-            )}
-            
-            {service.audienceSize && (
-              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">גודל קהל מקסימלי</span>
-                </div>
-                <span className="text-lg font-semibold text-green-900">{service.audienceSize}</span>
-              </div>
-            )}
-            
-            {audienceAges.length > 0 && (
-              <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <Star className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">מתאים לגילאים</span>
-                </div>
-                <span className="text-lg font-semibold text-purple-900">{audienceAges.join(", ")}</span>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Description */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">תיאור השירות</h3>
+          <p className="text-gray-700 leading-relaxed">{service.description}</p>
+        </CardContent>
+      </Card>
+
+      {/* Video Link */}
+      {service.videoUrl && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <PlayCircle className="h-5 w-5" />
+              סרטון המופע
+            </h3>
+            <a 
+              href={service.videoUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 underline"
+            >
+              צפה בסרטון ביוטיוב
+              <PlayCircle className="h-4 w-4" />
+            </a>
+          </CardContent>
+        </Card>
       )}
-      
-      {/* סוגי אירועים */}
-      {eventTypes.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-brand-600" />
-            מתאים לאירועים
-          </h2>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex flex-wrap gap-2">
-              {eventTypes.map((type: string, idx: number) => (
-                <span 
-                  key={idx}
-                  className="px-3 py-2 bg-white border border-brand-200 text-brand-800 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* דרישות טכניות */}
-      {technicalRequirements.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">דרישות טכניות</h2>
-          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+
+      {/* Features */}
+      {service.features && service.features.length > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">מה כלול בשירות</h3>
             <ul className="space-y-2">
-              {technicalRequirements.map((req: string, idx: number) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-gray-700">{req}</span>
+              {service.features.map((feature: string, index: number) => (
+                <li key={index} className="flex items-center gap-2">
+                  <Star className="h-4 w-4 text-green-500" />
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
-      
-      {/* מאפיינים/יתרונות */}
-      {features.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Check className="h-5 w-5 text-brand-600" />
-            מאפיינים נוספים
-          </h2>
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {features.map((feature: string, idx: number) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span className="text-gray-700">{feature}</span>
+
+      {/* Service Details */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">פרטי השירות</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {service.duration && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-gray-400" />
+                <span className="font-medium">משך:</span>
+                <span>{service.duration}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-400" />
+              <span className="font-medium">מיקום:</span>
+              <span>{service.location || 'בכל הארץ'}</span>
+            </div>
+            
+            {service.priceRange && (
+              <div className="flex items-center gap-2">
+                <Tag className="h-4 w-4 text-gray-400" />
+                <span className="font-medium">טווח מחירים:</span>
+                <span>₪{service.priceRange.min.toLocaleString()} - ₪{service.priceRange.max.toLocaleString()}</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Price Variants */}
+      {service.variants && service.variants.length > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">אפשרויות מחיר</h3>
+            <div className="space-y-3">
+              {service.variants.map((variant: any, index: number) => (
+                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <div className="font-medium">{variant.name}</div>
+                    <div className="text-sm text-gray-600">{variant.duration} דקות</div>
+                  </div>
+                  <div className="text-lg font-semibold text-green-600">
+                    ₪{variant.basePrice.toLocaleString()}
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+            <p className="text-sm text-gray-500 mt-3">
+              * המחירים הסופיים עשויים להשתנות בהתאם למרחק, גודל קהל ודרישות מיוחדות
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tags */}
+      {service.tags && service.tags.length > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">תגיות</h3>
+            <div className="flex flex-wrap gap-2">
+              {service.tags.map((tag: string, index: number) => (
+                <Badge key={index} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

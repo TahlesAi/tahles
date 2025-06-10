@@ -10,8 +10,8 @@ import ServiceDetailInfo from "@/components/service/ServiceDetailInfo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { getServiceById, getProviderById } from "@/lib/unifiedMockData";
-import { ServiceLoadingState } from "@/components/service/ServiceLoadingState";
-import { ServiceErrorState } from "@/components/service/ServiceErrorState";
+import ServiceLoadingState from "@/components/service/ServiceLoadingState";
+import ServiceErrorState from "@/components/service/ServiceErrorState";
 
 const EnhancedServiceDetails = () => {
   const { serviceId } = useParams();
@@ -20,6 +20,7 @@ const EnhancedServiceDetails = () => {
   const [provider, setProvider] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (serviceId) {
@@ -50,6 +51,10 @@ const EnhancedServiceDetails = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleSave = () => {
+    setIsSaved(!isSaved);
   };
 
   if (isLoading) {
@@ -133,6 +138,10 @@ const EnhancedServiceDetails = () => {
                 <ServiceBookingCard 
                   service={service}
                   provider={provider}
+                  averageRating={averageRating}
+                  reviewCount={reviewCount}
+                  isSaved={isSaved}
+                  toggleSave={toggleSave}
                 />
               </div>
             </div>
