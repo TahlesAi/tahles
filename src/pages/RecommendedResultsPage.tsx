@@ -42,7 +42,7 @@ const RecommendedResultsPage = () => {
     subcategory: searchCriteria.subcategory
   });
 
-  // אלגוריתם דירוג חכם
+  // אלגוריתם דירוג חכם - מתוקן
   const rankedResults = allResults.map(service => {
     let score = 0;
     
@@ -52,23 +52,25 @@ const RecommendedResultsPage = () => {
     // דירוג לפי מספר ביקורות
     score += Math.min((service.reviewCount || 0) / 10, 5);
     
-    // דירוג לפי התאמה לקהל יעד
-    if (service.suitableFor?.includes(searchCriteria.ageGroup)) score += 3;
+    // דירוג לפי התאמה לקהל יעד - מתוקן
+    if (service.tags && service.tags.includes(searchCriteria.ageGroup)) score += 3;
     
-    // דירוג לפי התאמה לסוג מופע
-    if (searchCriteria.isReception && service.isReceptionService) score += 5;
+    // דירוג לפי התאמה לסוג מופע - מתוקן
+    if (searchCriteria.isReception && service.tags && service.tags.includes('קבלת פנים')) score += 5;
     if (searchCriteria.isMainShow) score += 3;
     
     // דירוג לפי מיקום (סימולציה)
     score += Math.random() * 2;
     
-    // דירוג לפי תקציב
-    if (searchCriteria.budgetLimit && service.price <= searchCriteria.budgetLimit) {
-      score += 4;
+    // דירוג לפי תקציב - מתוקן
+    if (searchCriteria.budgetLimit && service.priceRange) {
+      if (service.priceRange.min <= searchCriteria.budgetLimit) {
+        score += 4;
+      }
     }
     
-    // בונוס לשירותים מומלצים
-    if (service.featured) score += 3;
+    // בונוס לשירותים מומלצים - מתוקן
+    if (service.features && service.features.length > 0) score += 3;
     
     return {
       ...service,
