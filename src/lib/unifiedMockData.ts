@@ -1,3 +1,4 @@
+
 // Mock data provider for enhanced service and provider profiles
 
 interface MockProvider {
@@ -104,6 +105,7 @@ const mockServices: MockService[] = [
     mediaGallery: [
       { type: 'image', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&h=400&fit=crop' },
       { type: 'image', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=AS8VdiHcnoM' }
     ]
   },
@@ -141,6 +143,7 @@ const mockServices: MockService[] = [
     mediaGallery: [
       { type: 'image', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop' },
       { type: 'image', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=EXLmZu-t9-s' }
     ]
   },
@@ -177,6 +180,7 @@ const mockServices: MockService[] = [
     mediaGallery: [
       { type: 'image', url: 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=600&h=400&fit=crop' },
       { type: 'image', url: 'https://images.unsplash.com/photo-1560523159-6b681bb1e02e?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=50uD8u1Yufg' }
     ]
   },
@@ -211,7 +215,8 @@ const mockServices: MockService[] = [
     tags: ['מנטליזם', 'משולב', 'במה', 'נודד', 'אירועי חברה', 'מופע'],
     mediaGallery: [
       { type: 'image', url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
-      { type: 'image', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop' }
+      { type: 'image', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&h=400&fit=crop' }
     ]
   }
 ];

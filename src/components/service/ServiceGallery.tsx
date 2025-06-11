@@ -16,6 +16,11 @@ interface ServiceGalleryProps {
 const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+
+  const handleImageError = (index: number) => {
+    setImageErrors(prev => new Set([...prev, index]));
+  };
 
   const handlePrevImage = () => {
     setSelectedImageIndex((prev) => (prev === 0 ? mediaGallery.length - 1 : prev - 1));
@@ -29,7 +34,10 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
     setIsFullscreen(true);
   };
 
-  if (mediaGallery.length === 0) {
+  // Fallback image for broken URLs
+  const getFallbackImage = () => "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop";
+
+  if (!mediaGallery || mediaGallery.length === 0) {
     return (
       <div className="relative rounded-xl overflow-hidden mb-8 aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
         <div className="text-center">
@@ -40,20 +48,24 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
     );
   }
 
+  const currentMedia = mediaGallery[selectedImageIndex];
+  const isCurrentImageError = imageErrors.has(selectedImageIndex);
+
   return (
     <>
       {/* Main Gallery */}
       <div className="relative rounded-xl overflow-hidden mb-6 aspect-[16/9] bg-black group">
-        {mediaGallery[selectedImageIndex].type === 'image' ? (
+        {currentMedia.type === 'image' ? (
           <img 
-            src={mediaGallery[selectedImageIndex].url || "/placeholder.svg"} 
+            src={isCurrentImageError ? getFallbackImage() : currentMedia.url} 
             alt={serviceName}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => handleImageError(selectedImageIndex)}
           />
         ) : (
           <div className="w-full h-full bg-black flex items-center justify-center">
             <video 
-              src={mediaGallery[selectedImageIndex].url} 
+              src={currentMedia.url} 
               controls 
               className="max-h-full max-w-full"
             />
@@ -62,7 +74,7 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
         
         {/* Media type indicator */}
         <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs flex items-center backdrop-blur-sm">
-          {mediaGallery[selectedImageIndex].type === 'image' ? (
+          {currentMedia.type === 'image' ? (
             <>
               <ImageIcon className="h-3 w-3 ml-1" />
               תמונה
@@ -76,7 +88,7 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
         </div>
 
         {/* Fullscreen button */}
-        {mediaGallery[selectedImageIndex].type === 'image' && (
+        {currentMedia.type === 'image' && (
           <Button
             size="icon"
             variant="outline"
@@ -132,9 +144,10 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
             >
               {media.type === 'image' ? (
                 <img 
-                  src={media.url} 
+                  src={imageErrors.has(idx) ? getFallbackImage() : media.url} 
                   alt={`תמונה ${idx + 1}`}
                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                  onError={() => handleImageError(idx)}
                 />
               ) : (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
@@ -151,15 +164,16 @@ const ServiceGallery = ({ mediaGallery, serviceName }: ServiceGalleryProps) => {
       )}
 
       {/* Fullscreen Modal */}
-      {isFullscreen && mediaGallery[selectedImageIndex].type === 'image' && (
+      {isFullscreen && currentMedia.type === 'image' && (
         <div 
           className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
           onClick={() => setIsFullscreen(false)}
         >
           <img 
-            src={mediaGallery[selectedImageIndex].url} 
+            src={isCurrentImageError ? getFallbackImage() : currentMedia.url} 
             alt={serviceName}
             className="max-w-full max-h-full object-contain"
+            onError={() => handleImageError(selectedImageIndex)}
           />
           <Button
             size="icon"
