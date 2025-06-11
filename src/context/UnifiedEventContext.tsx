@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ExtendedProviderProfile, ExtendedServiceProfile } from '@/types/extendedSchema';
 import { Category, Subcategory } from '@/types/unified';
@@ -46,12 +45,37 @@ interface UnifiedEventContextProps {
   topRatedProviders: ExtendedProviderProfile[];
 }
 
+// Default context value for fallback
+const defaultUnifiedEventContextValue: UnifiedEventContextProps = {
+  providers: [],
+  services: [],
+  categories: [],
+  subcategories: [],
+  isLoading: false,
+  error: null,
+  searchServices: () => [],
+  getServiceById: () => undefined,
+  getProviderById: () => undefined,
+  getServicesByProvider: () => [],
+  loadMoreProviders: () => {},
+  loadMoreServices: () => {},
+  hasMoreProviders: false,
+  hasMoreServices: false,
+  hebrewCategories: hebrewHierarchy.categories,
+  hebrewConcepts: hebrewHierarchy.concepts,
+  refreshData: async () => {},
+  createSoftHold: () => null,
+  releaseSoftHold: () => false,
+  topRatedProviders: []
+};
+
 const UnifiedEventContext = createContext<UnifiedEventContextProps | undefined>(undefined);
 
 export const useUnifiedEventContext = () => {
   const context = useContext(UnifiedEventContext);
   if (!context) {
-    throw new Error("useUnifiedEventContext must be used within UnifiedEventProvider");
+    console.warn("useUnifiedEventContext called outside UnifiedEventProvider - returning default values");
+    return defaultUnifiedEventContextValue;
   }
   return context;
 };

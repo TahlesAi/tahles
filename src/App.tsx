@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { EventProvider } from "@/context/EventContext";
+import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
 import './App.css';
 
 // Import mock calendar data to initialize Neta's availability
@@ -23,21 +24,23 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <EventProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/search" element={<SearchResultsPage />} />
-            <Route path="/service/:id" element={<ServiceDetails />} />
-            <Route path="/enhanced-service/:serviceId" element={<EnhancedServiceDetails />} />
-            <Route path="/provider/:id" element={<ProviderProfile />} />
-            <Route path="/booking/:serviceId" element={<BookingPage />} />
-            <Route path="/recommended" element={<RecommendedResultsPage />} />
-            <Route path="/compare" element={<ComparisonPage />} />
-          </Routes>
-          <Toaster />
-        </Router>
-      </EventProvider>
+      <UnifiedEventProvider>
+        <EventProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/search" element={<SearchResultsPage />} />
+              <Route path="/service/:id" element={<ServiceDetails />} />
+              <Route path="/enhanced-service/:serviceId" element={<EnhancedServiceDetails />} />
+              <Route path="/provider/:id" element={<ProviderProfile />} />
+              <Route path="/booking/:serviceId" element={<BookingPage />} />
+              <Route path="/recommended" element={<RecommendedResultsPage />} />
+              <Route path="/compare" element={<ComparisonPage />} />
+            </Routes>
+            <Toaster />
+          </Router>
+        </EventProvider>
+      </UnifiedEventProvider>
     </QueryClientProvider>
   );
 }
