@@ -40,7 +40,7 @@ const CalendarAvailabilityManager: React.FC<CalendarAvailabilityManagerProps> = 
     if (!selectedDate) return;
     
     try {
-      const availableSlots = await fetchAvailableSlots(selectedDate, newSlot.serviceArea);
+      const availableSlots = await fetchAvailableSlots(selectedDate);
       setSlots(availableSlots);
     } catch (error) {
       toast({

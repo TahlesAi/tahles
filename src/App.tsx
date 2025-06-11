@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -7,13 +8,13 @@ import './App.css';
 // Import mock calendar data to initialize Neta's availability
 import '@/lib/mockCalendarData';
 
-import HomePage from './pages/HomePage';
-import SearchResultsPage from './pages/SearchResultsPage';
+import Index from './pages/Index';
+import { SearchResultsPage } from './pages/SearchResultsPage';
 import ServiceDetails from './pages/ServiceDetails';
-import ProviderDetails from './pages/ProviderDetails';
+import ProviderProfile from './pages/ProviderProfile';
 import BookingPage from './pages/BookingPage';
 import RecommendedResultsPage from './pages/RecommendedResultsPage';
-import CompareServicesPage from './pages/CompareServicesPage';
+import ComparisonPage from './pages/ComparisonPage';
 import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
 
 const queryClient = new QueryClient();
@@ -23,14 +24,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Index />} />
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/service/:id" element={<ServiceDetails />} />
           <Route path="/enhanced-service/:serviceId" element={<EnhancedServiceDetails />} />
-          <Route path="/provider/:id" element={<ProviderDetails />} />
+          <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/booking/:serviceId" element={<BookingPage />} />
           <Route path="/recommended" element={<RecommendedResultsPage />} />
-          <Route path="/compare" element={<CompareServicesPage />} />
+          <Route path="/compare" element={<ComparisonPage />} />
         </Routes>
         <Toaster />
       </Router>
@@ -39,4 +40,3 @@ function App() {
 }
 
 export default App;
-
