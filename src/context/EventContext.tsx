@@ -32,12 +32,41 @@ interface EventContextProps {
   hebrewConcepts: typeof hebrewHierarchy.concepts;
 }
 
+// Default context value for fallback
+const defaultEventContextValue: EventContextProps = {
+  categories: [],
+  subcategories: [],
+  serviceTypes: [],
+  providers: [],
+  services: [],
+  featuredServices: [],
+  topProviders: [],
+  isLoading: false,
+  error: null,
+  selectedCategory: null,
+  selectedSubcategory: null,
+  selectedServiceType: null,
+  setSelectedCategory: () => {},
+  setSelectedSubcategory: () => {},
+  setSelectedServiceType: () => {},
+  getProvidersByServiceType: () => [],
+  getProvidersBySubcategory: () => [],
+  getServicesByProvider: () => [],
+  getServicesBySubcategory: () => [],
+  getSubcategoriesByCategory: () => [],
+  getServiceTypesBySubcategory: () => [],
+  refreshData: async () => {},
+  hebrewCategories: hebrewHierarchy.categories,
+  hebrewConcepts: hebrewHierarchy.concepts
+};
+
 const EventContext = createContext<EventContextProps | undefined>(undefined);
 
 export const useEventContext = () => {
   const context = useContext(EventContext);
   if (!context) {
-    throw new Error("useEventContext must be used within an EventProvider");
+    console.warn("useEventContext called outside EventProvider - returning default values");
+    return defaultEventContextValue;
   }
   return context;
 };
