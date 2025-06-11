@@ -1,4 +1,3 @@
-
 // Mock data provider for enhanced service and provider profiles
 
 interface MockProvider {
@@ -62,14 +61,14 @@ const mockProviders: MockProvider[] = [
     rating: 4.9,
     reviewCount: 127,
     isVerified: true,
-    logoUrl: '/lovable-uploads/dec3a07c-5760-46de-8667-f64d47df6447.png',
+    logoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
     website: 'https://neta.live',
     experience: 'מנטליסט מקצועי עם מעל 10 שנות ניסיון במופעים ברחבי הארץ. מתמחה במופעי חברות, אירועים פרטיים והרצאות העשרה.',
     categories: ['מנטליזם', 'אמני חושים', 'מופעים']
   }
 ];
 
-// Mock services data - נטע ברסלר - עדכון מלא לפי הדרישות החדשות
+// Mock services data - נטע ברסלר - עדכון מלא עם תמונות זמינות
 const mockServices: MockService[] = [
   {
     id: 'neta-8-lies-show',
@@ -80,7 +79,7 @@ const mockServices: MockService[] = [
     price: '4,000-8,000',
     priceUnit: 'למופע',
     duration: '45-90 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&h=400&fit=crop',
     category: 'הזמנת מופעים',
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
@@ -103,7 +102,8 @@ const mockServices: MockService[] = [
     ],
     tags: ['מנטליזם', 'במה', 'מרכזי', 'אירועי חברה', 'מופע', 'חווייתי'],
     mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=AS8VdiHcnoM' }
     ]
   },
@@ -116,7 +116,7 @@ const mockServices: MockService[] = [
     price: '3,000-6,000',
     priceUnit: 'למופע',
     duration: '45-90 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop',
     category: 'הזמנת מופעים',
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
@@ -139,7 +139,8 @@ const mockServices: MockService[] = [
     ],
     tags: ['מנטליזם', 'נודד', 'אינטימי', 'אירועי חברה', 'משפחתי', 'חווייתי'],
     mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=EXLmZu-t9-s' }
     ]
   },
@@ -152,7 +153,7 @@ const mockServices: MockService[] = [
     price: '6,500-15,000',
     priceUnit: 'להרצאה',
     duration: '45-90 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    imageUrl: 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=600&h=400&fit=crop',
     category: 'הרצאות',
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
@@ -174,7 +175,8 @@ const mockServices: MockService[] = [
     ],
     tags: ['הרצאה', 'מנטליזם', 'עסקי', 'העשרה', 'אירועי חברה', 'כנסים'],
     mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1560523159-6b681bb1e02e?w=600&h=400&fit=crop' },
       { type: 'video', url: 'https://www.youtube.com/watch?v=50uD8u1Yufg' }
     ]
   },
@@ -187,7 +189,7 @@ const mockServices: MockService[] = [
     price: '5,000-10,000',
     priceUnit: 'למופע',
     duration: '90 דקות',
-    imageUrl: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png',
+    imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop',
     category: 'הזמנת מופעים',
     subcategory: 'אמני חושים',
     location: 'בכל הארץ',
@@ -208,7 +210,8 @@ const mockServices: MockService[] = [
     ],
     tags: ['מנטליזם', 'משולב', 'במה', 'נודד', 'אירועי חברה', 'מופע'],
     mediaGallery: [
-      { type: 'image', url: '/lovable-uploads/33049452-08d3-4f00-b0b1-98fe7d42c906.png' }
+      { type: 'image', url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop' }
     ]
   }
 ];
