@@ -1,71 +1,42 @@
-
+import React from 'react';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
-import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { EventProvider } from "@/context/EventContext";
-import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
-import Index from "./pages/Index";
-import GuidedSearchPage from "./pages/GuidedSearchPage";
-import SearchResults from "./pages/SearchResults";
-import { SearchResultsPage } from "./pages/SearchResultsPage";
-import ServiceDetails from "./pages/ServiceDetails";
-import ProviderProfile from "./pages/ProviderProfile";
-import MasterDashboardPage from "./pages/admin/MasterDashboardPage";
-import SystemInitializationPage from "./pages/SystemInitializationPage";
-import SystemMigration from "./pages/admin/SystemMigration";
-import WishlistPage from "./pages/WishlistPage";
-import ComparisonPage from "./pages/ComparisonPage";
-import BookingPage from "./pages/BookingPage";
-import CategoriesPage from "./pages/CategoriesPage";
-import CategoryPage from "./pages/CategoryPage";
-import SubcategoryPage from "./pages/SubcategoryPage";
-import ProvidersPage from "./pages/ProvidersPage";
-import AboutPage from "./pages/AboutPage";
-import CategoriesManagementPage from "./pages/admin/CategoriesManagementPage";
-import ServicesPage from "./pages/ServicesPage";
-import LocationsPage from "./pages/LocationsPage";
+import { Toaster } from "@/components/ui/toaster";
+import './App.css';
+
+// Import mock calendar data to initialize Neta's availability
+import '@/lib/mockCalendarData';
+
+import HomePage from './pages/HomePage';
+import SearchResultsPage from './pages/SearchResultsPage';
+import ServiceDetails from './pages/ServiceDetails';
+import ProviderDetails from './pages/ProviderDetails';
+import BookingPage from './pages/BookingPage';
+import RecommendedResultsPage from './pages/RecommendedResultsPage';
+import CompareServicesPage from './pages/CompareServicesPage';
+import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
+
+const queryClient = new QueryClient();
 
 function App() {
-  console.log('App component rendered');
-  
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <AuthProvider>
-        <EventProvider>
-          <UnifiedEventProvider>
-            <Router>
-              <div className="min-h-screen bg-background">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/guided-search" element={<GuidedSearchPage />} />
-                  <Route path="/search" element={<SearchResults />} />
-                  <Route path="/search-results" element={<SearchResultsPage />} />
-                  <Route path="/service/:id" element={<ServiceDetails />} />
-                  <Route path="/provider/:id" element={<ProviderProfile />} />
-                  <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
-                  <Route path="/admin/system-migration" element={<SystemMigration />} />
-                  <Route path="/admin/categories" element={<CategoriesManagementPage />} />
-                  <Route path="/system/initialize" element={<SystemInitializationPage />} />
-                  <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
-                  <Route path="/comparison" element={<ComparisonPage />} />
-                  <Route path="/booking/:id" element={<BookingPage />} />
-                  <Route path="/categories" element={<CategoriesPage />} />
-                  <Route path="/categories/:id" element={<CategoryPage />} />
-                  <Route path="/subcategories/:id" element={<SubcategoryPage />} />
-                  <Route path="/categories/locations" element={<LocationsPage />} />
-                  <Route path="/providers" element={<ProvidersPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                </Routes>
-                <Toaster position="top-right" />
-              </div>
-            </Router>
-          </UnifiedEventProvider>
-        </EventProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/service/:id" element={<ServiceDetails />} />
+          <Route path="/enhanced-service/:serviceId" element={<EnhancedServiceDetails />} />
+          <Route path="/provider/:id" element={<ProviderDetails />} />
+          <Route path="/booking/:serviceId" element={<BookingPage />} />
+          <Route path="/recommended" element={<RecommendedResultsPage />} />
+          <Route path="/compare" element={<CompareServicesPage />} />
+        </Routes>
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
   );
 }
 
 export default App;
+

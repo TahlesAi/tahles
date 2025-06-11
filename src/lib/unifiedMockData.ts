@@ -68,7 +68,7 @@ const mockProviders: MockProvider[] = [
   }
 ];
 
-// Mock services data - נטע ברסלר - עדכון מלא עם תמונות זמינות
+// Mock services data - נטע ברסלר - עדכון מלא עם תמונות זמינות ויומן
 const mockServices: MockService[] = [
   {
     id: 'neta-8-lies-show',

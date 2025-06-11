@@ -7,9 +7,11 @@ import ServiceHeader from "@/components/service/ServiceHeader";
 import ServiceGallery from "@/components/service/ServiceGallery";
 import ServiceBookingCard from "@/components/service/ServiceBookingCard";
 import ServiceDetailInfo from "@/components/service/ServiceDetailInfo";
+import ServiceAvailabilityCalendar from "@/components/service/ServiceAvailabilityCalendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { getServiceById, getProviderById } from "@/lib/unifiedMockData";
+import { availabilityManager } from "@/lib/availabilityManager";
 import ServiceLoadingState from "@/components/service/ServiceLoadingState";
 import ServiceErrorState from "@/components/service/ServiceErrorState";
 
@@ -21,6 +23,7 @@ const EnhancedServiceDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [hasCalendar, setHasCalendar] = useState(false);
 
   useEffect(() => {
     if (serviceId) {
@@ -39,6 +42,11 @@ const EnhancedServiceDetails = () => {
         const mockProvider = getProviderById(mockService.providerId);
         setService(mockService);
         setProvider(mockProvider);
+        
+        // Check if service has calendar integration
+        const isAvailable = availabilityManager.isServiceAvailable(id, mockService.providerId);
+        setHasCalendar(isAvailable);
+        
         setIsLoading(false);
         return;
       }
@@ -55,6 +63,12 @@ const EnhancedServiceDetails = () => {
 
   const toggleSave = () => {
     setIsSaved(!isSaved);
+  };
+
+  const handleDateTimeSelect = (date: string, timeSlot: string) => {
+    console.log(`Selected: ${date} at ${timeSlot}`);
+    // Navigate to booking page with selected date/time
+    navigate(`/booking/${serviceId}?date=${date}&time=${timeSlot}`);
   };
 
   if (isLoading) {
@@ -102,21 +116,29 @@ const EnhancedServiceDetails = () => {
                 </TabsContent>
                 
                 <TabsContent value="availability" className="mt-6">
-                  <div className="bg-white rounded-lg p-6 border">
-                    <h3 className="text-lg font-semibold mb-4">זמינות השירות</h3>
-                    <p className="text-gray-600 mb-4">
-                      הספק זמין לביצוע השירות בתאמים הבאים:
-                    </p>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline">ימים: ראשון - חמישי</Badge>
-                        <Badge variant="outline">שעות: 09:00 - 22:00</Badge>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        לבדיקת זמינות מדויקת, אנא צרו קשר או בצעו הזמנה
+                  {hasCalendar && provider ? (
+                    <ServiceAvailabilityCalendar
+                      serviceId={service.id}
+                      providerId={provider.id}
+                      onDateSelect={handleDateTimeSelect}
+                    />
+                  ) : (
+                    <div className="bg-white rounded-lg p-6 border">
+                      <h3 className="text-lg font-semibold mb-4">זמינות השירות</h3>
+                      <p className="text-gray-600 mb-4">
+                        הספק זמין לביצוע השירות בתאמים הבאים:
                       </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline">ימים: ראשון - חמישי</Badge>
+                          <Badge variant="outline">שעות: 09:00 - 22:00</Badge>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          לבדיקת זמינות מדויקת, אנא צרו קשר או בצעו הזמנה
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="reviews" className="mt-6">
