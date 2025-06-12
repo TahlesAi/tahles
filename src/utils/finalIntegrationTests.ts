@@ -481,6 +481,3 @@ export const executeFinalIntegrationTests = async (): Promise<{
     };
   }
 };
-
-// Export all final test utilities
-export { finalUserJourneys };
