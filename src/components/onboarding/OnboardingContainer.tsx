@@ -12,17 +12,41 @@ interface PersonalInfoData {
   fullName: string;
   idNumber: string;
   businessType: string;
-  contactPhone: string;
-  contactEmail: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
   businessLicense: string;
   insurance: string;
 }
 
 interface BusinessProfileData {
-  description: string;
-  serviceCategory: string;
-  location: string;
+  businessDescription: string;
   experience: string;
+  serviceAreas: string[];
+  specialties: string[];
+  targetAudience: string[];
+  website: string;
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    linkedin: string;
+  };
+  mediaLinks: Array<{
+    id: string;
+    title: string;
+    url: string;
+    source: string;
+    date: string;
+  }>;
+  clientRecommendations: Array<{
+    id: string;
+    clientName: string;
+    company: string;
+    position: string;
+    logoUrl: string;
+    recommendation: string;
+  }>;
 }
 
 const OnboardingContainer: React.FC = () => {
@@ -36,26 +60,36 @@ const OnboardingContainer: React.FC = () => {
       fullName: '',
       idNumber: '',
       businessType: '',
-      contactPhone: '',
-      contactEmail: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
       businessLicense: '',
       insurance: ''
     },
     businessProfile: {
-      description: '',
-      serviceCategory: '',
-      location: '',
-      experience: ''
+      businessDescription: '',
+      experience: '',
+      serviceAreas: [],
+      specialties: [],
+      targetAudience: [],
+      website: '',
+      socialLinks: {
+        facebook: '',
+        instagram: '',
+        linkedin: ''
+      },
+      mediaLinks: [],
+      clientRecommendations: []
     }
   });
 
   const steps = [
-    { id: 1, title: 'פרטים אישיים', component: OnboardingPersonalInfo },
-    { id: 2, title: 'פרופיל עסקי', component: OnboardingBusinessProfile }
+    { id: 1, title: 'פרטים אישיים' },
+    { id: 2, title: 'פרופיל עסקי' }
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep);
-  const CurrentComponent = currentStepData?.component;
   const progress = (currentStep / steps.length) * 100;
 
   const handleNext = () => {
@@ -70,10 +104,17 @@ const OnboardingContainer: React.FC = () => {
     }
   };
 
-  const updateFormData = (stepData: PersonalInfoData | BusinessProfileData) => {
+  const updatePersonalInfo = (stepData: PersonalInfoData) => {
     setFormData(prev => ({
       ...prev,
-      [currentStep === 1 ? 'personalInfo' : 'businessProfile']: stepData
+      personalInfo: stepData
+    }));
+  };
+
+  const updateBusinessProfile = (stepData: BusinessProfileData) => {
+    setFormData(prev => ({
+      ...prev,
+      businessProfile: stepData
     }));
   };
 
@@ -97,11 +138,20 @@ const OnboardingContainer: React.FC = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {CurrentComponent && (
-              <CurrentComponent 
-                data={currentStep === 1 ? formData.personalInfo : formData.businessProfile}
-                onUpdate={updateFormData}
+            {currentStep === 1 && (
+              <OnboardingPersonalInfo 
+                data={formData.personalInfo}
+                onUpdate={updatePersonalInfo}
                 onNext={handleNext}
+              />
+            )}
+
+            {currentStep === 2 && (
+              <OnboardingBusinessProfile 
+                data={formData.businessProfile}
+                onUpdate={updateBusinessProfile}
+                onNext={handleNext}
+                onBack={handleBack}
               />
             )}
 
