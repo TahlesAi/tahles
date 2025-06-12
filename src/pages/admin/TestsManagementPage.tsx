@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +14,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
 import { 
@@ -30,7 +31,8 @@ import {
   AlertTriangle,
   CheckSquare,
   Settings,
-  X
+  X,
+  ExternalLink
 } from 'lucide-react';
 
 interface TestResult {
@@ -43,6 +45,7 @@ interface TestResult {
   suggestedFix?: string;
   formName?: string;
   errorCode?: string;
+  testedRoute?: string;
 }
 
 interface TestDetails {
@@ -55,12 +58,13 @@ interface TestDetails {
 }
 
 const TestsManagementPage: React.FC = () => {
+  const navigate = useNavigate();
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedTestDetails, setSelectedTestDetails] = useState<TestDetails | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  // בדיקות מוגדרות מראש עם פירוט משופר
+  // בדיקות מוגדרות מראש עם נתיבים נכונים
   const availableTests = [
     {
       id: 'booking-forms',
@@ -68,7 +72,8 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת תקינות טפסי הזמנה וולידציה',
       category: 'Forms',
       icon: FileText,
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      route: '/booking/neta-bresler-mentalist'
     },
     {
       id: 'provider-registration',
@@ -76,7 +81,8 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת תהליך הרשמה של ספקים חדשים',
       category: 'Forms',
       icon: Users,
-      color: 'text-green-600'
+      color: 'text-green-600',
+      route: '/provider-onboarding'
     },
     {
       id: 'search-filters',
@@ -84,7 +90,8 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת תקינות כל מסנני החיפוש',
       category: 'UI',
       icon: Settings,
-      color: 'text-purple-600'
+      color: 'text-purple-600',
+      route: '/search'
     },
     {
       id: 'navigation',
@@ -92,7 +99,8 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת כל הקישורים והנתיבים',
       category: 'Navigation',
       icon: Layout,
-      color: 'text-orange-600'
+      color: 'text-orange-600',
+      route: '/'
     },
     {
       id: 'accessibility',
@@ -100,7 +108,8 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת תקינות נגישות האתר',
       category: 'Accessibility',
       icon: CheckSquare,
-      color: 'text-indigo-600'
+      color: 'text-indigo-600',
+      route: '/'
     },
     {
       id: 'data-integrity',
@@ -108,34 +117,48 @@ const TestsManagementPage: React.FC = () => {
       description: 'בדיקת תקינות המידע והחיבורים',
       category: 'Data',
       icon: Database,
-      color: 'text-red-600'
+      color: 'text-red-600',
+      route: '/provider/neta-bresler'
     }
   ];
 
-  // פונקציה לביצוע בדיקה אמיתית של טפסים - מתוקנת
-  const performRealTest = (testId: string): { success: boolean; details: TestDetails | null } => {
+  // פונקציה לביצוע בדיקה אמיתית בעמוד הנכון
+  const performRealTestOnCorrectPage = async (testId: string, targetRoute: string): Promise<{ success: boolean; details: TestDetails | null }> => {
+    // ניווט לעמוד הנכון
+    navigate(targetRoute);
+    
+    // המתנה קצרה לטעינת העמוד
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     switch (testId) {
       case 'booking-forms':
-        // בדיקת טופס הזמנה - מתוקנת עם הבדיקות הנכונות
-        const bookingForm = document.querySelector('[data-testid="booking-form"]');
+        // בדיקת טופס הזמנה בעמוד /booking/neta-bresler-mentalist
+        const bookingForm = document.querySelector('[data-testid="booking-form"]') || 
+                           document.querySelector('form');
+        
         const requiredFields = [
           'serviceName', 'eventDate', 'eventTime', 'customerName', 
           'customerEmail', 'customerPhone', 'customerAddress', 'customerCity'
         ];
         
-        const missingFields = requiredFields.filter(field => 
-          !document.querySelector(`input[id="${field}"]`) && 
-          !document.querySelector(`textarea[id="${field}"]`) &&
-          !document.querySelector(`select[id="${field}"]`)
+        const foundFields = requiredFields.filter(field => 
+          document.querySelector(`input[id="${field}"]`) || 
+          document.querySelector(`textarea[id="${field}"]`) ||
+          document.querySelector(`select[id="${field}"]`) ||
+          document.querySelector(`input[name="${field}"]`) ||
+          document.querySelector(`textarea[name="${field}"]`) ||
+          document.querySelector(`select[name="${field}"]`)
         );
+        
+        const missingFields = requiredFields.filter(field => !foundFields.includes(field));
         
         if (!bookingForm || missingFields.length > 0) {
           return {
             success: false,
             details: {
-              errorLocation: 'דף הזמנה (/booking/[serviceId])',
-              specificIssue: `טופס הזמנה לא שלם או חסרים שדות נדרשים: ${missingFields.join(', ')}`,
-              suggestedFix: '✅ תוקן: הוספתי טופס הזמנה מלא עם כל השדות הנדרשים (שם שירות, תאריך, פרטי לקוח, כתובת)',
+              errorLocation: `דף הזמנה (${targetRoute})`,
+              specificIssue: `טופס הזמנה לא נמצא או חסרים שדות: ${missingFields.join(', ')}`,
+              suggestedFix: 'יש לוודא שהטופס נטען בעמוד /booking/[serviceId] ומכיל את כל השדות הנדרשים',
               formName: 'טופס הזמנת שירות',
               affectedComponents: ['BookingPage', 'BookingForm'],
               severity: 'high'
@@ -145,16 +168,19 @@ const TestsManagementPage: React.FC = () => {
         return { success: true, details: null };
 
       case 'provider-registration':
-        // בדיקת טופס הרשמת ספק - משופרת
-        const onboardingContainer = document.querySelector('.onboarding-container');
+        // בדיקת טופס הרשמת ספק בעמוד /provider-onboarding
+        const onboardingContainer = document.querySelector('.onboarding-container') ||
+                                  document.querySelector('[data-testid="onboarding"]');
         const progressElement = document.querySelector('[role="progressbar"]');
-        if (!onboardingContainer || !progressElement) {
+        const stepElements = document.querySelectorAll('[role="tab"]');
+        
+        if (!onboardingContainer || !progressElement || stepElements.length < 3) {
           return {
             success: false,
             details: {
-              errorLocation: 'דף הרשמת ספק (/provider-onboarding)',
-              specificIssue: 'רכיבי הרשמה לא נטענו או חסר מעקב התקדמות',
-              suggestedFix: '✅ תוקן: הוספתי OnboardingContainer מלא עם Progress ושלבים',
+              errorLocation: `דף הרשמת ספק (${targetRoute})`,
+              specificIssue: 'רכיבי הרשמה לא נטענו, חסר progress bar או מספר שלבים לא מספיק',
+              suggestedFix: 'יש לוודא שרכיב OnboardingContainer נטען בעמוד /provider-onboarding',
               formName: 'טופס הרשמת ספק חדש',
               affectedComponents: ['OnboardingContainer', 'OnboardingPersonalInfo', 'OnboardingBusinessProfile'],
               severity: 'high'
@@ -164,17 +190,18 @@ const TestsManagementPage: React.FC = () => {
         return { success: true, details: null };
 
       case 'search-filters':
-        // בדיקת מסנני חיפוש - משופרת
+        // בדיקת מסנני חיפוש בעמוד /search
         const searchFilters = document.querySelector('[data-testid="search-filters"]');
-        const filterButtons = document.querySelectorAll('.filter-button');
+        const filterButtons = document.querySelectorAll('.filter-button, button[aria-pressed]');
         const priceSlider = document.querySelector('[role="slider"]');
+        
         if (!searchFilters || filterButtons.length < 4 || !priceSlider) {
           return {
             success: false,
             details: {
-              errorLocation: 'דף תוצאות חיפוש (/search)',
-              specificIssue: 'חסרים מסנני חיפוש או בקר מחירים לא פעיל',
-              suggestedFix: '✅ תוקן: הוספתי SearchFilters מלא עם 4 קטגוריות ובקר מחירים',
+              errorLocation: `דף תוצאות חיפוש (${targetRoute})`,
+              specificIssue: 'מסנני חיפוש לא נמצאו, מספר כפתורי סינון לא מספיק או חסר slider מחירים',
+              suggestedFix: 'יש לוודא שרכיב SearchFilters נטען בעמוד /search',
               formName: 'מסנני חיפוש מתקדם',
               affectedComponents: ['SearchFilters', 'SearchResultsPage'],
               severity: 'medium'
@@ -184,17 +211,18 @@ const TestsManagementPage: React.FC = () => {
         return { success: true, details: null };
 
       case 'navigation':
-        // בדיקת ניווט - משופרת
-        const headerNavigation = document.querySelector('header nav');
+        // בדיקת ניווט בדף הבית
+        const headerNavigation = document.querySelector('header nav') || document.querySelector('header');
         const headerLinks = document.querySelectorAll('header a[href]');
         const footerLinks = document.querySelectorAll('footer a[href]');
+        
         if (!headerNavigation || headerLinks.length < 3 || footerLinks.length < 3) {
           return {
             success: false,
             details: {
-              errorLocation: 'Header ורכיבי ניווט',
+              errorLocation: `Header ורכיבי ניווט (${targetRoute})`,
               specificIssue: 'חסרים קישורי ניווט בHeader או Footer',
-              suggestedFix: '✅ תוקן: וידאתי שכל קישורי הניווט בHeader ו-Footer פעילים',
+              suggestedFix: 'יש לוודא שה-Header וה-Footer מכילים מספר מספיק של קישורים פעילים',
               formName: 'מערכת ניווט ראשית',
               affectedComponents: ['Header', 'Footer', 'Navigation'],
               severity: 'medium'
@@ -204,7 +232,7 @@ const TestsManagementPage: React.FC = () => {
         return { success: true, details: null };
 
       case 'accessibility':
-        // בדיקת נגישות - משופרת
+        // בדיקת נגישות כללית
         const accessibilityElements = document.querySelectorAll('[aria-label], [aria-labelledby], [role]');
         const imagesWithAlt = document.querySelectorAll('img[alt]');
         const totalImages = document.querySelectorAll('img');
@@ -216,9 +244,9 @@ const TestsManagementPage: React.FC = () => {
           return {
             success: false,
             details: {
-              errorLocation: 'כלל האתר - רכיבי נגישות',
+              errorLocation: `נגישות כללית (${targetRoute})`,
               specificIssue: 'חסרים רכיבי נגישות חיוניים (ARIA labels, alt text, screen reader)',
-              suggestedFix: '✅ תוקן: הוספתי AccessibilityEnhancer שמטפל באופן אוטומטי בנגישות',
+              suggestedFix: 'יש לוודא שרכיב AccessibilityEnhancer פועל ומטפל בנגישות',
               formName: 'מערכת נגישות',
               affectedComponents: ['AccessibilityEnhancer', 'כלל הרכיבים'],
               severity: 'high'
@@ -228,48 +256,93 @@ const TestsManagementPage: React.FC = () => {
         return { success: true, details: null };
 
       case 'data-integrity':
-        // בדיקת שלמות נתונים - תמיד עוברת כי הנתונים תקינים
+        // בדיקת שלמות נתונים בדף ספק
+        const providerData = document.querySelector('[data-provider-id], .provider-profile');
+        const servicesDisplay = document.querySelectorAll('.service-card, [data-service]');
+        
+        if (!providerData || servicesDisplay.length === 0) {
+          return {
+            success: false,
+            details: {
+              errorLocation: `דף ספק (${targetRoute})`,
+              specificIssue: 'נתוני ספק לא נטענו או חסרים שירותים',
+              suggestedFix: 'יש לוודא שנתוני הספק נטענים בהצלחה',
+              formName: 'מערכת נתוני ספקים',
+              affectedComponents: ['ProviderProfile', 'ServiceCards'],
+              severity: 'medium'
+            }
+          };
+        }
         return { success: true, details: null };
 
       default:
-        return {
-          success: Math.random() > 0.3, // 70% הצלחה
-          details: null
-        };
+        return { success: true, details: null };
     }
   };
 
   const runTest = async (testId: string) => {
     setIsRunning(true);
     
-    // סימולציה של זמן בדיקה
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const testResult = performRealTest(testId);
     const testInfo = availableTests.find(t => t.id === testId);
+    if (!testInfo) {
+      setIsRunning(false);
+      return;
+    }
+
+    console.log(`🧪 מריץ בדיקה: ${testInfo.name} בנתיב: ${testInfo.route}`);
     
-    const newResult: TestResult = {
-      id: testId,
-      name: testInfo?.name || 'בדיקה לא מזוהה',
-      status: testResult.success ? 'passed' : 'failed',
-      timestamp: new Date().toLocaleString('he-IL'),
-      details: testResult.success ? 'הבדיקה עברה בהצלחה ✅' : testResult.details?.specificIssue || 'נמצאו בעיות',
-      errorLocation: testResult.details?.errorLocation,
-      suggestedFix: testResult.details?.suggestedFix,
-      formName: testResult.details?.formName,
-      errorCode: testResult.success ? undefined : `ERR_${testId.toUpperCase()}_${Date.now()}`
-    };
+    try {
+      // ביצוע הבדיקה בעמוד הנכון
+      const testResult = await performRealTestOnCorrectPage(testId, testInfo.route);
+      
+      const newResult: TestResult = {
+        id: testId,
+        name: testInfo.name,
+        status: testResult.success ? 'passed' : 'failed',
+        timestamp: new Date().toLocaleString('he-IL'),
+        details: testResult.success ? 'הבדיקה עברה בהצלחה ✅' : testResult.details?.specificIssue || 'נמצאו בעיות',
+        errorLocation: testResult.details?.errorLocation,
+        suggestedFix: testResult.details?.suggestedFix,
+        formName: testResult.details?.formName,
+        errorCode: testResult.success ? undefined : `ERR_${testId.toUpperCase()}_${Date.now()}`,
+        testedRoute: testInfo.route
+      };
+      
+      setTestResults(prev => [newResult, ...prev.slice(0, 9)]);
+      
+      // חזרה לדף הבדיקות
+      navigate('/admin/tests');
+      
+    } catch (error) {
+      console.error(`שגיאה בביצוע בדיקה ${testId}:`, error);
+      
+      const errorResult: TestResult = {
+        id: testId,
+        name: testInfo.name,
+        status: 'failed',
+        timestamp: new Date().toLocaleString('he-IL'),
+        details: 'שגיאה בביצוע הבדיקה',
+        errorCode: `ERR_${testId.toUpperCase()}_${Date.now()}`,
+        testedRoute: testInfo.route
+      };
+      
+      setTestResults(prev => [errorResult, ...prev.slice(0, 9)]);
+      navigate('/admin/tests');
+    }
     
-    setTestResults(prev => [newResult, ...prev.slice(0, 9)]);
     setIsRunning(false);
   };
 
   const runAllTests = async () => {
+    console.log('🚀 מתחיל בריצת כל הבדיקות על העמודים הנכונים');
+    
     for (const test of availableTests) {
       await runTest(test.id);
       // מעט עיכוב בין בדיקות
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
+    
+    console.log('✅ סיום ריצת כל הבדיקות');
   };
 
   const openTestDetails = (result: TestResult) => {
@@ -315,10 +388,10 @@ const TestsManagementPage: React.FC = () => {
               </Badge>
             </div>
             
-            <Alert className="mb-6 border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                <strong>🔧 מערכת תיקונים:</strong> כל הבעיות שזוהו תוקנו אוטומטית - טפסי הזמנה, הרשמת ספקים, מסנני חיפוש, ניווט ונגישות
+            <Alert className="mb-6 border-blue-200 bg-blue-50">
+              <CheckCircle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                <strong>🔧 מערכת בדיקות משודרגת:</strong> כל בדיקה כעת רצה על העמוד הרלוונטי בפועל - טפסי הזמנה ב-/booking, הרשמת ספקים ב-/provider-onboarding, מסנני חיפוש ב-/search ועוד
               </AlertDescription>
             </Alert>
           </div>
@@ -358,7 +431,13 @@ const TestsManagementPage: React.FC = () => {
                           <div>
                             <h4 className="font-medium">{test.name}</h4>
                             <p className="text-sm text-gray-600">{test.description}</p>
-                            <Badge variant="outline">{test.category}</Badge>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline">{test.category}</Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                <ExternalLink className="h-3 w-3 ml-1" />
+                                {test.route}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                         <Button
@@ -402,6 +481,9 @@ const TestsManagementPage: React.FC = () => {
                           <div>
                             <h4 className="font-medium">{result.name}</h4>
                             <p className="text-sm text-gray-600">{result.details}</p>
+                            {result.testedRoute && (
+                              <p className="text-xs text-blue-600 font-mono">נבדק ב: {result.testedRoute}</p>
+                            )}
                             {result.errorCode && (
                               <p className="text-xs text-red-500 font-mono">קוד שגיאה: {result.errorCode}</p>
                             )}
@@ -470,7 +552,7 @@ const TestsManagementPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Modal מתוקן לפירוט התקלות */}
+        {/* Modal לפירוט התקלות */}
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" dir="rtl">
             <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
@@ -480,7 +562,7 @@ const TestsManagementPage: React.FC = () => {
                   פירוט תקלה מפורט
                 </DialogTitle>
                 <DialogDescription className="text-sm text-gray-600 mt-1">
-                  מידע מפורט על התקלה שזוהתה וטופלה
+                  מידע מפורט על התקלה שזוהתה
                 </DialogDescription>
               </div>
               <DialogClose asChild>
@@ -539,7 +621,7 @@ const TestsManagementPage: React.FC = () => {
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-800">
                       <CheckCircle className="h-4 w-4" />
-                      פתרון שיושם
+                      תיקון מוצע
                     </h4>
                     <p className="text-sm text-green-700 bg-white p-3 rounded border leading-relaxed">
                       {selectedTestDetails.suggestedFix}
