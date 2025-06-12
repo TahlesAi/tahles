@@ -90,6 +90,9 @@ export default function Header() {
             <Link to="/system/initialize" className="text-white bg-green-600 hover:bg-green-700 px-3 py-2 text-sm font-medium rounded-md">
               אתחול מערכת
             </Link>
+            <Link to="/admin/tests" className="text-white bg-red-600 hover:bg-red-700 px-3 py-2 text-sm font-medium rounded-md">
+              🧪 ניהול בדיקות
+            </Link>
           </nav>
 
           {/* Authentication and Theme Toggle */}
@@ -178,6 +181,9 @@ export default function Header() {
                   </Link>
                   <Link to="/system/initialize" className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-md">
                     אתחול מערכת
+                  </Link>
+                  <Link to="/admin/tests" className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md">
+                    🧪 ניהול בדיקות
                   </Link>
                   {user ? (
                     <Button variant="destructive" size="sm" onClick={handleSignOut}>

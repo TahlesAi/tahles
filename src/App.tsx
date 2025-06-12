@@ -18,6 +18,7 @@ import BookingPage from './pages/BookingPage';
 import RecommendedResultsPage from './pages/RecommendedResultsPage';
 import ComparisonPage from './pages/ComparisonPage';
 import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
+import TestsManagementPage from './pages/admin/TestsManagementPage';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ function App() {
               <Route path="/booking/:serviceId" element={<BookingPage />} />
               <Route path="/recommended" element={<RecommendedResultsPage />} />
               <Route path="/compare" element={<ComparisonPage />} />
+              <Route path="/admin/tests" element={<TestsManagementPage />} />
             </Routes>
             <Toaster />
           </Router>
