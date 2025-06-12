@@ -40,7 +40,16 @@ import {
   createTestResult,
   validateAccessibility,
   checkPerformanceBasics,
-  TestContext
+  TestContext,
+  TestDetails,
+  testBookingForms,
+  testProviderRegistration,
+  testSearchFilters,
+  testNavigation,
+  testAccessibility,
+  testPerformance,
+  testDataIntegrity,
+  getSeverityColor
 } from '@/utils/testHelpers';
 import { 
   simulateUserJourney,
@@ -63,15 +72,6 @@ export interface TestResult {
   formName?: string;
   errorCode?: string;
   testedRoute?: string;
-}
-
-interface TestDetails {
-  errorLocation: string;
-  specificIssue: string;
-  suggestedFix: string;
-  formName: string;
-  affectedComponents: string[];
-  severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
 const TestsManagementPage: React.FC = () => {
@@ -221,7 +221,7 @@ const TestsManagementPage: React.FC = () => {
       case 'complex-dynamic-content':
         return await testComplexDynamicContent(context);
       case 'error-handling-scenarios':
-        return await testErrorHandlingScenarios(context);
+        return await testErrorHandlingComplexScenarios(context);
       default:
         return { success: true, details: null };
     }
@@ -373,7 +373,7 @@ const TestsManagementPage: React.FC = () => {
     }
   };
 
-  const testErrorHandlingScenarios = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const testErrorHandlingComplexScenarios = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
     try {
       const errorResults = await testErrorHandlingScenarios();
       
@@ -410,6 +410,12 @@ const TestsManagementPage: React.FC = () => {
         }
       };
     }
+  };
+
+  const generateComprehensiveReport = () => {
+    const report = generateTestReport(testResults);
+    setTestReport(report);
+    console.log('📊 דוח מערכת נוצר:', report);
   };
 
   const runTest = async (testId: string) => {

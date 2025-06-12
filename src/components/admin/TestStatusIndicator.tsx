@@ -12,12 +12,13 @@ import {
   Zap,
   Shield,
   Database,
-  Layout
+  Layout,
+  GitBranch
 } from 'lucide-react';
 
 interface TestStatusIndicatorProps {
   status: 'passed' | 'failed' | 'running' | 'pending';
-  testType: 'Forms' | 'UI' | 'Navigation' | 'Accessibility' | 'Data' | 'Performance';
+  testType: 'Forms' | 'UI' | 'Navigation' | 'Accessibility' | 'Data' | 'Performance' | 'Integration';
   onViewDetails?: () => void;
   showDetailsButton?: boolean;
   timestamp?: string;
@@ -78,6 +79,8 @@ const TestStatusIndicator: React.FC<TestStatusIndicatorProps> = ({
         return <Database className="h-4 w-4" />;
       case 'Performance':
         return <RefreshCw className="h-4 w-4" />;
+      case 'Integration':
+        return <GitBranch className="h-4 w-4" />;
       default:
         return <AlertTriangle className="h-4 w-4" />;
     }

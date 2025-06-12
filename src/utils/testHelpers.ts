@@ -15,6 +15,15 @@ export interface TestValidation {
   testId?: string;
 }
 
+export interface TestDetails {
+  errorLocation: string;
+  specificIssue: string;
+  suggestedFix: string;
+  formName: string;
+  affectedComponents: string[];
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
 // פונקציה להמתנה לטעינת עמוד
 export const waitForPageLoad = (timeout: number = 1000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -153,4 +162,171 @@ export const checkPerformanceBasics = (): {
     scriptsCount,
     isHeavy
   };
+};
+
+// פונקציות בדיקה ספציפיות
+export const testBookingForms = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const requiredFields = ['fullName', 'email', 'phone', 'eventDate'];
+  const validation = validateFormFields(requiredFields);
+  
+  if (validation.missingFields.length > 0) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `טופס הזמנה (${context.targetRoute})`,
+        specificIssue: `שדות חובה חסרים: ${validation.missingFields.join(', ')}`,
+        suggestedFix: 'יש להוסיף את השדות החסרים לטופס ההזמנה',
+        formName: 'טופס הזמנת שירות',
+        affectedComponents: ['BookingForm', 'CustomerDetailsForm'],
+        severity: 'high'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testProviderRegistration = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const onboardingContainer = checkElementExists('.onboarding-container', 'onboarding-container');
+  
+  if (!onboardingContainer.found) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `הרשמת ספק (${context.targetRoute})`,
+        specificIssue: 'קונטיינר הרשמה לא נמצא',
+        suggestedFix: 'יש לוודא שרכיב OnboardingContainer נטען כראוי',
+        formName: 'טופס הרשמת ספק',
+        affectedComponents: ['OnboardingContainer'],
+        severity: 'critical'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testSearchFilters = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const searchInput = checkElementExists('input[type="search"]', 'search-input');
+  const filterElements = document.querySelectorAll('.filter-option, [data-testid*="filter"]');
+  
+  if (!searchInput.found || filterElements.length === 0) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `מסנני חיפוש (${context.targetRoute})`,
+        specificIssue: 'מסנני חיפוש או שדה חיפוש לא נמצאו',
+        suggestedFix: 'יש לוודא שרכיבי החיפוש והמסננים נטענים כראוי',
+        formName: 'מערכת חיפוש ומסננים',
+        affectedComponents: ['SearchFilters', 'AutocompleteSearch'],
+        severity: 'medium'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testNavigation = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const navigationLinks = document.querySelectorAll('nav a, [role="navigation"] a');
+  const brokenLinks: string[] = [];
+  
+  navigationLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href.startsWith('javascript:')) {
+      brokenLinks.push(link.textContent || 'קישור ללא טקסט');
+    }
+  });
+  
+  if (brokenLinks.length > 0) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `ניווט (${context.targetRoute})`,
+        specificIssue: `נמצאו קישורים לא תקינים: ${brokenLinks.join(', ')}`,
+        suggestedFix: 'יש לתקן את הקישורים השבורים בתפריט הניווט',
+        formName: 'מערכת ניווט',
+        affectedComponents: ['Header', 'Navigation'],
+        severity: 'medium'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testAccessibility = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const accessibilityResults = validateAccessibility();
+  
+  if (accessibilityResults.score < 50) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `נגישות (${context.targetRoute})`,
+        specificIssue: `ציון נגישות נמוך: ${accessibilityResults.score}/100`,
+        suggestedFix: 'יש להוסיף aria-labels, alt texts ואלמנטי נגישות נוספים',
+        formName: 'מערכת נגישות',
+        affectedComponents: ['AccessibilityEnhancer'],
+        severity: 'high'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testPerformance = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const performanceResults = checkPerformanceBasics();
+  
+  if (performanceResults.isHeavy) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `ביצועים (${context.targetRoute})`,
+        specificIssue: `עמוד כבד: ${performanceResults.domElements} אלמנטים`,
+        suggestedFix: 'יש לשקול אופטימיזציה של העמוד והפחתת מספר האלמנטים',
+        formName: 'מערכת ביצועים',
+        affectedComponents: ['PerformanceOptimizer'],
+        severity: 'medium'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+export const testDataIntegrity = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+  const dataElements = document.querySelectorAll('[data-testid*="service"], .service-card, .provider-card');
+  
+  if (dataElements.length === 0) {
+    return {
+      success: false,
+      details: {
+        errorLocation: `שלמות נתונים (${context.targetRoute})`,
+        specificIssue: 'לא נמצאו אלמנטי מידע (שירותים/ספקים)',
+        suggestedFix: 'יש לוודא שהנתונים נטענים כראוי מהשרת',
+        formName: 'מערכת נתונים',
+        affectedComponents: ['DataLoader', 'ServiceCard'],
+        severity: 'high'
+      }
+    };
+  }
+  
+  return { success: true, details: null };
+};
+
+// פונקציה לקבלת צבע לפי חומרת שגיאה
+export const getSeverityColor = (severity: 'low' | 'medium' | 'high' | 'critical'): string => {
+  switch (severity) {
+    case 'critical':
+      return 'bg-red-100 border-red-300 text-red-800';
+    case 'high':
+      return 'bg-orange-100 border-orange-300 text-orange-800';
+    case 'medium':
+      return 'bg-yellow-100 border-yellow-300 text-yellow-800';
+    case 'low':
+      return 'bg-blue-100 border-blue-300 text-blue-800';
+    default:
+      return 'bg-gray-100 border-gray-300 text-gray-800';
+  }
 };

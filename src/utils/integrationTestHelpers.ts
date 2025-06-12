@@ -1,5 +1,4 @@
-
-import { TestResult, TestContext } from './testHelpers';
+import { TestResult } from '@/pages/admin/TestsManagementPage';
 
 // Integration test types
 export interface IntegrationTestResult {
@@ -231,7 +230,13 @@ export interface TestReport {
   }>;
 }
 
-export const generateTestReport = (testResults: TestResult[]): TestReport => {
+export const generateTestReport = (testResults: Array<{
+  id: string;
+  name: string;
+  status: 'passed' | 'failed';
+  timestamp: string;
+  details: string;
+}>): TestReport => {
   const now = new Date();
   const passedTests = testResults.filter(r => r.status === 'passed').length;
   const failedTests = testResults.filter(r => r.status === 'failed').length;
