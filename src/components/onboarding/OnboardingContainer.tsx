@@ -7,11 +7,46 @@ import OnboardingPersonalInfo from "./OnboardingPersonalInfo";
 import OnboardingBusinessProfile from "./OnboardingBusinessProfile";
 import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 
+interface PersonalInfoData {
+  businessName: string;
+  fullName: string;
+  idNumber: string;
+  businessType: string;
+  contactPhone: string;
+  contactEmail: string;
+  businessLicense: string;
+  insurance: string;
+}
+
+interface BusinessProfileData {
+  description: string;
+  serviceCategory: string;
+  location: string;
+  experience: string;
+}
+
 const OnboardingContainer: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    personalInfo: {},
-    businessProfile: {}
+  const [formData, setFormData] = useState<{
+    personalInfo: PersonalInfoData;
+    businessProfile: BusinessProfileData;
+  }>({
+    personalInfo: {
+      businessName: '',
+      fullName: '',
+      idNumber: '',
+      businessType: '',
+      contactPhone: '',
+      contactEmail: '',
+      businessLicense: '',
+      insurance: ''
+    },
+    businessProfile: {
+      description: '',
+      serviceCategory: '',
+      location: '',
+      experience: ''
+    }
   });
 
   const steps = [
@@ -35,7 +70,7 @@ const OnboardingContainer: React.FC = () => {
     }
   };
 
-  const updateFormData = (stepData: any) => {
+  const updateFormData = (stepData: PersonalInfoData | BusinessProfileData) => {
     setFormData(prev => ({
       ...prev,
       [currentStep === 1 ? 'personalInfo' : 'businessProfile']: stepData
@@ -64,7 +99,7 @@ const OnboardingContainer: React.FC = () => {
           <CardContent className="space-y-6">
             {CurrentComponent && (
               <CurrentComponent 
-                data={formData[currentStep === 1 ? 'personalInfo' : 'businessProfile']}
+                data={currentStep === 1 ? formData.personalInfo : formData.businessProfile}
                 onUpdate={updateFormData}
                 onNext={handleNext}
               />

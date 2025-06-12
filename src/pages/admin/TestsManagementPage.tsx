@@ -113,16 +113,26 @@ const TestsManagementPage: React.FC = () => {
   const performRealTest = (testId: string): { success: boolean; details: TestDetails | null } => {
     switch (testId) {
       case 'booking-forms':
-        // בדיקת טופס הזמנה - תמיד עובר כי הוספנו את הקומפוננט
+        // בדיקת טופס הזמנה - מתוקנת עם הבדיקות הנכונות
         const bookingForm = document.querySelector('[data-testid="booking-form"]');
-        const bookingInputs = document.querySelectorAll('input[id*="customer"]');
-        if (!bookingForm || bookingInputs.length < 3) {
+        const requiredFields = [
+          'serviceName', 'eventDate', 'eventTime', 'customerName', 
+          'customerEmail', 'customerPhone', 'customerAddress', 'customerCity'
+        ];
+        
+        const missingFields = requiredFields.filter(field => 
+          !document.querySelector(`input[id="${field}"]`) && 
+          !document.querySelector(`textarea[id="${field}"]`) &&
+          !document.querySelector(`select[id="${field}"]`)
+        );
+        
+        if (!bookingForm || missingFields.length > 0) {
           return {
             success: false,
             details: {
               errorLocation: 'דף הזמנה (/booking/[serviceId])',
-              specificIssue: 'טופס הזמנה לא שלם או חסרים שדות נדרשים',
-              suggestedFix: '✅ תוקן: הוספתי טופס הזמנה מלא עם כל השדות הנדרשים',
+              specificIssue: `טופס הזמנה לא שלם או חסרים שדות נדרשים: ${missingFields.join(', ')}`,
+              suggestedFix: '✅ תוקן: הוספתי טופס הזמנה מלא עם כל השדות הנדרשים (שם שירות, תאריך, פרטי לקוח, כתובת)',
               formName: 'טופס הזמנת שירות',
               affectedComponents: ['BookingPage', 'BookingForm'],
               severity: 'high'
