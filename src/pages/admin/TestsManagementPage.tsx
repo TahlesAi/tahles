@@ -125,7 +125,7 @@ const TestsManagementPage: React.FC = () => {
                       <div>
                         <h4 className="font-medium">{test.name}</h4>
                         <p className="text-sm text-gray-600">{test.description}</p>
-                        <Badge variant="outline" size="sm">{test.category}</Badge>
+                        <Badge variant="outline">{test.category}</Badge>
                       </div>
                       <Button
                         size="sm"
