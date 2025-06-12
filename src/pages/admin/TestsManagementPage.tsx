@@ -42,6 +42,15 @@ import {
   checkPerformanceBasics,
   TestContext
 } from '@/utils/testHelpers';
+import { 
+  simulateUserJourney,
+  testDynamicComponentRendering,
+  testErrorHandlingScenarios,
+  generateTestReport,
+  TestReport,
+  IntegrationTestResult
+} from '@/utils/integrationTestHelpers';
+import { allIntegrationJourneys } from '@/utils/integrationTestScenarios';
 
 export interface TestResult {
   id: string;
@@ -71,8 +80,10 @@ const TestsManagementPage: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [selectedTestDetails, setSelectedTestDetails] = useState<TestDetails | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [integrationResults, setIntegrationResults] = useState<IntegrationTestResult[]>([]);
+  const [testReport, setTestReport] = useState<TestReport | null>(null);
+  const [showIntegrationDetails, setShowIntegrationDetails] = useState(false);
 
-  // בדיקות מוגדרות מראש עם test-ids יציבים
   const availableTests = [
     {
       id: 'booking-forms',
@@ -136,14 +147,48 @@ const TestsManagementPage: React.FC = () => {
       icon: Database,
       color: 'text-red-600',
       route: '/provider/neta-bresler'
+    },
+    {
+      id: 'integration-onboarding',
+      name: 'אינטגרציה: הרשמת ספק מלאה',
+      description: 'בדיקת זרימה מלאה של תהליך הרשמת ספק',
+      category: 'Integration' as const,
+      icon: Users,
+      color: 'text-emerald-600',
+      route: '/provider-onboarding'
+    },
+    {
+      id: 'integration-search-booking',
+      name: 'אינטגרציה: מחיפוש להזמנה',
+      description: 'תהליך מלא מחיפוש שירות ועד להזמנה',
+      category: 'Integration' as const,
+      icon: Zap,
+      color: 'text-cyan-600',
+      route: '/search'
+    },
+    {
+      id: 'complex-dynamic-content',
+      name: 'רנדור מורכב: תוכן דינמי',
+      description: 'בדיקת רכיבים דינמיים, מחירים וזמינות',
+      category: 'UI' as const,
+      icon: RefreshCw,
+      color: 'text-teal-600',
+      route: '/'
+    },
+    {
+      id: 'error-handling-scenarios',
+      name: 'תסריטי שגיאה ו־fallback',
+      description: 'בדיקת התמודדות עם שגיאות והתאוששות',
+      category: 'Data' as const,
+      icon: AlertTriangle,
+      color: 'text-amber-600',
+      route: '/'
     }
   ];
 
-  // פונקציה מאוחדת לביצוע בדיקות עם שימוש בפונקציות העזר
   const performTestOnCorrectPage = async (testId: string, targetRoute: string): Promise<{ success: boolean; details: TestDetails | null }> => {
-    console.log(`🧪 מתחיל בדיקה: ${testId} בנתיב: ${targetRoute}`);
+    console.log(`🧪 מתחיל בדיקה מתקדמת: ${testId} בנתיב: ${targetRoute}`);
     
-    // ניווט לעמוד הנכון
     navigate(targetRoute);
     await waitForPageLoad(1500);
     
@@ -169,250 +214,202 @@ const TestsManagementPage: React.FC = () => {
         return await testPerformance(context);
       case 'data-integrity':
         return await testDataIntegrity(context);
+      case 'integration-onboarding':
+        return await testIntegrationOnboarding(context);
+      case 'integration-search-booking':
+        return await testIntegrationSearchBooking(context);
+      case 'complex-dynamic-content':
+        return await testComplexDynamicContent(context);
+      case 'error-handling-scenarios':
+        return await testErrorHandlingScenarios(context);
       default:
         return { success: true, details: null };
     }
   };
 
-  // בדיקת טפסי הזמנה משופרת
-  const testBookingForms = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const requiredFields = [
-      'serviceName', 'eventDate', 'eventTime', 'customerName', 
-      'customerEmail', 'customerPhone', 'customerAddress', 'customerCity'
-    ];
+  const testIntegrationOnboarding = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+    const onboardingJourney = allIntegrationJourneys.find(j => j.id === 'provider-onboarding-full');
     
-    // בדיקת קיום טופס עם test-id או selector כללי
-    const formCheck = checkElementExists('form', 'booking-form', 'טופס הזמנה');
-    
-    if (!formCheck.found) {
+    if (!onboardingJourney) {
       return {
         success: false,
         details: {
-          errorLocation: `דף הזמנה (${context.targetRoute})`,
-          specificIssue: 'טופס הזמנה לא נמצא בעמוד',
-          suggestedFix: 'יש לוודא שקומפוננט BookingForm נטען בעמוד /booking/[serviceId] עם data-testid="booking-form"',
-          formName: 'טופס הזמנת שירות',
-          affectedComponents: ['BookingPage', 'BookingForm'],
+          errorLocation: `תסריט אינטגרציה (${context.targetRoute})`,
+          specificIssue: 'תסריט הרשמת ספק לא נמצא',
+          suggestedFix: 'יש לוודא שתסריטי האינטגרציה מוגדרים נכון',
+          formName: 'אינטגרציה הרשמת ספק',
+          affectedComponents: ['OnboardingContainer', 'IntegrationTests'],
           severity: 'high'
         }
       };
     }
 
-    // בדיקת שדות נדרשים
-    const fieldsValidation = validateFormFields(requiredFields);
-    
-    if (fieldsValidation.missingFields.length > 0) {
+    try {
+      const result = await simulateUserJourney(onboardingJourney);
+      setIntegrationResults(prev => [...prev, result]);
+      
+      if (!result.overallSuccess) {
+        const failedStepName = result.stepResults[result.failedStep! - 1]?.name || 'שלב לא ידוע';
+        return {
+          success: false,
+          details: {
+            errorLocation: `שלב ${result.failedStep}: ${failedStepName}`,
+            specificIssue: `תהליך האינטגרציה נכשל בשלב ${result.failedStep}`,
+            suggestedFix: 'יש לבדוק את התקינות של השלב הכושל ולוודא שהרכיבים נטענים כראוי',
+            formName: 'תהליך הרשמת ספק',
+            affectedComponents: ['OnboardingContainer', 'OnboardingPersonalInfo'],
+            severity: 'high'
+          }
+        };
+      }
+
+      console.log(`✅ אינטגרציה הרשמת ספק: ${result.stepResults.length} שלבים הושלמו בזמן ${result.totalDuration}ms`);
+      return { success: true, details: null };
+      
+    } catch (error) {
       return {
         success: false,
         details: {
-          errorLocation: `טופס הזמנה (${context.targetRoute})`,
-          specificIssue: `חסרים שדות נדרשים: ${fieldsValidation.missingFields.join(', ')}`,
-          suggestedFix: 'יש להוסיף את השדות החסרים לטופס ההזמנה',
-          formName: 'טופס הזמנת שירות',
-          affectedComponents: ['BookingForm', 'CustomerDetailsForm'],
+          errorLocation: `מערכת אינטגרציה (${context.targetRoute})`,
+          specificIssue: `שגיאה בביצוע תסריט אינטגרציה: ${error}`,
+          suggestedFix: 'יש לבדוק את יומן הקונסול לפרטים נוספים',
+          formName: 'מערכת בדיקות אינטגרציה',
+          affectedComponents: ['IntegrationTestSystem'],
+          severity: 'critical'
+        }
+      };
+    }
+  };
+
+  const testIntegrationSearchBooking = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+    const searchJourney = allIntegrationJourneys.find(j => j.id === 'search-to-booking-full');
+    
+    if (!searchJourney) {
+      return {
+        success: false,
+        details: {
+          errorLocation: `תסריט חיפוש-הזמנה (${context.targetRoute})`,
+          specificIssue: 'תסריט חיפוש להזמנה לא נמצא',
+          suggestedFix: 'יש לוודא שתסריטי האינטגרציה מוגדרים נכון',
+          formName: 'אינטגרציה חיפוש-הזמנה',
+          affectedComponents: ['SearchPage', 'BookingPage'],
           severity: 'high'
         }
       };
     }
 
-    console.log(`✅ טופס הזמנה: נמצאו ${fieldsValidation.foundFields.length} שדות מתוך ${requiredFields.length}`);
-    return { success: true, details: null };
+    try {
+      const result = await simulateUserJourney(searchJourney);
+      setIntegrationResults(prev => [...prev, result]);
+      
+      if (!result.overallSuccess) {
+        return {
+          success: false,
+          details: {
+            errorLocation: `תהליך חיפוש-הזמנה שלב ${result.failedStep}`,
+            specificIssue: `נכשל בשלב ${result.failedStep} מתוך ${result.stepResults.length}`,
+            suggestedFix: 'יש לבדוק את רכיבי החיפוש והניתוב להזמנה',
+            formName: 'זרימת חיפוש-הזמנה',
+            affectedComponents: ['SearchResults', 'ServiceResultCard', 'BookingForm'],
+            severity: 'high'
+          }
+        };
+      }
+
+      console.log(`✅ אינטגרציה חיפוש-הזמנה הושלמה בהצלחה`);
+      return { success: true, details: null };
+      
+    } catch (error) {
+      return {
+        success: false,
+        details: {
+          errorLocation: `מערכת חיפוש-הזמנה (${context.targetRoute})`,
+          specificIssue: `שגיאה בתסריט חיפוש-הזמנה: ${error}`,
+          suggestedFix: 'יש לבדוק את חיבור בין רכיבי החיפוש וההזמנה',
+          formName: 'מערכת חיפוש-הזמנה',
+          affectedComponents: ['SearchPage', 'BookingPage'],
+          severity: 'critical'
+        }
+      };
+    }
   };
 
-  // בדיקת הרשמת ספקים משופרת
-  const testProviderRegistration = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    // בדיקת קיום container עיקרי
-    const containerCheck = checkElementExists('.onboarding-container', 'onboarding', 'מכולת הרשמה');
-    
-    if (!containerCheck.found) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `דף הרשמת ספק (${context.targetRoute})`,
-          specificIssue: 'מכולת ההרשמה לא נטענה',
-          suggestedFix: 'יש לוודא שקומפוננט OnboardingContainer נטען עם className="onboarding-container"',
-          formName: 'טופס הרשמת ספק חדש',
-          affectedComponents: ['OnboardingContainer'],
-          severity: 'high'
-        }
-      };
-    }
+  const testComplexDynamicContent = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+    try {
+      const dynamicResults = await testDynamicComponentRendering();
+      
+      const successfulComponents = Object.values(dynamicResults).filter(Boolean).length;
+      const totalComponents = Object.keys(dynamicResults).length;
+      
+      if (successfulComponents < totalComponents * 0.5) {
+        return {
+          success: false,
+          details: {
+            errorLocation: `רכיבים דינמיים (${context.targetRoute})`,
+            specificIssue: `רק ${successfulComponents}/${totalComponents} רכיבים דינמיים פועלים`,
+            suggestedFix: 'יש לוודא שרכיבי wishlist, דירוגים, טיימרים ומחירים נטענים כראוי',
+            formName: 'מערכת רכיבים דינמיים',
+            affectedComponents: ['WishlistManager', 'RatingDisplay', 'BookingTimer', 'PriceDisplay'],
+            severity: 'medium'
+          }
+        };
+      }
 
-    // בדיקת progress bar
-    const progressCheck = checkElementExists('[role="progressbar"]');
-    const stepsCheck = checkElementExists('[role="tab"]');
-    
-    if (!progressCheck.found || !stepsCheck.found) {
+      console.log(`✅ רכיבים דינמיים: ${successfulComponents}/${totalComponents} פועלים`);
+      return { success: true, details: null };
+      
+    } catch (error) {
       return {
         success: false,
         details: {
-          errorLocation: `דף הרשמת ספק (${context.targetRoute})`,
-          specificIssue: 'חסרים רכיבי התקדמות או שלבים',
-          suggestedFix: 'יש לוודא שה-Progress Bar והשלבים מוגדרים עם role="progressbar" ו-role="tab"',
-          formName: 'מערכת הרשמת ספקים',
-          affectedComponents: ['OnboardingContainer', 'ProgressTracker'],
+          errorLocation: `מערכת רנדור דינמי (${context.targetRoute})`,
+          specificIssue: `שגיאה בבדיקת רכיבים דינמיים: ${error}`,
+          suggestedFix: 'יש לבדוק את רכיבי התוכן הדינמי',
+          formName: 'מערכת רנדור דינמי',
+          affectedComponents: ['DynamicContent'],
           severity: 'medium'
         }
       };
     }
-
-    console.log('✅ הרשמת ספקים: כל הרכיבים נטענו בהצלחה');
-    return { success: true, details: null };
   };
 
-  const testSearchFilters = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const filtersCheck = checkElementExists('[data-testid="search-filters"]', 'search-filters', 'מסנני חיפוש');
-    
-    if (!filtersCheck.found) {
+  const testErrorHandlingScenarios = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
+    try {
+      const errorResults = await testErrorHandlingScenarios();
+      
+      const handledScenarios = Object.values(errorResults).filter(Boolean).length;
+      const totalScenarios = Object.keys(errorResults).length;
+      
+      if (handledScenarios < totalScenarios * 0.75) {
+        return {
+          success: false,
+          details: {
+            errorLocation: `מערכת שגיאות (${context.targetRoute})`,
+            specificIssue: `רק ${handledScenarios}/${totalScenarios} תסריטי שגיאה מטופלים`,
+            suggestedFix: 'יש לשפר את מערכת הטיפול בשגיאות והודעות משתמש',
+            formName: 'מערכת טיפול בשגיאות',
+            affectedComponents: ['ErrorBoundary', 'ServiceErrorState', 'FormValidation'],
+            severity: 'high'
+          }
+        };
+      }
+
+      console.log(`✅ טיפול בשגיאות: ${handledScenarios}/${totalScenarios} תסריטים מטופלים`);
+      return { success: true, details: null };
+      
+    } catch (error) {
       return {
         success: false,
         details: {
-          errorLocation: `דף חיפוש (${context.targetRoute})`,
-          specificIssue: 'רכיב מסנני החיפוש לא נמצא',
-          suggestedFix: 'יש לוודא שקומפוננט SearchFilters נטען עם data-testid="search-filters"',
-          formName: 'מסנני חיפוש מתקדם',
-          affectedComponents: ['SearchFilters', 'SearchPage'],
-          severity: 'medium'
+          errorLocation: `מערכת טיפול בשגיאות (${context.targetRoute})`,
+          specificIssue: `שגיאה בבדיקת תסריטי שגיאות: ${error}`,
+          suggestedFix: 'יש לבדוק את רכיבי הטיפול בשגיאות',
+          formName: 'מערכת שגיאות',
+          affectedComponents: ['ErrorHandling'],
+          severity: 'critical'
         }
       };
     }
-
-    const filterButtons = document.querySelectorAll('.filter-button, button[aria-pressed]');
-    const priceSlider = document.querySelector('[role="slider"]');
-    
-    if (filterButtons.length < 4 || !priceSlider) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `מסנני חיפוש (${context.targetRoute})`,
-          specificIssue: 'מספר לא מספיק של כפתורי סינון או חסר slider מחירים',
-          suggestedFix: 'יש לוודא שיש לפחות 4 כפתורי סינון ו-slider למחירים',
-          formName: 'מסנני חיפוש',
-          affectedComponents: ['SearchFilters'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    console.log('✅ מסנני חיפוש: כל הרכיבים פעילים');
-    return { success: true, details: null };
-  };
-
-  const testNavigation = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const headerCheck = checkElementExists('header nav, header', 'header-navigation', 'ניווט header');
-    
-    if (!headerCheck.found) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `Header (${context.targetRoute})`,
-          specificIssue: 'Header או ניווט לא נמצאו',
-          suggestedFix: 'יש לוודא שקומפוננט Header נטען עם תג nav',
-          formName: 'מערכת ניווט ראשית',
-          affectedComponents: ['Header', 'Navigation'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    const headerLinks = document.querySelectorAll('header a[href]');
-    const footerLinks = document.querySelectorAll('footer a[href]');
-    
-    if (headerLinks.length < 3 || footerLinks.length < 3) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `ניווט ראשי (${context.targetRoute})`,
-          specificIssue: 'מספר לא מספיק של קישורי ניווט',
-          suggestedFix: 'יש לוודא שה-Header וה-Footer מכילים לפחות 3 קישורים כל אחד',
-          formName: 'מערכת ניווט',
-          affectedComponents: ['Header', 'Footer'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    console.log('✅ ניווט: כל הקישורים פעילים');
-    return { success: true, details: null };
-  };
-
-  const testAccessibility = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const accessibilityData = validateAccessibility();
-    
-    if (accessibilityData.score < 60) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `נגישות כללית (${context.targetRoute})`,
-          specificIssue: `ציון נגישות נמוך: ${accessibilityData.score}/100`,
-          suggestedFix: 'יש לשפר רכיבי נגישות: ARIA labels, alt text, screen reader support',
-          formName: 'מערכת נגישות',
-          affectedComponents: ['AccessibilityEnhancer', 'כלל הרכיבים'],
-          severity: 'high'
-        }
-      };
-    }
-
-    console.log(`✅ נגישות: ציון ${accessibilityData.score}/100`);
-    return { success: true, details: null };
-  };
-
-  const testPerformance = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const performanceData = checkPerformanceBasics();
-    
-    if (performanceData.isHeavy) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `ביצועים (${context.targetRoute})`,
-          specificIssue: `עמוד כבד: ${performanceData.domElements} אלמנטים, ${performanceData.imagesCount} תמונות`,
-          suggestedFix: 'יש לשקול lazy loading, פיצול רכיבים או אופטימיזציה',
-          formName: 'מערכת ביצועים',
-          affectedComponents: ['כלל הרכיבים'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    console.log('✅ ביצועים: העמוד אופטימלי');
-    return { success: true, details: null };
-  };
-
-  const testDataIntegrity = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
-    const providerCheck = checkElementExists('[data-provider-id], .provider-profile', 'provider-profile', 'פרופיל ספק');
-    
-    if (!providerCheck.found) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `דף ספק (${context.targetRoute})`,
-          specificIssue: 'נתוני ספק לא נטענו',
-          suggestedFix: 'יש לוודא שנתוני הספק נטענים ומוצגים נכון',
-          formName: 'מערכת נתוני ספקים',
-          affectedComponents: ['ProviderProfile'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    const servicesCheck = document.querySelectorAll('.service-card, [data-service]');
-    
-    if (servicesCheck.length === 0) {
-      return {
-        success: false,
-        details: {
-          errorLocation: `שירותי ספק (${context.targetRoute})`,
-          specificIssue: 'לא נמצאו שירותים לספק',
-          suggestedFix: 'יש לוודא שרשימת השירותים נטענת ומוצגת',
-          formName: 'שירותי ספק',
-          affectedComponents: ['ServiceCards'],
-          severity: 'medium'
-        }
-      };
-    }
-
-    console.log('✅ שלמות נתונים: כל המידע נטען בהצלחה');
-    return { success: true, details: null };
   };
 
   const runTest = async (testId: string) => {
@@ -483,7 +480,7 @@ const TestsManagementPage: React.FC = () => {
   };
 
   const runAllTests = async () => {
-    console.log('🚀 מתחיל ריצת כלל הבדיקות המשופרות');
+    console.log('🚀 מתחיל ריצת כלל הבדיקות המתקדמות');
     
     for (const test of availableTests) {
       await runTest(test.id);
@@ -512,16 +509,6 @@ const TestsManagementPage: React.FC = () => {
     setSelectedTestDetails(null);
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
-      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'low': return 'text-blue-600 bg-blue-50 border-blue-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -545,12 +532,11 @@ const TestsManagementPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* פאנל בדיקות זמינות */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Play className="h-5 w-5" />
-                  בדיקות מתקדמות זמינות
+                  בדיקות מתקדמות + אינטגרציה
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -562,11 +548,19 @@ const TestsManagementPage: React.FC = () => {
                   {isRunning ? (
                     <>
                       <RefreshCw className="h-4 w-4 animate-spin ml-2" />
-                      מריץ כלל הבדיקות...
+                      מריץ כלל הבדיקות + אינטגרציה...
                     </>
                   ) : (
-                    '🚀 הרץ את כלל הבדיקות המשופרות'
+                    '🚀 הרץ בדיקות מלאות + דוח מקיף'
                   )}
+                </Button>
+                
+                <Button 
+                  onClick={generateComprehensiveReport}
+                  variant="outline"
+                  className="w-full"
+                >
+                  📊 צור דוח בדיקות מקיף
                 </Button>
                 
                 <div className="space-y-3">
@@ -603,12 +597,20 @@ const TestsManagementPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* פאנל תוצאות משופר */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
-                  תוצאות אחרונות
+                  תוצאות + אינטגרציה
+                  {integrationResults.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowIntegrationDetails(!showIntegrationDetails)}
+                    >
+                      {showIntegrationDetails ? 'הסתר' : 'הצג'} פרטי אינטגרציה
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -640,47 +642,88 @@ const TestsManagementPage: React.FC = () => {
                     })}
                   </div>
                 )}
+                
+                {showIntegrationDetails && integrationResults.length > 0 && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold mb-2">📋 פרטי בדיקות אינטגרציה</h4>
+                    {integrationResults.map((result, index) => (
+                      <div key={index} className="mb-3 p-2 bg-white rounded border">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-medium">
+                            {result.overallSuccess ? '✅' : '❌'} 
+                            {result.stepResults.length} שלבים
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {result.totalDuration}ms
+                          </span>
+                        </div>
+                        {result.failedStep && (
+                          <div className="text-sm text-red-600">
+                            נכשל בשלב {result.failedStep}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* סטטיסטיקות משופרות */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle>📊 סטטיסטיקות בדיקות מתקדמות</CardTitle>
+              <CardTitle>📊 סטטיסטיקות מתקדמות + דוח מערכת</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="text-2xl font-bold text-green-600">
-                    {testResults.filter(r => r.status === 'passed').length}
-                  </div>
-                  <div className="text-sm text-green-700">✅ עברו בהצלחה</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
+                <div>
+                  <div className="font-medium">ציון ביצועים</div>
+                  <div className="text-2xl font-bold text-blue-600">{testReport?.performanceScore}</div>
                 </div>
-                <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                  <div className="text-2xl font-bold text-red-600">
-                    {testResults.filter(r => r.status === 'failed').length}
-                  </div>
-                  <div className="text-sm text-red-700">❌ נכשלו</div>
+                <div>
+                  <div className="font-medium">ציון נגישות</div>
+                  <div className="text-2xl font-bold text-green-600">{testReport?.accessibilityScore}</div>
                 </div>
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {testResults.length}
-                  </div>
-                  <div className="text-sm text-blue-700">🧪 סך הכל</div>
+                <div>
+                  <div className="font-medium">בדיקות אינטגרציה</div>
+                  <div className="text-2xl font-bold text-purple-600">{testReport?.integrationTests}</div>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {testResults.length > 0 ? Math.round((testResults.filter(r => r.status === 'passed').length / testResults.length) * 100) : 0}%
-                  </div>
-                  <div className="text-sm text-purple-700">📈 אחוז הצלחה</div>
+                <div>
+                  <div className="font-medium">בעיות קריטיות</div>
+                  <div className="text-2xl font-bold text-red-600">{testReport?.criticalIssues.length}</div>
                 </div>
               </div>
+              
+              {testReport && (
+                <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold mb-3">📋 דוח מערכת מקיף</h4>
+                  {testReport.criticalIssues.length > 0 && (
+                    <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                      <div className="font-medium text-red-800 mb-2">⚠️ בעיות קריטיות:</div>
+                      <ul className="text-sm text-red-700 space-y-1">
+                        {testReport.criticalIssues.map((issue, index) => (
+                          <li key={index}>• {issue}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {testReport.recommendations.length > 0 && (
+                    <div className="mt-4 p-3 bg-yellow-50 rounded border border-yellow-200">
+                      <div className="font-medium text-yellow-800 mb-2">💡 המלצות:</div>
+                      <ul className="text-sm text-yellow-700 space-y-1">
+                        {testReport.recommendations.map((rec, index) => (
+                          <li key={index}>• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Modal משופר לפירוט תקלות */}
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" dir="rtl">
             <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
