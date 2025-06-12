@@ -1,4 +1,3 @@
-
 import { TestResult } from '@/pages/admin/TestsManagementPage';
 
 export interface TestContext {
@@ -25,7 +24,7 @@ export interface TestDetails {
 }
 
 // יצוא של TestResult 
-export { TestResult };
+export type { TestResult };
 
 // פונקציה להמתנה לטעינת עמוד
 export const waitForPageLoad = (timeout: number = 1000): Promise<void> => {
