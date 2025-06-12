@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -31,7 +30,11 @@ import {
   X,
   ExternalLink,
   Zap,
-  Shield
+  Shield,
+  Target,
+  TrendingUp,
+  Clock,
+  Award
 } from 'lucide-react';
 import TestStatusIndicator from '@/components/admin/TestStatusIndicator';
 import { 
@@ -61,6 +64,7 @@ import {
   IntegrationTestResult
 } from '@/utils/integrationTestHelpers';
 import { allIntegrationJourneys } from '@/utils/integrationTestScenarios';
+import { executeFinalIntegrationTests } from '@/utils/finalIntegrationTests';
 
 export interface TestResult {
   id: string;
@@ -84,6 +88,8 @@ const TestsManagementPage: React.FC = () => {
   const [integrationResults, setIntegrationResults] = useState<IntegrationTestResult[]>([]);
   const [testReport, setTestReport] = useState<TestReport | null>(null);
   const [showIntegrationDetails, setShowIntegrationDetails] = useState(false);
+  const [finalTestResults, setFinalTestResults] = useState<any>(null);
+  const [isRunningFinalTests, setIsRunningFinalTests] = useState(false);
 
   const availableTests = [
     {
@@ -186,6 +192,27 @@ const TestsManagementPage: React.FC = () => {
       route: '/'
     }
   ];
+
+  // Run final comprehensive integration tests
+  const runFinalIntegrationTests = async () => {
+    setIsRunningFinalTests(true);
+    console.log('🚀 מתחיל בדיקות אינטגרציה סופיות...');
+    
+    try {
+      const results = await executeFinalIntegrationTests();
+      setFinalTestResults(results);
+      setTestReport(results.finalReport);
+      setIntegrationResults(results.overallResults);
+      
+      console.log('📊 בדיקות אינטגרציה סופיות הושלמו');
+      console.log('📋 תוצאות:', results);
+      
+    } catch (error) {
+      console.error('💥 שגיאה בבדיקות אינטגרציה סופיות:', error);
+    } finally {
+      setIsRunningFinalTests(false);
+    }
+  };
 
   const performTestOnCorrectPage = async (testId: string, targetRoute: string): Promise<{ success: boolean; details: TestDetails | null }> => {
     console.log(`🧪 מתחיל בדיקה מתקדמת: ${testId} בנתיב: ${targetRoute}`);
@@ -562,6 +589,25 @@ const TestsManagementPage: React.FC = () => {
                   )}
                 </Button>
                 
+                {/* Final Integration Tests Button */}
+                <Button 
+                  onClick={runFinalIntegrationTests}
+                  disabled={isRunningFinalTests}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                >
+                  {isRunningFinalTests ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin ml-2" />
+                      מריץ בדיקות אינטגרציה סופיות...
+                    </>
+                  ) : (
+                    <>
+                      <Target className="h-4 w-4 ml-2" />
+                      🎯 הרץ בדיקות אינטגרציה סופיות
+                    </>
+                  )}
+                </Button>
+                
                 <Button 
                   onClick={generateComprehensiveReport}
                   variant="outline"
@@ -676,6 +722,74 @@ const TestsManagementPage: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Final Test Results Display */}
+          {finalTestResults && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-6 w-6 text-gold-600" />
+                  🎯 תוצאות בדיקות אינטגרציה סופיות
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="font-medium text-green-800">תסריטים מוצלחים</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {finalTestResults.overallResults.filter((r: any) => r.overallSuccess).length}
+                    </div>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <div className="font-medium text-red-800">בעיות קריטיות</div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {finalTestResults.criticalIssues.length}
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="font-medium text-blue-800">רכיבים דינמיים</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {Object.values(finalTestResults.componentTests).filter(Boolean).length}/{Object.keys(finalTestResults.componentTests).length}
+                    </div>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div className="font-medium text-purple-800">טיפול בשגיאות</div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {Math.round(Object.values(finalTestResults.errorHandlingTests).filter(Boolean).length / Object.keys(finalTestResults.errorHandlingTests).length * 100)}%
+                    </div>
+                  </div>
+                </div>
+
+                {finalTestResults.criticalIssues.length > 0 && (
+                  <Alert className="mb-4 border-red-200 bg-red-50">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <AlertDescription className="text-red-800">
+                      <strong>🚨 בעיות קריטיות שנמצאו:</strong>
+                      <ul className="list-disc list-inside mt-2">
+                        {finalTestResults.criticalIssues.map((issue: string, index: number) => (
+                          <li key={index}>{issue}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {finalTestResults.recommendations.length > 0 && (
+                  <Alert className="mb-4 border-blue-200 bg-blue-50">
+                    <TrendingUp className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-800">
+                      <strong>💡 המלצות:</strong>
+                      <ul className="list-disc list-inside mt-2">
+                        {finalTestResults.recommendations.map((rec: string, index: number) => (
+                          <li key={index}>{rec}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="mt-6">
             <CardHeader>
