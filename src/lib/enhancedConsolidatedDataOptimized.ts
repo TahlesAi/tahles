@@ -1,3 +1,4 @@
+
 // נתונים מאוחדים ומורחבים עם אופטימיזציות ביצועים מתקדמות
 import { 
   CategoryHierarchy, 
@@ -74,7 +75,7 @@ const buildEnhancedCategoryHierarchy = async (): Promise<CategoryHierarchy[]> =>
           const providers = generateSimulatedProviders(subcategory.id, subcategory.name, 20);
           const providersWithServices = providers.map(provider => ({
             ...provider,
-            services: generateSimulatedServices(provider.id, provider.name, subcategory.name, 3) // Reduced services per provider
+            services: generateSimulatedServices(provider.id, provider.name, subcategory.name) // Fixed: removed 4th parameter
           }));
           
           return {
