@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -6,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { 
   TestTube,
@@ -28,7 +29,8 @@ import {
   Eye,
   AlertTriangle,
   CheckSquare,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 
 interface TestResult {
@@ -56,6 +58,7 @@ const TestsManagementPage: React.FC = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedTestDetails, setSelectedTestDetails] = useState<TestDetails | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // בדיקות מוגדרות מראש עם פירוט משופר
   const availableTests = [
@@ -279,7 +282,13 @@ const TestsManagementPage: React.FC = () => {
         affectedComponents: ['רכיב עיקרי'],
         severity: 'medium'
       });
+      setIsDetailsModalOpen(true);
     }
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedTestDetails(null);
   };
 
   const getSeverityColor = (severity: string) => {
@@ -405,72 +414,15 @@ const TestsManagementPage: React.FC = () => {
                             {result.status === 'passed' ? 'עבר' : 'נכשל'}
                           </Badge>
                           {result.status === 'failed' && (
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => openTestDetails(result)}
-                                  className="text-xs"
-                                >
-                                  <Eye className="h-3 w-3 ml-1" />
-                                  צפה בפירוט
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl" dir="rtl">
-                                <DialogHeader>
-                                  <DialogTitle className="flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5 text-red-600" />
-                                    פירוט תקלה - {result.name}
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    מידע מפורט על התקלה שזוהתה וטופלה
-                                  </DialogDescription>
-                                </DialogHeader>
-                                
-                                {selectedTestDetails && (
-                                  <div className="space-y-4">
-                                    <div className={`p-3 rounded-lg border ${getSeverityColor(selectedTestDetails.severity)}`}>
-                                      <h4 className="font-medium mb-1">רמת חומרה</h4>
-                                      <p className="text-sm">{selectedTestDetails.severity === 'critical' ? 'קריטית' : 
-                                        selectedTestDetails.severity === 'high' ? 'גבוהה' :
-                                        selectedTestDetails.severity === 'medium' ? 'בינונית' : 'נמוכה'}</p>
-                                    </div>
-                                    
-                                    <div className="p-3 bg-gray-50 rounded-lg">
-                                      <h4 className="font-medium mb-1">מיקום התקלה</h4>
-                                      <p className="text-sm">{selectedTestDetails.errorLocation}</p>
-                                    </div>
-                                    
-                                    <div className="p-3 bg-gray-50 rounded-lg">
-                                      <h4 className="font-medium mb-1">שם הטופס</h4>
-                                      <p className="text-sm">{selectedTestDetails.formName}</p>
-                                    </div>
-                                    
-                                    <div className="p-3 bg-red-50 rounded-lg">
-                                      <h4 className="font-medium mb-1">בעיה ספציפית</h4>
-                                      <p className="text-sm">{selectedTestDetails.specificIssue}</p>
-                                    </div>
-                                    
-                                    <div className="p-3 bg-green-50 rounded-lg">
-                                      <h4 className="font-medium mb-1">פתרון שיושם</h4>
-                                      <p className="text-sm">{selectedTestDetails.suggestedFix}</p>
-                                    </div>
-                                    
-                                    <div className="p-3 bg-blue-50 rounded-lg">
-                                      <h4 className="font-medium mb-1">רכיבים מושפעים</h4>
-                                      <div className="flex flex-wrap gap-1 mt-1">
-                                        {selectedTestDetails.affectedComponents.map((component, idx) => (
-                                          <Badge key={idx} variant="outline" className="text-xs">
-                                            {component}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </DialogContent>
-                            </Dialog>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => openTestDetails(result)}
+                              className="text-xs"
+                            >
+                              <Eye className="h-3 w-3 ml-1" />
+                              צפה בפירוט
+                            </Button>
                           )}
                           <p className="text-xs text-gray-500">{result.timestamp}</p>
                         </div>
@@ -517,6 +469,111 @@ const TestsManagementPage: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Modal מתוקן לפירוט התקלות */}
+        <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" dir="rtl">
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
+              <div>
+                <DialogTitle className="flex items-center gap-2 text-lg">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  פירוט תקלה מפורט
+                </DialogTitle>
+                <DialogDescription className="text-sm text-gray-600 mt-1">
+                  מידע מפורט על התקלה שזוהתה וטופלה
+                </DialogDescription>
+              </div>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={closeDetailsModal}>
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">סגור</span>
+                </Button>
+              </DialogClose>
+            </DialogHeader>
+            
+            <ScrollArea className="max-h-[calc(90vh-120px)] overflow-auto">
+              {selectedTestDetails && (
+                <div className="space-y-6 p-1">
+                  <div className={`p-4 rounded-lg border ${getSeverityColor(selectedTestDetails.severity)}`}>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      רמת חומרה
+                    </h4>
+                    <p className="text-sm">
+                      {selectedTestDetails.severity === 'critical' ? '🔴 קריטית' : 
+                       selectedTestDetails.severity === 'high' ? '🟠 גבוהה' :
+                       selectedTestDetails.severity === 'medium' ? '🟡 בינונית' : '🔵 נמוכה'}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Layout className="h-4 w-4" />
+                      מיקום התקלה
+                    </h4>
+                    <p className="text-sm font-mono bg-white p-2 rounded border">
+                      {selectedTestDetails.errorLocation}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-800">
+                      <FileText className="h-4 w-4" />
+                      שם הטופס / רכיב
+                    </h4>
+                    <p className="text-sm text-blue-700 bg-white p-2 rounded border">
+                      {selectedTestDetails.formName}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-red-800">
+                      <XCircle className="h-4 w-4" />
+                      בעיה ספציפית
+                    </h4>
+                    <p className="text-sm text-red-700 bg-white p-3 rounded border leading-relaxed">
+                      {selectedTestDetails.specificIssue}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-800">
+                      <CheckCircle className="h-4 w-4" />
+                      פתרון שיושם
+                    </h4>
+                    <p className="text-sm text-green-700 bg-white p-3 rounded border leading-relaxed">
+                      {selectedTestDetails.suggestedFix}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-purple-800">
+                      <Settings className="h-4 w-4" />
+                      רכיבים מושפעים
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedTestDetails.affectedComponents.map((component, idx) => (
+                        <Badge 
+                          key={idx} 
+                          variant="outline" 
+                          className="text-xs bg-white border-purple-300 text-purple-700"
+                        >
+                          {component}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </ScrollArea>
+            
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={closeDetailsModal}>
+                סגור
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
       <Footer />
     </div>
