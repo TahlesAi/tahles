@@ -8,13 +8,22 @@ import { useUnifiedEventContext } from "@/context/UnifiedEventContext";
 import GuidedSearchButton from "./GuidedSearch/GuidedSearchButton";
 
 const ServiceCategoriesUnified = () => {
+  console.log('🏗️ ServiceCategoriesUnified component mounting...');
+  
   const { hebrewCategories, isLoading } = useUnifiedEventContext();
   const [guidedSearchOpen, setGuidedSearchOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
   
+  console.log('📊 ServiceCategoriesUnified state:', {
+    categoriesCount: hebrewCategories?.length || 0,
+    isLoading,
+    hasCategories: !!hebrewCategories
+  });
+  
   // טיפול במצב טעינה
   if (isLoading) {
+    console.log('⏳ ServiceCategoriesUnified: Still loading...');
     return (
       <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50" dir="rtl">
         <div className="container px-4">
@@ -31,6 +40,7 @@ const ServiceCategoriesUnified = () => {
 
   // Fallback במקרה שאין נתונים
   if (!hebrewCategories || hebrewCategories.length === 0) {
+    console.log('🚨 ServiceCategoriesUnified: No categories found, showing fallback');
     return (
       <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50" dir="rtl">
         <div className="container px-4">
@@ -48,6 +58,8 @@ const ServiceCategoriesUnified = () => {
       </section>
     );
   }
+
+  console.log('✅ ServiceCategoriesUnified: Rendering with categories:', hebrewCategories.length);
 
   const categoriesPerPage = 6;
   const totalPages = Math.ceil(hebrewCategories.length / categoriesPerPage);
