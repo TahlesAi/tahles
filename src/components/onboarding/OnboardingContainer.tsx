@@ -66,6 +66,7 @@ const OnboardingContainer: React.FC = () => {
               <CurrentComponent 
                 data={formData[currentStep === 1 ? 'personalInfo' : 'businessProfile']}
                 onUpdate={updateFormData}
+                onNext={handleNext}
               />
             )}
 

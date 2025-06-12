@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from "@/components/Header";
@@ -6,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { getSearchResults } from '@/lib/unifiedMockData';
 import { ServiceCard } from '@/components/cards/ServiceCard';
 import SearchFilters from "@/components/search/SearchFilters";
 
@@ -20,6 +20,37 @@ interface SearchResult {
   reviewCount: number;
 }
 
+// Mock data for search results
+const mockSearchResults: SearchResult[] = [
+  {
+    id: '1',
+    name: 'נטע ברסלר - מנטליסט',
+    description: 'מופע מנטליזם מרתק ומותאם לכל סוג של אירוע',
+    price: 3500,
+    imageUrl: '/placeholder.svg',
+    rating: 4.8,
+    reviewCount: 142
+  },
+  {
+    id: '2',
+    name: 'להקת הג\'אז הישראלית',
+    description: 'מוזיקת ג\'אז איכותית לאירועים מיוחדים',
+    price: 4200,
+    imageUrl: '/placeholder.svg',
+    rating: 4.6,
+    reviewCount: 89
+  },
+  {
+    id: '3',
+    name: 'דוד הקוסם',
+    description: 'מופעי קסמים לילדים ולמבוגרים',
+    price: 2800,
+    imageUrl: '/placeholder.svg',
+    rating: 4.9,
+    reviewCount: 203
+  }
+];
+
 export const SearchResultsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -28,8 +59,16 @@ export const SearchResultsPage = () => {
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSearchQuery(query);
-    const results = getSearchResults(query);
-    setSearchResults(results);
+    
+    // Filter results based on search query
+    const filteredResults = query 
+      ? mockSearchResults.filter(result => 
+          result.name.toLowerCase().includes(query.toLowerCase()) ||
+          result.description.toLowerCase().includes(query.toLowerCase())
+        )
+      : mockSearchResults;
+    
+    setSearchResults(filteredResults);
   }, [searchParams]);
 
   return (
@@ -42,9 +81,11 @@ export const SearchResultsPage = () => {
               <h1 className="text-2xl font-bold">
                 תוצאות חיפוש
               </h1>
-              <p className="text-gray-600">
-                עבור "{searchQuery}"
-              </p>
+              {searchQuery && (
+                <p className="text-gray-600">
+                  עבור "{searchQuery}"
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Input
