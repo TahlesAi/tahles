@@ -8,9 +8,60 @@ import { CheckCircle2, Circle, ArrowRight, ArrowLeft, User, Building, FileText, 
 import OnboardingPersonalInfo from "./OnboardingPersonalInfo";
 import OnboardingBusinessProfile from "./OnboardingBusinessProfile";
 
+// הגדרת ממשק לנתוני הטופס
+interface FormData {
+  businessName: string;
+  fullName: string;
+  idNumber: string;
+  businessType: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  businessDescription: string;
+  experience: string;
+  serviceAreas: string[];
+  specialties: string[];
+  targetAudience: string[];
+  website: string;
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    linkedin: string;
+  };
+}
+
 const OnboardingContainer = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  
+  // ניהול נתוני הטופס
+  const [formData, setFormData] = useState<FormData>({
+    businessName: "",
+    fullName: "",
+    idNumber: "",
+    businessType: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    businessDescription: "",
+    experience: "",
+    serviceAreas: [],
+    specialties: [],
+    targetAudience: [],
+    website: "",
+    socialLinks: {
+      facebook: "",
+      instagram: "",
+      linkedin: ""
+    }
+  });
+
+  // פונקציה לעדכון נתוני הטופס
+  const handleUpdateFormData = (stepData: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...stepData }));
+  };
 
   const steps = [
     {
@@ -18,14 +69,29 @@ const OnboardingContainer = () => {
       title: "פרטים אישיים",
       description: "מידע בסיסי על איש הקשר",
       icon: User,
-      component: OnboardingPersonalInfo
+      component: () => (
+        <OnboardingPersonalInfo
+          data={formData}
+          onUpdate={handleUpdateFormData}
+          onNext={nextStep}
+          adminMode={false}
+        />
+      )
     },
     {
       id: 1,
       title: "פרופיל עסקי",
       description: "פרטי העסק והשירותים",
       icon: Building,
-      component: OnboardingBusinessProfile
+      component: () => (
+        <OnboardingBusinessProfile
+          data={formData}
+          onUpdate={handleUpdateFormData}
+          onNext={nextStep}
+          onBack={prevStep}
+          adminMode={false}
+        />
+      )
     },
     {
       id: 2,
