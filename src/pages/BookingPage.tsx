@@ -3,11 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BookingForm from "@/components/booking/BookingForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, CreditCard, User, Phone, Mail, Calendar, MapPin } from "lucide-react";
 import { getServiceById, getProviderById } from '@/lib/unifiedMockData';
@@ -19,17 +17,6 @@ const BookingPage = () => {
   
   const [service, setService] = useState<any>(null);
   const [provider, setProvider] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    customerName: '',
-    customerEmail: '',
-    customerPhone: '',
-    eventDate: '',
-    eventTime: '',
-    eventLocation: '',
-    guestCount: '',
-    specialRequests: '',
-    paymentMethod: 'credit'
-  });
 
   useEffect(() => {
     if (serviceId) {
@@ -41,30 +28,6 @@ const BookingPage = () => {
       }
     }
   }, [serviceId]);
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // ולידציה בסיסית
-    if (!formData.customerName || !formData.customerEmail || !formData.customerPhone) {
-      toast.error("אנא מלא את כל השדות הנדרשים");
-      return;
-    }
-
-    // כאן יהיה חיבור לבסיס הנתונים
-    console.log('Booking data:', formData);
-    
-    toast.success("ההזמנה נשלחה בהצלחה!");
-    
-    // הפניה לעמוד אישור
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
-  };
 
   if (!service || !provider) {
     return (
@@ -101,160 +64,7 @@ const BookingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* טופס הזמנה */}
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>פרטי ההזמנה</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* פרטים אישיים */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <User className="h-5 w-5" />
-                        פרטים אישיים
-                      </h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="customerName">שם מלא *</Label>
-                          <Input
-                            id="customerName"
-                            value={formData.customerName}
-                            onChange={(e) => handleInputChange('customerName', e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="customerPhone">טלפון *</Label>
-                          <Input
-                            id="customerPhone"
-                            type="tel"
-                            value={formData.customerPhone}
-                            onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="customerEmail">דוא"ל *</Label>
-                        <Input
-                          id="customerEmail"
-                          type="email"
-                          value={formData.customerEmail}
-                          onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* פרטי האירוע */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        פרטי האירוע
-                      </h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="eventDate">תאריך האירוע</Label>
-                          <Input
-                            id="eventDate"
-                            type="date"
-                            value={formData.eventDate}
-                            onChange={(e) => handleInputChange('eventDate', e.target.value)}
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="eventTime">שעת האירוע</Label>
-                          <Input
-                            id="eventTime"
-                            type="time"
-                            value={formData.eventTime}
-                            onChange={(e) => handleInputChange('eventTime', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="eventLocation">מיקום האירוע</Label>
-                          <Input
-                            id="eventLocation"
-                            value={formData.eventLocation}
-                            onChange={(e) => handleInputChange('eventLocation', e.target.value)}
-                            placeholder="כתובת מלאה"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="guestCount">מספר משתתפים</Label>
-                          <Input
-                            id="guestCount"
-                            type="number"
-                            value={formData.guestCount}
-                            onChange={(e) => handleInputChange('guestCount', e.target.value)}
-                            placeholder="50"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="specialRequests">בקשות מיוחדות</Label>
-                        <Textarea
-                          id="specialRequests"
-                          value={formData.specialRequests}
-                          onChange={(e) => handleInputChange('specialRequests', e.target.value)}
-                          placeholder="פרט כאן על בקשות מיוחדות או הערות..."
-                          rows={4}
-                        />
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* תשלום */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        אופן תשלום
-                      </h3>
-                      
-                      <div className="space-y-2">
-                        <label className="flex items-center space-x-2 space-x-reverse">
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="credit"
-                            checked={formData.paymentMethod === 'credit'}
-                            onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-                          />
-                          <span>כרטיס אשראי</span>
-                        </label>
-                        
-                        <label className="flex items-center space-x-2 space-x-reverse">
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="bank"
-                            checked={formData.paymentMethod === 'bank'}
-                            onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-                          />
-                          <span>העברה בנקאית</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <Button type="submit" className="w-full">
-                      בצע הזמנה
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+              <BookingForm />
             </div>
 
             {/* סיכום הזמנה */}
@@ -276,12 +86,12 @@ const BookingPage = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>מחיר בסיס:</span>
-                      <span>₪{service.price.toLocaleString()}</span>
+                      <span>₪{service.price?.toLocaleString() || '0'}</span>
                     </div>
                     
                     <div className="flex justify-between font-semibold text-lg">
                       <span>סה"כ:</span>
-                      <span>₪{service.price.toLocaleString()}</span>
+                      <span>₪{service.price?.toLocaleString() || '0'}</span>
                     </div>
                   </div>
                   

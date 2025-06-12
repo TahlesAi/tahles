@@ -1,200 +1,107 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import OnboardingStepIndicator from "./OnboardingStepIndicator";
-import OnboardingStepContent from "./OnboardingStepContent";
-import OnboardingChatbot from "./OnboardingChatbot";
-import { EventProvider } from "@/context/EventContext";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import OnboardingPersonalInfo from "./OnboardingPersonalInfo";
+import OnboardingBusinessProfile from "./OnboardingBusinessProfile";
+import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 
-const ADMIN_MODE = true;
-const TOTAL_STEPS = 9;
-
-const OnboardingContainer = () => {
-  const navigate = useNavigate();
+const OnboardingContainer: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    businessName: "",
-    fullName: "",
-    idNumber: "",
-    businessType: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    
-    businessDescription: "",
-    experience: "",
-    serviceAreas: [] as string[],
-    specialties: [] as string[],
-    targetAudience: [] as string[],
-    website: "",
-    socialLinks: {
-      facebook: "",
-      instagram: "",
-      linkedin: ""
-    },
-    
-    idImage: "",
-    businessLicense: "",
-    insuranceDoc: "",
-    
-    category: "",
-    subcategory: "",
-    
-    // Provider Profile fields (מידה תדמיתי)
-    artistName: "",
-    artistDescription: "",
-    artistExperience: "",
-    coverImage: "",
-    logo: "",
-    gallery: [] as string[],
-    videos: [] as string[],
-    testimonials: [] as Array<{
-      id: string;
-      text: string;
-      author: string;
-      rating: number;
-      company?: string;
-      position?: string;
-    }>,
-    clientRecommendations: [] as Array<{
-      id: string;
-      clientName: string;
-      company: string;
-      position?: string;
-      logoUrl?: string;
-      recommendation: string;
-    }>,
-    mediaLinks: [] as Array<{
-      id: string;
-      title: string;
-      url: string;
-      source: string;
-      date?: string;
-    }>,
-    
-    services: [] as Array<{
-      name: string;
-      description: string;
-      mainImage: string;
-      price: number;
-      priceUnit: string;
-      targetAudience: string[];
-      limitations: string;
-      priceRange: string;
-      availability: string;
-      additionalImages: string[];
-      variants: Array<{
-        parameter: string;
-        options: Array<{
-          name: string;
-          priceModifier: number;
-          priceType: 'fixed' | 'percentage';
-        }>;
-      }>;
-    }>,
-    
-    termsAccepted: false,
-    digitalSignatureData: null as any,
-    
-    name: "",
-    title: "",
-    duration: 60,
-    audience: 350,
-    ageRange: "20-40",
-    price: 120,
+    personalInfo: {},
+    businessProfile: {}
   });
-  
-  const updateFormData = (stepData: Partial<typeof formData>) => {
-    setFormData(prev => ({ ...prev, ...stepData }));
-  };
-  
+
+  const steps = [
+    { id: 1, title: 'פרטים אישיים', component: OnboardingPersonalInfo },
+    { id: 2, title: 'פרופיל עסקי', component: OnboardingBusinessProfile }
+  ];
+
+  const currentStepData = steps.find(step => step.id === currentStep);
+  const CurrentComponent = currentStepData?.component;
+  const progress = (currentStep / steps.length) * 100;
+
   const handleNext = () => {
-    if (currentStep < 9) {
+    if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
-      window.scrollTo(0, 0);
     }
   };
-  
+
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      window.scrollTo(0, 0);
     }
   };
 
-  const handleStepNavigation = (stepId: number) => {
-    if (ADMIN_MODE || stepId <= currentStep) {
-      setCurrentStep(stepId);
-      window.scrollTo(0, 0);
-    }
+  const updateFormData = (stepData: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [currentStep === 1 ? 'personalInfo' : 'businessProfile']: stepData
+    }));
   };
 
-  const handleDigitalSignatureComplete = (signatureData: any) => {
-    updateFormData({ 
-      digitalSignatureData: signatureData,
-      termsAccepted: true 
-    });
-    handleNext();
-  };
-  
-  const handleSubmit = () => {
-    console.log("Form Submission:", formData);
-    setCurrentStep(9);
-  };
-  
   return (
-    <EventProvider>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow bg-gray-50">
-          <div className="container px-4 py-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-8 text-right" dir="rtl">
-                <h1 className="text-2xl font-bold mb-2">
-                  הצטרפות לתכלס כספק שירות
-                </h1>
-                <p className="text-gray-600">
-                  מלא את הפרטים הבאים כדי להצטרף כספק שירות ולהתחיל למכור באתר שלנו
-                </p>
-                {ADMIN_MODE && (
-                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
-                    <strong>מצב בדיקה מופעל:</strong> ניתן לדלג על שדות חובה למטרות בדיקה בלבד
-                  </div>
-                )}
-              </div>
-              
-              <OnboardingStepIndicator
-                currentStep={currentStep}
-                adminMode={ADMIN_MODE}
-                onStepNavigation={handleStepNavigation}
-              />
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <OnboardingStepContent
-                  currentStep={currentStep}
-                  formData={formData}
-                  adminMode={ADMIN_MODE}
-                  onUpdate={updateFormData}
-                  onNext={handleNext}
-                  onBack={handleBack}
-                  onSubmit={handleSubmit}
-                  onFinish={() => navigate('/dashboard')}
-                  onDigitalSignatureComplete={handleDigitalSignatureComplete}
-                />
-              </div>
+    <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
+      <div className="container max-w-2xl mx-auto px-4">
+        <Card className="onboarding-container">
+          <CardHeader>
+            <div className="text-center mb-4">
+              <h1 className="text-2xl font-bold">הצטרפות כספק שירותים</h1>
+              <p className="text-gray-600">בואו נכיר אותך ואת העסק שלך</p>
             </div>
-          </div>
-        </main>
-        
-        {/* בוט הצ'אט לעזרה */}
-        <OnboardingChatbot currentStep={currentStep} formData={formData} />
-        
-        <Footer />
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>שלב {currentStep} מתוך {steps.length}</span>
+                <span>{currentStepData?.title}</span>
+              </div>
+              <Progress value={progress} className="w-full" />
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {CurrentComponent && (
+              <CurrentComponent 
+                data={formData[currentStep === 1 ? 'personalInfo' : 'businessProfile']}
+                onUpdate={updateFormData}
+              />
+            )}
+
+            <div className="flex justify-between pt-4">
+              <Button 
+                variant="outline" 
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="flex items-center gap-2"
+              >
+                <ArrowRight className="h-4 w-4" />
+                הקודם
+              </Button>
+
+              <Button 
+                onClick={handleNext}
+                disabled={currentStep === steps.length}
+                className="flex items-center gap-2"
+              >
+                {currentStep === steps.length ? (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    סיום
+                  </>
+                ) : (
+                  <>
+                    הבא
+                    <ArrowLeft className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </EventProvider>
+    </div>
   );
 };
 

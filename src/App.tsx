@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { EventProvider } from "@/context/EventContext";
 import { UnifiedEventProvider } from "@/context/UnifiedEventContext";
+import AccessibilityEnhancer from "@/components/accessibility/AccessibilityEnhancer";
 import './App.css';
 
 // Import mock calendar data to initialize Neta's availability
@@ -19,6 +20,7 @@ import RecommendedResultsPage from './pages/RecommendedResultsPage';
 import ComparisonPage from './pages/ComparisonPage';
 import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
 import TestsManagementPage from './pages/admin/TestsManagementPage';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <UnifiedEventProvider>
         <EventProvider>
+          <AccessibilityEnhancer />
           <Router>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -38,6 +41,7 @@ function App() {
               <Route path="/recommended" element={<RecommendedResultsPage />} />
               <Route path="/compare" element={<ComparisonPage />} />
               <Route path="/admin/tests" element={<TestsManagementPage />} />
+              <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
             </Routes>
             <Toaster />
           </Router>
