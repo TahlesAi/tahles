@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -684,19 +685,19 @@ const TestsManagementPage: React.FC = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
                 <div>
                   <div className="font-medium">ציון ביצועים</div>
-                  <div className="text-2xl font-bold text-blue-600">{testReport?.performanceScore}</div>
+                  <div className="text-2xl font-bold text-blue-600">{testReport?.performanceScore || 0}</div>
                 </div>
                 <div>
                   <div className="font-medium">ציון נגישות</div>
-                  <div className="text-2xl font-bold text-green-600">{testReport?.accessibilityScore}</div>
+                  <div className="text-2xl font-bold text-green-600">{testReport?.accessibilityScore || 0}</div>
                 </div>
                 <div>
                   <div className="font-medium">בדיקות אינטגרציה</div>
-                  <div className="text-2xl font-bold text-purple-600">{testReport?.integrationTests}</div>
+                  <div className="text-2xl font-bold text-purple-600">{testReport?.integrationTests || 0}</div>
                 </div>
                 <div>
                   <div className="font-medium">בעיות קריטיות</div>
-                  <div className="text-2xl font-bold text-red-600">{testReport?.criticalIssues.length}</div>
+                  <div className="text-2xl font-bold text-red-600">{testReport?.criticalIssues.length || 0}</div>
                 </div>
               </div>
               

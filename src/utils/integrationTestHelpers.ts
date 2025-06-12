@@ -1,3 +1,4 @@
+
 import { TestResult } from '@/pages/admin/TestsManagementPage';
 
 // Integration test types

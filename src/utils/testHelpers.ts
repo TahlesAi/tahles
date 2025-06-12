@@ -24,6 +24,9 @@ export interface TestDetails {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
+// יצוא של TestResult 
+export { TestResult };
+
 // פונקציה להמתנה לטעינת עמוד
 export const waitForPageLoad = (timeout: number = 1000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -126,7 +129,6 @@ export const validateAccessibility = (): {
   const totalImages = document.querySelectorAll('img').length;
   const screenReaderElements = document.querySelectorAll('.sr-only').length;
   
-  // חישוב ציון נגישות בסיסי
   let score = 0;
   if (ariaElements >= 5) score += 30;
   if (totalImages === 0 || imagesWithAlt / totalImages >= 0.8) score += 30;
@@ -153,7 +155,6 @@ export const checkPerformanceBasics = (): {
   const imagesCount = document.querySelectorAll('img').length;
   const scriptsCount = document.querySelectorAll('script').length;
   
-  // סף בסיסי לזיהוי עמוד "כבד"
   const isHeavy = domElements > 1000 || imagesCount > 20 || scriptsCount > 10;
   
   return {
@@ -164,7 +165,7 @@ export const checkPerformanceBasics = (): {
   };
 };
 
-// פונקציות בדיקה ספציפיות
+// פונקציות בדיקה ספציפיות - יישום מלא
 export const testBookingForms = async (context: TestContext): Promise<{ success: boolean; details: TestDetails | null }> => {
   const requiredFields = ['fullName', 'email', 'phone', 'eventDate'];
   const validation = validateFormFields(requiredFields);
