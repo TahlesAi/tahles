@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { 
   getEnhancedCategoryHierarchy,
@@ -16,6 +15,7 @@ interface OptimizedEventContextProps {
   isInitialized: boolean;
 }
 
+// Custom hook for data fetching
 export const useOptimizedEventDataFetcher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,6 @@ export const useOptimizedEventDataFetcher = () => {
       setIsLoading(true);
       setError(null);
       
-      // Use optimized async functions
       const [enhancedServices, enhancedProviders, categoryHierarchy] = await Promise.all([
         getAllEnhancedServices(),
         getAllEnhancedProviders(),
@@ -67,35 +66,31 @@ export const useOptimizedEventDataFetcher = () => {
           updated_at: new Date().toISOString()
         })) || []
       }));
-
-      const categories = categoryHierarchy.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        description: cat.description,
-        icon: cat.icon,
-        subcategories: cat.subcategories.map(sub => ({
-          id: sub.id,
-          name: sub.name,
-          categoryId: sub.categoryId,
-          category_id: sub.categoryId,
-          description: sub.description
-        }))
-      }));
-
-      const subcategories = categoryHierarchy.reduce((all, cat) => [
-        ...all, 
-        ...cat.subcategories.map(sub => ({
-          id: sub.id,
-          name: sub.name,
-          category_id: sub.categoryId,
-          categoryId: sub.categoryId,
-          description: sub.description
-        }))
-      ], [] as any[]);
-
+      
       return {
-        categories,
-        subcategories,
+        categories: categoryHierarchy.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          description: cat.description,
+          icon: cat.icon,
+          subcategories: cat.subcategories.map(sub => ({
+            id: sub.id,
+            name: sub.name,
+            categoryId: sub.categoryId,
+            category_id: sub.categoryId,
+            description: sub.description
+          }))
+        })),
+        subcategories: categoryHierarchy.reduce((all, cat) => [
+          ...all, 
+          ...cat.subcategories.map(sub => ({
+            id: sub.id,
+            name: sub.name,
+            category_id: sub.categoryId,
+            categoryId: sub.categoryId,
+            description: sub.description
+          }))
+        ], [] as any[]),
         services,
         providers,
         featuredServices: services.filter(s => s.featured),
@@ -112,6 +107,7 @@ export const useOptimizedEventDataFetcher = () => {
   return { fetchData, isLoading, error };
 };
 
+// Context and provider remain the same structure but with optimized data fetching
 const OptimizedEventContext = createContext<OptimizedEventContextProps | undefined>(undefined);
 
 export const OptimizedEventContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -123,8 +119,10 @@ export const OptimizedEventContextProvider: React.FC<{ children: React.ReactNode
   const fetchServices = useCallback(async () => {
     try {
       setLoading(true);
-      const enhancedServices = await getAllEnhancedServices();
-      const enhancedProviders = await getAllEnhancedProviders();
+      const [enhancedServices, enhancedProviders] = await Promise.all([
+        getAllEnhancedServices(),
+        getAllEnhancedProviders()
+      ]);
       
       const mappedServices = enhancedServices.map(service => ({
         ...service,
