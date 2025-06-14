@@ -1,4 +1,3 @@
-
 // מנהל בדיקות מקיף לניתוח מערכת
 import { executeFinalIntegrationTests } from './finalIntegrationTests';
 import { comprehensiveSystemMigrator } from '@/lib/systemMigration/comprehensiveSystemMigrator';
@@ -439,11 +438,21 @@ class ComprehensiveTestManager {
     const tests = session.tests;
     const failedTests = tests.filter(t => t.status === 'failed').length;
     
+    // בדיקת זמינות performance.memory עם type casting בטוח
+    const memoryUsage = (() => {
+      try {
+        const perf = performance as any;
+        return perf.memory ? perf.memory.usedJSHeapSize / 1024 / 1024 : 0;
+      } catch {
+        return 0;
+      }
+    })();
+    
     return {
       pageLoadTime: this.calculateAverageResponseTime(tests.filter(t => t.category === 'ui')),
       componentRenderTime: this.calculateAverageResponseTime(tests.filter(t => t.name.includes('רכיב'))),
       apiResponseTime: this.calculateAverageResponseTime(tests.filter(t => t.category === 'integration')),
-      memoryUsage: performance.memory ? performance.memory.usedJSHeapSize / 1024 / 1024 : 0,
+      memoryUsage,
       errorRate: tests.length > 0 ? Math.round((failedTests / tests.length) * 100) : 0
     };
   }
