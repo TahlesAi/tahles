@@ -1,0 +1,23 @@
+{
+  "id": "p1234",
+  "name": "הרצאה השראתית - נטע ברסלר",
+  "supplierId": "s1001",
+  "price": 3500,
+  "currency": "ILS",
+  "duration": 90,
+  "availableSlots": ["2025-07-01T18:00", "2025-07-02T14:00"],
+  "targetAudience": ["עובדים", "מנהלים"],
+  "category": "הרצאות והכשרות",
+  "subcategory": "הרצאות השראה",
+  "concepts": ["אירוע עסקי", "ערב צוות"],
+  "locationType": "אולם",
+  "media": {
+    "image": "image_url",
+    "video": "video_url"
+  },
+  "variants": [
+    {"type": "זמן", "option": "60 דקות", "price": 2900},
+    {"type": "זמן", "option": "90 דקות", "price": 3500}
+  ],
+  "language": "עברית"
+}
