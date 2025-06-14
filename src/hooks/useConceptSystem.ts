@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -46,32 +47,36 @@ export const useConceptSystem = () => {
   // --- Load filters for all sub-concepts ---
   const loadSubConceptFilters = async () => {
     try {
-      // שימו לב: קריאה מותאמת ידנית לשדות עם הצטרפות לשמות (names ולא רק ids)
-      const { data, error } = await supabase
-        .rpc('sub_concept_filters_full');
-      // אם הפונקציה לא קיימת יוציא fallback ל-query SQL, אחרת מומלץ ליצור view.
-      // אם RPC לא קיימת, נשתמש ב-query רגיל:
-      // const { data, error } = await supabase.from('sub_concept_filters_extended_view').select('*');
+      // קריאה ל-view (אם קיים view בשם sub_concept_filters_full) במקום rpc
+      let filtersRes, filtersErr;
+      // ננסה קודם לקרוא מה-view המחודש (אם קיים)
+      try {
+        const { data, error } = await supabase
+          .from('sub_concept_filters_full')
+          .select('*');
+        filtersRes = data;
+        filtersErr = error;
+      } catch (e) {
+        // fallback: קריאה לטבלה הרגילה עם join budget_ranges (כפי שהיה במקור)
+        const { data, error } = await supabase
+          .from('sub_concept_filters')
+          .select(`
+            *,
+            sub_concept_id,
+            budget_ranges!budget_range_id(name)
+          `);
+        filtersRes = data;
+        filtersErr = error;
+      }
 
-      // fallback ליוניון מתוארך ידנית לפי השאילתה ששולבה במיגרציה:
-      // כרגע נשתמש ב-fetch רגיל:
-      const { data: filters, error: filtersErr } = await supabase
-        .from('sub_concept_filters')
-        .select(`
-          *,
-          sub_concept_id,
-          budget_ranges!budget_range_id(name),
-        `);
-
-      // לצורך הדגמה, מטפלים רק ב-data (בסביבת production אפשר לשפר ו-fetch שמות מהטבלאות ע"י מס' קריאות ברקע)
       if (filtersErr) throw filtersErr;
 
       // מבנה: { [sub_concept_id]: filterObj }
       const filtersMap: Record<string, any> = {};
-      (filters || []).forEach((f: any) => {
+      (filtersRes || []).forEach((f: any) => {
         filtersMap[f.sub_concept_id] = {
           ...f,
-          budget_range_name: f.budget_ranges?.name || null,
+          budget_range_name: f.budget_ranges?.name || f.budget_range_name || null,
         };
       });
       setFiltersBySubConceptId(filtersMap);
