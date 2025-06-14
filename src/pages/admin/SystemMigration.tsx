@@ -1,7 +1,5 @@
 
 import React from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,7 +8,12 @@ import { Info, Database, Settings, CheckCircle } from 'lucide-react';
 const SystemMigration: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+      <header className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold">תכלס הפקות</h1>
+        </div>
+      </header>
+      
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8" dir="rtl">
           <div className="max-w-4xl mx-auto">
@@ -111,7 +114,12 @@ const SystemMigration: React.FC = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; 2024 תכלס הפקות. כל הזכויות שמורות.</p>
+        </div>
+      </footer>
     </div>
   );
 };
