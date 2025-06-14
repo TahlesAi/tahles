@@ -21,6 +21,11 @@ import ComparisonPage from './pages/ComparisonPage';
 import EnhancedServiceDetails from './pages/EnhancedServiceDetails';
 import TestsManagementPage from './pages/admin/TestsManagementPage';
 import ProviderOnboarding from './pages/ProviderOnboarding';
+import SystemMigration from './pages/admin/SystemMigration';
+import SystemManagementPage from './pages/SystemManagementPage';
+import NewSystemDashboard from './pages/NewSystemDashboard';
+import SystemDashboardPage from './pages/admin/SystemDashboardPage';
+import MasterDashboardPage from './pages/admin/MasterDashboardPage';
 
 const queryClient = new QueryClient();
 
@@ -40,8 +45,17 @@ function App() {
               <Route path="/booking/:serviceId" element={<BookingPage />} />
               <Route path="/recommended" element={<RecommendedResultsPage />} />
               <Route path="/compare" element={<ComparisonPage />} />
-              <Route path="/admin/tests" element={<TestsManagementPage />} />
               <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/tests" element={<TestsManagementPage />} />
+              <Route path="/admin/system-migration" element={<SystemMigration />} />
+              <Route path="/admin/system-dashboard" element={<SystemDashboardPage />} />
+              <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
+              
+              {/* System Management Routes */}
+              <Route path="/system-management" element={<SystemManagementPage />} />
+              <Route path="/new-system-dashboard" element={<NewSystemDashboard />} />
             </Routes>
             <Toaster />
           </Router>
