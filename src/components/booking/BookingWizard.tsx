@@ -53,7 +53,9 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
         }
       },
       onBack: () => onStepChange(Math.max(1, currentStep - 1)),
-      isLastStep: currentStep === steps.length
+      isLastStep: currentStep === steps.length,
+      // הוספת מצב בדיקה - מתיר מעבר בלי אימותים
+      testMode: true
     };
 
     // הוספת props נוספים לפי הצורך של כל קומפוננטה
@@ -76,6 +78,13 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
           </span>
         </div>
         <Progress value={progress} className="mt-2" />
+        
+        {/* הודעת מצב בדיקה */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+          <p className="text-xs text-yellow-800">
+            🧪 מצב בדיקה: ניתן לדלג על שדות חובה ולעבור בין שלבים בחופשיות
+          </p>
+        </div>
       </CardHeader>
       
       <CardContent>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -80,13 +79,15 @@ export const GuidedSearchForm = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Navigate to results with search criteria
+      // Navigate to results with search criteria - even if empty for testing
       const searchParams = new URLSearchParams();
       Object.entries(criteria).forEach(([key, value]) => {
         if (value) {
           searchParams.set(key, value.toString());
         }
       });
+      // הוספת פרמטר מצב בדיקה
+      searchParams.set('testMode', 'true');
       navigate(`/search-results?${searchParams.toString()}`);
     }
   };
@@ -97,17 +98,9 @@ export const GuidedSearchForm = () => {
     }
   };
 
+  // הסרת תנאי חובה לבדיקה
   const canProceed = () => {
-    switch (currentStep) {
-      case 1: return criteria.date && criteria.startTime && criteria.endTime;
-      case 2: return criteria.location;
-      case 3: return criteria.concept;
-      case 4: return criteria.participants;
-      case 5: return criteria.category;
-      case 6: return criteria.subcategory;
-      case 7: return criteria.budget;
-      default: return false;
-    }
+    return true; // תמיד מאפשר מעבר למצב בדיקה
   };
 
   const renderStep = () => {
@@ -118,7 +111,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <CalendarIcon className="mx-auto h-12 w-12 text-blue-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">מתי האירוע שלכם?</h2>
-              <p className="text-gray-600">בחרו תאריך ושעות התחלה וסיום</p>
+              <p className="text-gray-600">בחרו תאריר ושעות התחלה וסיום (לא חובה)</p>
             </div>
             
             <div className="space-y-4">
@@ -126,7 +119,7 @@ export const GuidedSearchForm = () => {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-right">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {criteria.date ? format(criteria.date, "PPP", { locale: he }) : "בחר תאריך"}
+                    {criteria.date ? format(criteria.date, "PPP", { locale: he }) : "בחר תאריך (לא חובה)"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -145,7 +138,7 @@ export const GuidedSearchForm = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="startTime">שעת התחלה</Label>
+                  <Label htmlFor="startTime">שעת התחלה (לא חובה)</Label>
                   <Input
                     id="startTime"
                     type="time"
@@ -154,7 +147,7 @@ export const GuidedSearchForm = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="endTime">שעת סיום</Label>
+                  <Label htmlFor="endTime">שעת סיום (לא חובה)</Label>
                   <Input
                     id="endTime"
                     type="time"
@@ -173,11 +166,11 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <MapPin className="mx-auto h-12 w-12 text-green-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">איפה האירוע?</h2>
-              <p className="text-gray-600">הזינו את מיקום האירוע</p>
+              <p className="text-gray-600">הזינו את מיקום האירוע (לא חובה)</p>
             </div>
             
             <div>
-              <Label htmlFor="location">מיקום בארץ</Label>
+              <Label htmlFor="location">מיקום בארץ (לא חובה)</Label>
               <Input
                 id="location"
                 placeholder="למשל: תל אביב, ירושלים, חיפה..."
@@ -195,7 +188,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <Tag className="mx-auto h-12 w-12 text-purple-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">איזה סוג אירוע?</h2>
-              <p className="text-gray-600">בחרו את הקונספט המתאים</p>
+              <p className="text-gray-600">בחרו את הקונספט המתאים (לא חובה)</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -219,7 +212,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <Users className="mx-auto h-12 w-12 text-orange-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">כמה משתתפים?</h2>
-              <p className="text-gray-600">בחרו את מספר המשתתפים הצפוי</p>
+              <p className="text-gray-600">בחרו את מספר המשתתפים הצפוי (לא חובה)</p>
             </div>
             
             <div className="grid grid-cols-1 gap-3">
@@ -243,7 +236,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <Tag className="mx-auto h-12 w-12 text-red-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">איזה סוג שירות?</h2>
-              <p className="text-gray-600">בחרו את הקטגוריה הראשית</p>
+              <p className="text-gray-600">בחרו את הקטגוריה הראשית (לא חובה)</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -270,7 +263,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <Tag className="mx-auto h-12 w-12 text-indigo-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">איזה שירות ספציפי?</h2>
-              <p className="text-gray-600">בחרו את תת הקטגוריה</p>
+              <p className="text-gray-600">בחרו את תת הקטגוריה (לא חובה)</p>
             </div>
             
             <div className="grid grid-cols-2 gap-3">
@@ -294,7 +287,7 @@ export const GuidedSearchForm = () => {
             <div className="text-center">
               <DollarSign className="mx-auto h-12 w-12 text-green-600 mb-4" />
               <h2 className="text-2xl font-bold mb-2">מה התקציב?</h2>
-              <p className="text-gray-600">בחרו את מסגרת התקציב בש"ח (לא כולל מעמ)</p>
+              <p className="text-gray-600">בחרו את מסגרת התקציב בש"ח (לא חובה)</p>
             </div>
             
             <div className="grid grid-cols-1 gap-3">
@@ -336,6 +329,13 @@ export const GuidedSearchForm = () => {
               ))}
             </div>
             <p className="text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
+            
+            {/* הודעת מצב בדיקה */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+              <p className="text-xs text-yellow-800">
+                🧪 מצב בדיקה: כל השדות לא חובה - ניתן לדלג ולעבור בחופשיות
+              </p>
+            </div>
           </CardHeader>
           
           <CardContent className="p-8">
@@ -352,7 +352,6 @@ export const GuidedSearchForm = () => {
               
               <Button
                 onClick={nextStep}
-                disabled={!canProceed()}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 {currentStep === totalSteps ? (
