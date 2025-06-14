@@ -1460,6 +1460,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_service_active: {
         Args: { service_id: string }
         Returns: boolean
