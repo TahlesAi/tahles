@@ -29,6 +29,7 @@ function App() {
           <Route path="/categories/:categoryId" element={<CategoryPage />} />
           <Route path="/subcategories/:subcategoryId" element={<SubcategoryPage />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/enhanced-search" element={<EnhancedSearchPage />} />
           <Route path="/guided-search" element={<GuidedSearchPage />} />
           <Route path="/book/:serviceId" element={<BookingPage />} />
           <Route path="/provider/onboarding" element={<ProviderOnboarding />} />
