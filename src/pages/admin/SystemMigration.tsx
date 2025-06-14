@@ -4,16 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, Database, Settings, CheckCircle } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const SystemMigration: React.FC = () => {
+  const location = useLocation();
+  
   console.log('🔧 SystemMigration component is rendering');
-  console.log('🔧 Component props received');
-  console.log('🔧 React version:', React.version);
+  console.log('🔧 Current location:', location.pathname);
+  console.log('🔧 Location search:', location.search);
+  console.log('🔧 Full location object:', location);
+  console.log('🔧 Window location:', window.location.href);
   
   React.useEffect(() => {
     console.log('🔧 SystemMigration component mounted successfully');
     console.log('🔧 Component is now in the DOM');
     console.log('🔧 Current URL when component mounted:', window.location.href);
+    
+    // Force a console message that's easy to spot
+    console.warn('🔥 SYSTEM MIGRATION PAGE IS LOADED AND READY 🔥');
     
     return () => {
       console.log('🔧 SystemMigration component is unmounting');
@@ -29,6 +37,7 @@ const SystemMigration: React.FC = () => {
           <div className="container mx-auto px-4 py-4">
             <h1 className="text-2xl font-bold">תכלס הפקות - מעבר מערכת</h1>
             <p className="text-sm text-gray-500 mt-1">נטען בהצלחה!</p>
+            <p className="text-xs text-blue-600 mt-1">נתיב נוכחי: {location.pathname}</p>
           </div>
         </header>
         
@@ -37,10 +46,10 @@ const SystemMigration: React.FC = () => {
             <div className="max-w-4xl mx-auto">
               <h1 className="text-3xl font-bold mb-8 text-center">ניהול מעבר מערכת</h1>
               
-              <Alert className="mb-6">
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>מערכת מעבר מקיפה:</strong> המערכת עברה שדרוג משמעותי למערכת מעבר מקיפה.
+              <Alert className="mb-6 bg-green-50 border-green-200">
+                <Info className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  <strong>✅ העמוד נטען בהצלחה!</strong> המערכת עברה שדרוג משמעותי למערכת מעבר מקיפה.
                   המערכת החדשה מאפשרת הקפאה, בדיקה והטמעת מבנה חדש באופן מלא.
                 </AlertDescription>
               </Alert>
@@ -115,6 +124,10 @@ const SystemMigration: React.FC = () => {
                     <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                       <span>מצב מעבר</span>
                       <span className="font-semibold">מוכן לתחילת תהליך</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                      <span>נתיב נוכחי</span>
+                      <span className="font-semibold">{location.pathname}</span>
                     </div>
                   </div>
                 </CardContent>

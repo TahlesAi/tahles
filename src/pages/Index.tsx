@@ -9,9 +9,12 @@ import FeaturedProvider from "@/components/home/FeaturedProvider";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import AssistancePopupManager from "@/components/assistance/AssistancePopupManager";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   console.log('🏠 Index page loading...');
+  const navigate = useNavigate();
   
   // Check if we're having Supabase issues
   try {
@@ -23,10 +26,26 @@ const Index = () => {
   } catch (error) {
     console.error('❌ Error in Index page:', error);
   }
+
+  const handleAdminNavigation = () => {
+    console.log('🔧 Navigating to admin/system-migration...');
+    navigate('/admin/system-migration');
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      
+      {/* Debug Navigation Button */}
+      <div className="fixed top-20 right-4 z-50 bg-red-500 text-white p-2 rounded">
+        <Button 
+          onClick={handleAdminNavigation}
+          className="bg-red-600 hover:bg-red-700 text-white"
+        >
+          🔧 Debug: Go to Migration
+        </Button>
+      </div>
+      
       <main className="flex-grow">
         <Hero />
         <ServiceCategoriesUnified />
