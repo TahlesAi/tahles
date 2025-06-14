@@ -32,10 +32,26 @@ const queryClient = new QueryClient();
 
 function App() {
   console.log('🚀 App component is initializing...');
+  console.log('🚀 Available routes:');
+  console.log('  - /admin/system-migration');
+  console.log('  - /admin/tests');
+  console.log('  - /admin/system-dashboard');
+  console.log('  - /admin/master-dashboard');
   
   React.useEffect(() => {
     console.log('🚀 App component mounted');
     console.log('🚀 Current location:', window.location.pathname);
+    console.log('🚀 Current search:', window.location.search);
+    console.log('🚀 Current hash:', window.location.hash);
+    console.log('🚀 Full URL:', window.location.href);
+    
+    // בדיקה אם יש בעיה עם הראוטר
+    const handleLocationChange = () => {
+      console.log('🚀 Location changed to:', window.location.pathname);
+    };
+    
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
   return (
@@ -55,25 +71,42 @@ function App() {
               <Route path="/compare" element={<ComparisonPage />} />
               <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
               
-              {/* Admin Routes */}
+              {/* Admin Routes with detailed logging */}
               <Route 
                 path="/admin/tests" 
-                element={<TestsManagementPage />} 
+                element={(() => {
+                  console.log('🔧 TestsManagementPage route matched!');
+                  return <TestsManagementPage />;
+                })()} 
               />
               <Route 
                 path="/admin/system-migration" 
                 element={(() => {
                   console.log('🔧 SystemMigration route matched!');
-                  return <SystemMigration />;
+                  console.log('🔧 About to render SystemMigration component');
+                  try {
+                    const component = <SystemMigration />;
+                    console.log('🔧 SystemMigration component created successfully');
+                    return component;
+                  } catch (error) {
+                    console.error('🔧 Error creating SystemMigration component:', error);
+                    return <div>Error loading SystemMigration: {String(error)}</div>;
+                  }
                 })()} 
               />
               <Route 
                 path="/admin/system-dashboard" 
-                element={<SystemDashboardPage />} 
+                element={(() => {
+                  console.log('🔧 SystemDashboardPage route matched!');
+                  return <SystemDashboardPage />;
+                })()} 
               />
               <Route 
                 path="/admin/master-dashboard" 
-                element={<MasterDashboardPage />} 
+                element={(() => {
+                  console.log('🔧 MasterDashboardPage route matched!');
+                  return <MasterDashboardPage />;
+                })()} 
               />
               
               {/* System Management Routes */}
@@ -81,7 +114,10 @@ function App() {
               <Route path="/new-system-dashboard" element={<NewSystemDashboard />} />
               
               {/* Catch-all route for 404 */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={(() => {
+                console.log('🔧 404 route matched for path:', window.location.pathname);
+                return <NotFound />;
+              })()} />
             </Routes>
             <Toaster />
           </Router>
