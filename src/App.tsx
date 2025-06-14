@@ -16,6 +16,7 @@ import NewSystemDashboard from "./pages/NewSystemDashboard";
 import SystemMigration from "./pages/admin/SystemMigration";
 import MasterDashboard from "./pages/admin/MasterDashboard";
 import GuidedSearchPage from "./pages/GuidedSearchPage";
+import EnhancedSearchPage from "./pages/EnhancedSearchPage";
 
 const queryClient = new QueryClient();
 

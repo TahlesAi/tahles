@@ -40,7 +40,8 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
     subConcepts,
     targetAudiences,
     geographicAreas,
-    budgetRanges
+    budgetRanges,
+    loadSubConcepts
   } = useConceptSystem();
 
   const [filters, setFilters] = useState<SearchFilters>({});
@@ -48,6 +49,7 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
 
   const handleMainConceptChange = (conceptId: string) => {
     setSelectedMainConcept(conceptId);
+    loadSubConcepts(conceptId);
     const newFilters = { ...filters, main_concept_id: conceptId, sub_concept_ids: [] };
     setFilters(newFilters);
     onFiltersChange(newFilters);
@@ -150,7 +152,7 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
         {relevantSubConcepts.length > 0 && (
           <div className="space-y-3">
             <Label className="text-base font-medium">תתי קונספטים</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+            <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
               {relevantSubConcepts.map(subConcept => (
                 <div key={subConcept.id} className="flex items-center space-x-2 space-x-reverse">
                   <Checkbox
@@ -177,7 +179,7 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
             <Users className="h-4 w-4" />
             קהל יעד
           </Label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             {targetAudiences.map(audience => (
               <div key={audience.id} className="flex items-center space-x-2 space-x-reverse">
                 <Checkbox
@@ -205,7 +207,11 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
           </Label>
           <Select 
             value={filters.geographic_area_id || ''} 
-            onValueChange={(value) => setFilters({ ...filters, geographic_area_id: value })}
+            onValueChange={(value) => {
+              const newFilters = { ...filters, geographic_area_id: value };
+              setFilters(newFilters);
+              onFiltersChange(newFilters);
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="בחר אזור" />
@@ -228,7 +234,11 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
           </Label>
           <Select 
             value={filters.budget_range_id || ''} 
-            onValueChange={(value) => setFilters({ ...filters, budget_range_id: value })}
+            onValueChange={(value) => {
+              const newFilters = { ...filters, budget_range_id: value };
+              setFilters(newFilters);
+              onFiltersChange(newFilters);
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="בחר טווח תקציב" />
@@ -274,9 +284,11 @@ export const EnhancedSearchFilters: React.FC<EnhancedSearchFiltersProps> = ({
             <Checkbox
               id="available-only"
               checked={filters.available_only || false}
-              onCheckedChange={(checked) => 
-                setFilters({ ...filters, available_only: checked as boolean })
-              }
+              onCheckedChange={(checked) => {
+                const newFilters = { ...filters, available_only: checked as boolean };
+                setFilters(newFilters);
+                onFiltersChange(newFilters);
+              }}
             />
             <Label htmlFor="available-only" className="text-sm">
               רק שירותים זמינים עם יומן מחובר

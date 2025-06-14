@@ -127,6 +127,42 @@ export type Database = {
           },
         ]
       }
+      budget_ranges: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          max_amount: number | null
+          min_amount: number | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cashback_credits: {
         Row: {
           amount: number
@@ -309,6 +345,39 @@ export type Database = {
           },
         ]
       }
+      geographic_areas: {
+        Row: {
+          cities: string[] | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          cities?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          cities?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       lottery_participants: {
         Row: {
           created_at: string | null
@@ -363,6 +432,39 @@ export type Database = {
           prize_amount?: number | null
           status?: string | null
           winning_date?: string | null
+        }
+        Relationships: []
+      }
+      main_concepts: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -903,9 +1005,11 @@ export type Database = {
           additional_images: string[] | null
           audience_ages: string[] | null
           audience_size: number | null
+          auto_assigned_concepts: string[] | null
           availability_schedule: Json | null
           base_price: number | null
           budget_range: string | null
+          budget_range_id: string | null
           calendar_required: boolean | null
           can_duplicate: boolean | null
           can_show_complementary: boolean | null
@@ -915,11 +1019,13 @@ export type Database = {
           custom_fields: Json | null
           description: string | null
           duration: string | null
+          duration_category: string | null
           duration_minutes: number | null
           event_type: string | null
           event_types: string[] | null
           features: string[] | null
           free_cancellation_days: number | null
+          geographic_area_ids: string[] | null
           geographic_coverage: string[] | null
           has_addons: boolean | null
           has_calendar_integration: boolean | null
@@ -930,6 +1036,8 @@ export type Database = {
           is_reception_service: boolean | null
           is_visible: boolean | null
           location_type: string | null
+          location_types: string[] | null
+          main_concept_ids: string[] | null
           main_image: string | null
           max_participants: number | null
           min_participants: number | null
@@ -940,14 +1048,20 @@ export type Database = {
           price_unit: string | null
           pricing_model: string | null
           provider_id: string
+          rating_enabled: boolean | null
+          remote_signing_enabled: boolean | null
+          requires_admin_approval: boolean | null
           requires_travel: boolean | null
           service_areas: string[] | null
           service_language: string[] | null
           service_type: string | null
+          service_types: string[] | null
           setup_time_minutes: number | null
           setup_time_required: number | null
+          sub_concept_ids: string[] | null
           subcategory_id: string | null
           target_age_groups: string[] | null
+          target_audience_ids: string[] | null
           target_budget_range: string | null
           target_gender: string | null
           target_religion: string[] | null
@@ -958,6 +1072,7 @@ export type Database = {
           travel_time_required: number | null
           updated_at: string | null
           videos: string[] | null
+          wishlist_enabled: boolean | null
           working_days: string[] | null
           working_hours_end: string | null
           working_hours_start: string | null
@@ -966,9 +1081,11 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          auto_assigned_concepts?: string[] | null
           availability_schedule?: Json | null
           base_price?: number | null
           budget_range?: string | null
+          budget_range_id?: string | null
           calendar_required?: boolean | null
           can_duplicate?: boolean | null
           can_show_complementary?: boolean | null
@@ -978,11 +1095,13 @@ export type Database = {
           custom_fields?: Json | null
           description?: string | null
           duration?: string | null
+          duration_category?: string | null
           duration_minutes?: number | null
           event_type?: string | null
           event_types?: string[] | null
           features?: string[] | null
           free_cancellation_days?: number | null
+          geographic_area_ids?: string[] | null
           geographic_coverage?: string[] | null
           has_addons?: boolean | null
           has_calendar_integration?: boolean | null
@@ -993,6 +1112,8 @@ export type Database = {
           is_reception_service?: boolean | null
           is_visible?: boolean | null
           location_type?: string | null
+          location_types?: string[] | null
+          main_concept_ids?: string[] | null
           main_image?: string | null
           max_participants?: number | null
           min_participants?: number | null
@@ -1003,14 +1124,20 @@ export type Database = {
           price_unit?: string | null
           pricing_model?: string | null
           provider_id: string
+          rating_enabled?: boolean | null
+          remote_signing_enabled?: boolean | null
+          requires_admin_approval?: boolean | null
           requires_travel?: boolean | null
           service_areas?: string[] | null
           service_language?: string[] | null
           service_type?: string | null
+          service_types?: string[] | null
           setup_time_minutes?: number | null
           setup_time_required?: number | null
+          sub_concept_ids?: string[] | null
           subcategory_id?: string | null
           target_age_groups?: string[] | null
+          target_audience_ids?: string[] | null
           target_budget_range?: string | null
           target_gender?: string | null
           target_religion?: string[] | null
@@ -1021,6 +1148,7 @@ export type Database = {
           travel_time_required?: number | null
           updated_at?: string | null
           videos?: string[] | null
+          wishlist_enabled?: boolean | null
           working_days?: string[] | null
           working_hours_end?: string | null
           working_hours_start?: string | null
@@ -1029,9 +1157,11 @@ export type Database = {
           additional_images?: string[] | null
           audience_ages?: string[] | null
           audience_size?: number | null
+          auto_assigned_concepts?: string[] | null
           availability_schedule?: Json | null
           base_price?: number | null
           budget_range?: string | null
+          budget_range_id?: string | null
           calendar_required?: boolean | null
           can_duplicate?: boolean | null
           can_show_complementary?: boolean | null
@@ -1041,11 +1171,13 @@ export type Database = {
           custom_fields?: Json | null
           description?: string | null
           duration?: string | null
+          duration_category?: string | null
           duration_minutes?: number | null
           event_type?: string | null
           event_types?: string[] | null
           features?: string[] | null
           free_cancellation_days?: number | null
+          geographic_area_ids?: string[] | null
           geographic_coverage?: string[] | null
           has_addons?: boolean | null
           has_calendar_integration?: boolean | null
@@ -1056,6 +1188,8 @@ export type Database = {
           is_reception_service?: boolean | null
           is_visible?: boolean | null
           location_type?: string | null
+          location_types?: string[] | null
+          main_concept_ids?: string[] | null
           main_image?: string | null
           max_participants?: number | null
           min_participants?: number | null
@@ -1066,14 +1200,20 @@ export type Database = {
           price_unit?: string | null
           pricing_model?: string | null
           provider_id?: string
+          rating_enabled?: boolean | null
+          remote_signing_enabled?: boolean | null
+          requires_admin_approval?: boolean | null
           requires_travel?: boolean | null
           service_areas?: string[] | null
           service_language?: string[] | null
           service_type?: string | null
+          service_types?: string[] | null
           setup_time_minutes?: number | null
           setup_time_required?: number | null
+          sub_concept_ids?: string[] | null
           subcategory_id?: string | null
           target_age_groups?: string[] | null
+          target_audience_ids?: string[] | null
           target_budget_range?: string | null
           target_gender?: string | null
           target_religion?: string[] | null
@@ -1084,16 +1224,65 @@ export type Database = {
           travel_time_required?: number | null
           updated_at?: string | null
           videos?: string[] | null
+          wishlist_enabled?: boolean | null
           working_days?: string[] | null
           working_hours_end?: string | null
           working_hours_start?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "services_budget_range_id_fkey"
+            columns: ["budget_range_id"]
+            isOneToOne: false
+            referencedRelation: "budget_ranges"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "services_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_concepts: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          main_concept_id: string | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          main_concept_id?: string | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          main_concept_id?: string | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_concepts_main_concept_id_fkey"
+            columns: ["main_concept_id"]
+            isOneToOne: false
+            referencedRelation: "main_concepts"
             referencedColumns: ["id"]
           },
         ]
@@ -1182,6 +1371,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      target_audiences: {
+        Row: {
+          age_range: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
