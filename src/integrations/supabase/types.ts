@@ -1246,6 +1246,81 @@ export type Database = {
           },
         ]
       }
+      sub_concept_filters: {
+        Row: {
+          budget_range_id: string | null
+          created_at: string | null
+          duration_minutes: number | null
+          event_style: string | null
+          free_cancellation: boolean | null
+          id: string
+          is_instant_booking: boolean | null
+          location_type: string | null
+          max_age: number | null
+          max_budget: number | null
+          min_age: number | null
+          min_budget: number | null
+          region_ids: string[] | null
+          service_languages: string[] | null
+          sub_concept_id: string
+          target_audience_ids: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          budget_range_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_style?: string | null
+          free_cancellation?: boolean | null
+          id?: string
+          is_instant_booking?: boolean | null
+          location_type?: string | null
+          max_age?: number | null
+          max_budget?: number | null
+          min_age?: number | null
+          min_budget?: number | null
+          region_ids?: string[] | null
+          service_languages?: string[] | null
+          sub_concept_id: string
+          target_audience_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          budget_range_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_style?: string | null
+          free_cancellation?: boolean | null
+          id?: string
+          is_instant_booking?: boolean | null
+          location_type?: string | null
+          max_age?: number | null
+          max_budget?: number | null
+          min_age?: number | null
+          min_budget?: number | null
+          region_ids?: string[] | null
+          service_languages?: string[] | null
+          sub_concept_id?: string
+          target_audience_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_concept_filters_budget_range_id_fkey"
+            columns: ["budget_range_id"]
+            isOneToOne: false
+            referencedRelation: "budget_ranges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_concept_filters_sub_concept_id_fkey"
+            columns: ["sub_concept_id"]
+            isOneToOne: false
+            referencedRelation: "sub_concepts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sub_concepts: {
         Row: {
           created_at: string | null

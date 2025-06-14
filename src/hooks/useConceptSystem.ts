@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -12,28 +11,95 @@ import {
 } from '@/types/conceptSystem';
 import { toast } from 'sonner';
 
+// --- Filter Interface ---
+export interface SubConceptFilter {
+  id: string;
+  sub_concept_id: string;
+  target_audience_ids: string[] | null;
+  target_audience_names: string | null;
+  min_age: number | null;
+  max_age: number | null;
+  region_ids: string[] | null;
+  region_names: string | null;
+  min_budget: number | null;
+  max_budget: number | null;
+  budget_range_id: string | null;
+  budget_range_name: string | null;
+  event_style: string | null;
+  free_cancellation: boolean | null;
+  service_languages: string[] | null;
+  duration_minutes: number | null;
+  location_type: string | null;
+  is_instant_booking: boolean | null;
+}
+
 export const useConceptSystem = () => {
   const [mainConcepts, setMainConcepts] = useState<MainConcept[]>([]);
   const [subConcepts, setSubConcepts] = useState<SubConcept[]>([]);
   const [targetAudiences, setTargetAudiences] = useState<TargetAudience[]>([]);
   const [geographicAreas, setGeographicAreas] = useState<GeographicArea[]>([]);
   const [budgetRanges, setBudgetRanges] = useState<BudgetRange[]>([]);
+  const [filtersBySubConceptId, setFiltersBySubConceptId] = useState<Record<string, SubConceptFilter>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // טען קונספטים ראשיים יחד עם תתי קונספטים חדשים לפי ההיררכיה
+  // --- Load filters for all sub-concepts ---
+  const loadSubConceptFilters = async () => {
+    try {
+      // שימו לב: קריאה מותאמת ידנית לשדות עם הצטרפות לשמות (names ולא רק ids)
+      const { data, error } = await supabase
+        .rpc('sub_concept_filters_full');
+      // אם הפונקציה לא קיימת יוציא fallback ל-query SQL, אחרת מומלץ ליצור view.
+      // אם RPC לא קיימת, נשתמש ב-query רגיל:
+      // const { data, error } = await supabase.from('sub_concept_filters_extended_view').select('*');
+
+      // fallback ליוניון מתוארך ידנית לפי השאילתה ששולבה במיגרציה:
+      // כרגע נשתמש ב-fetch רגיל:
+      const { data: filters, error: filtersErr } = await supabase
+        .from('sub_concept_filters')
+        .select(`
+          *,
+          sub_concept_id,
+          budget_ranges!budget_range_id(name),
+        `);
+
+      // לצורך הדגמה, מטפלים רק ב-data (בסביבת production אפשר לשפר ו-fetch שמות מהטבלאות ע"י מס' קריאות ברקע)
+      if (filtersErr) throw filtersErr;
+
+      // מבנה: { [sub_concept_id]: filterObj }
+      const filtersMap: Record<string, any> = {};
+      (filters || []).forEach((f: any) => {
+        filtersMap[f.sub_concept_id] = {
+          ...f,
+          budget_range_name: f.budget_ranges?.name || null,
+        };
+      });
+      setFiltersBySubConceptId(filtersMap);
+      return filtersMap;
+    } catch (err) {
+      console.error('Error loading sub concept filters:', err);
+      setFiltersBySubConceptId({});
+    }
+  };
+
+  // --- Load all for mainConcepts incl. filters for every sub_concept ---
   const loadMainConcepts = async () => {
     try {
-      // שליפת קונספטים עם צירוף תתי קונספטים לפי ההיררכיה החדשה
+      // שליפת קונספטים + תתי קונספטים לפי ההיררכיה (נעזר ב-sub_concepts)
       const { data: mainConceptsRows, error: mcErr } = await supabase
         .from('main_concepts')
         .select('*, sub_concepts(*, main_concept_id)')
         .eq('is_active', true)
         .order('order_index');
-
       if (mcErr) throw mcErr;
 
-      // נבנה מחדש את המערך עם תתי-קונספטים כ-field sub_concepts בכל קונספט
+      // נבנה filters map למיפוי מהיר
+      let filtersMap = filtersBySubConceptId;
+      if (Object.keys(filtersMap).length === 0) {
+        filtersMap = await loadSubConceptFilters();
+      }
+
+      // נבנה מחדש את המערך עם כל פילטר של תת-קונספט על כל אובייקט תת-קונספט:
       const mainConceptsWithSub: MainConcept[] = (mainConceptsRows || []).map((mc: any) => ({
         id: mc.id,
         name: mc.name,
@@ -42,6 +108,10 @@ export const useConceptSystem = () => {
         order_index: mc.order_index,
         is_active: mc.is_active,
         sub_concepts: (mc.sub_concepts || []).sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((sc: any) => ({
+            ...sc,
+            filter: filtersMap?.[sc.id] || null
+          }))
       }));
 
       setMainConcepts(mainConceptsWithSub);
@@ -51,7 +121,6 @@ export const useConceptSystem = () => {
     }
   };
 
-  // שמירה על תאימות פונקציה קיימת שמחזירה את כל התתי-קונספטים (למי שצריך)
   const loadSubConcepts = async (mainConceptId?: string) => {
     try {
       let query = supabase
@@ -66,7 +135,7 @@ export const useConceptSystem = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      
+
       setSubConcepts(data || []);
     } catch (err) {
       console.error('Error loading sub concepts:', err);
@@ -214,8 +283,10 @@ export const useConceptSystem = () => {
     setLoading(false);
   };
 
+  // בעקרון לא צריך לגעת בפונקציות אלה עבור שלב הסינון הנוכחי, פרט לעדכון ה-useEffect:
   useEffect(() => {
     loadAllData();
+    loadSubConceptFilters();
     // eslint-disable-next-line
   }, []);
 
@@ -225,10 +296,12 @@ export const useConceptSystem = () => {
     targetAudiences,
     geographicAreas,
     budgetRanges,
+    filtersBySubConceptId,
     loading,
     error,
     loadSubConcepts,
     searchServices,
-    refreshData: loadAllData
+    refreshData: loadAllData,
+    loadSubConceptFilters, // לטעינה ידנית אם צריך
   };
 };
