@@ -21,22 +21,37 @@ export const useConceptSystem = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // טען קונספטים ראשיים יחד עם תתי קונספטים חדשים לפי ההיררכיה
   const loadMainConcepts = async () => {
     try {
-      const { data, error } = await supabase
+      // שליפת קונספטים עם צירוף תתי קונספטים לפי ההיררכיה החדשה
+      const { data: mainConceptsRows, error: mcErr } = await supabase
         .from('main_concepts')
-        .select('*')
+        .select('*, sub_concepts(*, main_concept_id)')
         .eq('is_active', true)
         .order('order_index');
 
-      if (error) throw error;
-      setMainConcepts(data || []);
+      if (mcErr) throw mcErr;
+
+      // נבנה מחדש את המערך עם תתי-קונספטים כ-field sub_concepts בכל קונספט
+      const mainConceptsWithSub: MainConcept[] = (mainConceptsRows || []).map((mc: any) => ({
+        id: mc.id,
+        name: mc.name,
+        description: mc.description,
+        icon: mc.icon,
+        order_index: mc.order_index,
+        is_active: mc.is_active,
+        sub_concepts: (mc.sub_concepts || []).sort((a: any, b: any) => a.order_index - b.order_index)
+      }));
+
+      setMainConcepts(mainConceptsWithSub);
     } catch (err) {
       console.error('Error loading main concepts:', err);
       setError('שגיאה בטעינת קונספטים ראשיים');
     }
   };
 
+  // שמירה על תאימות פונקציה קיימת שמחזירה את כל התתי-קונספטים (למי שצריך)
   const loadSubConcepts = async (mainConceptId?: string) => {
     try {
       let query = supabase
@@ -107,10 +122,10 @@ export const useConceptSystem = () => {
     }
   };
 
+  // חיפוש שירותים עם תמיכה בקונספטים ותתי-קונספטים היררכיים
   const searchServices = async (filters: SearchFilters): Promise<EnhancedService[]> => {
     try {
       setLoading(true);
-      
       let query = supabase
         .from('services')
         .select(`
@@ -124,40 +139,32 @@ export const useConceptSystem = () => {
         `)
         .eq('is_visible', true);
 
-      // Apply filters
       if (filters.main_concept_id) {
+        // משתמשים בשדה החדש של main_concept_ids (מערך)
         query = query.contains('main_concept_ids', [filters.main_concept_id]);
       }
-
       if (filters.sub_concept_ids && filters.sub_concept_ids.length > 0) {
         query = query.overlaps('sub_concept_ids', filters.sub_concept_ids);
       }
-
       if (filters.target_audience_ids && filters.target_audience_ids.length > 0) {
         query = query.overlaps('target_audience_ids', filters.target_audience_ids);
       }
-
       if (filters.geographic_area_id) {
         query = query.contains('geographic_area_ids', [filters.geographic_area_id]);
       }
-
       if (filters.budget_range_id) {
         query = query.eq('budget_range_id', filters.budget_range_id);
       }
-
       if (filters.location_types && filters.location_types.length > 0) {
         query = query.overlaps('location_types', filters.location_types);
       }
-
       if (filters.available_only) {
         query = query.eq('has_calendar_integration', true);
       }
 
       const { data, error } = await query;
-      
       if (error) throw error;
 
-      // Transform data to match EnhancedService interface
       const transformedData: EnhancedService[] = (data || []).map((service: any) => ({
         id: service.id,
         name: service.name,
@@ -198,7 +205,7 @@ export const useConceptSystem = () => {
 
     await Promise.all([
       loadMainConcepts(),
-      loadSubConcepts(),
+      loadSubConcepts(), // לתאימות מערכות (כלליים)
       loadTargetAudiences(),
       loadGeographicAreas(),
       loadBudgetRanges()
@@ -209,6 +216,7 @@ export const useConceptSystem = () => {
 
   useEffect(() => {
     loadAllData();
+    // eslint-disable-next-line
   }, []);
 
   return {
