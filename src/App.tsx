@@ -26,6 +26,7 @@ import SystemManagementPage from './pages/SystemManagementPage';
 import NewSystemDashboard from './pages/NewSystemDashboard';
 import SystemDashboardPage from './pages/admin/SystemDashboardPage';
 import MasterDashboardPage from './pages/admin/MasterDashboardPage';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,9 @@ function App() {
               {/* System Management Routes */}
               <Route path="/system-management" element={<SystemManagementPage />} />
               <Route path="/new-system-dashboard" element={<NewSystemDashboard />} />
+              
+              {/* Catch-all route for 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
           </Router>
