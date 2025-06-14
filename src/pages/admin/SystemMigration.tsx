@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, Database, Settings, CheckCircle, Loader2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Info, Database, Settings, CheckCircle, Loader2, TestTube } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { comprehensiveSystemMigrator } from '@/lib/systemMigration/comprehensiveSystemMigrator';
+import ComprehensiveTestRunner from '@/components/admin/ComprehensiveTestRunner';
 
 const SystemMigration: React.FC = () => {
   const location = useLocation();
@@ -38,7 +39,6 @@ const SystemMigration: React.FC = () => {
       }));
       
       if (success) {
-        // עדכון הדוח
         const updatedReport = comprehensiveSystemMigrator.generateComprehensiveReport();
         setMigrationReport(updatedReport);
       }
@@ -64,7 +64,6 @@ const SystemMigration: React.FC = () => {
         validate: { success, message: success ? 'בדיקת מבנה הושלמה בהצלחה' : 'נמצאו בעיות במבנה' }
       }));
       
-      // עדכון הדוח עם תוצאות הבדיקה
       const updatedReport = comprehensiveSystemMigrator.generateComprehensiveReport();
       setMigrationReport(updatedReport);
       console.log('📊 דוח עדכני:', updatedReport);
@@ -128,7 +127,7 @@ const SystemMigration: React.FC = () => {
       
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8" dir="rtl">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h1 className="text-3xl font-bold mb-8 text-center">ניהול מעבר מערכת</h1>
             
             <Alert className="mb-6 bg-green-50 border-green-200">
@@ -154,157 +153,169 @@ const SystemMigration: React.FC = () => {
               </Alert>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
-                    הקפאת נתונים
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    גיבוי ושמירה של כל הנתונים הקיימים במערכת הישנה
-                  </p>
-                  
-                  {getStepStatus('freeze') && (
-                    <Alert className={`mb-4 ${getStepStatus('freeze') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                      <AlertDescription className={getStepStatus('freeze') === 'success' ? 'text-green-800' : 'text-red-800'}>
-                        {getStepMessage('freeze')}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={handleFreezeSystem}
-                    disabled={isProcessing.freeze}
-                  >
-                    {isProcessing.freeze && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {stepResults.freeze?.success ? '✅ הוקפא' : 'הקפא מערכת נוכחית'}
-                  </Button>
-                </CardContent>
-              </Card>
+            <Tabs defaultValue="migration" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="migration">מיגרציה</TabsTrigger>
+                <TabsTrigger value="testing">בדיקות מקיפות</TabsTrigger>
+              </TabsList>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5" />
-                    בדיקת מערכת חדשה
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    טעינה ובדיקה של המבנה החדש לפני ההטמעה
-                  </p>
-                  
-                  {getStepStatus('validate') && (
-                    <Alert className={`mb-4 ${getStepStatus('validate') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                      <AlertDescription className={getStepStatus('validate') === 'success' ? 'text-green-800' : 'text-red-800'}>
-                        {getStepMessage('validate')}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={handleValidateNewSystem}
-                    disabled={isProcessing.validate}
-                  >
-                    {isProcessing.validate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {stepResults.validate?.success ? '✅ נבדק' : 'בדוק מבנה חדש'}
-                  </Button>
-                </CardContent>
-              </Card>
+              <TabsContent value="migration" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Database className="h-5 w-5" />
+                        הקפאת נתונים
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        גיבוי ושמירה של כל הנתונים הקיימים במערכת הישנה
+                      </p>
+                      
+                      {getStepStatus('freeze') && (
+                        <Alert className={`mb-4 ${getStepStatus('freeze') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                          <AlertDescription className={getStepStatus('freeze') === 'success' ? 'text-green-800' : 'text-red-800'}>
+                            {getStepMessage('freeze')}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handleFreezeSystem}
+                        disabled={isProcessing.freeze}
+                      >
+                        {isProcessing.freeze && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {stepResults.freeze?.success ? '✅ הוקפא' : 'הקפא מערכת נוכחית'}
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5" />
-                    הפעלת מערכת
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    מעבר סופי למערכת החדשה עם כל הנתונים
-                  </p>
-                  
-                  {getStepStatus('activate') && (
-                    <Alert className={`mb-4 ${getStepStatus('activate') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                      <AlertDescription className={getStepStatus('activate') === 'success' ? 'text-green-800' : 'text-red-800'}>
-                        {getStepMessage('activate')}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={handleActivateSystem}
-                    disabled={isProcessing.activate || !stepResults.validate?.success}
-                  >
-                    {isProcessing.activate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {stepResults.activate?.success ? '✅ הופעל' : 'הפעל מערכת חדשה'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Settings className="h-5 w-5" />
+                        בדיקת מערכת חדשה
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        טעינה ובדיקה של המבנה החדש לפני ההטמעה
+                      </p>
+                      
+                      {getStepStatus('validate') && (
+                        <Alert className={`mb-4 ${getStepStatus('validate') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                          <AlertDescription className={getStepStatus('validate') === 'success' ? 'text-green-800' : 'text-red-800'}>
+                            {getStepMessage('validate')}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handleValidateNewSystem}
+                        disabled={isProcessing.validate}
+                      >
+                        {isProcessing.validate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {stepResults.validate?.success ? '✅ נבדק' : 'בדוק מבנה חדש'}
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>מצב המערכת הנוכחי</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                    <span>גרסה נוכחית</span>
-                    <span className="font-semibold">v0.9-legacy</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <span>גרסה מטרה</span>
-                    <span className="font-semibold">v1.0-new-structure</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span>מצב מעבר</span>
-                    <span className="font-semibold">
-                      {migrationReport ? `מוכן לתחילת תהליך (${migrationReport.readinessScore}%)` : 'טוען...'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <span>נתיב נוכחי</span>
-                    <span className="font-semibold">{location.pathname}</span>
-                  </div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5" />
+                        הפעלת מערכת
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        מעבר סופי למערכת החדשה עם כל הנתונים
+                      </p>
+                      
+                      {getStepStatus('activate') && (
+                        <Alert className={`mb-4 ${getStepStatus('activate') === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                          <AlertDescription className={getStepStatus('activate') === 'success' ? 'text-green-800' : 'text-red-800'}>
+                            {getStepMessage('activate')}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handleActivateSystem}
+                        disabled={isProcessing.activate || !stepResults.validate?.success}
+                      >
+                        {isProcessing.activate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {stepResults.activate?.success ? '✅ הופעל' : 'הפעל מערכת חדשה'}
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* תצוגת דוח מפורט */}
-            {migrationReport && (
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>דוח בדיקות מערכת</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">שלבי מיגרציה:</h4>
-                    {migrationReport.migrationSteps.map((step: any, index: number) => (
-                      <div key={index} className={`p-2 rounded flex items-center gap-2 ${
-                        step.status === 'completed' ? 'bg-green-50' : 
-                        step.status === 'failed' ? 'bg-red-50' : 'bg-gray-50'
-                      }`}>
-                        <span className={`w-3 h-3 rounded-full ${
-                          step.status === 'completed' ? 'bg-green-500' : 
-                          step.status === 'failed' ? 'bg-red-500' : 'bg-gray-300'
-                        }`}></span>
-                        <span className="text-sm">{step.name} - {step.status}</span>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>מצב המערכת הנוכחי</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                        <span>גרסה נוכחית</span>
+                        <span className="font-semibold">v0.9-legacy</span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <span>גרסה מטרה</span>
+                        <span className="font-semibold">v1.0-new-structure</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                        <span>מצב מעבר</span>
+                        <span className="font-semibold">
+                          {migrationReport ? `מוכן לתחילת תהליך (${migrationReport.readinessScore}%)` : 'טוען...'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                        <span>נתיב נוכחי</span>
+                        <span className="font-semibold">{location.pathname}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {migrationReport && (
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle>דוח בדיקות מערכת</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">שלבי מיגרציה:</h4>
+                        {migrationReport.migrationSteps.map((step: any, index: number) => (
+                          <div key={index} className={`p-2 rounded flex items-center gap-2 ${
+                            step.status === 'completed' ? 'bg-green-50' : 
+                            step.status === 'failed' ? 'bg-red-50' : 'bg-gray-50'
+                          }`}>
+                            <span className={`w-3 h-3 rounded-full ${
+                              step.status === 'completed' ? 'bg-green-500' : 
+                              step.status === 'failed' ? 'bg-red-500' : 'bg-gray-300'
+                            }`}></span>
+                            <span className="text-sm">{step.name} - {step.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="testing">
+                <ComprehensiveTestRunner />
+              </TabsContent>
+            </Tabs>
 
             <div className="text-center mt-8">
               <Button 
