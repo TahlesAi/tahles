@@ -6,11 +6,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, Database, Settings, CheckCircle } from 'lucide-react';
 
 const SystemMigration: React.FC = () => {
+  console.log('🔧 SystemMigration component is rendering');
+  
+  React.useEffect(() => {
+    console.log('🔧 SystemMigration component mounted successfully');
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">תכלס הפקות</h1>
+          <h1 className="text-2xl font-bold">תכלס הפקות - מעבר מערכת</h1>
         </div>
       </header>
       
@@ -105,7 +111,10 @@ const SystemMigration: React.FC = () => {
             <div className="text-center mt-8">
               <Button 
                 size="lg" 
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  console.log('🔧 Refresh button clicked');
+                  window.location.reload();
+                }}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 רענן מערכת מיגרציה

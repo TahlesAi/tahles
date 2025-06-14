@@ -31,6 +31,13 @@ import NotFound from './pages/NotFound';
 const queryClient = new QueryClient();
 
 function App() {
+  console.log('🚀 App component is initializing...');
+  
+  React.useEffect(() => {
+    console.log('🚀 App component mounted');
+    console.log('🚀 Current location:', window.location.pathname);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <UnifiedEventProvider>
@@ -49,10 +56,25 @@ function App() {
               <Route path="/provider-onboarding" element={<ProviderOnboarding />} />
               
               {/* Admin Routes */}
-              <Route path="/admin/tests" element={<TestsManagementPage />} />
-              <Route path="/admin/system-migration" element={<SystemMigration />} />
-              <Route path="/admin/system-dashboard" element={<SystemDashboardPage />} />
-              <Route path="/admin/master-dashboard" element={<MasterDashboardPage />} />
+              <Route 
+                path="/admin/tests" 
+                element={<TestsManagementPage />} 
+              />
+              <Route 
+                path="/admin/system-migration" 
+                element={(() => {
+                  console.log('🔧 SystemMigration route matched!');
+                  return <SystemMigration />;
+                })()} 
+              />
+              <Route 
+                path="/admin/system-dashboard" 
+                element={<SystemDashboardPage />} 
+              />
+              <Route 
+                path="/admin/master-dashboard" 
+                element={<MasterDashboardPage />} 
+              />
               
               {/* System Management Routes */}
               <Route path="/system-management" element={<SystemManagementPage />} />
